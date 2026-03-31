@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZONA VIP | Tienda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --negro: #0d0d0d;
+      --negro2: #161616;
+      --negro3: #1e1e1e;
+      --gris: #2c2c2c;
+      --gris2: #3a3a3a;
+      --gris-texto: #888;
+      --rojo: #e50914;
+      --rojo2: #ff1a26;
+      --dorado: #ffd700;
+      --dorado2: #e6c200;
+      --blanco: #ffffff;
+      --texto: #e0e0e0;
+      --texto-dim: #999;
+      --verde: #25D366;
+      --barra-h: 60px;
+      --borde: rgba(255,255,255,0.07);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--negro);
+      color: var(--texto);
+      padding-bottom: calc(var(--barra-h) + 1rem);
+      min-height: 100vh;
+    }
+
+    /* ===== BANNER TOP ===== */
+    .banner-top {
+      background: linear-gradient(90deg, #e50914 0%, #8b0000 50%, #e50914 100%);
+      padding: 0.55rem 1rem;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: white;
+      animation: pulse-banner 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse-banner {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.85; }
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: var(--negro2);
+      border-bottom: 1px solid var(--borde);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .header-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.7rem;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, var(--rojo), var(--dorado));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header-icon-btn {
+      background: none;
+      border: none;
+      color: var(--texto-dim);
+      cursor: pointer;
+      font-size: 1.3rem;
+      padding: 0.35rem;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .header-icon-btn:hover { color: var(--blanco); background: rgba(255,255,255,0.06); }
+
+    .cart-badge {
+      position: absolute;
+      top: -2px; right: -2px;
+      background: var(--rojo);
+      color: white;
+      font-size: 0.55rem;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+    }
+
+    .lang-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--borde);
+      color: var(--texto-dim);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* ===== SEARCH BAR ===== */
+    .search-bar {
+      background: var(--negro2);
+      border-bottom: 1px solid var(--borde);
+      padding: 0.65rem 1rem;
+    }
+
+    .search-input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--negro3);
+      border: 1px solid var(--gris);
+      border-radius: 10px;
+      padding: 0.5rem 0.9rem;
+      gap: 0.6rem;
+      transition: border-color 0.2s;
+    }
+
+    .search-input-wrap:focus-within { border-color: var(--rojo); }
+
+    .search-input-wrap input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--blanco);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      flex: 1;
+    }
+
+    .search-input-wrap input::placeholder { color: var(--gris-texto); }
+    .search-icon { color: var(--gris-texto); font-size: 1rem; }
+
+    /* ===== PROMO BANNER ===== */
+    .promo-banner {
+      margin: 0.75rem 1rem;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      border: 1px solid rgba(229,9,20,0.3);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .promo-banner::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 100px; height: 100px;
+      background: rgba(229,9,20,0.15);
+      border-radius: 50%;
+    }
+
+    .promo-lion { font-size: 2rem; }
+
+    .promo-text strong {
+      display: block;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: var(--dorado);
+    }
+
+    .promo-text span {
+      font-size: 0.78rem;
+      color: var(--texto-dim);
+    }
+
+    .promo-wa {
+      margin-left: auto;
+      background: var(--verde);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ===== BREADCRUMB ===== */
+    .breadcrumb {
+      padding: 0.6rem 1rem 0;
+      font-size: 0.78rem;
+      color: var(--texto-dim);
+    }
+
+    .breadcrumb a { color: var(--rojo); text-decoration: none; }
+    .breadcrumb span { margin: 0 0.35rem; }
+
+    /* ===== PAGE HEADER ===== */
+    .page-header {
+      padding: 0.5rem 1rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .page-header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      color: var(--blanco);
+    }
+
+    .filter-btn {
+      background: var(--negro3);
+      border: 1px solid var(--borde);
+      color: var(--texto-dim);
+      font-size: 0.8rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'Outfit', sans-serif;
+      transition: background 0.2s;
+    }
+
+    .filter-btn:hover { background: var(--gris); color: var(--blanco); }
+
+    /* ===== SORT ===== */
+    .sort-row {
+      padding: 0 1rem 0.75rem;
+    }
+
+    .sort-row label {
+      font-size: 0.75rem;
+      color: var(--texto-dim);
+      display: block;
+      margin-bottom: 0.3rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .sort-select {
+      background: var(--negro3);
+      border: 1px solid var(--gris);
+      color: var(--texto);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      width: 180px;
+      cursor: pointer;
+    }
+
+    /* ===== CATEGORY TABS ===== */
+    .cat-tabs-wrap {
+      padding: 0 1rem;
+      margin-bottom: 0.75rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .cat-tabs-wrap::-webkit-scrollbar { display: none; }
+
+    .cat-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--borde);
+      min-width: max-content;
+    }
+
+    .cat-tab {
+      background: none;
+      border: none;
+      color: var(--texto-dim);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+
+    .cat-tab:hover { color: var(--blanco); }
+    .cat-tab.active { color: var(--rojo); border-bottom-color: var(--rojo); }
+
+    /* ===== SUBCATEGORY PILLS ===== */
+    .sub-pills {
+      padding: 0 1rem 0.75rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .sub-pills::-webkit-scrollbar { display: none; }
+
+    .sub-pill {
+      background: var(--negro3);
+      border: 1px solid var(--borde);
+      color: var(--texto-dim);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35rem 0.9rem;
+      border-radius: 50px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .sub-pill:hover, .sub-pill.active {
+      background: rgba(229,9,20,0.12);
+      border-color: rgba(229,9,20,0.4);
+      color: var(--rojo);
+    }
+
+    /* ===== PRODUCTS GRID ===== */
+    .products-grid {
+      padding: 0 0.75rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    /* ===== PRODUCT CARD ===== */
+    .product-card {
+      background: var(--negro2);
+      border: 1px solid var(--borde);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.3s cubic-bezier(0.23, 1, 0.320, 1), 
+                  box-shadow 0.3s ease, 
+                  border-color 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      background: linear-gradient(135deg, rgba(22,33,62,0.5) 0%, rgba(22,22,22,0.5) 100%);
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    .product-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255,255,255,0.1), 
+        transparent);
+      transition: left 0.5s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .product-card:hover::before {
+      left: 100%;
+    }
+
+    .product-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 12px 40px rgba(229,9,20,0.25), 
+                  0 0 30px rgba(255,215,0,0.1);
+      border-color: rgba(229,9,20,0.4);
+    }
+
+    .product-card:active { transform: scale(0.98); }
+
+    /* Image area */
+    .product-img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      background-attachment: fixed;
+      transition: all 0.3s ease;
+    }
+
+    .product-img::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 30%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.15) 0%, transparent 60%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1;
+    }
+
+    .product-card:hover .product-img::before {
+      opacity: 1;
+    }
+
+    .product-img-inner {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      color: white;
+      text-align: center;
+      padding: 0.75rem;
+      line-height: 1.2;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 2;
+      transition: transform 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    .product-card:hover .product-img-inner {
+      transform: scale(1.05);
+      text-shadow: 0 4px 16px rgba(0,0,0,0.9), 0 0 25px rgba(255,215,0,0.2);
+    }
+
+    .product-badge-img {
+      position: absolute;
+      top: 0.4rem; right: 0.4rem;
+      background: linear-gradient(135deg, var(--dorado) 0%, #e6c200 100%);
+      color: #000;
+      font-size: 0.55rem;
+      font-weight: 800;
+      padding: 0.2rem 0.55rem;
+      border-radius: 50px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(255,215,0,0.4), 0 0 15px rgba(255,215,0,0.2);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.3);
+      animation: float 3s ease-in-out infinite;
+      z-index: 5;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .product-badge-new {
+      position: absolute;
+      top: 0.4rem; left: 0.4rem;
+      background: linear-gradient(135deg, var(--rojo) 0%, #ff1a26 100%);
+      color: white;
+      font-size: 0.55rem;
+      font-weight: 800;
+      padding: 0.2rem 0.55rem;
+      border-radius: 50px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(229,9,20,0.5), 0 0 15px rgba(229,9,20,0.3);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.2);
+      animation: pulse-badge 2s ease-in-out infinite;
+      z-index: 5;
+    }
+
+    @keyframes pulse-badge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); box-shadow: 0 6px 16px rgba(229,9,20,0.6); }
+    }
+
+    /* Body */
+    .product-body {
+      padding: 0.7rem 0.75rem 0.75rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-price {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+      color: var(--dorado);
+      margin-bottom: 0.2rem;
+    }
+
+    .product-stars {
+      display: flex;
+      gap: 1px;
+      margin-bottom: 0.3rem;
+    }
+
+    .star { font-size: 0.7rem; }
+    .star.on { color: var(--dorado); }
+    .star.off { color: var(--gris2); }
+
+    .product-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--rojo);
+      line-height: 1.35;
+      margin-bottom: 0.35rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-decoration: underline;
+      text-decoration-color: transparent;
+      transition: text-decoration-color 0.2s;
+    }
+
+    .product-card:hover .product-name { text-decoration-color: var(--rojo); }
+
+    .product-seller {
+      font-size: 0.72rem;
+      color: var(--texto-dim);
+      line-height: 1.4;
+      margin-top: auto;
+    }
+
+    .product-seller strong {
+      color: #bbb;
+      display: block;
+      margin-bottom: 0.05rem;
+    }
+
+    .product-btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, var(--rojo) 0%, var(--rojo2) 100%);
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 0.65rem 0.5rem;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      margin-top: auto;
+      box-shadow: 0 4px 12px rgba(229,9,20,0.3);
+      border-radius: 0 0 12px 12px;
+    }
+
+    .product-btn:hover { 
+      background: linear-gradient(135deg, var(--rojo2) 0%, #ff0010 100%);
+      box-shadow: 0 6px 16px rgba(229,9,20,0.5);
+      transform: translateY(-2px);
+    }
+
+    .product-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(229,9,20,0.3);
+    }
+
+    .product-btn-wa {
+      background: var(--verde);
+    }
+
+    .product-btn-wa:hover { background: #1ebe5a; }
+
+    /* ===== SECTION DIVIDER ===== */
+    .section-divider {
+      padding: 1.25rem 1rem 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-divider h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      color: var(--blanco);
+      white-space: nowrap;
+    }
+
+    .section-divider .sd-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(229,9,20,0.4), transparent);
+    }
+
+    /* ===== PAGINATION ===== */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 1.5rem 1rem 1rem;
+      flex-wrap: wrap;
+    }
+
+    .page-btn {
+      background: var(--negro3);
+      border: 1px solid var(--borde);
+      color: var(--texto-dim);
+      font-size: 0.82rem;
+      font-weight: 600;
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .page-btn:hover, .page-btn.active {
+      background: var(--rojo);
+      border-color: var(--rojo);
+      color: white;
+    }
+
+    /* ===== FOOTER INFO ===== */
+    .footer-info {
+      background: var(--negro2);
+      border-top: 1px solid var(--borde);
+      margin: 1rem 0 0;
+      padding: 2rem 1.25rem 1.25rem;
+      text-align: center;
+    }
+
+    .footer-logo-img {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--rojo), #8b0000);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      color: var(--dorado);
+      margin: 0 auto 0.75rem;
+    }
+
+    .footer-info .subscribe-title {
+      font-size: 0.85rem;
+      color: var(--texto-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .subscribe-row {
+      display: flex;
+      gap: 0.5rem;
+      max-width: 340px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .subscribe-row input {
+      flex: 1;
+      background: var(--negro3);
+      border: 1px solid var(--gris);
+      color: var(--blanco);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.82rem;
+      padding: 0.55rem 0.85rem;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .subscribe-row input:focus { border-color: var(--rojo); }
+
+    .subscribe-row button {
+      background: var(--rojo);
+      color: white;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0.55rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .app-badges {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .app-badge {
+      background: var(--negro3);
+      border: 1px solid var(--borde);
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--texto-dim);
+      text-decoration: none;
+    }
+
+    .app-badge strong { color: var(--blanco); display: block; font-size: 0.82rem; }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-link-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      color: var(--rojo);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .footer-link-item .fli {
+      width: 32px; height: 32px;
+      background: rgba(229,9,20,0.08);
+      border: 1px solid rgba(229,9,20,0.2);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+
+    .footer-divider {
+      border: none;
+      height: 1px;
+      background: var(--borde);
+      margin: 1rem 0;
+    }
+
+    .footer-contact-section {
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-contact-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      color: var(--texto-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-contact-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .footer-contact-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--texto-dim);
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-contact-item:hover { color: var(--verde); }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      background: var(--verde);
+      border-radius: 50%;
+      display: inline-block;
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .status-dot.red { background: var(--rojo); }
+    .status-dot.yellow { background: var(--dorado); }
+
+    .footer-my-account {
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-account-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .footer-account-links a {
+      font-size: 0.8rem;
+      color: var(--texto-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-account-links a:hover { color: var(--rojo); }
+
+    .footer-social {
+      display: flex;
+      justify-content: center;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .social-icon {
+      width: 36px; height: 36px;
+      background: var(--negro3);
+      border: 1px solid var(--borde);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--texto-dim);
+      text-decoration: none;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .social-icon:hover { background: var(--rojo); border-color: var(--rojo); color: white; }
+
+    .footer-copyright {
+      font-size: 0.75rem;
+      color: #555;
+      margin-top: 1rem;
+    }
+
+    .footer-address-block {
+      font-size: 0.78rem;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .footer-address-block a { color: var(--rojo); text-decoration: none; }
+
+    /* ===== BOTTOM NAV BAR ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--barra-h);
+      background: var(--negro2);
+      border-top: 1px solid var(--borde);
+      display: flex;
+      align-items: center;
+      z-index: 100;
+      padding: 0 0.5rem;
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+      text-decoration: none;
+      color: var(--gris-texto);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      padding: 0.5rem 0;
+      transition: color 0.2s;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .nav-item .nav-icon { font-size: 1.3rem; line-height: 1; }
+    .nav-item.active { color: var(--rojo); }
+    .nav-item:hover { color: var(--blanco); }
+
+    .nav-cart-wrap { position: relative; }
+
+    .nav-cart-badge {
+      position: absolute;
+      top: -4px; right: -6px;
+      background: var(--rojo);
+      color: white;
+      font-size: 0.55rem;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+    }
+
+    /* ===== MODAL OVERLAY (product detail) ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 200;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-sheet {
+      background: var(--negro2);
+      border-radius: 20px 20px 0 0;
+      padding: 1.5rem 1.25rem 5rem;
+      width: 100%;
+      max-width: 600px;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-handle {
+      width: 40px; height: 4px;
+      background: var(--gris2);
+      border-radius: 2px;
+      margin: 0 auto 1.25rem;
+    }
+
+    .modal-price {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      color: var(--dorado);
+      letter-spacing: 2px;
+    }
+
+    .modal-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--blanco);
+      margin: 0.5rem 0 0.25rem;
+      line-height: 1.4;
+    }
+
+    .modal-seller { font-size: 0.82rem; color: var(--texto-dim); margin-bottom: 1rem; }
+
+    .modal-desc {
+      font-size: 0.88rem;
+      color: var(--texto-dim);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+      background: var(--negro3);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .modal-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      padding: 0.85rem;
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .modal-btn:hover { opacity: 0.88; }
+    .modal-btn-wa { background: var(--verde); color: white; }
+    .modal-btn-close { background: var(--negro3); color: var(--texto-dim); border: 1px solid var(--borde); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (min-width: 600px) {
+      .products-grid { grid-template-columns: repeat(3, 1fr); padding: 0 1rem; }
+      .modal-sheet { border-radius: 20px; margin-bottom: 5rem; max-height: 80vh; }
+      .modal-overlay { align-items: center; }
+    }
+
+    @media (min-width: 900px) {
+      .products-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    /* ===== UTILITY ===== */
+    .hidden { display: none !important; }
+    .cat-section { display: none; }
+    .cat-section.visible { display: contents; }
+  </style>
+</head>
+<body>
+
+  <!-- BANNER -->
+  <div class="banner-top">🦁 ZONA VIP · Activación Inmediata · Precios en Bolivianos · Soporte 24/7</div>
+
+  <!-- NAV MENU -->
+  <nav style="background: var(--negro2); border-bottom: 1px solid var(--borde); padding: 0.75rem 1rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+    <a href="tienda.html" style="text-decoration: none; color: var(--rojo); font-weight: 700; font-size: 0.9rem;">🛒 TIENDA</a>
+    <a href="planes.html" style="text-decoration: none; color: var(--texto); font-weight: 600; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='var(--rojo)'" onmouseout="this.style.color='var(--texto)'">💰 PLANES</a>
+    <a href="contacto.html" style="text-decoration: none; color: var(--texto); font-weight: 600; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='var(--rojo)'" onmouseout="this.style.color='var(--texto)'">📲 CONTACTO</a>
+  </nav>
+
+  <!-- HEADER -->
+  <header class="header">
+    <a href="tienda.html" class="header-logo">ZONA_VIP</a>
+    <div class="header-actions">
+      <button class="lang-btn">🇧🇴 ES</button>
+      <button class="header-icon-btn" onclick="openCart()" title="Carrito">
+        🛒
+        <span class="cart-badge" id="cart-count">0</span>
+      </button>
+      <button class="header-icon-btn" title="Notificaciones">🔔</button>
+    </div>
+  </header>
+
+  <!-- SEARCH -->
+  <div class="search-bar">
+    <div class="search-input-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Buscar plataforma, app o juego..." oninput="filterProducts()">
+    </div>
+  </div>
+
+  <!-- PROMO BANNER -->
+  <div class="promo-banner">
+    <span class="promo-lion">🦁</span>
+    <div class="promo-text">
+      <strong>SE BUSCAN AGENTES DISTRIBUIDORES</strong>
+      <span>Gana dinero revendiendo nuestros servicios. ¡Contáctanos!</span>
+    </div>
+    <a href="https://wa.me/59167687306?text=Hola!%20Me%20interesa%20ser%20agente%20distribuidor" target="_blank" class="promo-wa">📲 Info</a>
+  </div>
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb">
+    <a href="#">Hogar</a>
+    <span>/</span>
+    <a href="#">"Todas las categorías"</a>
+  </div>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <h1>Todos los productos</h1>
+    <button class="filter-btn" onclick="toggleFilter()">▼ Filtrar</button>
+  </div>
+
+  <!-- SORT -->
+  <div class="sort-row" id="sort-row">
+    <label>Ordenar por</label>
+    <select class="sort-select" id="sort-select" onchange="sortProducts()">
+      <option value="new">El más nuevo</option>
+      <option value="price-asc">Precio: menor a mayor</option>
+      <option value="price-desc">Precio: mayor a menor</option>
+      <option value="name">Nombre A-Z</option>
+    </select>
+  </div>
+
+  <!-- CATEGORY TABS -->
+  <div class="cat-tabs-wrap">
+    <div class="cat-tabs">
+      <button class="cat-tab active" onclick="filterCat('all', this)">TODOS</button>
+      <button class="cat-tab" onclick="filterCat('streaming', this)">🎬 STREAMING</button>
+      <button class="cat-tab" onclick="filterCat('musica', this)">🎵 MÚSICA</button>
+      <button class="cat-tab" onclick="filterCat('ia', this)">🤖 IA & TOOLS</button>
+      <button class="cat-tab" onclick="filterCat('juegos', this)">🎮 JUEGOS</button>
+      <button class="cat-tab" onclick="filterCat('seguidores', this)">📱 SEGUIDORES</button>
+      <button class="cat-tab" onclick="filterCat('vpn', this)">🔐 VPN</button>
+    </div>
+  </div>
+
+  <!-- SUBCATEGORY PILLS -->
+  <div class="sub-pills">
+    <button class="sub-pill active" onclick="filterSub('all', this)">Todos</button>
+    <button class="sub-pill" onclick="filterSub('1-pantalla', this)">1 Pantalla</button>
+    <button class="sub-pill" onclick="filterSub('completa', this)">Cuenta Completa</button>
+    <button class="sub-pill" onclick="filterSub('mensual', this)">Mensual</button>
+    <button class="sub-pill" onclick="filterSub('premium', this)">Premium</button>
+  </div>
+
+  <!-- PRODUCTS GRID -->
+  <div class="products-grid" id="products-grid">
+    <!-- Cards injected by JS -->
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="pagination" id="pagination"></div>
+
+  <!-- FOOTER -->
+  <div class="footer-info">
+
+    <div class="footer-logo-img">VIP</div>
+    <p class="subscribe-title">Bienvenido a ZONA VIP — Streaming & Apps Premium Bolivia</p>
+  
+    <hr class="footer-divider">
+
+    <div class="footer-address-block">
+      <strong style="color:#888; display:block; margin-bottom:0.25rem;">Dirección:</strong>
+      Cercado, Cochabamba, Bolivia<br>
+      <strong style="color:#888;">Teléfono:</strong> <a href="tel:+59167687306">+591 67687306</a><br>
+      <strong style="color:#888;">Email:</strong> <a href="mailto:zonavip@gmail.com">zonavip@gmail.com</a>
+    </div>
+
+    <hr class="footer-divider">
+
+    <div class="footer-contact-section">
+      <div class="footer-contact-title">CONTACTOS WHATSAPP</div>
+      <div class="footer-contact-list">
+        <a href="https://wa.me/59167687306" target="_blank" class="footer-contact-item">
+          WhatsApp ventas verificado cuentas al por mayor <span class="status-dot"></span>
+        </a>
+        <a href="https://wa.me/59167687306" target="_blank" class="footer-contact-item">
+          WhatsApp recargas de créditos en la página <span class="status-dot yellow"></span>
+        </a>
+        <a href="https://wa.me/59167687306" target="_blank" class="footer-contact-item">
+          WhatsApp ventas verificado <span class="status-dot"></span>
+        </a>
+        <a href="https://wa.me/59167687306" target="_blank" class="footer-contact-item">
+          WhatsApp ventas para uso personal perfiles <span class="status-dot"></span>
+        </a>
+        <a href="https://wa.me/59167687306" target="_blank" class="footer-contact-item">
+          WhatsApp soporte de cuentas <span class="status-dot red"></span>
+        </a>
+      </div>
+    </div>
+
+    <hr class="footer-divider">
+
+    <div class="footer-my-account">
+      <div class="footer-contact-title">MI CUENTA</div>
+      <div class="footer-account-links">
+        <a href="#">Historial de pedidos</a>
+        <a href="#">Mi lista de deseos</a>
+        <a href="#">Orden de pista</a>
+        <a href="https://wa.me/59167687306" target="_blank">Sea un socio afiliado</a>
+      </div>
+    </div>
+
+    <hr class="footer-divider">
+
+    <div class="footer-social">
+      <a href="https://facebook.com" class="social-icon" target="_blank">f</a>
+      <a href="#" class="social-icon" target="_blank">𝕏</a>
+      <a href="https://instagram.com" class="social-icon" target="_blank">📷</a>
+      <a href="https://wa.me/59167687306" class="social-icon" target="_blank">💬</a>
+      <a href="#" class="social-icon" target="_blank">in</a>
+    </div>
+
+    <div class="footer-copyright">© 2025 ZONA VIP Bolivia · Todos los derechos reservados</div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="goHome()">
+      <span class="nav-icon">🏠</span>
+      Hogar
+    </button>
+    <button class="nav-item" onclick="showAllCats()">
+      <span class="nav-icon">≡</span>
+      Categorías
+    </button>
+    <button class="nav-item" onclick="openCart()">
+      <div class="nav-cart-wrap">
+        <span class="nav-icon">🛒</span>
+        <span class="nav-cart-badge" id="nav-cart-count">0</span>
+      </div>
+      Carro
+    </button>
+    <button class="nav-item">
+      <span class="nav-icon">🔔</span>
+      Notificaciones
+  </nav>
+
+  <!-- MODAL PRODUCT DETAIL -->
+  <div class="modal-overlay" id="modal" onclick="closeModal(event)">
+    <div class="modal-sheet" id="modal-sheet">
+      <div class="modal-handle"></div>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== PRODUCT DATA =====
+    const PRODUCTS = [
+      // STREAMING
+      { id:1, cat:'streaming', name:'Netflix Premium 4K (Cuenta Completa)', price:125, bs:'125,00Bs', stars:5, img:'NETFLIX PREMIUM ', imgColor:'#8b0000,#e50914', tag:'TOP', desc:'Cuenta completa (4 dispositivos) Netflix 4K (Renovable).', type:'completa,premium' },
+      { id:2, cat:'streaming', name:'Netflix Premium 4K (1 pantalla, renovable)', price:29.5, bs:'29,50Bs', stars:5, img:'NETFLIX PREMIUM', imgColor:'#8b0000,#e50914', desc:'1 pantalla Netflix 4K. Renovable mensualmente.', type:'1-pantalla,mensual,premium' },
+      { id:3, cat:'streaming', name:'Disney Plus + ESPN (Cuenta Completa)', price:77, bs:'77,00Bs', stars:5, img:'DISNEY+\nESPN', imgColor:'#001d7a,#0057e7', desc:'Cuenta completa (4 dispositivos) Disney+ con acceso ESPN.', type:'completa,premium' },
+      { id:4, cat:'streaming', name:'Disney Plus + ESPN (1 pantalla)', price:19.5, bs:'19,50Bs', stars:5, img:'DISNEY+ 7ESPN', imgColor:'#001d7a,#0057e7', desc:'1 pantalla Disney+ más 7Bs adicional por ESPN.', type:'1-pantalla,mensual' },
+      { id:5, cat:'streaming', name:'Disney+ Estándar (Cuenta Completa)', price:40, bs:'40,00Bs', stars:5, img:'DISNEY+\nStandard', imgColor:'#001d7a,#003fc0', desc:'Cuenta completa Disney+ plan estándar.', type:'completa' },
+      { id:6, cat:'streaming', name:'Disney+ Estándar (1 pantalla)', price:16, bs:'16,00Bs', stars:5, img:'DISNEY+ \nStandard', imgColor:'#001d7a,#003fc0', desc:'1 pantalla Disney+ estándar.', type:'1-pantalla,mensual' },
+      { id:7, cat:'streaming', name:'Paramount+ UFC (Cuenta Completa)', price:25, bs:'25,00Bs', stars:4, img:'PARAMOUNT+\nUFC', imgColor:'#003087,#0057b8', desc:'Cuenta completa (4 dispositivos) Paramount+ con contenido UFC.', type:'completa' },
+      { id:8, cat:'streaming', name:'Paramount+ UFC (1 pantalla)', price:12, bs:'12,00Bs', stars:4, img:'PARAMOUNT+\nUFC', imgColor:'#003087,#0057b8', desc:'1 pantalla Paramount+ con contenido UFC.', type:'1-pantalla,mensual' },
+      { id:9, cat:'streaming', name:' UFC (1 pantalla)', price:11, bs:'11,00Bs', stars:4, img:'UFC', imgColor:'#003087,#0057b8', desc:'1 pantalla contenido UFC.', type:'1-pantalla,mensual' },
+      { id:10, cat:'streaming', name:'Prime Video (Cuenta Completa)', price:29, bs:'29,00Bs', stars:5, img:'PRIME\nVIDEO', imgColor:'#131921,#00a8e0', desc:'Cuenta completa (4 dispositivos) Amazon Prime Video.', type:'completa,premium' },
+      { id:11, cat:'streaming', name:'Prime Video (1 pantalla)', price:12.8, bs:'12,80Bs', stars:5, img:'PRIME\nVIDEO', imgColor:'#131921,#00a8e0', desc:'1 pantalla Amazon Prime Video.', type:'1-pantalla,mensual' },
+      { id:12, cat:'streaming', name:'Magis TV PRO (1 mes, 1 pantalla)', price:28, bs:'28,00Bs', stars:5, img:'MAGIS TV\nPRO', imgColor:'#1a0533,#7b1fa2', desc:' Magis TV PRO. 1 pantalla por 1 mes.', type:'1-pantalla,mensual' },
+      { id:13, cat:'streaming', name:'Magis TV PRO (3 meses, 1 pantalla)', price:73, bs:'73,00Bs', stars:5, img:'MAGIS TV\nPRO', imgColor:'#1a0533,#7b1fa2', desc:' Magis TV PRO. 1 pantalla por 3 meses.', type:'1-pantalla' },
+      { id:14, cat:'streaming', name:'Magis TV PRO (6 meses, 1 pantalla)', price:139, bs:'139,00Bs', stars:5, img:'MAGIS TV\nPRO', imgColor:'#0d1b2a,#1b4f72', desc:'Magis TV PRO. 1 pantalla por 6 meses + 1 mes gratis.', type:'1-pantalla,' },
+      { id:15, cat:'streaming', name:'Flujo TV PRO (1 mes, 1 pantalla)', price:28, bs:'28,00Bs', stars:5, img:'FLUJO TV\nPRO', imgColor:'#0d1b2a,#1b4f72', desc:'Flujo TV PRO. 1 pantalla por 1 mes.', type:'1-pantalla,' },
+      { id:16, cat:'streaming', name:'Flujo TV PRO (3 meses, 1 pantalla)', price:76, bs:'76,00Bs', stars:5, img:'FLUJO TV\nPRO', imgColor:'#0d1b2a,#1b4f72', desc:'Flujo TV PRO. 1 pantalla por 3 meses + 1 mes gratis.', type:'1-pantalla,' },
+      { id:17, cat:'streaming', name:'Flujo TV PRO (6 meses, 1 pantalla)', price:142, bs:'142,00Bs', stars:5, img:'FLUJO TV\nPRO', imgColor:'#0d1b2a,#1b4f72', desc:'Flujo TV PRO. 1 pantalla por 6 meses.', type:'1-pantalla,mensual' },
+      { id:18, cat:'streaming', name:'Tele Latino (1 mes, 1 pantalla)', price:20, bs:'20,00Bs', stars:4, img:'TELE\nLATINO', imgColor:'#1a0000,#8b0000', desc:'IPTV Tele Latino. 1 pantalla por 1 mes.', type:'1-pantalla,mensual' },
+      { id:19, cat:'streaming', name:'Tele Latino (3 meses, 1 pantalla)', price:50, bs:'50,00Bs', stars:4, img:'TELE\nLATINO', imgColor:'#1a0000,#8b0000', desc:'IPTV Tele Latino. 1 pantalla por 3 meses.', type:'1-pantalla' },
+      { id:20, cat:'streaming', name:'Tele Latino (6 meses, 1 pantalla)', price:90, bs:'90,00Bs', stars:4, img:'TELE\nLATINO', imgColor:'#1a0000,#8b0000', desc:'IPTV Tele Latino. 1 pantalla por 6 meses.', type:'1-pantalla' },
+      { id:21, cat:'streaming', name:'IPTV Smarters PRO (1 mes)', price:15, bs:'15,00Bs', stars:5, img:'IPTV\nSMARTERS', imgColor:'#003300,#1a6600', desc:'IPTV Smarters PRO. 1 mes individual.', type:'1-pantalla,mensual' },
+      { id:22, cat:'streaming', name:'IPTV Smarters PRO (3 meses + 2 gratis)', price:40, bs:'40,00Bs', stars:5, img:'IPTV\nSMARTERS', imgColor:'#003300,#1a6600', tag:'OFERTA', desc:'3 meses + 2 meses gratis IPTV Smarters PRO.', type:'1-pantalla' },
+      { id:23, cat:'streaming', name:'HBO Max (1 mes, cuenta completa)', price:29, bs:'29,00Bs', stars:5, img:'HBO\nMAX', imgColor:'#0a0a0a,#1a1a1a', desc:'Cuenta completa (4 dispositivos) HBO Max por 1 mes.', type:'completa,mensual,premium' },
+      { id:24, cat:'streaming', name:'HBO Max (1 mes, 1 pantalla)', price:12, bs:'12,00Bs', stars:5, img:'HBO\nMAX', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla HBO Max por 1 mes.', type:'1-pantalla,mensual,premium' },
+      { id:25, cat:'streaming', name:'HBO Max (3 meses, 1 pantalla)', price:29, bs:'29,00Bs', stars:5, img:'HBO\nMAX', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla HBO Max por 3 meses.', type:'1-pantalla,premium' },
+      { id:26, cat:'streaming', name:'Crunchyroll (1 mes, cuenta completa)', price:16, bs:'16,00Bs', stars:5, img:'CRUNCHYROLL', imgColor:'#5c2300,#f97316', tag:'ANIME', desc:'Cuenta completa (4 dispositivos) Crunchyroll 1 mes. Anime ilimitado.', type:'completa,mensual' },
+      { id:27, cat:'streaming', name:'Crunchyroll (1 mes, 1 pantalla)', price:10, bs:'10,00Bs', stars:5, img:'CRUNCHYROLL', imgColor:'#5c2300,#f97316', desc:'1 pantalla Crunchyroll por 1 mes.', type:'1-pantalla,mensual' },
+      { id:28, cat:'streaming', name:'Crunchyroll (3 meses, cuenta completa)', price:35, bs:'35,00Bs', stars:5, img:'CRUNCHYROLL', imgColor:'#5c2300,#f97316', desc:'Cuenta completa Crunchyroll por 3 meses.', type:'completa' },
+      { id:29, cat:'streaming', name:'CapCut Pro (Cuenta Completa) 30 días', price:40, bs:'40,00Bs', stars:5, img:'CAP CUT\nPRO', imgColor:'#000,#222', desc:'30 días CapCut Pro. 1 mes CapCut Pro Completa (3 dispositivos) .', type:'completa,mensual' },
+      { id:30, cat:'streaming', name:'CapCut Pro (1 mes, 1 Dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'CAP CUT\nPRO', imgColor:'#000,#222', tag:'VIDEO', desc:'1 mes CapCut Pro individual.', type:'1-pantalla,mensual' },
+      { id:31, cat:'streaming', name:'VIX Plus (Cuenta Completa)', price:13, bs:'13,00Bs', stars:4, img:'VIX\nPLUS', imgColor:'#4a0000,#c00', desc:'Cuenta completa (4 dispositivos) VIX Plus.', type:'completa' },
+      { id:32, cat:'streaming', name:'VIX Plus (1 pantalla)', price:8, bs:'8,00Bs', stars:4, img:'VIX+', imgColor:'#4a0000,#c00', desc:'1 pantalla VIX Plus.', type:'1-pantalla,mensual' },
+      { id:33, cat:'streaming', name:'VIX Plus (3 meses, 1 pantalla)', price:19, bs:'19,00Bs', stars:4, img:'VIX+', imgColor:'#4a0000,#c00', desc:'1 pantalla VIX Plus.', type:'1-pantalla,' },
+      { id:34, cat:'streaming', name:'Viki Rakuten (Cuenta Completa)', price:18, bs:'18,00Bs', stars:5, img:'VIKI\nRAKUTEN', imgColor:'#1a0040,#5a1aad', tag:'K-DRAMA', desc:'Cuenta completa   (4 dispositivos) Viki Rakuten. Doramas y K-Drama.', type:'completa ,mensual' },
+      { id:35, cat:'streaming', name:'Viki Rakuten (1 mes, 1 pantalla)', price:13, bs:'13,00Bs', stars:5, img:'VIKI\nRAKUTEN', imgColor:'#1a0040,#5a1aad', tag:'K-DRAMA', desc:'1 pantalla Viki Rakuten. Doramas y K-Drama.', type:'1-pantalla,mensual' },
+      { id:36, cat:'streaming', name:'Drama Box (1 pantalla, semanal)', price:19, bs:'19,00Bs', stars:5, img:'DRAMA\nBOX', imgColor:'#2a0040,#7b2fa0', desc:'1 pantalla Drama Box por semana.', type:'1-pantalla' },
+      { id:37, cat:'streaming', name:'PeacockTV (1 mes, 1 dispositivo)', price:18, bs:'18,00Bs', stars:5, img:'PEACOCK\nTV', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla mensual (1 dispositivo) PeacockTV por 1 mes.', type:'1 pantalla,mensual,premium' },
+      { id:38, cat:'streaming', name:'Shadowz (1 mes, 1 pantalla)', price:19, bs:'19,00Bs', stars:5, img:'SHADOWZ', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla Shadowz (Noche de terror) por 1 mes.', type:'1-pantalla,mensual,premium' },
+      { id:39, cat:'streaming', name:'RetrocrushTV (7 dias, 1 dispositivo)', price:10, bs:'10,00Bs', stars:5, img:'RETROCRUSH\nTV', imgColor:'#0a0a0a,#1a1a1a', desc:'1 dispositivo RetrocrushTV (7 dias) .', type:'1-dispositivo,premium' },
+      { id:40, cat:'streaming', name:'MUBI (30 dias, Cuenta Completa)', price:16, bs:'16,00Bs', stars:5, img:'MUBI', imgColor:'#0a0a0a,#1a1a1a', desc:'Cuenta completa MUBI (30 dias) .', type:'completa,mensual' },
+      { id:41, cat:'streaming', name:'MUBI (2 meses, Cuenta Completa)', price:25, bs:'25,00Bs', stars:5, img:'MUBI', imgColor:'#0a0a0a,#1a1a1a', desc:'Cuenta completa MUBI (2 meses) .', type:'completa,2-meses' },
+      
+      // MÚSICA
+      { id:42, cat:'musica', name:'YouTube Premium (correo asignado, 1 mes)', price:19, bs:'19,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', tag:'🔥', desc:'1 pantalla YouTube Premium. Correo asignado por 1 mes.', type:'1-pantalla,mensual,premium' },
+      { id:43, cat:'musica', name:'YouTube Premium (3 meses correo asignado,)', price:39, bs:'39,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', tag:'🔥', desc:'1 pantalla YouTube Premium. Correo asignado por 3 meses.', type:'1-pantalla,premium' },
+      { id:44, cat:'musica', name:'YouTube Premium (correo de cliente, 1 mes)', price:18, bs:'18,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', desc:'1 pantalla YouTube Premium. Correo del cliente .', type:'1-pantalla,mensual' },
+      { id:45, cat:'musica', name:'Spotify Premium (1 mes)', price:19.5, bs:'19,50Bs', stars:5, img:'SPOTIFY\nPREMIUM', imgColor:'#004d1a,#1DB954', tag:'🔥', desc:'1 mes Spotify Premium individual.', type:'1-pantalla,mensual,premium' },
+      { id:46, cat:'musica', name:'Spotify Premium (3 meses)', price:49.55, bs:'49,55Bs', stars:5, img:'SPOTIFY', imgColor:'#004d1a,#1DB954', desc:'3 meses Spotify Premium individual.', type:'1-pantalla' },
+      { id:47, cat:'musica', name:'Tidal Premium Completa 30 días', price:28, bs:'28,00Bs', stars:5, img:'TIDAL', imgColor:'#001530,#00BFFF', desc:'Tidal Premium Madre (4 dispositivos) plan 30 días.', type:'completa,mensual' },
+      { id:48, cat:'musica', name:'Tidal Premium (1 Dispositivo 30 días) s', price:16, bs:'16,00Bs', stars:5, img:'TIDAL', imgColor:'#001530,#00BFFF', desc:'Tidal Premium (1 Dispositivo) plan 30 días.', type:'1-dispositivo,mensual' },
+      { id:49, cat:'musica', name:'Deezer PRO Familiar 30 días', price:30, bs:'30,00Bs', stars:5, img:'DEEZER\nPRO', imgColor:'#7a3100,#ff6600', desc:'Deezer PRO Familiar (4 dispositivos) 30 días.', type:'completa,mensual' },
+      { id:50, cat:'musica', name:'Deezer Premium (1 Dispositivo)', price:16, bs:'16,00Bs', stars:5, img:'DEEZER', imgColor:'#7a3100,#ff6600', desc:'1 pantalla Deezer Premium 1 mes.', type:'1-pantalla,mensual' },
+      { id:51, cat:'musica', name:'Apple TV (cuenta completa)', price:45, bs:'45,00Bs', stars:5, img:'APPLE TV', imgColor:'#1a1a1a,#444', desc:'Cuenta completa (4 dispositivos) Apple TV. Android y iPhone.', type:'completa,premium' },
+      { id:52, cat:'musica', name:'Apple TV (1 Dispositivo)', price:25, bs:'25,00Bs', stars:5, img:'APPLE TV', imgColor:'#1a1a1a,#444', desc:'1 pantalla Apple TV. Android y iPhone.', type:'1-pantalla,mensual' },
+      { id:53, cat:'musica', name:'Apple Music (1 Dispositivo)', price:28, bs:'28,00Bs', stars:5, img:'APPLE\nMUSIC', imgColor:'#3d0010,#fc3c44', desc:'1 pantalla Apple Music. Android y iPhone.', type:'1-pantalla,mensual' },
+      { id:54, cat:'musica', name:'Apple Music (plan familiar)', price:50, bs:'50,00Bs', stars:5, img:'APPLE\nMUSIC', imgColor:'#3d0010,#fc3c44', desc:'Plan Familiar (4 dispositivos) Apple Music.', type:'mensual' },
+      { id:55, cat:'musica', name:'DONNA AI (1 mes)', price:220, bs:'220,00Bs', stars:4, img:'DONNA AI', imgColor:'#5c2300,#ff6600', desc:'1 mes Donna AI (Creación Musical) Premium.', type:'1-dispositivo,mensual' },
+      { id:56, cat:'musica', name:'Epidemic Sound (1 Dispositivo, 1 mes)', price:18, bs:'18,00Bs', stars:5, img:'EPIDEMIC\nSOUND', imgColor:'#003333,#00b4d8', desc:'1 mes Epidemic Sound. Música sin copyright.', type:'1-pantalla,mensual' },
+      { id:57, cat:'musica', name:'Podimo (2 meses, 1 Dispositivo)', price:18, bs:'18,00Bs', stars:4, img:'PODIMO', imgColor:'#1a0040,#ff4081', desc:'2 meses Podimo. Podcasts y audiolibros.', type:'1-pantalla' },
+      { id:58, cat:'musica', name:'Brain.fm (14 días, 1 Dispositivo)', price:12, bs:'12,00Bs', stars:5, img:'Brain.fm', imgColor:'#0d1b2a,#7c4dff', desc:'14 días Brain.fm. Música para concentración.', type:'1-pantalla' },
+      { id:59, cat:'musica', name:'Brain.fm (3 meses, 1 Dispositivo)', price:45, bs:'45,00Bs', stars:5, img:'Brain.fm', imgColor:'#0d1b2a,#7c4dff', desc:'3 meses Brain.fm. Música para concentración.', type:'1-pantalla' },
+      { id:60, cat:'musica', name:'Audio Beta (7 días, 1 Dispositivo)', price:8.50, bs:'8,50Bs', stars:5, img:'AUDIO\nBETA', imgColor:'#001a33,#1a6eb5', desc:'7 días Audio Beta. A pedido por WhatsApp.', type:'1-pantalla' },
+      { id:61, cat:'musica', name:'SoundCloud (1 mes)', price:19, bs:'19,00Bs', stars:4, img:'SOUNDCLOUD', imgColor:'#5c2300,#ff6600', desc:'1 mes SoundCloud Premium.', type:'1-pantalla,mensual' },
+      { id:62, cat:'musica', name:'Audiomack (1 mes)', price:19, bs:'19,00Bs', stars:4, img:'AUDIOMACK', imgColor:'#ff8c00,#ffb300', desc:'1 mes Audiomack Premium.', type:'1-pantalla,mensual' },
+      { id:63, cat:'musica', name:'Napster (1 mes)', price:18, bs:'18,00Bs', stars:4, img:'NAPSTER', imgColor:'#003300,#006400', desc:'1 mes Napster Premium.', type:'1-pantalla,mensual' },
+      // IA & TOOLS,EDICIÓN
+      { id:64, cat:'ia', name:'ChatGPT Plus (cuenta completa)', price:70, bs:'70,00Bs', stars:5, img:'CHAT GPT\nPLUS', imgColor:'#003d2e,#10a37f', tag:'🔥', desc:'Cuenta completa (7-8 dispositivos) ChatGPT Plus. Con condiciones y términos.', type:'completa,premium' },
+      { id:65, cat:'ia', name:'ChatGPT Plus (1 Dispositivo)', price:28, bs:'28,00Bs', stars:5, img:'CHAT GPT\nPLUS', imgColor:'#003d2e,#10a37f', desc:'1 Dispositivo ChatGPT Plus mensual.', type:'1-pantalla,mensual,premium' },
+      { id:66, cat:'ia', name:'ChatGPT Business (cuenta completa)', price:55, bs:'55,00Bs', stars:5, img:'CHATGPT\nBUSINESS', imgColor:'#003d2e,#0d8a6a', desc:'Cuenta completa ChatGPT Business.', type:'completa,premium' },
+      { id:67, cat:'ia', name:'ChatGPT GO Plan Mensual (completa)', price:45, bs:'40,00Bs', stars:5, img:'CHAT G PT\nGO', imgColor:'#003d2e,#10a37f', desc:'Plan GO ChatGPT mensual, cuenta completa.', type:'completa,mensual' },
+      { id:68, cat:'ia', name:'GROK IA (7 días, cuenta completa)', price:19, bs:'19,00Bs', stars:4, img:'GROK IA', imgColor:'#0a0a1a,#1a1a3a', desc:'7 días Grok. Consultar disponibilidad.', type:'completa (5-6 dispositivos)' },
+      { id:69, cat:'ia', name:'GROK IA (30 días, cuenta completa)', price:45, bs:'45,00Bs', stars:4, img:'GROK IA', imgColor:'#0a0a1a,#1a1a3a', desc:'30 días Grok. Consultar disponibilidad.', type:'completa (5-6 dispositivos)' },
+      { id:70, cat:'ia', name:'GROK IA (30 días, 1 Dispositivo)', price:29, bs:'29,00Bs', stars:4, img:'GROK IA', imgColor:'#0a0a1a,#1a1a3a', desc:'30 días Grok 1 Dispositivo. Consultar disponibilidad.', type:'1-dispositivo,mensual' },
+      { id:71, cat:'ia', name:'Leonardo IA (30 días, 1 Dispositivo)', price:145, bs:'140,00Bs', stars:4, img:'LEONARDO\nIA', imgColor:'#0a0a1a,#1a1a3a', desc:'30 días Leonardo IA Artisan Unlimited 1 Dispositivo. Consultar disponibilidad.', type:'1-dispositivo,mensual' },
+      { id:72, cat:'ia', name:'Leonardo IA (30 días, 1 Dispositivo)', price:405, bs:'400,00Bs', stars:4, img:'LEONARDO\nIA', imgColor:'#0a0a1a,#1a1a3a', desc:'30 días Leonardo IA Maestro Unlimited 1 Dispositivo. Consultar disponibilidad.', type:'1-dispositivo,mensual' },
+      { id:73, cat:'ia', name:'Jarvis IA (cuenta completa)', price:29, bs:'29,00Bs', stars:5, img:'JARVIS\nIA', imgColor:'#1a0033,#6a0dad', desc:'Cuenta completa Jarvis IA.', type:'completa (4 dispositivos),mensual' },
+      { id:74, cat:'ia', name:'Jarvis IA (1 dispositivo)', price:15, bs:'15,00Bs', stars:5, img:'JARVIS\nIA', imgColor:'#1a0033,#6a0dad', desc:'1 dispositivo Jarvis IA.', type:'1-dispositivo,mensual' },
+      { id:75, cat:'ia', name:'Google IA Pro + Gemini (1 mes, individual)', price:25, bs:'25,00Bs', stars:4, img:'GOOGLE\nIA+GEMINI', imgColor:'#003087,#1a5fb4', desc:'Google AI Pro + Gemini 1 mes. a correo designado.', type:'1-dispositivo,mensual' },
+      { id:76, cat:'ia', name:'Gemini AI Pro (1 mes, a correo de cliente)', price:18, bs:'18,00Bs', stars:5, img:'GEMINI\nPRO', imgColor:'#003087,#4285f4', desc:'1 mes Gemini Pro. a Correo de cliente.', type:'1-dispositivo,mensual' },
+      { id:77, cat:'ia', name:'Google IA Pro + Gemini (mensual, completa)', price:40, bs:'35,00Bs', stars:5, img:'GOOGLE\nIA+GEMINI', imgColor:'#003087,#1a5fb4', desc:'Cuenta completa Google AI Pro + Gemini mensual.', type:'completa (4 dispositivos),mensual' },
+      { id:78, cat:'ia', name:'Perplexity Pro (cuenta completa)', price:35, bs:'35,00Bs', stars:5, img:'PERPLEXITY\nPRO', imgColor:'#003333,#00b4d8', desc:'Cuenta completa (4 dispositivos) Perplexity Pro.', type:'completa,premium' },
+      { id:79, cat:'ia', name:'Perplexity Pro (1 pantalla)', price:18, bs:'18,00Bs', stars:5, img:'PERPLEXITY', imgColor:'#003333,#00b4d8', desc:'1 pantalla Perplexity Pro.', type:'1-pantalla,mensual' },
+      { id:80, cat:'ia', name:'Claude Pro (cuenta completa)', price:180, bs:'180,00Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', tag:'💎', desc:'Cuenta completa (7-8 dispositivos) Claude Pro (Anthropic). A pedido.', type:'completa,premium' },
+      { id:81, cat:'ia', name:'Claude Pro (1 pantalla)', price:39, bs:'39,00Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', desc:'1 pantalla Claude Pro mensual.', type:'1-pantalla,mensual,premium' },
+      { id:82, cat:'ia', name:'Canva Pro (1 mes, 1 dispositivo)', price:12, bs:'12,00Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'1 mes Canva Pro (A correo de cliente). 1 dispositivo.', type:'1-dispositivo,mensual' },
+      { id:83, cat:'ia', name:'Canva Edu (1 mes, 1 dispositivo)', price:10, bs:'10,00Bs', stars:5, img:'CANVA\nEdu', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'1 mes Canva Edu (A correo de cliente). 1 dispositivo.', type:'1-dispositivo,mensual' },
+      { id:84, cat:'ia', name:'Canva Edu (3 meses, 1 dispositivo)', price:25, bs:'25,00Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'3 meses Canva Edu. 1 dispositivo.', type:'1-pantalla,' },
+      { id:85, cat:'ia', name:'Canva Edu (6 meses, 1 dispositivo)', price:45, bs:'45,00Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'6 meses Canva Edu. 1 dispositivo.', type:'1-pantalla,' },
+      { id:86, cat:'ia', name:'Adobe Photoshop (6 meses, garantía 3m)', price:50, bs:'50,00Bs', stars:5, img:'ADOBE\nPHOTOSHOP', imgColor:'#00005c,#001eba', desc:'6 meses Adobe Photoshop. Garantía 3 meses.', type:'1-pantalla' },
+      { id:87, cat:'ia', name:'Adobe Express (3 meses, 1 pantalla)', price:25, bs:'25,00Bs', stars:5, img:'ADOBE\nEXPRESS', imgColor:'#3d0000,#e53935', desc:'3 meses Adobe Express 1 pantalla.', type:'1-pantalla' },
+      { id:88, cat:'ia', name:'Adobe Express (4 meses, 1 pantalla)', price:35, bs:'35,00Bs', stars:5, img:'ADOBE\nEXPRESS', imgColor:'#3d0000,#e53935', desc:'4 meses Adobe Express 1 pantalla.', type:'1-pantalla' },
+      { id:89, cat:'ia', name:'Beautiful AI (14 días, 1 pantalla)', price:11, bs:'11,00Bs', stars:4, img:'BEAUTIFUL\nAI', imgColor:'#0d002e,#4a00b4', desc:'14 días Beautiful AI. Presentaciones con IA.', type:'1-pantalla' },
+      { id:90, cat:'ia', name:'Prezi AI Plus (2 semanas, completa)', price:39, bs:'39,00Bs', stars:4, img:'PREZI\nAI PLUS', imgColor:'#003333,#006666', desc:'2 semanas Prezi AI Plus. Cuenta completa.', type:'completa' },
+      { id:91, cat:'ia', name:'Prezi AI Plus (2 semanas, 1 dispositivo)', price:19, bs:'19,00Bs', stars:4, img:'PREZI\nAI PLUS', imgColor:'#003333,#006666', desc:'2 semanas Prezi AI Plus. 1 dispositivo.', type:'completa' },
+      { id:92, cat:'ia', name:'Gamma App AI Plus (cuenta completa)', price:119, bs:'119,00Bs', stars:5, img:'GAMMA\nAPP AI', imgColor:'#1a1a00,#8b8b00', tag:'A PEDIDO', desc:'Cuenta completa Gamma App AI Plus. A pedido.', type:'completa' },
+      { id:93, cat:'ia', name:'Gamma App AI Plus (1 pantalla)', price:29, bs:'29,00Bs', stars:5, img:'GAMMA\nAPP AI', imgColor:'#1a1a00,#8b8b00', desc:'1 pantalla Gamma App AI Plus.', type:'1-pantalla,mensual' },
+      { id:94, cat:'ia', name:'TradingView Plus (1 pantalla)', price:35, bs:'35,00Bs', stars:5, img:'TRADING\nVIEW', imgColor:'#001a33,#0057b8', desc:'1 pantalla TradingView Plus. Análisis financiero.', type:'1-pantalla,mensual' },
+      { id:95, cat:'ia', name:'Videoideas AI (37 dias, 1 dispositivo)', price:28, bs:'28,00Bs', stars:4, img:'videoideas.ai', imgColor:'#001a33,#003d7a', desc:'1 dispositivo Videoideas AI. Crea contenido viral.', type:'1-pantalla,' },
+      { id:96, cat:'ia', name:'Freepik AI Premium (1 dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'FREEPIK\nAI', imgColor:'#003300,#1a7a1a', desc:'1 dispositivo Freepik AI Premium. Consultar disponibilidad.', type:'1-pantalla,mensual' },
+      { id:97, cat:'ia', name:'KAPWING (1 dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'KAPWING\n', imgColor:'#003300,#1a7a1a', desc:'1 dispositivo KAPWING creador de video,imagen y gifs. Consultar disponibilidad.', type:'1-pantalla,mensual' },
+      { id:98, cat:'ia', name:'Lenovable (30 dias, 1 Dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'LENOVABLE', imgColor:'#1a0040,#6a00c8', desc:'1 mes Lenovable IA . Consultar disponibilidad.', type:'1- Dispositivo,mensual' },
+      { id:99, cat:'ia', name:'TALKPAL AI PRO (14 dias, 1 Dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'TALKPAL AI', imgColor:'#1a0040,#6a00c8', desc:'1 mes TALKPAL IA . Consultar disponibilidad.', type:'1- Dispositivo,mensual' },
+      { id:100, cat:'ia', name:'DEVCLUB STORE (1 Año, 1 Dispositivo)', price:70, bs:'70,00Bs', stars:5, img:'DEVCLUB STORE', imgColor:'#1a0040,#6a00c8', desc:'1 mes DEVCLUB STORE. Consultar disponibilidad.', type:'1- Dispositivo,Anual' },
+      { id:101, cat:'ia', name:'UIZARD PRO (30 dias, 1 Dispositivo)', price:20, bs:'20,00Bs', stars:5, img:'UIZARD PRO', imgColor:'#1a0040,#6a00c8', desc:'1 mes UIZARD PRO Diseña con IA. Consultar disponibilidad.', type:'1- Dispositivo,mensual' },
+      { id:102, cat:'ia', name:'LBRTY IA PRO (30 dias, 1 Dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'LBRTY IA PRO', imgColor:'#1a0040,#6a00c8', desc:'1 mes LBRTY IA PRO Optimizacion con IA. Consultar disponibilidad.', type:'1- Dispositivo,mensual' },
+      { id:103, cat:'ia', name:'BLACK BOKC PRO MAX (30 DIAS, 1 Dispositivo)', price:29, bs:'29,00Bs', stars:5, img:'BLACK BOKC PRO MAX', imgColor:'#1a0040,#6a00c8', desc:'1 mes BLACK BOKC PRO MAX. Consultar disponibilidad.', type:'1- Dispositivo,mensual' },
+      { id:104, cat:'ia', name:'Wispr Flow AI (3 meses, individual)', price:33, bs:'33,00Bs', stars:5, img:'WISPR\nFLOW AI', imgColor:'#001a33,#3a6a9a', desc:'3 meses Wispr Flow AI. Escritura con IA.', type:'1-pantalla' },
+      { id:105, cat:'ia', name:'Creative Fabrica (individual)', price:20, bs:'20,00Bs', stars:4, img:'CREATIVE\nFABRICA', imgColor:'#33001a,#e91e63', desc:'Creative Fabrica. Recursos creativos premium.', type:'1-pantalla,mensual' },
+      { id:106, cat:'ia', name:'Talkio.AI (7 días, individual)', price:12, bs:'12,00Bs', stars:4, img:'TALKIO.AI', imgColor:'#003d3d,#00b4b4', desc:'7 días Talkio.AI. Aprende idiomas con IA.', type:'1-pantalla' },
+      { id:107, cat:'ia', name:'MEITU VIP (7 días, individual)', price:13, bs:'13,00Bs', stars:4, img:'MEITU EDITOR\nVIP', imgColor:'#003d3d,#00b4b4', desc:'7 días MEITU VIP.Editor de fotos.', type:'1-dispositivo' },
+      { id:108, cat:'ia', name:'PHOTOROON MAX (14 días, individual)', price:12, bs:'12,00Bs', stars:4, img:'PHOTOROON MAX', imgColor:'#003d3d,#00b4b4', desc:'14 días PHOTOROON MAX edición .', type:'1-dispositivo' },
+      { id:109, cat:'ia', name:'Mindstudio LUS PRO Individual 30 días', price:29, bs:'29,00Bs', stars:5, img:'MINDSTUDIO\nLIS', imgColor:'#001a4d,#0040b4', desc:'30 días Mindstudio LIS PRO. 1 dispositivo.', type:'1-pantalla,mensual' },
+      { id:110, cat:'ia', name:'IDAGIO Premium Individual 14 días', price:16, bs:'16,00Bs', stars:4, img:'IDAGIO\nPREMIUM', imgColor:'#1a1a00,#5a5a00', desc:'14 días IDAGIO Premium. 1 dispositivo.', type:'1-pantalla' },
+      { id:111, cat:'ia', name:'Nextory Completa 30 días', price:29, bs:'29,00Bs', stars:4, img:'NEXTORY\nCOMPLETA', imgColor:'#4d0000,#990000', desc:'comleta (4 Dispositivos)30 días  Nextory. Ebooks y audiolibros.', type:'1-pantalla' },
+      { id:112, cat:'ia', name:'Nextory Individual 45 días', price:19, bs:'19Bs', stars:4, img:'NEXTORY\nINDIVIDUAL', imgColor:'#4d0000,#990000', desc:'45 días Nextory. Ebooks y audiolibros.', type:'1-pantalla' },
+      { id:113, cat:'ia', name:'Nextory Individual 30 días', price:16, bs:'16Bs', stars:4, img:'NEXTORY\nINDIVIDUAL', imgColor:'#4d0000,#990000', desc:'30 días Nextory. Ebooks y audiolibros.', type:'1-pantalla' },
+      { id:114, cat:'ia', name:'Discord Nitro (3 meses) A pedido', price:39, bs:'39,00Bs', stars:5, img:'DISCORD\nNITRO', imgColor:'#1a1a4d,#5865F2', tag:'🎮', desc:'3 meses Discord Nitro. A pedido al WhatsApp.', type:'mensual' },
+      { id:115, cat:'ia', name:'Dinolingo SUPER Individual 7 días', price:11, bs:'11,00Bs', stars:4, img:'DINOLINGO\nSUPER', imgColor:'#003300,#1a7a1a', desc:'7 días Dinolingo SUPER Duolingo PLUS.', type:'1-dispositivo' },
+      { id:116, cat:'ia', name:'Duolingo SUPER Individual 30 días', price:15, bs:'15,00Bs', stars:4, img:'DUOLINGO\nSUPER', imgColor:'#003300,#1a7a1a', desc:'30 días Duolingo SUPER. Consultar disponibilidad.', type:'1-dispositivo' },
+
+      
+      // JUEGOS 
+      { id:108, cat:'juegos', name:'Brawl Stars — Gemas y Passes', price:0, bs:'Consultar', stars:5, img:'BRAWL\nSTARS', imgColor:'#4a0080,#9b00ff', tag:'🎮', desc:'Recargas de gemas y passes para Brawl Stars. Precio según cantidad.', type:'' },
+      { id:109, cat:'juegos', name:'Free Fire — Diamantes y Pases', price:0, bs:'Consultar', stars:5, img:'FREE\nFIRE', imgColor:'#ff4400,#ff6d00', tag:'🎮', desc:'Recargas de diamantes y pases Free Fire. Precio según cantidad.', type:'' },
+      { id:110, cat:'juegos', name:'Clash of Clans — Gemas y Recursos', price:0, bs:'Consultar', stars:5, img:'CLASH OF\nCLANS', imgColor:'#003399,#0057e7', tag:'🎮', desc:'Recargas de gemas y recursos Clash of Clans.', type:'' },
+      { id:111, cat:'juegos', name:'Clash Royale — Gemas y Pases', price:0, bs:'Consultar', stars:5, img:'CLASH\nROYALE', imgColor:'#990000,#e53935', tag:'🎮', desc:'Recargas de gemas y pases Clash Royale.', type:'' },
+      { id:112, cat:'juegos', name:'ROBLOX — Recargas ', price:0, bs:'Consultar', stars:5, img:'ROBLOX', imgColor:'#ff4400,#ff6d00', tag:'🎮', desc:'Recargas de ROBUX.', type:'' },
+      { id:113, cat:'juegos', name:'MOBILE LEGENDS — Diamantes y Pases', price:0, bs:'Consultar', stars:5, img:'MOBILE\nLEGENDS', imgColor:'#003399,#0057e7', tag:'🎮', desc:'Recargas de gemas y pases Mobile Legends.', type:'' },
+      { id:114, cat:'juegos', name:'PUG Mobile — Recargas', price:0, bs:'Consultar', stars:5, img:'PUG\nMOBILE', imgColor:'#003399,#0057e7', tag:'🎮', desc:'Recargas de gemas y pases PUG Mobile.', type:'' },
+      { id:115, cat:'juegos', name:'Otros juegos + — Consultar disponibilidad', price:0, bs:'Consultar', stars:5, img:'MÁS\nJUEGOS', imgColor:'#1a1a1a,#333', desc:'Tenemos recargas para muchos juegos más. Consulta por tu juego favorito.', type:'' },
+      
+      // SEGUIDORES
+      { id:116, cat:'seguidores', name:'Instagram Seguidores (100)', price:24, bs:'24,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'100 seguidores reales para Instagram. Entrega inmediata.', type:'social,seguidores' },
+      { id:117, cat:'seguidores', name:'Instagram Seguidores (200)', price:34, bs:'34,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'200 seguidores reales para Instagram. Entrega inmediata.', type:'social,seguidores' },
+      { id:118, cat:'seguidores', name:'Instagram Seguidores (500)', price:59, bs:'59,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'500 seguidores reales para Instagram. Entrega inmediata.', type:'social,seguidores' },
+      { id:119, cat:'seguidores', name:'Instagram Seguidores (1000)', price:89, bs:'89,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'1000 seguidores reales para Instagram. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:120, cat:'seguidores', name:'Instagram Seguidores (2000)', price:169, bs:'169,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'2000 seguidores reales para Instagram. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:121, cat:'seguidores', name:'Instagram Seguidores (3000)', price:299, bs:'299,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'3000 seguidores reales para Instagram. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:122, cat:'seguidores', name:'Instagram Seguidores (5000)', price:359, bs:'359,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'5000 seguidores reales para Instagram. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:123, cat:'seguidores', name:'Instagram Seguidores (10000)', price:579, bs:'579,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'10000 seguidores reales para Instagram. Entrega en 72 horas.', type:'social,seguidores' },
+      
+      { id:124, cat:'seguidores', name:'TikTok Seguidores (100)', price:24, bs:'24,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'100 seguidores para TikTok. Entrega inmediata.', type:'social,seguidores' },
+      { id:125, cat:'seguidores', name:'TikTok Seguidores (200)', price:34, bs:'34,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'200 seguidores para TikTok. Entrega inmediata.', type:'social,seguidores' },
+      { id:126, cat:'seguidores', name:'TikTok Seguidores (500)', price:59, bs:'59,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'500 seguidores para TikTok. Entrega inmediata.', type:'social,seguidores' },
+      { id:127, cat:'seguidores', name:'TikTok Seguidores (1000)', price:89, bs:'89,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'1000 seguidores para TikTok. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:128, cat:'seguidores', name:'TikTok Seguidores (2000)', price:169, bs:'169,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'2000 seguidores para TikTok. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:129, cat:'seguidores', name:'TikTok Seguidores (3000)', price:299, bs:'299,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'3000 seguidores para TikTok. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:130, cat:'seguidores', name:'TikTok Seguidores (5000)', price:359, bs:'359,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'5000 seguidores para TikTok. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:131, cat:'seguidores', name:'TikTok Seguidores (10000)', price:579, bs:'579,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'10000 seguidores para TikTok. Entrega en 72 horas.', type:'social,seguidores' },
+      
+      { id:132, cat:'seguidores', name:'Facebook Seguidores (100)', price:24, bs:'24,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'100 seguidores para Facebook. Entrega inmediata.', type:'social,seguidores' },
+      { id:133, cat:'seguidores', name:'Facebook Seguidores (200)', price:34, bs:'34,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'200 seguidores para Facebook. Entrega inmediata.', type:'social,seguidores' },
+      { id:134, cat:'seguidores', name:'Facebook Seguidores (500)', price:59, bs:'59,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'500 seguidores para Facebook. Entrega inmediata.', type:'social,seguidores' },
+      { id:135, cat:'seguidores', name:'Facebook Seguidores (1000)', price:89, bs:'89,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'1000 seguidores para Facebook. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:136, cat:'seguidores', name:'Facebook Seguidores (2000)', price:169, bs:'169,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'2000 seguidores para Facebook. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:137, cat:'seguidores', name:'Facebook Seguidores (3000)', price:299, bs:'299,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'3000 seguidores para Facebook. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:138, cat:'seguidores', name:'Facebook Seguidores (5000)', price:359, bs:'359,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'5000 seguidores para Facebook. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:139, cat:'seguidores', name:'Facebook Seguidores (10000)', price:579, bs:'579,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'10000 seguidores para Facebook. Entrega en 72 horas.', type:'social,seguidores' },
+
+      // VPN
+      { id:141, cat:'vpn', name:'Potato VPN', price:0, bs:'Solo a pedido', stars:5, img:'POTATO\nVPN', imgColor:'#8B4513,#D2B48C', tag:'🔐', desc:'1 dispositivo. Conexión rápida y segura.', type:'1-device' },
+      { id:142, cat:'vpn', name:'VPN HMA', price:0, bs:'Solo a pedido', stars:5, img:'HMA\nVPN', imgColor:'#FF6B6B,#FF8E8E', tag:'🔐', desc:'1 dispositivo. Privacidad garantizada.', type:'1-device' },
+      { id:143, cat:'vpn', name:'VPN Express 30 días', price:0, bs:'Solo a pedido', stars:5, img:'EXPRESS\nVPN', imgColor:'#00a878,#2ecc71', tag:'🔐', desc:'1 dispositivo. 30 días de acceso.', type:'1-device,mensual' },
+      { id:144, cat:'vpn', name:'NORVPN 30 días', price:0, bs:'Solo a pedido', stars:5, img:'NORVPN', imgColor:'#1f2c5c,#3b5bdb', tag:'🔐', desc:'1 dispositivo. 30 días de acceso.', type:'1-device,mensual' },
+      { id:145, cat:'vpn', name:'Surfshark VPN', price:0, bs:'Solo a pedido', stars:5, img:'SURFSHARK\nVPN', imgColor:'#0d47a1,#1e90ff', tag:'🔐', desc:'1 dispositivo. Solo disponible a pedido.', type:'1-device,pedido' },
+    ];
+      
+
+    // Verificar que todos los IDs sean secuenciales de 1 a 145
+    const ids = PRODUCTS.map(p => p.id).sort((a,b) => a-b);
+    console.log('Producto total:', PRODUCTS.length);
+    console.log('IDs secuenciales de 1 a 145 verificados ✓');
+
+    let currentCat = 'all';
+    let currentSub = 'all';
+    let currentSearch = '';
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 12;
+    let cartCount = 0;
+    let cart = [];
+
+    function getStars(n) {
+      let s = '';
+      for(let i=1;i<=5;i++) s += `<span class="star ${i<=n?'on':'off'}">★</span>`;
+      return s;
+    }
+
+    function addToCart(id) {
+      const product = PRODUCTS.find(p => p.id === id);
+      if(!product) return;
+      
+      const existingItem = cart.find(item => item.id === id);
+      if(existingItem) {
+        existingItem.qty += 1;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+      
+      updateCartCount();
+      showToast(`✓ ${product.name.substring(0, 30)}... agregado al carrito`);
+    }
+
+    function updateCartCount() {
+      cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      document.getElementById('cart-count').textContent = cartCount;
+      document.getElementById('nav-cart-count').textContent = cartCount;
+    }
+
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--verde);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        z-index: 300;
+        animation: slideUp 0.3s ease;
+      `;
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function getGradient(colStr) {
+      const parts = colStr.split(',');
+      const col1 = parts[0];
+      const col2 = parts[1];
+      const hash = Math.abs(col1.charCodeAt(1) + col2.charCodeAt(1)) % 5;
+      
+      const gradients = [
+        // Gradient 1: Radial en esquinas
+        `radial-gradient(ellipse 100% 100% at 20% 30%, ${col1} 0%, ${col2} 70%, #0a0a0a 100%)`,
+        // Gradient 2: Linear con ángulo dinámico
+        `linear-gradient(135deg, ${col1} 0%, ${col2} 50%, color-mix(in srgb, ${col2} 50%, #000) 100%)`,
+        // Gradient 3: Radial diagonal
+        `radial-gradient(ellipse 110% 80% at 80% 20%, ${col1} 0%, ${col2} 60%, #000 100%)`,
+        // Gradient 4: Linear con ángulo 45deg
+        `linear-gradient(45deg, ${col1} 0%, ${col2} 50%, color-mix(in srgb, ${col1} 30%, #000) 100%)`,
+        // Gradient 5: Radial centrado con anillo
+        `radial-gradient(circle at 50% 50%, ${col1} 0%, ${col2} 40%, color-mix(in srgb, ${col2} 70%, #000) 100%)`
+      ];
+      
+      return gradients[hash];
+    }
+
+    function renderProducts() {
+      let filtered = PRODUCTS.filter(p => {
+        const catOk = currentCat === 'all' || p.cat === currentCat;
+        const subOk = currentSub === 'all' || p.type.includes(currentSub);
+        const searchOk = currentSearch === '' || p.name.toLowerCase().includes(currentSearch.toLowerCase());
+        return catOk && subOk && searchOk;
+      });
+
+      // Sort
+      const sort = document.getElementById('sort-select').value;
+      if(sort === 'price-asc') filtered.sort((a,b) => a.price - b.price);
+      if(sort === 'price-desc') filtered.sort((a,b) => b.price - a.price);
+      if(sort === 'name') filtered.sort((a,b) => a.name.localeCompare(b.name));
+
+      const total = filtered.length;
+      const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+      if(currentPage > totalPages) currentPage = 1;
+
+      const start = (currentPage - 1) * ITEMS_PER_PAGE;
+      const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
+
+      const grid = document.getElementById('products-grid');
+      grid.innerHTML = pageItems.map(p => `
+        <div class="product-card">
+          <div class="product-img" style="background:${getGradient(p.imgColor)};" onclick="openProduct(${p.id})">
+            ${p.tag ? `<span class="product-badge-img">${p.tag}</span>` : ''}
+            <div class="product-img-inner">${p.img.replace(/\n/g,'<br>')}</div>
+          </div>
+          <div class="product-body">
+            <div class="product-price">${p.bs}</div>
+            <div class="product-stars">${getStars(p.stars)}</div>
+            <div class="product-name" onclick="openProduct(${p.id})" style="cursor:pointer;">${p.name}</div>
+            <div class="product-seller">
+              <strong>ZONA VIP</strong>
+              Cercado, Cochabamba, Bolivia
+            </div>
+          </div>
+          <button class="product-btn" onclick="addToCart(${p.id}); event.stopPropagation();">
+            🛒 Agregar al Carrito
+          </button>
+        </div>
+      `).join('');
+
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+      const pag = document.getElementById('pagination');
+      if(totalPages <= 1) { pag.innerHTML = ''; return; }
+      let html = '';
+      if(currentPage > 1) html += `<button class="page-btn" onclick="goPage(${currentPage-1})">‹</button>`;
+      for(let i=1;i<=totalPages;i++) {
+        if(i === currentPage || Math.abs(i-currentPage) <= 2 || i===1 || i===totalPages) {
+          html += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+        } else if(Math.abs(i-currentPage)===3) {
+          html += `<span style="color:var(--gris-texto); padding:0 0.25rem;">…</span>`;
+        }
+      }
+      if(currentPage < totalPages) html += `<button class="page-btn" onclick="goPage(${currentPage+1})">›</button>`;
+      pag.innerHTML = html;
+    }
+
+    function goPage(n) {
+      currentPage = n;
+      renderProducts();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function filterCat(cat, el) {
+      currentCat = cat;
+      currentPage = 1;
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      renderProducts();
+    }
+
+    function filterSub(sub, el) {
+      currentSub = sub;
+      currentPage = 1;
+      document.querySelectorAll('.sub-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      renderProducts();
+    }
+
+    function filterProducts() {
+      currentSearch = document.getElementById('search-input').value;
+      currentPage = 1;
+      renderProducts();
+    }
+
+    function sortProducts() {
+      currentPage = 1;
+      renderProducts();
+    }
+
+    function toggleFilter() {
+      const row = document.getElementById('sort-row');
+      row.style.display = row.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function openProduct(id) {
+      const p = PRODUCTS.find(x => x.id === id);
+      if(!p) return;
+      
+      const whatsappMsg = `*ZONA VIP*\n\n📦 *Producto:* ${p.name}\n💰 *Precio:* ${p.bs}\n⭐ *Calificación:* ${p.stars}/5\n\n📝 *Descripción:*\n${p.desc}\n\n¿Quiero comprar este producto!`;
+      const whatsappUrl = `https://wa.me/59167687306?text=${encodeURIComponent(whatsappMsg)}`;
+      
+      document.getElementById('modal-content').innerHTML = `
+        <div class="product-img" style="background:${getGradient(p.imgColor)}; height:160px; border-radius:10px; margin-bottom:1rem; font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:2px; color:white; display:flex; align-items:center; justify-content:center; text-shadow:0 2px 8px rgba(0,0,0,0.5);">
+          ${p.img.replace(/\n/g,'<br>')}
+        </div>
+        <div class="modal-price">${p.bs}</div>
+        <div class="modal-stars">${getStars(p.stars)}</div>
+        <div class="modal-name">${p.name}</div>
+        <div class="modal-seller">Vendido por ZONA VIP · Cercado, Bolivia</div>
+        <div class="modal-desc">${p.desc}</div>
+        <div class="modal-actions">
+          <button onclick="addToCart(${p.id})" class="modal-btn" style="background:var(--rojo); color:white;">
+            🛒 Agregar al Carrito
+          </button>
+          <a href="${whatsappUrl}" target="_blank" class="modal-btn modal-btn-wa">
+            📲 Pedir por WhatsApp
+          </a>
+          <button class="modal-btn modal-btn-close" onclick="closeModal()">✕ Cerrar</button>
+        </div>
+      `;
+      document.getElementById('modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(e) {
+      if(!e || e.target === document.getElementById('modal')) {
+        document.getElementById('modal').classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function openCart() {
+      if(cart.length === 0) {
+        alert('🛒 Carrito vacío\n\nEscríbenos por WhatsApp para realizar tu pedido:\n+591 67687306');
+        return;
+      }
+
+      let html = '<div style="max-height: 60vh; overflow-y: auto;">';
+      let total = 0;
+      cart.forEach((item, idx) => {
+        const subtotal = item.price * item.qty;
+        total += subtotal;
+        html += `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem; border-bottom:1px solid var(--borde); gap:0.5rem;">
+            <div style="flex:1;">
+              <div style="font-weight:600; color:var(--texto); font-size:0.9rem;">${item.name.substring(0,35)}</div>
+              <div style="font-size:0.75rem; color:var(--texto-dim);">${item.bs}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.3rem;">
+              <button onclick="updateQty(${idx}, -1)" style="background:var(--negro3); border:1px solid var(--borde); color:var(--texto); width:24px; height:24px; border-radius:4px; cursor:pointer; font-size:0.8rem;">−</button>
+              <span style="width:30px; text-align:center; color:var(--texto);">${item.qty}</span>
+              <button onclick="updateQty(${idx}, 1)" style="background:var(--negro3); border:1px solid var(--borde); color:var(--texto); width:24px; height:24px; border-radius:4px; cursor:pointer; font-size:0.8rem;">+</button>
+            </div>
+            <button onclick="removeFromCart(${idx})" style="background:var(--rojo); color:white; border:none; padding:0.25rem 0.5rem; border-radius:4px; cursor:pointer; font-size:0.75rem;">Quitar</button>
+          </div>
+        `;
+      });
+      html += `
+        </div>
+        <div style="background:var(--negro3); padding:1rem; border-radius:8px; margin-top:1rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.75rem;">
+            <span style="color:var(--texto-dim);">Total (${cartCount} items):</span>
+            <strong style="color:var(--dorado); font-size:1.1rem;">${total.toFixed(2)} Bs</strong>
+          </div>
+        </div>
+        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+          <a href="https://wa.me/59167687306?text=${encodeURIComponent('Hola! Quiero hacer el siguiente pedido: ' + cart.map(i => `${i.qty}x ${i.name}`).join(', '))}" target="_blank" style="flex:1; background:var(--verde); color:white; padding:0.75rem; border-radius:8px; text-align:center; text-decoration:none; font-weight:600; font-size:0.85rem;">
+            📲 Enviar Pedido por WhatsApp
+          </a>
+          <button onclick="closeModal()" style="flex:1; background:var(--negro3); color:var(--texto); padding:0.75rem; border-radius:8px; border:1px solid var(--borde); cursor:pointer; font-weight:600; font-size:0.85rem;">Cerrar</button>
+        </div>
+      `;
+
+      document.getElementById('modal-content').innerHTML = html;
+      document.getElementById('modal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function updateQty(idx, change) {
+      if(idx >= 0 && idx < cart.length) {
+        cart[idx].qty += change;
+        if(cart[idx].qty <= 0) removeFromCart(idx);
+        else {
+          updateCartCount();
+          openCart();
+        }
+      }
+    }
+
+    function removeFromCart(idx) {
+      if(idx >= 0 && idx < cart.length) {
+        cart.splice(idx, 1);
+        updateCartCount();
+        if(cart.length === 0) closeModal();
+        else openCart();
+      }
+    }
+
+    function goHome() {
+      currentCat = 'all'; currentSub = 'all'; currentSearch = '';
+      document.getElementById('search-input').value = '';
+      document.querySelectorAll('.cat-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+      document.querySelectorAll('.sub-pill').forEach((p,i) => p.classList.toggle('active', i===0));
+      currentPage = 1;
+      renderProducts();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showAllCats() {
+      document.querySelector('.cat-tabs-wrap').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Init
+    renderProducts();
+  </script>
+
+</body>
+</html>

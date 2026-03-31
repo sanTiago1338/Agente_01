@@ -1037,7 +1037,7 @@
       <button class="lang-btn">🇧🇴 ES</button>
       <button class="header-icon-btn" onclick="openCart()" title="Carrito">
         🛒
-        <span class="cart-badge" id="cart-count">0</span>
+        <span class="cart-badge" id="1">0</span>
       </button>
       <button class="header-icon-btn" title="Notificaciones">🔔</button>
     </div>
@@ -1047,7 +1047,7 @@
   <div class="search-bar">
     <div class="search-input-wrap">
       <span class="search-icon">🔍</span>
-      <input type="text" id="search-input" placeholder="Buscar plataforma, app o juego..." oninput="filterProducts()">
+      <input type="text" id="2" placeholder="Buscar plataforma, app o juego..." oninput="filterProducts()">
     </div>
   </div>
 
@@ -1075,9 +1075,9 @@
   </div>
 
   <!-- SORT -->
-  <div class="sort-row" id="sort-row">
+  <div class="sort-row" id="3">
     <label>Ordenar por</label>
-    <select class="sort-select" id="sort-select" onchange="sortProducts()">
+    <select class="sort-select" id="4" onchange="sortProducts()">
       <option value="new">El más nuevo</option>
       <option value="price-asc">Precio: menor a mayor</option>
       <option value="price-desc">Precio: mayor a menor</option>
@@ -1108,12 +1108,12 @@
   </div>
 
   <!-- PRODUCTS GRID -->
-  <div class="products-grid" id="products-grid">
+  <div class="products-grid" id="5">
     <!-- Cards injected by JS -->
   </div>
 
   <!-- PAGINATION -->
-  <div class="pagination" id="pagination"></div>
+  <div class="pagination" id="6"></div>
 
   <!-- FOOTER -->
   <div class="footer-info">
@@ -1192,7 +1192,7 @@
     <button class="nav-item" onclick="openCart()">
       <div class="nav-cart-wrap">
         <span class="nav-icon">🛒</span>
-        <span class="nav-cart-badge" id="nav-cart-count">0</span>
+        <span class="nav-cart-badge" id="7">0</span>
       </div>
       Carro
     </button>
@@ -1202,10 +1202,10 @@
   </nav>
 
   <!-- MODAL PRODUCT DETAIL -->
-  <div class="modal-overlay" id="modal" onclick="closeModal(event)">
-    <div class="modal-sheet" id="modal-sheet">
+  <div class="modal-overlay" id="8" onclick="closeModal(event)">
+    <div class="modal-sheet" id="9">
       <div class="modal-handle"></div>
-      <div id="modal-content"></div>
+      <div id="10"></div>
     </div>
   </div>
 
@@ -1335,56 +1335,56 @@
 
       
       // JUEGOS 
-      { id:108, cat:'juegos', name:'Brawl Stars — Gemas y Passes', price:0, bs:'Consultar', stars:5, img:'BRAWL\nSTARS', imgColor:'#4a0080,#9b00ff', tag:'🎮', desc:'Recargas de gemas y passes para Brawl Stars. Precio según cantidad.', type:'' },
-      { id:109, cat:'juegos', name:'Free Fire — Diamantes y Pases', price:0, bs:'Consultar', stars:5, img:'FREE\nFIRE', imgColor:'#ff4400,#ff6d00', tag:'🎮', desc:'Recargas de diamantes y pases Free Fire. Precio según cantidad.', type:'' },
-      { id:110, cat:'juegos', name:'Clash of Clans — Gemas y Recursos', price:0, bs:'Consultar', stars:5, img:'CLASH OF\nCLANS', imgColor:'#003399,#0057e7', tag:'🎮', desc:'Recargas de gemas y recursos Clash of Clans.', type:'' },
-      { id:111, cat:'juegos', name:'Clash Royale — Gemas y Pases', price:0, bs:'Consultar', stars:5, img:'CLASH\nROYALE', imgColor:'#990000,#e53935', tag:'🎮', desc:'Recargas de gemas y pases Clash Royale.', type:'' },
-      { id:112, cat:'juegos', name:'ROBLOX — Recargas ', price:0, bs:'Consultar', stars:5, img:'ROBLOX', imgColor:'#ff4400,#ff6d00', tag:'🎮', desc:'Recargas de ROBUX.', type:'' },
-      { id:113, cat:'juegos', name:'MOBILE LEGENDS — Diamantes y Pases', price:0, bs:'Consultar', stars:5, img:'MOBILE\nLEGENDS', imgColor:'#003399,#0057e7', tag:'🎮', desc:'Recargas de gemas y pases Mobile Legends.', type:'' },
-      { id:114, cat:'juegos', name:'PUG Mobile — Recargas', price:0, bs:'Consultar', stars:5, img:'PUG\nMOBILE', imgColor:'#003399,#0057e7', tag:'🎮', desc:'Recargas de gemas y pases PUG Mobile.', type:'' },
-      { id:115, cat:'juegos', name:'Otros juegos + — Consultar disponibilidad', price:0, bs:'Consultar', stars:5, img:'MÁS\nJUEGOS', imgColor:'#1a1a1a,#333', desc:'Tenemos recargas para muchos juegos más. Consulta por tu juego favorito.', type:'' },
+      { id:118, cat:'juegos', name:'Brawl Stars — Gemas y Passes', price:0, bs:'Consultar', stars:5, img:'BRAWL\nSTARS', imgColor:'#4a0080,#9b00ff', tag:'🎮', desc:'Recargas de gemas y passes para Brawl Stars. Precio según cantidad.', type:'' },
+      { id:119, cat:'juegos', name:'Free Fire — Diamantes y Pases', price:0, bs:'Consultar', stars:5, img:'FREE\nFIRE', imgColor:'#ff4400,#ff6d00', tag:'🎮', desc:'Recargas de diamantes y pases Free Fire. Precio según cantidad.', type:'' },
+      { id:120, cat:'juegos', name:'Clash of Clans — Gemas y Recursos', price:0, bs:'Consultar', stars:5, img:'CLASH OF\nCLANS', imgColor:'#003399,#0057e7', tag:'🎮', desc:'Recargas de gemas y recursos Clash of Clans.', type:'' },
+      { id:121, cat:'juegos', name:'Clash Royale — Gemas y Pases', price:0, bs:'Consultar', stars:5, img:'CLASH\nROYALE', imgColor:'#990000,#e53935', tag:'🎮', desc:'Recargas de gemas y pases Clash Royale.', type:'' },
+      { id:122, cat:'juegos', name:'ROBLOX — Recargas ', price:0, bs:'Consultar', stars:5, img:'ROBLOX', imgColor:'#ff4400,#ff6d00', tag:'🎮', desc:'Recargas de ROBUX.', type:'' },
+      { id:123, cat:'juegos', name:'MOBILE LEGENDS — Diamantes y Pases', price:0, bs:'Consultar', stars:5, img:'MOBILE\nLEGENDS', imgColor:'#003399,#0057e7', tag:'🎮', desc:'Recargas de gemas y pases Mobile Legends.', type:'' },
+      { id:124, cat:'juegos', name:'PUG Mobile — Recargas', price:0, bs:'Consultar', stars:5, img:'PUG\nMOBILE', imgColor:'#003399,#0057e7', tag:'🎮', desc:'Recargas de gemas y pases PUG Mobile.', type:'' },
+      { id:125, cat:'juegos', name:'Otros juegos + — Consultar disponibilidad', price:0, bs:'Consultar', stars:5, img:'MÁS\nJUEGOS', imgColor:'#1a1a1a,#333', desc:'Tenemos recargas para muchos juegos más. Consulta por tu juego favorito.', type:'' },
       
       // SEGUIDORES
-      { id:116, cat:'seguidores', name:'Instagram Seguidores (100)', price:24, bs:'24,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'100 seguidores reales para Instagram. Entrega inmediata.', type:'social,seguidores' },
-      { id:117, cat:'seguidores', name:'Instagram Seguidores (200)', price:34, bs:'34,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'200 seguidores reales para Instagram. Entrega inmediata.', type:'social,seguidores' },
-      { id:118, cat:'seguidores', name:'Instagram Seguidores (500)', price:59, bs:'59,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'500 seguidores reales para Instagram. Entrega inmediata.', type:'social,seguidores' },
-      { id:119, cat:'seguidores', name:'Instagram Seguidores (1000)', price:89, bs:'89,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'1000 seguidores reales para Instagram. Entrega en 24 horas.', type:'social,seguidores' },
-      { id:120, cat:'seguidores', name:'Instagram Seguidores (2000)', price:169, bs:'169,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'2000 seguidores reales para Instagram. Entrega en 24 horas.', type:'social,seguidores' },
-      { id:121, cat:'seguidores', name:'Instagram Seguidores (3000)', price:299, bs:'299,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'3000 seguidores reales para Instagram. Entrega en 48 horas.', type:'social,seguidores' },
-      { id:122, cat:'seguidores', name:'Instagram Seguidores (5000)', price:359, bs:'359,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'5000 seguidores reales para Instagram. Entrega en 48 horas.', type:'social,seguidores' },
-      { id:123, cat:'seguidores', name:'Instagram Seguidores (10000)', price:579, bs:'579,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'10000 seguidores reales para Instagram. Entrega en 72 horas.', type:'social,seguidores' },
+      { id:126, cat:'seguidores', name:'Instagram Seguidores (100)', price:24, bs:'24,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'100 seguidores reales para Instagram. Entrega inmediata.', type:'social,seguidores' },
+      { id:127, cat:'seguidores', name:'Instagram Seguidores (200)', price:34, bs:'34,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'200 seguidores reales para Instagram. Entrega inmediata.', type:'social,seguidores' },
+      { id:128, cat:'seguidores', name:'Instagram Seguidores (500)', price:59, bs:'59,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'500 seguidores reales para Instagram. Entrega inmediata.', type:'social,seguidores' },
+      { id:129, cat:'seguidores', name:'Instagram Seguidores (1000)', price:89, bs:'89,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'1000 seguidores reales para Instagram. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:130, cat:'seguidores', name:'Instagram Seguidores (2000)', price:169, bs:'169,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'2000 seguidores reales para Instagram. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:131, cat:'seguidores', name:'Instagram Seguidores (3000)', price:299, bs:'299,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'3000 seguidores reales para Instagram. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:132, cat:'seguidores', name:'Instagram Seguidores (5000)', price:359, bs:'359,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'5000 seguidores reales para Instagram. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:133, cat:'seguidores', name:'Instagram Seguidores (10000)', price:579, bs:'579,00Bs', stars:5, img:'INSTAGRAM\nSEGUIDORES', imgColor:'#1a0033,#e1306c', tag:'📱', desc:'10000 seguidores reales para Instagram. Entrega en 72 horas.', type:'social,seguidores' },
       
-      { id:124, cat:'seguidores', name:'TikTok Seguidores (100)', price:24, bs:'24,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'100 seguidores para TikTok. Entrega inmediata.', type:'social,seguidores' },
-      { id:125, cat:'seguidores', name:'TikTok Seguidores (200)', price:34, bs:'34,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'200 seguidores para TikTok. Entrega inmediata.', type:'social,seguidores' },
-      { id:126, cat:'seguidores', name:'TikTok Seguidores (500)', price:59, bs:'59,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'500 seguidores para TikTok. Entrega inmediata.', type:'social,seguidores' },
-      { id:127, cat:'seguidores', name:'TikTok Seguidores (1000)', price:89, bs:'89,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'1000 seguidores para TikTok. Entrega en 24 horas.', type:'social,seguidores' },
-      { id:128, cat:'seguidores', name:'TikTok Seguidores (2000)', price:169, bs:'169,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'2000 seguidores para TikTok. Entrega en 24 horas.', type:'social,seguidores' },
-      { id:129, cat:'seguidores', name:'TikTok Seguidores (3000)', price:299, bs:'299,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'3000 seguidores para TikTok. Entrega en 48 horas.', type:'social,seguidores' },
-      { id:130, cat:'seguidores', name:'TikTok Seguidores (5000)', price:359, bs:'359,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'5000 seguidores para TikTok. Entrega en 48 horas.', type:'social,seguidores' },
-      { id:131, cat:'seguidores', name:'TikTok Seguidores (10000)', price:579, bs:'579,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'10000 seguidores para TikTok. Entrega en 72 horas.', type:'social,seguidores' },
+      { id:134, cat:'seguidores', name:'TikTok Seguidores (100)', price:24, bs:'24,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'100 seguidores para TikTok. Entrega inmediata.', type:'social,seguidores' },
+      { id:135, cat:'seguidores', name:'TikTok Seguidores (200)', price:34, bs:'34,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'200 seguidores para TikTok. Entrega inmediata.', type:'social,seguidores' },
+      { id:136, cat:'seguidores', name:'TikTok Seguidores (500)', price:59, bs:'59,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'500 seguidores para TikTok. Entrega inmediata.', type:'social,seguidores' },
+      { id:137, cat:'seguidores', name:'TikTok Seguidores (1000)', price:89, bs:'89,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'1000 seguidores para TikTok. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:138, cat:'seguidores', name:'TikTok Seguidores (2000)', price:169, bs:'169,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'2000 seguidores para TikTok. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:139, cat:'seguidores', name:'TikTok Seguidores (3000)', price:299, bs:'299,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'3000 seguidores para TikTok. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:140, cat:'seguidores', name:'TikTok Seguidores (5000)', price:359, bs:'359,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'5000 seguidores para TikTok. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:141, cat:'seguidores', name:'TikTok Seguidores (10000)', price:579, bs:'579,00Bs', stars:5, img:'TIKTOK\nSEGUIDORES', imgColor:'#000,#25f4ee', tag:'📱', desc:'10000 seguidores para TikTok. Entrega en 72 horas.', type:'social,seguidores' },
       
-      { id:132, cat:'seguidores', name:'Facebook Seguidores (100)', price:24, bs:'24,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'100 seguidores para Facebook. Entrega inmediata.', type:'social,seguidores' },
-      { id:133, cat:'seguidores', name:'Facebook Seguidores (200)', price:34, bs:'34,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'200 seguidores para Facebook. Entrega inmediata.', type:'social,seguidores' },
-      { id:134, cat:'seguidores', name:'Facebook Seguidores (500)', price:59, bs:'59,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'500 seguidores para Facebook. Entrega inmediata.', type:'social,seguidores' },
-      { id:135, cat:'seguidores', name:'Facebook Seguidores (1000)', price:89, bs:'89,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'1000 seguidores para Facebook. Entrega en 24 horas.', type:'social,seguidores' },
-      { id:136, cat:'seguidores', name:'Facebook Seguidores (2000)', price:169, bs:'169,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'2000 seguidores para Facebook. Entrega en 24 horas.', type:'social,seguidores' },
-      { id:137, cat:'seguidores', name:'Facebook Seguidores (3000)', price:299, bs:'299,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'3000 seguidores para Facebook. Entrega en 48 horas.', type:'social,seguidores' },
-      { id:138, cat:'seguidores', name:'Facebook Seguidores (5000)', price:359, bs:'359,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'5000 seguidores para Facebook. Entrega en 48 horas.', type:'social,seguidores' },
-      { id:139, cat:'seguidores', name:'Facebook Seguidores (10000)', price:579, bs:'579,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'10000 seguidores para Facebook. Entrega en 72 horas.', type:'social,seguidores' },
+      { id:142, cat:'seguidores', name:'Facebook Seguidores (100)', price:24, bs:'24,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'100 seguidores para Facebook. Entrega inmediata.', type:'social,seguidores' },
+      { id:143, cat:'seguidores', name:'Facebook Seguidores (200)', price:34, bs:'34,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'200 seguidores para Facebook. Entrega inmediata.', type:'social,seguidores' },
+      { id:144, cat:'seguidores', name:'Facebook Seguidores (500)', price:59, bs:'59,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'500 seguidores para Facebook. Entrega inmediata.', type:'social,seguidores' },
+      { id:145, cat:'seguidores', name:'Facebook Seguidores (1000)', price:89, bs:'89,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'1000 seguidores para Facebook. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:146, cat:'seguidores', name:'Facebook Seguidores (2000)', price:169, bs:'169,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'2000 seguidores para Facebook. Entrega en 24 horas.', type:'social,seguidores' },
+      { id:147, cat:'seguidores', name:'Facebook Seguidores (3000)', price:299, bs:'299,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'3000 seguidores para Facebook. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:148, cat:'seguidores', name:'Facebook Seguidores (5000)', price:359, bs:'359,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'5000 seguidores para Facebook. Entrega en 48 horas.', type:'social,seguidores' },
+      { id:149, cat:'seguidores', name:'Facebook Seguidores (10000)', price:579, bs:'579,00Bs', stars:5, img:'FACEBOOK\nSEGUIDORES', imgColor:'#3d0000,#1877f2', tag:'📱', desc:'10000 seguidores para Facebook. Entrega en 72 horas.', type:'social,seguidores' },
 
       // VPN
-      { id:141, cat:'vpn', name:'Potato VPN', price:0, bs:'Solo a pedido', stars:5, img:'POTATO\nVPN', imgColor:'#8B4513,#D2B48C', tag:'🔐', desc:'1 dispositivo. Conexión rápida y segura.', type:'1-device' },
-      { id:142, cat:'vpn', name:'VPN HMA', price:0, bs:'Solo a pedido', stars:5, img:'HMA\nVPN', imgColor:'#FF6B6B,#FF8E8E', tag:'🔐', desc:'1 dispositivo. Privacidad garantizada.', type:'1-device' },
-      { id:143, cat:'vpn', name:'VPN Express 30 días', price:0, bs:'Solo a pedido', stars:5, img:'EXPRESS\nVPN', imgColor:'#00a878,#2ecc71', tag:'🔐', desc:'1 dispositivo. 30 días de acceso.', type:'1-device,mensual' },
-      { id:144, cat:'vpn', name:'NORVPN 30 días', price:0, bs:'Solo a pedido', stars:5, img:'NORVPN', imgColor:'#1f2c5c,#3b5bdb', tag:'🔐', desc:'1 dispositivo. 30 días de acceso.', type:'1-device,mensual' },
-      { id:145, cat:'vpn', name:'Surfshark VPN', price:0, bs:'Solo a pedido', stars:5, img:'SURFSHARK\nVPN', imgColor:'#0d47a1,#1e90ff', tag:'🔐', desc:'1 dispositivo. Solo disponible a pedido.', type:'1-device,pedido' },
+      { id:150, cat:'vpn', name:'Potato VPN', price:0, bs:'Solo a pedido', stars:5, img:'POTATO\nVPN', imgColor:'#8B4513,#D2B48C', tag:'🔐', desc:'1 dispositivo. Conexión rápida y segura.', type:'1-device' },
+      { id:151, cat:'vpn', name:'VPN HMA', price:0, bs:'Solo a pedido', stars:5, img:'HMA\nVPN', imgColor:'#FF6B6B,#FF8E8E', tag:'🔐', desc:'1 dispositivo. Privacidad garantizada.', type:'1-device' },
+      { id:152, cat:'vpn', name:'VPN Express 30 días', price:0, bs:'Solo a pedido', stars:5, img:'EXPRESS\nVPN', imgColor:'#00a878,#2ecc71', tag:'🔐', desc:'1 dispositivo. 30 días de acceso.', type:'1-device,mensual' },
+      { id:153, cat:'vpn', name:'NORVPN 30 días', price:0, bs:'Solo a pedido', stars:5, img:'NORVPN', imgColor:'#1f2c5c,#3b5bdb', tag:'🔐', desc:'1 dispositivo. 30 días de acceso.', type:'1-device,mensual' },
+      { id:154, cat:'vpn', name:'Surfshark VPN', price:0, bs:'Solo a pedido', stars:5, img:'SURFSHARK\nVPN', imgColor:'#0d47a1,#1e90ff', tag:'🔐', desc:'1 dispositivo. Solo disponible a pedido.', type:'1-device,pedido' },
     ];
       
 
-    // Verificar que todos los IDs sean secuenciales de 1 a 145
+// Verificar que todos los IDs sean secuenciales de 1 a 154
     const ids = PRODUCTS.map(p => p.id).sort((a,b) => a-b);
     console.log('Producto total:', PRODUCTS.length);
-    console.log('IDs secuenciales de 1 a 145 verificados ✓');
+    console.log('IDs secuenciales de 1 a 154 verificados ✓');
 
     let currentCat = 'all';
     let currentSub = 'all';
@@ -1417,8 +1417,8 @@
 
     function updateCartCount() {
       cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
-      document.getElementById('cart-count').textContent = cartCount;
-      document.getElementById('nav-cart-count').textContent = cartCount;
+      document.getElementById('1').textContent = cartCount;
+      document.getElementById('7').textContent = cartCount;
     }
 
     function showToast(msg) {
@@ -1473,7 +1473,7 @@
       });
 
       // Sort
-      const sort = document.getElementById('sort-select').value;
+      const sort = document.getElementById('4').value;
       if(sort === 'price-asc') filtered.sort((a,b) => a.price - b.price);
       if(sort === 'price-desc') filtered.sort((a,b) => b.price - a.price);
       if(sort === 'name') filtered.sort((a,b) => a.name.localeCompare(b.name));
@@ -1485,7 +1485,7 @@
       const start = (currentPage - 1) * ITEMS_PER_PAGE;
       const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
 
-      const grid = document.getElementById('products-grid');
+      const grid = document.getElementById('5');
       grid.innerHTML = pageItems.map(p => `
         <div class="product-card">
           <div class="product-img" style="background:${getGradient(p.imgColor)};" onclick="openProduct(${p.id})">
@@ -1511,7 +1511,7 @@
     }
 
     function renderPagination(totalPages) {
-      const pag = document.getElementById('pagination');
+      const pag = document.getElementById('6');
       if(totalPages <= 1) { pag.innerHTML = ''; return; }
       let html = '';
       if(currentPage > 1) html += `<button class="page-btn" onclick="goPage(${currentPage-1})">‹</button>`;
@@ -1549,7 +1549,7 @@
     }
 
     function filterProducts() {
-      currentSearch = document.getElementById('search-input').value;
+      currentSearch = document.getElementById('2').value;
       currentPage = 1;
       renderProducts();
     }
@@ -1560,7 +1560,7 @@
     }
 
     function toggleFilter() {
-      const row = document.getElementById('sort-row');
+      const row = document.getElementById('3');
       row.style.display = row.style.display === 'none' ? 'block' : 'none';
     }
 
@@ -1571,7 +1571,7 @@
       const whatsappMsg = `*ZONA VIP*\n\n📦 *Producto:* ${p.name}\n💰 *Precio:* ${p.bs}\n⭐ *Calificación:* ${p.stars}/5\n\n📝 *Descripción:*\n${p.desc}\n\n¿Quiero comprar este producto!`;
       const whatsappUrl = `https://wa.me/59167687306?text=${encodeURIComponent(whatsappMsg)}`;
       
-      document.getElementById('modal-content').innerHTML = `
+      document.getElementById('10').innerHTML = `
         <div class="product-img" style="background:${getGradient(p.imgColor)}; height:160px; border-radius:10px; margin-bottom:1rem; font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:2px; color:white; display:flex; align-items:center; justify-content:center; text-shadow:0 2px 8px rgba(0,0,0,0.5);">
           ${p.img.replace(/\n/g,'<br>')}
         </div>
@@ -1590,13 +1590,13 @@
           <button class="modal-btn modal-btn-close" onclick="closeModal()">✕ Cerrar</button>
         </div>
       `;
-      document.getElementById('modal').classList.add('open');
+      document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
 
     function closeModal(e) {
-      if(!e || e.target === document.getElementById('modal')) {
-        document.getElementById('modal').classList.remove('open');
+      if(!e || e.target === document.getElementById('8')) {
+        document.getElementById('8').classList.remove('open');
         document.body.style.overflow = '';
       }
     }
@@ -1643,8 +1643,8 @@
         </div>
       `;
 
-      document.getElementById('modal-content').innerHTML = html;
-      document.getElementById('modal').classList.add('open');
+      document.getElementById('10').innerHTML = html;
+      document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
 
@@ -1670,7 +1670,7 @@
 
     function goHome() {
       currentCat = 'all'; currentSub = 'all'; currentSearch = '';
-      document.getElementById('search-input').value = '';
+      document.getElementById('2').value = '';
       document.querySelectorAll('.cat-tab').forEach((t,i) => t.classList.toggle('active', i===0));
       document.querySelectorAll('.sub-pill').forEach((p,i) => p.classList.toggle('active', i===0));
       currentPage = 1;

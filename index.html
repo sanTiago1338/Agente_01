@@ -531,6 +531,7 @@
       margin-bottom: 0.35rem;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-decoration: underline;
@@ -1026,9 +1027,13 @@
   <!-- NAV MENU -->
   <nav style="background: var(--negro2); border-bottom: 1px solid var(--borde); padding: 0.75rem 1rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
     <a href="tienda.html" style="text-decoration: none; color: var(--rojo); font-weight: 700; font-size: 0.9rem;">🛒 TIENDA</a>
-    <a href="planes.html" style="text-decoration: none; color: var(--texto); font-weight: 600; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='var(--rojo)'" onmouseout="this.style.color='var(--texto)'">💰 PLANES</a>
-    <a href="contacto.html" style="text-decoration: none; color: var(--texto); font-weight: 600; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='var(--rojo)'" onmouseout="this.style.color='var(--texto)'">📲 CONTACTO</a>
+    <a href="planes.html" class="nav-link" style="text-decoration: none; color: var(--texto); font-weight: 600; font-size: 0.9rem;">💰 PLANES</a>
+    <a href="contacto.html" class="nav-link" style="text-decoration: none; color: var(--texto); font-weight: 600; font-size: 0.9rem;">📲 CONTACTO</a>
   </nav>
+  <style>
+    .nav-link { transition: color 0.2s; }
+    .nav-link:hover { color: var(--rojo); }
+  </style>
 
   <!-- HEADER -->
   <header class="header">
@@ -1213,17 +1218,17 @@
     // ===== PRODUCT DATA =====
     const PRODUCTS = [
       // STREAMING
-      { id:1, cat:'streaming', name:'Netflix Premium 4K (Cuenta Completa)', price:125, bs:'125,00Bs', stars:5, img:'NETFLIX PREMIUM ', imgColor:'#8b0000,#e50914', tag:'TOP', desc:'Cuenta completa (4 dispositivos) Netflix 4K (Renovable).', type:'completa,premium' },
-      { id:2, cat:'streaming', name:'Netflix Premium 4K (1 pantalla, renovable)', price:29.5, bs:'29,50Bs', stars:5, img:'NETFLIX PREMIUM', imgColor:'#8b0000,#e50914', desc:'1 pantalla Netflix 4K. Renovable mensualmente.', type:'1-pantalla,mensual,premium' },
-      { id:3, cat:'streaming', name:'Disney Plus + ESPN (Cuenta Completa)', price:77, bs:'77,00Bs', stars:5, img:'DISNEY+\nESPN', imgColor:'#001d7a,#0057e7', desc:'Cuenta completa (4 dispositivos) Disney+ ESPN (Deportes em vivo).', type:'completa,premium' },
-      { id:4, cat:'streaming', name:'Disney Plus + ESPN (1 pantalla)', price:19.5, bs:'19,50Bs', stars:5, img:'DISNEY+ 7ESPN', imgColor:'#001d7a,#0057e7', desc:'1 pantalla Disney+ 7ESPN (Deportes em vivo).', type:'1-pantalla,mensual' },
-      { id:5, cat:'streaming', name:'Disney+ Estándar (Cuenta Completa)', price:40, bs:'40,00Bs', stars:5, img:'DISNEY+\nStandard', imgColor:'#001d7a,#003fc0', desc:'Cuenta completa Disney+ plan estándar.', type:'completa' },
-      { id:6, cat:'streaming', name:'Disney+ Estándar (1 pantalla)', price:16, bs:'16,00Bs', stars:5, img:'DISNEY+ \nStandard', imgColor:'#001d7a,#003fc0', desc:'1 pantalla Disney+ estándar.', type:'1-pantalla,mensual' },
-      { id:7, cat:'streaming', name:'Paramount+ UFC (Cuenta Completa)', price:25, bs:'25,00Bs', stars:4, img:'PARAMOUNT+\nUFC', imgColor:'#003087,#0057b8', desc:'Cuenta completa (4 dispositivos) Paramount+ con contenido UFC.', type:'completa' },
-      { id:8, cat:'streaming', name:'Paramount+ UFC (1 pantalla)', price:12, bs:'12,00Bs', stars:4, img:'PARAMOUNT+\nUFC', imgColor:'#003087,#0057b8', desc:'1 pantalla Paramount+ con contenido UFC.', type:'1-pantalla,mensual' },
+      { id:1, cat:'streaming', name:'Netflix Premium 4K (Cuenta Completa)', price:129.90, bs:'129.90Bs', stars:5, img:'NETFLIX PREMIUM ', imgColor:'#8b0000,#e50914', tag:'TOP', desc:'Cuenta completa (4 dispositivos) Netflix 4K (Renovable).', type:'completa,premium' },
+      { id:2, cat:'streaming', name:'Netflix Premium 4K (1 pantalla, renovable)', price:29.90, bs:'29.90Bs', stars:5, img:'NETFLIX PREMIUM', imgColor:'#8b0000,#e50914', desc:'1 pantalla Netflix 4K. Renovable mensualmente.', type:'1-pantalla,mensual,premium' },
+      { id:3, cat:'streaming', name:'Disney Plus + ESPN (Cuenta Completa)', price:79.90, bs:'79.90Bs', stars:5, img:'DISNEY+\nESPN', imgColor:'#001d7a,#0057e7', desc:'Cuenta completa (4 dispositivos) Disney+ con acceso ESPN.', type:'completa,premium' },
+      { id:4, cat:'streaming', name:'Disney Plus + ESPN (1 pantalla)', price:19.90, bs:'19.90Bs', stars:5, img:'DISNEY+ 7ESPN', imgColor:'#001d7a,#0057e7', desc:'1 pantalla Disney+ más 7Bs adicional por ESPN.', type:'1-pantalla,mensual' },
+      { id:5, cat:'streaming', name:'Disney+ Estándar (Cuenta Completa)', price:45.00, bs:'45.00Bs', stars:5, img:'DISNEY+\nStandard', imgColor:'#001d7a,#003fc0', desc:'Cuenta completa Disney+ plan estándar.', type:'completa' },
+      { id:6, cat:'streaming', name:'Disney+ Estándar (1 pantalla)', price:16.90, bs:'16.90Bs', stars:5, img:'DISNEY+ \nStandard', imgColor:'#001d7a,#003fc0', desc:'1 pantalla Disney+ estándar.', type:'1-pantalla,mensual' },
+      { id:7, cat:'streaming', name:'Paramount+ UFC (Cuenta Completa)', price:29.90, bs:'29.90Bs', stars:4, img:'PARAMOUNT+\nUFC', imgColor:'#003087,#0057b8', desc:'Cuenta completa (4 dispositivos) Paramount+ con contenido UFC.', type:'completa' },
+      { id:8, cat:'streaming', name:'Paramount+ UFC (1 pantalla)', price:12.90, bs:'12.90Bs', stars:4, img:'PARAMOUNT+\nUFC', imgColor:'#003087,#0057b8', desc:'1 pantalla Paramount+ con contenido UFC.', type:'1-pantalla,mensual' },
       { id:9, cat:'streaming', name:' UFC (1 pantalla)', price:11, bs:'11,00Bs', stars:4, img:'UFC', imgColor:'#003087,#0057b8', desc:'1 pantalla contenido UFC.', type:'1-pantalla,mensual' },
-      { id:10, cat:'streaming', name:'Prime Video (Cuenta Completa)', price:29, bs:'29,00Bs', stars:5, img:'PRIME\nVIDEO', imgColor:'#131921,#00a8e0', desc:'Cuenta completa (4 dispositivos) Amazon Prime Video.', type:'completa,premium' },
-      { id:11, cat:'streaming', name:'Prime Video (1 pantalla)', price:12.8, bs:'12,80Bs', stars:5, img:'PRIME\nVIDEO', imgColor:'#131921,#00a8e0', desc:'1 pantalla Amazon Prime Video.', type:'1-pantalla,mensual' },
+      { id:10, cat:'streaming', name:'Prime Video (Cuenta Completa)', price:29.90, bs:'29.90Bs', stars:5, img:'PRIME\nVIDEO', imgColor:'#131921,#00a8e0', desc:'Cuenta completa (4 dispositivos) Amazon Prime Video.', type:'completa,premium' },
+      { id:11, cat:'streaming', name:'Prime Video (1 pantalla)', price:12.90, bs:'12.90Bs', stars:5, img:'PRIME\nVIDEO', imgColor:'#131921,#00a8e0', desc:'1 pantalla Amazon Prime Video.', type:'1-pantalla,mensual' },
       { id:12, cat:'streaming', name:'Magis TV PRO (1 mes, 1 pantalla)', price:28, bs:'28,00Bs', stars:5, img:'MAGIS TV\nPRO', imgColor:'#1a0533,#7b1fa2', desc:' Magis TV PRO. 1 pantalla por 1 mes.', type:'1-pantalla,mensual' },
       { id:13, cat:'streaming', name:'Magis TV PRO (3 meses, 1 pantalla)', price:73, bs:'73,00Bs', stars:5, img:'MAGIS TV\nPRO', imgColor:'#1a0533,#7b1fa2', desc:' Magis TV PRO. 1 pantalla por 3 meses.', type:'1-pantalla' },
       { id:14, cat:'streaming', name:'Magis TV PRO (6 meses, 1 pantalla)', price:139, bs:'139,00Bs', stars:5, img:'MAGIS TV\nPRO', imgColor:'#0d1b2a,#1b4f72', desc:'Magis TV PRO. 1 pantalla por 6 meses + 1 mes gratis.', type:'1-pantalla,' },
@@ -1236,7 +1241,7 @@
       { id:21, cat:'streaming', name:'IPTV Smarters PRO (1 mes)', price:15, bs:'15,00Bs', stars:5, img:'IPTV\nSMARTERS', imgColor:'#003300,#1a6600', desc:'IPTV Smarters PRO. 1 mes individual.', type:'1-pantalla,mensual' },
       { id:22, cat:'streaming', name:'IPTV Smarters PRO (3 meses + 2 gratis)', price:40, bs:'40,00Bs', stars:5, img:'IPTV\nSMARTERS', imgColor:'#003300,#1a6600', tag:'OFERTA', desc:'3 meses + 2 meses gratis IPTV Smarters PRO.', type:'1-pantalla' },
       { id:23, cat:'streaming', name:'HBO Max (1 mes, cuenta completa)', price:29, bs:'29,00Bs', stars:5, img:'HBO\nMAX', imgColor:'#0a0a0a,#1a1a1a', desc:'Cuenta completa (4 dispositivos) HBO Max por 1 mes.', type:'completa,mensual,premium' },
-      { id:24, cat:'streaming', name:'HBO Max (1 mes, 1 pantalla)', price:12, bs:'12,00Bs', stars:5, img:'HBO\nMAX', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla HBO Max por 1 mes.', type:'1-pantalla,mensual,premium' },
+      { id:24, cat:'streaming', name:'HBO Max (1 mes, 1 pantalla)', price:12.90, bs:'12.90Bs', stars:5, img:'HBO\nMAX', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla HBO Max por 1 mes.', type:'1-pantalla,mensual,premium' },
       { id:25, cat:'streaming', name:'HBO Max (3 meses, 1 pantalla)', price:29, bs:'29,00Bs', stars:5, img:'HBO\nMAX', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla HBO Max por 3 meses.', type:'1-pantalla,premium' },
       { id:26, cat:'streaming', name:'Crunchyroll (1 mes, cuenta completa)', price:16, bs:'16,00Bs', stars:5, img:'CRUNCHYROLL', imgColor:'#5c2300,#f97316', tag:'ANIME', desc:'Cuenta completa (4 dispositivos) Crunchyroll 1 mes. Anime ilimitado.', type:'completa,mensual' },
       { id:27, cat:'streaming', name:'Crunchyroll (1 mes, 1 pantalla)', price:10, bs:'10,00Bs', stars:5, img:'CRUNCHYROLL', imgColor:'#5c2300,#f97316', desc:'1 pantalla Crunchyroll por 1 mes.', type:'1-pantalla,mensual' },
@@ -1244,22 +1249,22 @@
       { id:29, cat:'streaming', name:'CapCut Pro (Cuenta Completa) 30 días', price:40, bs:'40,00Bs', stars:5, img:'CAP CUT\nPRO', imgColor:'#000,#222', desc:'30 días CapCut Pro. 1 mes CapCut Pro Completa (3 dispositivos) .', type:'completa,mensual' },
       { id:30, cat:'streaming', name:'CapCut Pro (1 mes, 1 Dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'CAP CUT\nPRO', imgColor:'#000,#222', tag:'VIDEO', desc:'1 mes CapCut Pro individual.', type:'1-pantalla,mensual' },
       { id:31, cat:'streaming', name:'VIX Plus (Cuenta Completa)', price:13, bs:'13,00Bs', stars:4, img:'VIX\nPLUS', imgColor:'#4a0000,#c00', desc:'Cuenta completa (4 dispositivos) VIX Plus.', type:'completa' },
-      { id:32, cat:'streaming', name:'VIX Plus (1 pantalla)', price:8, bs:'8,00Bs', stars:4, img:'VIX+', imgColor:'#4a0000,#c00', desc:'1 pantalla VIX Plus.', type:'1-pantalla,mensual' },
-      { id:33, cat:'streaming', name:'VIX Plus (3 meses, 1 pantalla)', price:19, bs:'19,00Bs', stars:4, img:'VIX+', imgColor:'#4a0000,#c00', desc:'1 pantalla VIX Plus.', type:'1-pantalla,' },
+      { id:32, cat:'streaming', name:'VIX Plus (1 pantalla)', price:8.90, bs:'8.90Bs', stars:4, img:'VIX+', imgColor:'#4a0000,#c00', desc:'1 pantalla VIX Plus.', type:'1-pantalla,mensual' },
+      { id:33, cat:'streaming', name:'VIX Plus (3 meses, 1 pantalla)', price:22.90, bs:'22.90Bs', stars:4, img:'VIX+', imgColor:'#4a0000,#c00', desc:'1 pantalla VIX Plus.', type:'1-pantalla,' },
       { id:34, cat:'streaming', name:'Viki Rakuten (Cuenta Completa)', price:18, bs:'18,00Bs', stars:5, img:'VIKI\nRAKUTEN', imgColor:'#1a0040,#5a1aad', tag:'K-DRAMA', desc:'Cuenta completa   (4 dispositivos) Viki Rakuten. Doramas y K-Drama.', type:'completa ,mensual' },
       { id:35, cat:'streaming', name:'Viki Rakuten (1 mes, 1 pantalla)', price:13, bs:'13,00Bs', stars:5, img:'VIKI\nRAKUTEN', imgColor:'#1a0040,#5a1aad', tag:'K-DRAMA', desc:'1 pantalla Viki Rakuten. Doramas y K-Drama.', type:'1-pantalla,mensual' },
-      { id:36, cat:'streaming', name:'Drama Box (1 pantalla, semanal)', price:19, bs:'19,00Bs', stars:5, img:'DRAMA\nBOX', imgColor:'#2a0040,#7b2fa0', desc:'1 pantalla Drama Box por semana.', type:'1-pantalla' },
+      { id:36, cat:'streaming', name:'Drama Box (1 pantalla, semanal)', price:19.90, bs:'19.90Bs', stars:5, img:'DRAMA\nBOX', imgColor:'#2a0040,#7b2fa0', desc:'1 pantalla Drama Box por semana.\nTambien hay de 1 mes', type:'1-pantalla' },
       { id:37, cat:'streaming', name:'PeacockTV (1 mes, 1 dispositivo)', price:18, bs:'18,00Bs', stars:5, img:'PEACOCK\nTV', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla mensual (1 dispositivo) PeacockTV por 1 mes.', type:'1 pantalla,mensual,premium' },
       { id:38, cat:'streaming', name:'Shadowz (1 mes, 1 pantalla)', price:19, bs:'19,00Bs', stars:5, img:'SHADOWZ', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla Shadowz (Noche de terror) por 1 mes.', type:'1-pantalla,mensual,premium' },
       { id:39, cat:'streaming', name:'RetrocrushTV (7 dias, 1 dispositivo)', price:10, bs:'10,00Bs', stars:5, img:'RETROCRUSH\nTV', imgColor:'#0a0a0a,#1a1a1a', desc:'1 dispositivo RetrocrushTV (7 dias) .', type:'1-dispositivo,premium' },
       { id:40, cat:'streaming', name:'MUBI (30 dias, Cuenta Completa)', price:16, bs:'16,00Bs', stars:5, img:'MUBI', imgColor:'#0a0a0a,#1a1a1a', desc:'Cuenta completa MUBI (30 dias) .', type:'completa,mensual' },
       { id:41, cat:'streaming', name:'MUBI (2 meses, Cuenta Completa)', price:25, bs:'25,00Bs', stars:5, img:'MUBI', imgColor:'#0a0a0a,#1a1a1a', desc:'Cuenta completa MUBI (2 meses) .', type:'completa,2-meses' }, 
       // MÚSICA
-      { id:42, cat:'musica', name:'YouTube Premium (correo asignado, 1 mes)', price:19, bs:'19,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', tag:'🔥', desc:'1 pantalla YouTube Premium. Correo asignado por 1 mes.', type:'1-pantalla,mensual,premium' },
+      { id:42, cat:'musica', name:'YouTube Premium (correo asignado, 1 mes)', price:20, bs:'20,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', tag:'🔥', desc:'1 pantalla YouTube Premium. Correo asignado por 1 mes.', type:'1-pantalla,mensual,premium' },
       { id:43, cat:'musica', name:'YouTube Premium (3 meses correo asignado,)', price:39, bs:'39,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', tag:'🔥', desc:'1 pantalla YouTube Premium. Correo asignado por 3 meses.', type:'1-pantalla,premium' },
-      { id:44, cat:'musica', name:'YouTube Premium (correo de cliente, 1 mes)', price:18, bs:'18,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', desc:'1 pantalla YouTube Premium. Correo del cliente .', type:'1-pantalla,mensual' },
-      { id:45, cat:'musica', name:'Spotify Premium (1 mes)', price:19.5, bs:'19,50Bs', stars:5, img:'SPOTIFY\nPREMIUM', imgColor:'#004d1a,#1DB954', tag:'🔥', desc:'1 mes Spotify Premium individual.', type:'1-pantalla,mensual,premium' },
-      { id:46, cat:'musica', name:'Spotify Premium (3 meses)', price:49.55, bs:'49,55Bs', stars:5, img:'SPOTIFY', imgColor:'#004d1a,#1DB954', desc:'3 meses Spotify Premium individual.', type:'1-pantalla' },
+      { id:44, cat:'musica', name:'YouTube Premium (correo de cliente, 1 mes)', price:19, bs:'19,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', desc:'1 pantalla YouTube Premium. Correo del cliente .', type:'1-pantalla,mensual' },
+      { id:45, cat:'musica', name:'Spotify Premium (1 mes)', price:21.50, bs:'21,50Bs', stars:5, img:'SPOTIFY\nPREMIUM', imgColor:'#004d1a,#1DB954', tag:'🔥', desc:'1 mes Spotify Premium individual.', type:'1-pantalla,mensual,premium' },
+      { id:46, cat:'musica', name:'Spotify Premium (3 meses)', price:55, bs:'55Bs', stars:5, img:'SPOTIFY', imgColor:'#004d1a,#1DB954', desc:'3 meses Spotify Premium individual.', type:'1-pantalla' },
       { id:47, cat:'musica', name:'Tidal Premium Completa 30 días', price:28, bs:'28,00Bs', stars:5, img:'TIDAL', imgColor:'#001530,#00BFFF', desc:'Tidal Premium Madre (4 dispositivos) plan 30 días.', type:'completa,mensual' },
       { id:48, cat:'musica', name:'Tidal Premium (1 Dispositivo 30 días) s', price:16, bs:'16,00Bs', stars:5, img:'TIDAL', imgColor:'#001530,#00BFFF', desc:'Tidal Premium (1 Dispositivo) plan 30 días.', type:'1-dispositivo,mensual' },
       { id:49, cat:'musica', name:'Deezer PRO Familiar 30 días', price:30, bs:'30,00Bs', stars:5, img:'DEEZER\nPRO', imgColor:'#7a3100,#ff6600', desc:'Deezer PRO Familiar (4 dispositivos) 30 días.', type:'completa,mensual' },
@@ -1279,7 +1284,7 @@
       { id:63, cat:'musica', name:'Napster (1 mes)', price:18, bs:'18,00Bs', stars:4, img:'NAPSTER', imgColor:'#003300,#006400', desc:'1 mes Napster Premium.', type:'1-pantalla,mensual' },
       // IA & TOOLS,EDICIÓN
       { id:64, cat:'ia', name:'ChatGPT Plus (cuenta completa)', price:70, bs:'70,00Bs', stars:5, img:'CHAT GPT\nPLUS', imgColor:'#003d2e,#10a37f', tag:'🔥', desc:'Cuenta completa (7-8 dispositivos) ChatGPT Plus. Con condiciones y términos.', type:'completa,premium' },
-      { id:65, cat:'ia', name:'ChatGPT Plus (1 Dispositivo)', price:28, bs:'28,00Bs', stars:5, img:'CHAT GPT\nPLUS', imgColor:'#003d2e,#10a37f', desc:'1 Dispositivo ChatGPT Plus mensual.', type:'1-pantalla,mensual,premium' },
+      { id:65, cat:'ia', name:'ChatGPT Plus (1 Dispositivo)', price:28.50, bs:'28,50Bs', stars:5, img:'CHAT GPT\nPLUS', imgColor:'#003d2e,#10a37f', desc:'1 Dispositivo ChatGPT Plus mensual.', type:'1-pantalla,mensual,premium' },
       { id:66, cat:'ia', name:'ChatGPT Business (cuenta completa)', price:55, bs:'55,00Bs', stars:5, img:'CHATGPT\nBUSINESS', imgColor:'#003d2e,#0d8a6a', desc:'Cuenta completa ChatGPT Business.', type:'completa,premium' },
       { id:67, cat:'ia', name:'ChatGPT GO Plan Mensual (completa)', price:45, bs:'40,00Bs', stars:5, img:'CHAT G PT\nGO', imgColor:'#003d2e,#10a37f', desc:'Plan GO ChatGPT mensual, cuenta completa.', type:'completa,mensual' },
       { id:68, cat:'ia', name:'GROK IA (7 días, cuenta completa)', price:19, bs:'19,00Bs', stars:4, img:'GROK IA', imgColor:'#0a0a1a,#1a1a3a', desc:'7 días Grok. Consultar disponibilidad.', type:'completa (5-6 dispositivos)' },
@@ -1293,13 +1298,13 @@
       { id:76, cat:'ia', name:'Gemini AI Pro (1 mes, a correo de cliente)', price:18, bs:'18,00Bs', stars:5, img:'GEMINI\nPRO', imgColor:'#003087,#4285f4', desc:'1 mes Gemini Pro. a Correo de cliente.', type:'1-dispositivo,mensual' },
       { id:77, cat:'ia', name:'Google IA Pro + Gemini (mensual, completa)', price:40, bs:'35,00Bs', stars:5, img:'GOOGLE\nIA+GEMINI', imgColor:'#003087,#1a5fb4', desc:'Cuenta completa Google AI Pro + Gemini mensual.', type:'completa (4 dispositivos),mensual' },
       { id:78, cat:'ia', name:'Perplexity Pro (cuenta completa)', price:35, bs:'35,00Bs', stars:5, img:'PERPLEXITY\nPRO', imgColor:'#003333,#00b4d8', desc:'Cuenta completa (4 dispositivos) Perplexity Pro.', type:'completa,premium' },
-      { id:79, cat:'ia', name:'Perplexity Pro (1 pantalla)', price:18, bs:'18,00Bs', stars:5, img:'PERPLEXITY', imgColor:'#003333,#00b4d8', desc:'1 pantalla Perplexity Pro.', type:'1-pantalla,mensual' },
-      { id:80, cat:'ia', name:'Claude Pro (cuenta completa)', price:180, bs:'180,00Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', tag:'💎', desc:'Cuenta completa (7-8 dispositivos) Claude Pro (Anthropic). A pedido.', type:'completa,premium' },
-      { id:81, cat:'ia', name:'Claude Pro (1 pantalla)', price:39, bs:'39,00Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', desc:'1 pantalla Claude Pro mensual.', type:'1-pantalla,mensual,premium' },
-      { id:82, cat:'ia', name:'Canva Pro (1 mes, 1 dispositivo)', price:12, bs:'12,00Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'1 mes Canva Pro (A correo de cliente). 1 dispositivo.', type:'1-dispositivo,mensual' },
-      { id:83, cat:'ia', name:'Canva Edu (1 mes, 1 dispositivo)', price:10, bs:'10,00Bs', stars:5, img:'CANVA\nEdu', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'1 mes Canva Edu (A correo de cliente). 1 dispositivo.', type:'1-dispositivo,mensual' },
-      { id:84, cat:'ia', name:'Canva Edu (3 meses, 1 dispositivo)', price:25, bs:'25,00Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'3 meses Canva Edu. 1 dispositivo.', type:'1-pantalla,' },
-      { id:85, cat:'ia', name:'Canva Edu (6 meses, 1 dispositivo)', price:45, bs:'45,00Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'6 meses Canva Edu. 1 dispositivo.', type:'1-pantalla,' },
+      { id:79, cat:'ia', name:'Perplexity Pro (1 pantalla)', price:19.50, bs:'19,50Bs', stars:5, img:'PERPLEXITY', imgColor:'#003333,#00b4d8', desc:'1 pantalla Perplexity Pro.', type:'1-pantalla,mensual' },
+      { id:80, cat:'ia', name:'Claude Pro (cuenta completa)', price:275, bs:'275,00Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', tag:'💎', desc:'Cuenta completa (7-8 dispositivos) Claude Pro (Anthropic). A pedido.', type:'completa,premium' },
+      { id:81, cat:'ia', name:'Claude Pro (1 pantalla)', price:39.50, bs:'39,50Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', desc:'1 pantalla Claude Pro mensual.', type:'1-pantalla,mensual,premium' },
+      { id:82, cat:'ia', name:'Canva Pro (1 mes, 1 dispositivo)', price:12.50, bs:'12,50Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'1 mes Canva Pro (A correo de cliente). 1 dispositivo.', type:'1-dispositivo,mensual' },
+      { id:83, cat:'ia', name:'Canva Edu (1 mes, 1 dispositivo)', price:11, bs:'11,00Bs', stars:5, img:'CANVA\nEdu', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'1 mes Canva Edu (A correo de cliente). 1 dispositivo.', type:'1-dispositivo,mensual' },
+      { id:84, cat:'ia', name:'Canva Edu (3 meses, 1 dispositivo)', price:29, bs:'29,00Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'3 meses Canva Edu. 1 dispositivo.', type:'1-pantalla,' },
+      { id:85, cat:'ia', name:'Canva Edu (6 meses, 1 dispositivo)', price:54, bs:'54,00Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'6 meses Canva Edu. 1 dispositivo.', type:'1-pantalla,' },
       { id:86, cat:'ia', name:'Adobe Photoshop (6 meses, garantía 3m)', price:50, bs:'50,00Bs', stars:5, img:'ADOBE\nPHOTOSHOP', imgColor:'#00005c,#001eba', desc:'6 meses Adobe Photoshop. Garantía 3 meses.', type:'1-pantalla' },
       { id:87, cat:'ia', name:'Adobe Express (3 meses, 1 pantalla)', price:25, bs:'25,00Bs', stars:5, img:'ADOBE\nEXPRESS', imgColor:'#3d0000,#e53935', desc:'3 meses Adobe Express 1 pantalla.', type:'1-pantalla' },
       { id:88, cat:'ia', name:'Adobe Express (4 meses, 1 pantalla)', price:35, bs:'35,00Bs', stars:5, img:'ADOBE\nEXPRESS', imgColor:'#3d0000,#e53935', desc:'4 meses Adobe Express 1 pantalla.', type:'1-pantalla' },
@@ -1307,9 +1312,9 @@
       { id:90, cat:'ia', name:'Prezi AI Plus (2 semanas, completa)', price:39, bs:'39,00Bs', stars:4, img:'PREZI\nAI PLUS', imgColor:'#003333,#006666', desc:'2 semanas Prezi AI Plus. Cuenta completa.', type:'completa' },
       { id:91, cat:'ia', name:'Prezi AI Plus (2 semanas, 1 dispositivo)', price:19, bs:'19,00Bs', stars:4, img:'PREZI\nAI PLUS', imgColor:'#003333,#006666', desc:'2 semanas Prezi AI Plus. 1 dispositivo.', type:'completa' },
       { id:92, cat:'ia', name:'Gamma App AI Plus (cuenta completa)', price:119, bs:'119,00Bs', stars:5, img:'GAMMA\nAPP AI', imgColor:'#1a1a00,#8b8b00', tag:'A PEDIDO', desc:'Cuenta completa Gamma App AI Plus. A pedido.', type:'completa' },
-      { id:93, cat:'ia', name:'Gamma App AI Plus (1 pantalla)', price:29, bs:'29,00Bs', stars:5, img:'GAMMA\nAPP AI', imgColor:'#1a1a00,#8b8b00', desc:'1 pantalla Gamma App AI Plus.', type:'1-pantalla,mensual' },
+      { id:93, cat:'ia', name:'Gamma App AI Plus (1 pantalla)', price:29.50, bs:'29,50Bs', stars:5, img:'GAMMA\nAPP AI', imgColor:'#1a1a00,#8b8b00', desc:'1 pantalla Gamma App AI Plus.', type:'1-pantalla,mensual' },
       { id:94, cat:'ia', name:'TradingView Plus (1 pantalla)', price:35, bs:'35,00Bs', stars:5, img:'TRADING\nVIEW', imgColor:'#001a33,#0057b8', desc:'1 pantalla TradingView Plus. Análisis financiero.', type:'1-pantalla,mensual' },
-      { id:95, cat:'ia', name:'Videoideas AI (37 dias, 1 dispositivo)', price:28, bs:'28,00Bs', stars:4, img:'videoideas.ai', imgColor:'#001a33,#003d7a', desc:'1 dispositivo Videoideas AI. Crea contenido viral.', type:'1-pantalla,' },
+      { id:95, cat:'ia', name:'Videoideas AI (37 dias, 1 dispositivo)', price:28.50, bs:'28,50Bs', stars:4, img:'videoideas.ai', imgColor:'#001a33,#003d7a', desc:'1 dispositivo Videoideas AI. Crea contenido viral.', type:'1-pantalla,' },
       { id:96, cat:'ia', name:'Freepik AI Premium (1 dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'FREEPIK\nAI', imgColor:'#003300,#1a7a1a', desc:'1 dispositivo Freepik AI Premium. Consultar disponibilidad.', type:'1-pantalla,mensual' },
       { id:97, cat:'ia', name:'KAPWING (1 dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'KAPWING\n', imgColor:'#003300,#1a7a1a', desc:'1 dispositivo KAPWING creador de video,imagen y gifs. Consultar disponibilidad.', type:'1-pantalla,mensual' },
       { id:98, cat:'ia', name:'Lenovable (30 dias, 1 Dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'LENOVABLE', imgColor:'#1a0040,#6a00c8', desc:'1 mes Lenovable IA . Consultar disponibilidad.', type:'1- Dispositivo,mensual' },

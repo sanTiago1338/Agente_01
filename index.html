@@ -406,8 +406,8 @@
       justify-content: center;
       position: relative;
       overflow: hidden;
-      background-attachment: fixed;
       transition: all 0.3s ease;
+      background: linear-gradient(135deg, #0d1117 0%, #161b27 50%, #0f1922 100%);
     }
 
     .product-img::before {
@@ -427,28 +427,33 @@
       opacity: 1;
     }
 
-    .product-img-inner {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.8rem;
-      letter-spacing: 2px;
-      color: white;
-      text-align: center;
-      padding: 0.75rem;
-      line-height: 1.2;
-      text-shadow: 0 4px 12px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.3);
+    .product-logo-img {
+      width: 65%;
+      max-width: 130px;
+      max-height: 72%;
+      object-fit: contain;
       position: relative;
       z-index: 2;
-      transition: transform 0.3s ease, text-shadow 0.3s ease;
+      filter: drop-shadow(0 2px 14px rgba(0,0,0,0.6));
+      transition: transform 0.3s ease, filter 0.3s ease;
     }
 
-    .product-card:hover .product-img-inner {
-      transform: scale(1.05);
-      text-shadow: 0 4px 16px rgba(0,0,0,0.9), 0 0 25px rgba(255,215,0,0.2);
+    .product-card:hover .product-logo-img {
+      transform: scale(1.08);
+      filter: drop-shadow(0 4px 20px rgba(0,0,0,0.8));
+    }
+
+    .product-logo-generated {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0; left: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-logo-generated {
+      transform: scale(1.04);
     }
 
     .product-badge-img {
@@ -1002,6 +1007,113 @@
     .modal-btn-wa { background: var(--verde); color: white; }
     .modal-btn-close { background: var(--negro3); color: var(--texto-dim); border: 1px solid var(--borde); }
 
+    /* ===== WHATSAPP ORDER SECTION ===== */
+    .wa-order-box {
+      background: linear-gradient(135deg, #0a1f0d 0%, #0d2b10 100%);
+      border: 1px solid rgba(37,211,102,0.3);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      margin: 0.75rem 0 0;
+    }
+
+    .wa-order-box-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #25D366;
+      margin-bottom: 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .wa-order-summary {
+      background: rgba(0,0,0,0.25);
+      border-radius: 9px;
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .wa-order-summary-name {
+      font-size: 0.8rem;
+      color: var(--texto);
+      font-weight: 600;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wa-order-summary-price {
+      font-size: 1rem;
+      font-weight: 900;
+      color: var(--dorado);
+      white-space: nowrap;
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    .btn-wa-premium {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 0.85rem 1.2rem;
+      border-radius: 11px;
+      text-decoration: none;
+      width: 100%;
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.35), 0 0 0 0 rgba(37,211,102,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+      animation: wa-pulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes wa-pulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.35), 0 0 0 0 rgba(37,211,102,0.3); }
+      50% { box-shadow: 0 4px 20px rgba(37,211,102,0.5), 0 0 0 6px rgba(37,211,102,0); }
+    }
+
+    .btn-wa-premium::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      transition: left 0.45s ease;
+    }
+
+    .btn-wa-premium:hover::before { left: 100%; }
+    .btn-wa-premium:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(37,211,102,0.55);
+      animation: none;
+    }
+
+    .btn-wa-icon {
+      width: 22px; height: 22px;
+      flex-shrink: 0;
+    }
+
+    .wa-note {
+      text-align: center;
+      font-size: 0.68rem;
+      color: rgba(37,211,102,0.6);
+      margin-top: 0.5rem;
+      letter-spacing: 0.3px;
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (min-width: 600px) {
       .products-grid { grid-template-columns: repeat(3, 1fr); padding: 0 1rem; }
@@ -1225,7 +1337,7 @@
       { id:5, cat:'streaming', name:'Disney+ Estándar (Cuenta Completa)', price:45.00, bs:'45.00Bs', stars:5, img:'DISNEY+\nStandard', imgColor:'#001d7a,#003fc0', desc:'Cuenta completa Disney+ plan estándar.', type:'completa' },
       { id:6, cat:'streaming', name:'Disney+ Estándar (1 pantalla)', price:16.90, bs:'16.90Bs', stars:5, img:'DISNEY+ \nStandard', imgColor:'#001d7a,#003fc0', desc:'1 pantalla Disney+ estándar.', type:'1-pantalla,mensual' },
       { id:7, cat:'streaming', name:'Paramount+ UFC (Cuenta Completa)', price:29.90, bs:'29.90Bs', stars:4, img:'PARAMOUNT+\nUFC', imgColor:'#003087,#0057b8', desc:'Cuenta completa (4 dispositivos) Paramount+ con contenido UFC.', type:'completa' },
-      { id:8, cat:'streaming', name:'Paramount+ UFC (1 pantalla)', price:12.90, bs:'12.90Bs', stars:4, img:'PARAMOUNT+\nUFC', imgColor:'#003087,#0057b8', desc:'1 pantalla Paramount+ con contenido UFC.', type:'1-pantalla,mensual' },
+      { id:8, cat:'streaming', name:'Paramount+ UFC (1 pantalla)', price:12.50, bs:'12.50Bs', stars:4, img:'PARAMOUNT+\nUFC', imgColor:'#003087,#0057b8', desc:'1 pantalla Paramount+ con contenido UFC.', type:'1-pantalla,mensual' },
       { id:9, cat:'streaming', name:' UFC (1 pantalla)', price:11, bs:'11,00Bs', stars:4, img:'UFC', imgColor:'#003087,#0057b8', desc:'1 pantalla contenido UFC.', type:'1-pantalla,mensual' },
       { id:10, cat:'streaming', name:'Prime Video (Cuenta Completa)', price:29.90, bs:'29.90Bs', stars:5, img:'PRIME\nVIDEO', imgColor:'#131921,#00a8e0', desc:'Cuenta completa (4 dispositivos) Amazon Prime Video.', type:'completa,premium' },
       { id:11, cat:'streaming', name:'Prime Video (1 pantalla)', price:12.90, bs:'12.90Bs', stars:5, img:'PRIME\nVIDEO', imgColor:'#131921,#00a8e0', desc:'1 pantalla Amazon Prime Video.', type:'1-pantalla,mensual' },
@@ -1246,14 +1358,14 @@
       { id:26, cat:'streaming', name:'Crunchyroll (1 mes, cuenta completa)', price:16, bs:'16,00Bs', stars:5, img:'CRUNCHYROLL', imgColor:'#5c2300,#f97316', tag:'ANIME', desc:'Cuenta completa (4 dispositivos) Crunchyroll 1 mes. Anime ilimitado.', type:'completa,mensual' },
       { id:27, cat:'streaming', name:'Crunchyroll (1 mes, 1 pantalla)', price:10, bs:'10,00Bs', stars:5, img:'CRUNCHYROLL', imgColor:'#5c2300,#f97316', desc:'1 pantalla Crunchyroll por 1 mes.', type:'1-pantalla,mensual' },
       { id:28, cat:'streaming', name:'Crunchyroll (3 meses, cuenta completa)', price:35, bs:'35,00Bs', stars:5, img:'CRUNCHYROLL', imgColor:'#5c2300,#f97316', desc:'Cuenta completa Crunchyroll por 3 meses.', type:'completa' },
-      { id:29, cat:'streaming', name:'CapCut Pro (Cuenta Completa) 30 días', price:40, bs:'40,00Bs', stars:5, img:'CAP CUT\nPRO', imgColor:'#000,#222', desc:'30 días CapCut Pro. 1 mes CapCut Pro Completa (3 dispositivos) .', type:'completa,mensual' },
-      { id:30, cat:'streaming', name:'CapCut Pro (1 mes, 1 Dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'CAP CUT\nPRO', imgColor:'#000,#222', tag:'VIDEO', desc:'1 mes CapCut Pro individual.', type:'1-pantalla,mensual' },
+      { id:29, cat:'streaming', name:'CapCut Pro (Cuenta Completa) 30 días', price:49, bs:'49,00Bs', stars:5, img:'CAP CUT\nPRO', imgColor:'#000,#222', desc:'30 días CapCut Pro. 1 mes CapCut Pro Completa (3 dispositivos) .', type:'completa,mensual' },
+      { id:30, cat:'streaming', name:'CapCut Pro (1 mes, 1 Dispositivo)', price:23, bs:'23,00Bs', stars:5, img:'CAP CUT\nPRO', imgColor:'#000,#222', tag:'VIDEO', desc:'1 mes CapCut Pro individual.', type:'1-pantalla,mensual' },
       { id:31, cat:'streaming', name:'VIX Plus (Cuenta Completa)', price:13, bs:'13,00Bs', stars:4, img:'VIX\nPLUS', imgColor:'#4a0000,#c00', desc:'Cuenta completa (4 dispositivos) VIX Plus.', type:'completa' },
       { id:32, cat:'streaming', name:'VIX Plus (1 pantalla)', price:8.90, bs:'8.90Bs', stars:4, img:'VIX+', imgColor:'#4a0000,#c00', desc:'1 pantalla VIX Plus.', type:'1-pantalla,mensual' },
       { id:33, cat:'streaming', name:'VIX Plus (3 meses, 1 pantalla)', price:22.90, bs:'22.90Bs', stars:4, img:'VIX+', imgColor:'#4a0000,#c00', desc:'1 pantalla VIX Plus.', type:'1-pantalla,' },
       { id:34, cat:'streaming', name:'Viki Rakuten (Cuenta Completa)', price:18, bs:'18,00Bs', stars:5, img:'VIKI\nRAKUTEN', imgColor:'#1a0040,#5a1aad', tag:'K-DRAMA', desc:'Cuenta completa   (4 dispositivos) Viki Rakuten. Doramas y K-Drama.', type:'completa ,mensual' },
       { id:35, cat:'streaming', name:'Viki Rakuten (1 mes, 1 pantalla)', price:13, bs:'13,00Bs', stars:5, img:'VIKI\nRAKUTEN', imgColor:'#1a0040,#5a1aad', tag:'K-DRAMA', desc:'1 pantalla Viki Rakuten. Doramas y K-Drama.', type:'1-pantalla,mensual' },
-      { id:36, cat:'streaming', name:'Drama Box (1 pantalla, semanal)', price:19.90, bs:'19.90Bs', stars:5, img:'DRAMA\nBOX', imgColor:'#2a0040,#7b2fa0', desc:'1 pantalla Drama Box por semana.\nTambien hay de 1 mes', type:'1-pantalla' },
+      { id:36, cat:'streaming', name:'Drama Box (1 pantalla, 16 días)', price:27, bs:'27,00Bs', stars:5, img:'DRAMA\nBOX', imgColor:'#2a0040,#7b2fa0', desc:'1 pantalla Drama Box por 17 dias.\nTambien hay de 1 mes', type:'1-pantalla' },
       { id:37, cat:'streaming', name:'PeacockTV (1 mes, 1 dispositivo)', price:18, bs:'18,00Bs', stars:5, img:'PEACOCK\nTV', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla mensual (1 dispositivo) PeacockTV por 1 mes.', type:'1 pantalla,mensual,premium' },
       { id:38, cat:'streaming', name:'Shadowz (1 mes, 1 pantalla)', price:19, bs:'19,00Bs', stars:5, img:'SHADOWZ', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla Shadowz (Noche de terror) por 1 mes.', type:'1-pantalla,mensual,premium' },
       { id:39, cat:'streaming', name:'RetrocrushTV (7 dias, 1 dispositivo)', price:10, bs:'10,00Bs', stars:5, img:'RETROCRUSH\nTV', imgColor:'#0a0a0a,#1a1a1a', desc:'1 dispositivo RetrocrushTV (7 dias) .', type:'1-dispositivo,premium' },
@@ -1262,7 +1374,7 @@
       // MÚSICA
       { id:42, cat:'musica', name:'YouTube Premium (correo asignado, 1 mes)', price:20, bs:'20,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', tag:'🔥', desc:'1 pantalla YouTube Premium. Correo asignado por 1 mes.', type:'1-pantalla,mensual,premium' },
       { id:43, cat:'musica', name:'YouTube Premium (3 meses correo asignado,)', price:39, bs:'39,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', tag:'🔥', desc:'1 pantalla YouTube Premium. Correo asignado por 3 meses.', type:'1-pantalla,premium' },
-      { id:44, cat:'musica', name:'YouTube Premium (correo de cliente, 1 mes)', price:19, bs:'19,00Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', desc:'1 pantalla YouTube Premium. Correo del cliente .', type:'1-pantalla,mensual' },
+      { id:44, cat:'musica', name:'YouTube Premium (correo de cliente, 1 mes)', price:19.90, bs:'19,90Bs', stars:5, img:'YOUTUBE\nPREMIUM', imgColor:'#8b0000,#ff0000', desc:'1 pantalla YouTube Premium. Correo del cliente .', type:'1-pantalla,mensual' },
       { id:45, cat:'musica', name:'Spotify Premium (1 mes)', price:21.50, bs:'21,50Bs', stars:5, img:'SPOTIFY\nPREMIUM', imgColor:'#004d1a,#1DB954', tag:'🔥', desc:'1 mes Spotify Premium individual.', type:'1-pantalla,mensual,premium' },
       { id:46, cat:'musica', name:'Spotify Premium (3 meses)', price:55, bs:'55Bs', stars:5, img:'SPOTIFY', imgColor:'#004d1a,#1DB954', desc:'3 meses Spotify Premium individual.', type:'1-pantalla' },
       { id:47, cat:'musica', name:'Tidal Premium Completa 30 días', price:28, bs:'28,00Bs', stars:5, img:'TIDAL', imgColor:'#001530,#00BFFF', desc:'Tidal Premium Madre (4 dispositivos) plan 30 días.', type:'completa,mensual' },
@@ -1290,13 +1402,13 @@
       { id:68, cat:'ia', name:'GROK IA (7 días, cuenta completa)', price:19, bs:'19,00Bs', stars:4, img:'GROK IA', imgColor:'#0a0a1a,#1a1a3a', desc:'7 días Grok. Consultar disponibilidad.', type:'completa (5-6 dispositivos)' },
       { id:69, cat:'ia', name:'GROK IA (30 días, cuenta completa)', price:45, bs:'45,00Bs', stars:4, img:'GROK IA', imgColor:'#0a0a1a,#1a1a3a', desc:'30 días Grok. Consultar disponibilidad.', type:'completa (5-6 dispositivos)' },
       { id:70, cat:'ia', name:'GROK IA (30 días, 1 Dispositivo)', price:29, bs:'29,00Bs', stars:4, img:'GROK IA', imgColor:'#0a0a1a,#1a1a3a', desc:'30 días Grok 1 Dispositivo. Consultar disponibilidad.', type:'1-dispositivo,mensual' },
-      { id:71, cat:'ia', name:'Leonardo IA (30 días, 1 Dispositivo)', price:145, bs:'140,00Bs', stars:4, img:'LEONARDO\nIA', imgColor:'#0a0a1a,#1a1a3a', desc:'30 días Leonardo IA Artisan Unlimited 1 Dispositivo. Consultar disponibilidad.', type:'1-dispositivo,mensual' },
+      { id:71, cat:'ia', name:'Leonardo IA (30 días, 1 Dispositivo)', price:38.50, bs:'38,50Bs', stars:4, img:'LEONARDO\nIA', imgColor:'#0a0a1a,#1a1a3a', desc:'30 días Leonardo IA Artisan Unlimited 1 Dispositivo. Consultar disponibilidad.', type:'1-dispositivo,mensual' },
       { id:72, cat:'ia', name:'Leonardo IA (30 días, 1 Dispositivo)', price:405, bs:'400,00Bs', stars:4, img:'LEONARDO\nIA', imgColor:'#0a0a1a,#1a1a3a', desc:'30 días Leonardo IA Maestro Unlimited 1 Dispositivo. Consultar disponibilidad.', type:'1-dispositivo,mensual' },
       { id:73, cat:'ia', name:'Jarvis IA (cuenta completa)', price:29, bs:'29,00Bs', stars:5, img:'JARVIS\nIA', imgColor:'#1a0033,#6a0dad', desc:'Cuenta completa Jarvis IA.', type:'completa (4 dispositivos),mensual' },
       { id:74, cat:'ia', name:'Jarvis IA (1 dispositivo)', price:15, bs:'15,00Bs', stars:5, img:'JARVIS\nIA', imgColor:'#1a0033,#6a0dad', desc:'1 dispositivo Jarvis IA.', type:'1-dispositivo,mensual' },
       { id:75, cat:'ia', name:'Google IA Pro + Gemini (1 mes, individual)', price:25, bs:'25,00Bs', stars:4, img:'GOOGLE\nIA+GEMINI', imgColor:'#003087,#1a5fb4', desc:'Google AI Pro + Gemini 1 mes. a correo designado.', type:'1-dispositivo,mensual' },
-      { id:76, cat:'ia', name:'Gemini AI Pro (1 mes, a correo de cliente)', price:18, bs:'18,00Bs', stars:5, img:'GEMINI\nPRO', imgColor:'#003087,#4285f4', desc:'1 mes Gemini Pro. a Correo de cliente.', type:'1-dispositivo,mensual' },
-      { id:77, cat:'ia', name:'Google IA Pro + Gemini (mensual, completa)', price:40, bs:'35,00Bs', stars:5, img:'GOOGLE\nIA+GEMINI', imgColor:'#003087,#1a5fb4', desc:'Cuenta completa Google AI Pro + Gemini mensual.', type:'completa (4 dispositivos),mensual' },
+      { id:76, cat:'ia', name:'Gemini AI Pro (1 mes, a correo de cliente)', price:20.50, bs:'20,50Bs', stars:5, img:'GEMINI\nPRO', imgColor:'#003087,#4285f4', desc:'1 mes Gemini Pro. a Correo de cliente.', type:'1-dispositivo,mensual' },
+      { id:77, cat:'ia', name:'Google IA Pro + Gemini (mensual, completa)', price:49.50, bs:'49,50Bs', stars:5, img:'GOOGLE\nIA+GEMINI', imgColor:'#003087,#1a5fb4', desc:'Cuenta completa Google AI Pro + Gemini mensual.', type:'completa (4 dispositivos),mensual' },
       { id:78, cat:'ia', name:'Perplexity Pro (cuenta completa)', price:35, bs:'35,00Bs', stars:5, img:'PERPLEXITY\nPRO', imgColor:'#003333,#00b4d8', desc:'Cuenta completa (4 dispositivos) Perplexity Pro.', type:'completa,premium' },
       { id:79, cat:'ia', name:'Perplexity Pro (1 pantalla)', price:19.50, bs:'19,50Bs', stars:5, img:'PERPLEXITY', imgColor:'#003333,#00b4d8', desc:'1 pantalla Perplexity Pro.', type:'1-pantalla,mensual' },
       { id:80, cat:'ia', name:'Claude Pro (cuenta completa)', price:275, bs:'275,00Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', tag:'💎', desc:'Cuenta completa (7-8 dispositivos) Claude Pro (Anthropic). A pedido.', type:'completa,premium' },
@@ -1465,6 +1577,157 @@
       return gradients[hash];
     }
 
+    function generateLogoSvg(name, imgColor) {
+      // Extraer nombre corto del servicio (máx 2 palabras)
+      let short = name.replace(/\(.*?\)/g, '').replace(/\s*—.*$/, '').trim();
+      short = short.replace(/\b(PRO|PLUS|Premium|Estándar|Standard|Business|Ultra|Basic|Lite|Essential)\b.*/i, '').trim();
+      const words = short.split(/\s+/).filter(w => w.length > 0);
+
+      const line1 = (words[0] || '').toUpperCase();
+      const line2 = (words[1] || '').toUpperCase();
+      const hasTwo = line2.length > 0;
+
+      const colors = (imgColor || '#1e1e1e,#333').split(',');
+      const c1 = colors[0].trim();
+      const c2 = (colors[1] || colors[0]).trim();
+
+      // Ancho útil = 144px. Char width ≈ 0.62 × fontSize. Reducir 20%
+      const maxLen = Math.max(line1.length || 1, line2.length || 1);
+      const fsByWidth = Math.floor(144 / (maxLen * 0.62));
+      const fsByHeight = hasTwo ? 36 : 52;
+      const fs = Math.round(Math.min(fsByWidth, fsByHeight, 52) * 0.9);
+
+      // Centrando verticalmente en viewBox 160×90 (y = baseline del texto)
+      // Cap-height ≈ 0.72×fs → centro visual = baseline − 0.36×fs
+      let textBlock;
+      if (hasTwo) {
+        const gap = 7;
+        // y1 tal que el bloque quede centrado en 45
+        const y1 = Math.round(45 - (fs + gap) / 2 + 0.36 * fs);
+        const y2 = y1 + fs + gap;
+        textBlock =
+          `<text x="80" y="${y1}" font-family="Arial Black,Impact,sans-serif" font-size="${fs}" font-weight="900" fill="white" fill-opacity="0.95" text-anchor="middle">${line1}</text>` +
+          `<text x="80" y="${y2}" font-family="Arial Black,Impact,sans-serif" font-size="${fs}" font-weight="900" fill="white" fill-opacity="0.72" text-anchor="middle">${line2}</text>`;
+      } else {
+        const y = Math.round(45 + 0.36 * fs);
+        textBlock =
+          `<text x="80" y="${y}" font-family="Arial Black,Impact,sans-serif" font-size="${fs}" font-weight="900" fill="white" fill-opacity="0.95" text-anchor="middle">${line1}</text>`;
+      }
+
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90" overflow="hidden"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient><linearGradient id="sh" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.12)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></linearGradient></defs><rect width="160" height="90" fill="url(#bg)"/><rect width="160" height="90" fill="url(#sh)"/><rect x="5" y="5" width="150" height="80" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1" rx="7"/>${textBlock}</svg>`;
+      return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    }
+
+    function getImageUrl(productName, category, imgColor) {
+      const si  = 'https://cdn.simpleicons.org';   // simple-icons (colores de marca)
+      const cb  = 'https://logo.clearbit.com';      // clearbit (logos reales de empresa)
+      const nameLC = productName.toLowerCase();
+
+      const mapping = {
+        // ── STREAMING ────────────────────────────────────────────────
+        'netflix':         `${si}/netflix`,
+        'disney':          `${si}/disneyplus/ffffff`,
+        'paramount':       `${si}/paramountplus/ffffff`,
+        'prime video':     `${si}/amazonprimevideo/ffffff`,
+        'magis':           `${cb}/magis.tv`,
+        'flujo':           `${cb}/flujoapp.com`,
+        'tele latino':     `${cb}/tele-latino.com`,
+        'iptv':            `${cb}/iptvsmarters.com`,
+        'hbo':             `${si}/hbo/8a2be2`,
+        'crunchyroll':     `${si}/crunchyroll`,
+        'capcut':          `${si}/capcut/00f2ea`,
+        'vix':             `${cb}/vix.com`,
+        'viki':            `${cb}/viki.com`,
+        'drama box':       `${cb}/dramabox.com`,
+        'peacock':         `${cb}/peacocktv.com`,
+        'shadowz':         `${cb}/shadowz.fr`,
+        'retrocrush':      `${cb}/retrocrush.tv`,
+        'mubi':            `${si}/mubi/ffffff`,
+        'ufc':             `${cb}/ufc.com`,
+
+        // ── MÚSICA ───────────────────────────────────────────────────
+        'youtube premium': `${si}/youtube`,
+        'youtube':         `${si}/youtube`,
+        'spotify':         `${si}/spotify`,
+        'tidal':           `${si}/tidal/00bfff`,
+        'deezer':          `${si}/deezer`,
+        'apple tv':        `${si}/appletv/ffffff`,
+        'apple music':     `${si}/applemusic`,
+        'donna ai':        `${cb}/donna.ai`,
+        'epidemic':        `${si}/epidemicsound/ffffff`,
+        'podimo':          `${cb}/podimo.com`,
+        'brain.fm':        `${cb}/brain.fm`,
+        'audio beta':      `${cb}/audiobeta.com`,
+        'soundcloud':      `${si}/soundcloud`,
+        'audiomack':       `${si}/audiomack`,
+        'napster':         `${si}/napster`,
+
+        // ── IA & TOOLS ───────────────────────────────────────────────
+        'chatgpt':         `${si}/openai/10a37f`,
+        'grok':            `${si}/xai/ffffff`,
+        'leonardo':        `${cb}/leonardo.ai`,
+        'jarvis':          `${cb}/heyjasper.com`,
+        'google ai':       `${si}/google`,
+        'gemini':          `${si}/googlegemini/ffffff`,
+        'perplexity':      `${si}/perplexity/ffffff`,
+        'claude':          `${si}/anthropic/cc9b7a`,
+        'canva':           `${si}/canva`,
+        'adobe photoshop': `${si}/adobephotoshop`,
+        'adobe express':   `${si}/adobeexpress`,
+        'adobe':           `${si}/adobe`,
+        'beautiful ai':    `${cb}/beautiful.ai`,
+        'prezi':           `${si}/prezi`,
+        'gamma':           `${cb}/gamma.app`,
+        'trading':         `${si}/tradingview`,
+        'videoideas':      `${cb}/videoideas.ai`,
+        'freepik':         `${si}/freepik`,
+        'kapwing':         `${cb}/kapwing.com`,
+        'meitu':           `${cb}/meitu.com`,
+        'discord':         `${si}/discord`,
+        'dinolingo':       `${cb}/dinolingo.com`,
+        'duolingo':        `${si}/duolingo`,
+        'notion':          `${si}/notion/ffffff`,
+        'figma':           `${si}/figma`,
+        'talkpal':         `${cb}/talkpal.ai`,
+        'uizard':          `${cb}/uizard.io`,
+        'wispr':           `${cb}/wispr.ai`,
+        'creative fabrica':`${cb}/creativefabrica.com`,
+        'talkio':          `${cb}/talkio.ai`,
+        'mindstudio':      `${cb}/mindstudio.ai`,
+        'idagio':          `${cb}/idagio.com`,
+        'nextory':         `${cb}/nextory.com`,
+
+        // ── JUEGOS ───────────────────────────────────────────────────
+        'brawl stars':     `${si}/brawlstars`,
+        'free fire':       `${si}/garena`,
+        'clash of clans':  `${cb}/clashofclans.com`,
+        'clash royale':    `${cb}/clashroyale.com`,
+        'roblox':          `${si}/roblox`,
+        'mobile legends':  `${cb}/mobilelegends.com`,
+        'pug mobile':      `${cb}/pubg.com`,
+
+        // ── SEGUIDORES ───────────────────────────────────────────────
+        'instagram':       `${si}/instagram`,
+        'tiktok':          `${si}/tiktok/ff2d55`,
+        'facebook':        `${si}/facebook`,
+
+        // ── VPN ──────────────────────────────────────────────────────
+        'potato':          `${cb}/potatovpn.com`,
+        'hma':             `${cb}/hidemyass.com`,
+        'vpn express':     `${si}/expressvpn`,
+        'expressvpn':      `${si}/expressvpn`,
+        'nordvpn':         `${si}/nordvpn`,
+        'norvpn':          `${si}/nordvpn`,
+        'surfshark':       `${si}/surfshark`,
+      };
+
+      for(let [key, url] of Object.entries(mapping)) {
+        if(nameLC.includes(key)) return url;
+      }
+
+      return generateLogoSvg(productName, imgColor);
+    }
+
     function renderProducts() {
       let filtered = PRODUCTS.filter(p => {
         const catOk = currentCat === 'all' || p.cat === currentCat;
@@ -1487,11 +1750,15 @@
       const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
 
       const grid = document.getElementById('5');
-      grid.innerHTML = pageItems.map(p => `
+      grid.innerHTML = pageItems.map(p => {
+        const imageUrl = getImageUrl(p.name, p.cat, p.imgColor);
+        const isGenerated = imageUrl.startsWith('data:');
+
+        return `
         <div class="product-card">
-          <div class="product-img" style="background:${getGradient(p.imgColor)};" onclick="openProduct(${p.id})">
+          <div class="product-img" onclick="openProduct(${p.id})">
             ${p.tag ? `<span class="product-badge-img">${p.tag}</span>` : ''}
-            <div class="product-img-inner">${p.img.replace(/\n/g,'<br>')}</div>
+            <img class="${isGenerated ? 'product-logo-generated' : 'product-logo-img'}" src="${imageUrl}" alt="${p.name}" onerror="this.onerror=null;this.src=generateLogoSvg('${p.name.replace(/'/g,"\\'")}','${p.imgColor}');this.className='product-logo-generated';">
           </div>
           <div class="product-body">
             <div class="product-price">${p.bs}</div>
@@ -1506,7 +1773,8 @@
             🛒 Agregar al Carrito
           </button>
         </div>
-      `).join('');
+      `;
+      }).join('');
 
       renderPagination(totalPages);
     }
@@ -1568,28 +1836,44 @@
     function openProduct(id) {
       const p = PRODUCTS.find(x => x.id === id);
       if(!p) return;
-      
-      const whatsappMsg = `*ZONA VIP*\n\n📦 *Producto:* ${p.name}\n💰 *Precio:* ${p.bs}\n⭐ *Calificación:* ${p.stars}/5\n\n📝 *Descripción:*\n${p.desc}\n\n¿Quiero comprar este producto!`;
+
+      const imageUrl = getImageUrl(p.name, p.cat, p.imgColor);
+
+      const stars = '★'.repeat(p.stars) + '☆'.repeat(5 - p.stars);
+      const whatsappMsg = `🦁 *ZONA VIP* — Pedido Express\n${'─'.repeat(28)}\n\n📦 *${p.name}*\n💰 Precio: *${p.bs}*\n⭐ Calificación: ${stars}\n\n📋 *Descripción:*\n${p.desc}\n\n${'─'.repeat(28)}\n🟢 ¡Hola! Quiero comprar este producto ahora.\n⚡ Por favor confírmame disponibilidad.`;
       const whatsappUrl = `https://wa.me/59167687306?text=${encodeURIComponent(whatsappMsg)}`;
-      
+
+      const isGeneratedModal = imageUrl.startsWith('data:');
       document.getElementById('10').innerHTML = `
-        <div class="product-img" style="background:${getGradient(p.imgColor)}; height:160px; border-radius:10px; margin-bottom:1rem; font-family:'Bebas Neue',sans-serif; font-size:2rem; letter-spacing:2px; color:white; display:flex; align-items:center; justify-content:center; text-shadow:0 2px 8px rgba(0,0,0,0.5);">
-          ${p.img.replace(/\n/g,'<br>')}
+        <div class="product-img" style="height:160px; border-radius:10px; margin-bottom:1rem; overflow:hidden;">
+          <img class="${isGeneratedModal ? 'product-logo-generated' : 'product-logo-img'}" src="${imageUrl}" alt="${p.name}" ${isGeneratedModal ? '' : 'style="max-width:140px; max-height:110px;"'} onerror="this.onerror=null;this.src=generateLogoSvg('${p.name.replace(/'/g,"\\'")}','${p.imgColor}');this.className='product-logo-generated';">
         </div>
         <div class="modal-price">${p.bs}</div>
         <div class="modal-stars">${getStars(p.stars)}</div>
         <div class="modal-name">${p.name}</div>
         <div class="modal-seller">Vendido por ZONA VIP · Cercado, Bolivia</div>
         <div class="modal-desc">${p.desc}</div>
-        <div class="modal-actions">
-          <button onclick="addToCart(${p.id})" class="modal-btn" style="background:var(--rojo); color:white;">
-            🛒 Agregar al Carrito
-          </button>
-          <a href="${whatsappUrl}" target="_blank" class="modal-btn modal-btn-wa">
-            📲 Pedir por WhatsApp
+        <button onclick="addToCart(${p.id})" class="modal-btn" style="background:var(--rojo); color:white; width:100%;">
+          🛒 Agregar al Carrito
+        </button>
+
+        <div class="wa-order-box">
+          <div class="wa-order-box-title">
+            <svg class="btn-wa-icon" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Pedir por WhatsApp
+          </div>
+          <div class="wa-order-summary">
+            <span class="wa-order-summary-name">${p.name}</span>
+            <span class="wa-order-summary-price">${p.bs}</span>
+          </div>
+          <a href="${whatsappUrl}" target="_blank" class="btn-wa-premium">
+            <svg class="btn-wa-icon" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Enviar Pedido Ahora
           </a>
-          <button class="modal-btn modal-btn-close" onclick="closeModal()">✕ Cerrar</button>
+          <div class="wa-note">⚡ Respuesta inmediata · Entrega garantizada</div>
         </div>
+
+        <button class="modal-btn modal-btn-close" onclick="closeModal()" style="width:100%; margin-top:0.5rem;">✕ Cerrar</button>
       `;
       document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -1636,12 +1920,18 @@
             <strong style="color:var(--dorado); font-size:1.1rem;">${total.toFixed(2)} Bs</strong>
           </div>
         </div>
-        <div style="display:flex; gap:0.5rem; margin-top:1rem;">
-          <a href="https://wa.me/59167687306?text=${encodeURIComponent('Hola! Quiero hacer el siguiente pedido: ' + cart.map(i => `${i.qty}x ${i.name}`).join(', '))}" target="_blank" style="flex:1; background:var(--verde); color:white; padding:0.75rem; border-radius:8px; text-align:center; text-decoration:none; font-weight:600; font-size:0.85rem;">
-            📲 Enviar Pedido por WhatsApp
+        <div class="wa-order-box" style="margin-top:1rem;">
+          <div class="wa-order-box-title">
+            <svg class="btn-wa-icon" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Confirmar Pedido
+          </div>
+          <a href="https://wa.me/59167687306?text=${encodeURIComponent('🦁 *ZONA VIP* — Pedido Express\n' + '─'.repeat(28) + '\n\n🛒 *Mi Pedido:*\n' + cart.map(i => `• ${i.qty}x ${i.name} — ${i.bs}`).join('\n') + '\n\n💰 *Total: ' + total.toFixed(2) + ' Bs*\n' + '─'.repeat(28) + '\n🟢 ¡Hola! Confirmo este pedido.\n⚡ Por favor indíqueme disponibilidad y método de pago.')}" target="_blank" class="btn-wa-premium">
+            <svg class="btn-wa-icon" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Enviar Pedido — ${total.toFixed(2)} Bs
           </a>
-          <button onclick="closeModal()" style="flex:1; background:var(--negro3); color:var(--texto); padding:0.75rem; border-radius:8px; border:1px solid var(--borde); cursor:pointer; font-weight:600; font-size:0.85rem;">Cerrar</button>
+          <div class="wa-note">⚡ Respuesta inmediata · Entrega garantizada</div>
         </div>
+        <button onclick="closeModal()" style="width:100%; margin-top:0.5rem; background:var(--negro3); color:var(--texto); padding:0.75rem; border-radius:8px; border:1px solid var(--borde); cursor:pointer; font-weight:600; font-size:0.85rem;">Cerrar</button>
       `;
 
       document.getElementById('10').innerHTML = html;

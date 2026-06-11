@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - ZONA VIP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --negro: #0a0a0a;
+      --negro2: #111111;
+      --negro3: #1a1a1a;
+      --rojo: #e50914;
+      --dorado: #ffd700;
+      --verde: #25d366;
+      --texto: #e0e0e0;
+      --texto-dim: #888;
+      --borde: rgba(255,255,255,0.08);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--negro);
+      color: var(--texto);
+      min-height: 100vh;
+    }
+
+    .admin-header {
+      background: var(--negro2);
+      border-bottom: 1px solid var(--borde);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .admin-header a {
+      text-decoration: none;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 3px;
+      color: var(--rojo);
+    }
+    .admin-badge {
+      background: rgba(229,9,20,0.15);
+      color: var(--rojo);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.3rem 0.75rem;
+      border-radius: 50px;
+      letter-spacing: 1px;
+    }
+
+    .container { max-width: 500px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    .card {
+      background: var(--negro2);
+      border: 1px solid var(--borde);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      color: var(--dorado);
+      margin-bottom: 0.5rem;
+    }
+    .card-subtitle {
+      font-size: 0.82rem;
+      color: var(--texto-dim);
+      margin-bottom: 1rem;
+    }
+
+    .drop-zone {
+      background: var(--negro3);
+      border: 2px dashed rgba(229,9,20,0.4);
+      border-radius: 12px;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--dorado);
+      background: rgba(255,215,0,0.05);
+    }
+    .drop-zone.has-image {
+      border-color: var(--verde);
+      border-style: solid;
+    }
+    .drop-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+    .drop-text { color: var(--rojo); font-size: 1rem; font-weight: 700; }
+    .drop-hint { color: var(--texto-dim); font-size: 0.75rem; margin-top: 0.5rem; }
+
+    .preview-wrap {
+      display: none;
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .preview-wrap.show { display: block; }
+    .preview-wrap img {
+      max-width: 250px;
+      border-radius: 12px;
+      border: 2px solid var(--dorado);
+    }
+    .preview-label {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--verde);
+      font-weight: 600;
+    }
+
+    .btn-save {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, var(--rojo), #b5070f);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-save:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .result-box {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+    .result-box.success {
+      display: block;
+      background: rgba(37,211,102,0.1);
+      border: 1px solid rgba(37,211,102,0.3);
+      color: var(--verde);
+    }
+    .result-box.error {
+      display: block;
+      background: rgba(229,9,20,0.1);
+      border: 1px solid rgba(229,9,20,0.3);
+      color: var(--rojo);
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 0;
+    }
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-dot.on { background: var(--verde); }
+    .status-dot.off { background: var(--dorado); }
+    .status-text { font-size: 0.85rem; font-weight: 600; }
+
+    .qr-preview-admin {
+      max-width: 180px;
+      border-radius: 8px;
+      margin: 0.75rem 0;
+    }
+
+    .pago-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--borde);
+      font-size: 0.82rem;
+    }
+    .pago-item:last-child { border-bottom: none; }
+    .pago-monto { font-weight: 700; }
+    .pago-estado { font-size: 0.75rem; font-weight: 700; }
+    .pago-estado.pagado { color: var(--verde); }
+    .pago-estado.pendiente { color: var(--dorado); }
+    .pago-estado.expirado, .pago-estado.cancelado { color: var(--rojo); }
+
+    .btn-link {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      color: var(--texto-dim);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.75rem;
+      border: 1px solid var(--borde);
+      border-radius: 10px;
+      margin-top: 0.5rem;
+      transition: color 0.2s;
+    }
+    .btn-link:hover { color: var(--texto); }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="admin-header">
+    <a href="index.html">ZONA_VIP</a>
+    <span class="admin-badge">ADMIN PANEL</span>
+  </div>
+
+  <div class="container">
+
+    <!-- SUBIR QR -->
+    <div class="card">
+      <div class="card-title">CONFIGURAR QR DE BANCOSOL</div>
+      <div class="card-subtitle">
+        Sube tu QR real de BancoSol. Puedes pegar con <strong style="color:var(--dorado);">Ctrl+V</strong>,
+        arrastrar la imagen, o hacer clic para seleccionar archivo.
+      </div>
+
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-icon">QR</div>
+        <div class="drop-text" id="dropText">Ctrl+V para pegar tu QR</div>
+        <div class="drop-hint">o haz clic / arrastra aqui</div>
+        <input type="file" id="qrFile" accept="image/*" style="display:none;">
+      </div>
+
+      <div class="preview-wrap" id="preview">
+        <img id="previewImg" alt="Preview QR">
+        <div class="preview-label">QR listo para guardar</div>
+      </div>
+
+      <button class="btn-save" id="btnGuardar" disabled>
+        Guardar y Activar QR
+      </button>
+
+      <div class="result-box" id="resultado"></div>
+    </div>
+
+    <!-- ESTADO -->
+    <div class="card">
+      <div class="card-title">ESTADO DEL SISTEMA</div>
+      <div id="statusInfo">
+        <div class="status-row">
+          <div class="spinner"></div>
+          <span style="color:var(--texto-dim); font-size:0.85rem;">Verificando...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGOS RECIENTES -->
+    <div class="card">
+      <div class="card-title">PAGOS RECIENTES</div>
+      <div id="pagosLista" style="color:var(--texto-dim); font-size:0.85rem;">Cargando...</div>
+    </div>
+
+    <a href="index.html" class="btn-link">Ir a la tienda</a>
+  </div>
+
+  <script>
+    const API_KEY = 'admin-zonavip-2024';
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('qrFile');
+    const btnGuardar = document.getElementById('btnGuardar');
+    let imageBlob = null;
+
+    document.addEventListener('paste', (e) => {
+      const items = e.clipboardData.items;
+      for (let item of items) {
+        if (item.type.startsWith('image/')) {
+          procesarImagen(item.getAsFile());
+          return;
+        }
+      }
+    });
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length > 0) procesarImagen(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) procesarImagen(e.target.files[0]);
+    });
+
+    function procesarImagen(file) {
+      imageBlob = file;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById('previewImg').src = ev.target.result;
+        document.getElementById('preview').classList.add('show');
+        document.getElementById('dropText').textContent = 'QR cargado correctamente';
+        dropZone.classList.add('has-image');
+        btnGuardar.disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    btnGuardar.addEventListener('click', async () => {
+      if (!imageBlob) return;
+      btnGuardar.disabled = true;
+      btnGuardar.innerHTML = '<span class="spinner"></span> Guardando...';
+
+      const formData = new FormData();
+      formData.append('qr', imageBlob, 'qr-banco.png');
+
+      try {
+        const res = await fetch('/api/admin/subir-qr', {
+          method: 'POST',
+          headers: { 'X-API-Key': API_KEY },
+          body: formData,
+        });
+        const data = await res.json();
+        const resultado = document.getElementById('resultado');
+
+        if (res.ok) {
+          resultado.className = 'result-box success';
+          resultado.innerHTML = '<strong>QR configurado exitosamente.</strong><br>Los clientes ya pueden pagar con tu QR de BancoSol.';
+          if (data.qr_data_extraida) {
+            resultado.innerHTML += '<br><br><span style="font-size:0.75rem; color:var(--texto-dim);">Datos: ' +
+              data.qr_data_extraida.substring(0, 50) + '...</span>';
+          }
+          verificarEstado();
+        } else {
+          resultado.className = 'result-box error';
+          resultado.textContent = data.error || 'Error al guardar';
+        }
+      } catch (err) {
+        const resultado = document.getElementById('resultado');
+        resultado.className = 'result-box error';
+        resultado.textContent = 'Error de conexion con el servidor';
+      }
+      btnGuardar.disabled = false;
+      btnGuardar.textContent = 'Guardar y Activar QR';
+    });
+
+    async function verificarEstado() {
+      try {
+        const res = await fetch('/api/admin/estado');
+        const data = await res.json();
+        const info = document.getElementById('statusInfo');
+
+        if (data.configurado) {
+          info.innerHTML = `
+            <div class="status-row">
+              <div class="status-dot on"></div>
+              <span class="status-text" style="color:var(--verde);">QR de BancoSol activo</span>
+            </div>
+            <img src="/api/admin/qr-banco?${Date.now()}" class="qr-preview-admin" alt="QR BancoSol">
+            ${data.datos ? `<div style="font-size:0.7rem; color:var(--texto-dim);">Actualizado: ${new Date(data.datos.actualizado).toLocaleString('es-BO')}</div>` : ''}
+          `;
+        } else {
+          info.innerHTML = `
+            <div class="status-row">
+              <div class="status-dot off"></div>
+              <span class="status-text" style="color:var(--dorado);">Pendiente - Sube tu QR arriba</span>
+            </div>
+          `;
+        }
+      } catch (e) {
+        document.getElementById('statusInfo').innerHTML = `
+          <div class="status-row">
+            <div class="status-dot" style="background:var(--rojo);"></div>
+            <span class="status-text" style="color:var(--rojo);">Error al conectar con el servidor</span>
+          </div>
+        `;
+      }
+    }
+
+    async function cargarPagos() {
+      try {
+        const res = await fetch('/api/pagos?limite=10', { headers: { 'X-API-Key': API_KEY } });
+        const data = await res.json();
+        const lista = document.getElementById('pagosLista');
+
+        if (!data.pagos || data.pagos.length === 0) {
+          lista.textContent = 'No hay pagos aun.';
+          return;
+        }
+
+        lista.innerHTML = data.pagos.map(p => `
+          <div class="pago-item">
+            <div style="flex:1;">
+              <span class="pago-monto">${p.monto.toFixed(2)} Bs</span>
+              <span style="color:var(--texto-dim);"> - ${p.telefono || p.referencia}</span>
+              <div style="font-size:0.7rem; color:var(--texto-dim);">${p.referencia} | ${new Date(p.created_at).toLocaleString('es-BO')}</div>
+            </div>
+            ${p.estado === 'pendiente' ? `<button onclick="confirmarPago('${p.id}')" style="background:var(--verde); color:white; border:none; padding:0.35rem 0.75rem; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer; white-space:nowrap;">Confirmar</button>` : `<span class="pago-estado ${p.estado}">${p.estado.toUpperCase()}</span>`}
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('pagosLista').textContent = 'Error al cargar pagos';
+      }
+    }
+
+    async function confirmarPago(id) {
+      if (!confirm('Confirmar este pago como recibido?')) return;
+      try {
+        const res = await fetch(`/api/webhook/confirmar-por-id/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ webhook_secret: 'webhook-secret-cambiar' }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert(`Pago confirmado! ${data.monto} Bs`);
+          cargarPagos();
+        } else {
+          alert(data.error || 'Error al confirmar');
+        }
+      } catch (e) {
+        alert('Error de conexion');
+      }
+    }
+
+    verificarEstado();
+    cargarPagos();
+  </script>
+</body>
+</html>

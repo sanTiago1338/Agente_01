@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagar con QR - ZONA VIP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --negro: #0a0a0a;
+      --negro2: #111111;
+      --negro3: #1a1a1a;
+      --rojo: #e50914;
+      --dorado: #ffd700;
+      --verde: #25d366;
+      --texto: #e0e0e0;
+      --texto-dim: #888;
+      --borde: rgba(255,255,255,0.08);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--negro);
+      color: var(--texto);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pay-header {
+      width: 100%;
+      background: var(--negro2);
+      border-bottom: 1px solid var(--borde);
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .pay-header a {
+      text-decoration: none;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 3px;
+      color: var(--rojo);
+    }
+
+    .pay-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 1.5rem 1rem;
+      flex: 1;
+    }
+
+    .pay-status-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.25rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .pay-status-bar.pendiente {
+      background: rgba(255,215,0,0.1);
+      border: 1px solid rgba(255,215,0,0.3);
+      color: var(--dorado);
+    }
+
+    .pay-status-bar.pagado {
+      background: rgba(37,211,102,0.1);
+      border: 1px solid rgba(37,211,102,0.3);
+      color: var(--verde);
+    }
+
+    .pay-status-bar.expirado {
+      background: rgba(229,9,20,0.1);
+      border: 1px solid rgba(229,9,20,0.3);
+      color: var(--rojo);
+    }
+
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .pendiente .status-dot { background: var(--dorado); animation: pulse-dot 1.5s infinite; }
+    .pagado .status-dot { background: var(--verde); }
+    .expirado .status-dot { background: var(--rojo); }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .pay-card {
+      background: var(--negro2);
+      border: 1px solid var(--borde);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+
+    .pay-card-header {
+      padding: 1.25rem;
+      text-align: center;
+      border-bottom: 1px solid var(--borde);
+    }
+
+    .pay-amount {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      letter-spacing: 2px;
+      color: var(--dorado);
+      line-height: 1;
+    }
+
+    .pay-amount-label {
+      font-size: 0.8rem;
+      color: var(--texto-dim);
+      margin-top: 0.25rem;
+    }
+
+    .pay-qr-wrap {
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      margin: 1rem;
+      border-radius: 12px;
+      position: relative;
+    }
+
+    .pay-qr-wrap img {
+      max-width: 280px;
+      width: 100%;
+      height: auto;
+    }
+
+    .pay-qr-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      border-radius: 12px;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .pay-qr-overlay.show { display: flex; }
+
+    .pay-qr-overlay .icon {
+      font-size: 3rem;
+    }
+
+    .pay-qr-overlay .text {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .pay-instructions {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--borde);
+    }
+
+    .pay-instructions .step {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+
+    .pay-instructions .step:last-child { margin-bottom: 0; }
+
+    .step-num {
+      width: 24px; height: 24px;
+      background: var(--rojo);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step-text {
+      font-size: 0.82rem;
+      color: var(--texto-dim);
+      line-height: 1.4;
+    }
+
+    .step-text strong { color: var(--texto); }
+
+    .pay-timer {
+      text-align: center;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--texto-dim);
+    }
+
+    .pay-timer span {
+      color: var(--dorado);
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .pay-order-summary {
+      background: var(--negro2);
+      border: 1px solid var(--borde);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .pay-order-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+      color: var(--texto);
+    }
+
+    .pay-order-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--borde);
+      font-size: 0.82rem;
+    }
+
+    .pay-order-item:last-of-type { border-bottom: none; }
+
+    .pay-order-item .item-name {
+      color: var(--texto-dim);
+      flex: 1;
+      padding-right: 0.5rem;
+    }
+
+    .pay-order-item .item-price {
+      color: var(--dorado);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .pay-order-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.75rem;
+      margin-top: 0.5rem;
+      border-top: 2px solid var(--rojo);
+    }
+
+    .pay-order-total .label {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .pay-order-total .total {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      color: var(--dorado);
+      letter-spacing: 1px;
+    }
+
+    .pay-notice {
+      background: rgba(229,9,20,0.08);
+      border: 1px solid rgba(229,9,20,0.2);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--texto-dim);
+    }
+
+    .pay-notice strong { color: var(--rojo); }
+
+    .btn-back {
+      display: block;
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--negro3);
+      color: var(--texto);
+      border: 1px solid var(--borde);
+      border-radius: 10px;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-back:hover { background: var(--negro2); }
+
+    .btn-wa-help {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--verde);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-wa-help:hover { opacity: 0.9; }
+
+    .success-animation {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    .success-animation.show { display: flex; }
+
+    .success-check {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--verde);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      animation: pop-in 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+
+    @keyframes pop-in {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .success-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      color: var(--verde);
+    }
+
+    .success-msg {
+      color: var(--texto-dim);
+      font-size: 0.9rem;
+      max-width: 300px;
+    }
+
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1rem;
+      gap: 1rem;
+    }
+
+    .loading-spinner-big {
+      width: 48px; height: 48px;
+      border: 4px solid var(--borde);
+      border-top-color: var(--rojo);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1rem;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .error-screen.show { display: flex; }
+
+    .error-icon {
+      font-size: 3rem;
+    }
+
+    .error-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      color: var(--rojo);
+    }
+
+    .error-msg {
+      color: var(--texto-dim);
+      font-size: 0.85rem;
+      max-width: 300px;
+    }
+
+    .pay-ref {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--texto-dim);
+      margin-top: 0.5rem;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="pay-header">
+    <a href="index.html">ZONA_VIP</a>
+  </div>
+
+  <div class="pay-container">
+    <!-- Loading -->
+    <div id="loadingScreen" class="loading-screen">
+      <div class="loading-spinner-big"></div>
+      <div style="color:var(--texto-dim); font-size:0.9rem;">Generando pago...</div>
+    </div>
+
+    <!-- Error -->
+    <div id="errorScreen" class="error-screen">
+      <div class="error-icon">!</div>
+      <div class="error-title">ERROR AL CREAR EL PAGO</div>
+      <div class="error-msg" id="errorMsg">No se pudo conectar con el servidor de pagos.</div>
+      <a href="index.html" class="btn-back" style="max-width:280px;">Volver a la tienda</a>
+      <a href="https://wa.me/59163999873" target="_blank" class="btn-wa-help" style="max-width:280px;">
+        Contactar por WhatsApp
+      </a>
+    </div>
+
+    <!-- Payment Content -->
+    <div id="payContent" style="display:none;">
+      <!-- Status bar -->
+      <div class="pay-status-bar pendiente" id="statusBar">
+        <div class="status-dot"></div>
+        <span id="statusText">Esperando pago...</span>
+      </div>
+
+      <!-- QR Card -->
+      <div class="pay-card" id="qrCard">
+        <div class="pay-card-header">
+          <div class="pay-amount" id="payAmount">0.00 Bs</div>
+          <div class="pay-amount-label">Monto a transferir</div>
+        </div>
+
+        <div class="pay-qr-wrap">
+          <img id="qrImage" src="" alt="QR BancoSol">
+          <div class="pay-qr-overlay" id="qrOverlay">
+            <div class="icon" id="overlayIcon"></div>
+            <div class="text" id="overlayText"></div>
+          </div>
+        </div>
+
+        <div class="pay-instructions">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text">Abre tu app de <strong>BancoSol</strong> u otro banco</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text">Escanea el QR y transfiere <strong>exactamente el monto indicado</strong></div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text">Una vez confirmado, seras <strong>redirigido automaticamente</strong> a WhatsApp</div>
+          </div>
+        </div>
+
+        <div class="pay-timer" id="timerSection">
+          Expira en <span id="timerDisplay">30:00</span>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="pay-order-summary" id="orderSummary">
+        <div class="pay-order-title">Resumen del pedido</div>
+        <div id="orderItems"></div>
+        <div class="pay-order-total">
+          <span class="label">TOTAL</span>
+          <span class="total" id="orderTotal">0.00 Bs</span>
+        </div>
+      </div>
+
+      <!-- Back -->
+      <a href="index.html" class="btn-back">Volver a la tienda</a>
+
+      <!-- Ref -->
+      <div class="pay-ref" id="payRef"></div>
+    </div>
+
+    <!-- Success Screen (no se muestra, redirige directo a WhatsApp) -->
+    <div id="successScreen" class="success-animation">
+      <div class="success-check">OK</div>
+      <div class="success-title">PAGO CONFIRMADO</div>
+      <div class="success-msg">Redirigiendo a WhatsApp...</div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '';
+
+    let paymentId = null;
+    let paymentToken = null;
+    let pollInterval = null;
+    let timerInterval = null;
+    let expiresAt = null;
+
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const cartData = params.get('cart');
+      const total = parseFloat(params.get('total')) || 0;
+
+      if (!cartData || total <= 0) {
+        showError('No se recibieron datos del carrito.');
+        return;
+      }
+
+      let items;
+      try {
+        items = JSON.parse(decodeURIComponent(cartData));
+      } catch (e) {
+        showError('Datos del carrito invalidos.');
+        return;
+      }
+
+      try {
+        const descripcion = items.map(i => `${i.qty}x ${i.name}`).join(', ');
+
+        const res = await fetch(`${API_URL}/api/pagos/publico`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            monto: total,
+            descripcion: descripcion.substring(0, 200),
+            telefono: 'zona-vip-web',
+          }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || 'Error del servidor');
+        }
+
+        const data = await res.json();
+        paymentId = data.id;
+        paymentToken = data.token;
+
+        renderPayment(items, total, data);
+      } catch (err) {
+        showError(err.message || 'No se pudo conectar con el servidor de pagos. Asegurate de que la API este corriendo.');
+      }
+    }
+
+    function renderPayment(items, total, paymentData) {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('payContent').style.display = 'block';
+
+      document.getElementById('payAmount').textContent = `${total.toFixed(2)} Bs`;
+      document.getElementById('qrImage').src = `${API_URL}/api/admin/qr-banco?t=${Date.now()}`;
+      document.getElementById('orderTotal').textContent = `${total.toFixed(2)} Bs`;
+      document.getElementById('payRef').textContent = `Ref: ${paymentData.referencia || paymentId}`;
+
+      const orderItems = document.getElementById('orderItems');
+      orderItems.innerHTML = items.map(item => `
+        <div class="pay-order-item">
+          <span class="item-name">${item.qty}x ${item.name}</span>
+          <span class="item-price">${(item.price * item.qty).toFixed(2)} Bs</span>
+        </div>
+      `).join('');
+
+      const ref = paymentData.referencia || paymentId;
+      const whatsappMsg = `🦁 *ZONA VIP - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${ref}\n💰 *Monto:* ${total.toFixed(2)} Bs\n🛒 *Pedido:*\n${items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.`;
+      window._waUrl = `https://wa.me/59163999873?text=${encodeURIComponent(whatsappMsg)}`;
+
+      const expMinutes = paymentData.expira_en_minutos || 30;
+      expiresAt = new Date(Date.now() + expMinutes * 60 * 1000);
+      startTimer();
+      startPolling();
+    }
+
+    function startTimer() {
+      updateTimer();
+      timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function updateTimer() {
+      const now = new Date();
+      const diff = expiresAt - now;
+
+      if (diff <= 0) {
+        clearInterval(timerInterval);
+        clearInterval(pollInterval);
+        document.getElementById('timerDisplay').textContent = '00:00';
+        setStatus('expirado', 'Tiempo expirado');
+        showQROverlay('!', 'EXPIRADO');
+        return;
+      }
+
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      document.getElementById('timerDisplay').textContent =
+        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function startPolling() {
+      pollInterval = setInterval(checkStatus, 3000);
+    }
+
+    async function checkStatus() {
+      if (!paymentId || !paymentToken) return;
+      try {
+        const res = await fetch(`${API_URL}/api/pagos/publico/${paymentId}/estado?token=${paymentToken}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.estado === 'pagado') {
+          clearInterval(pollInterval);
+          clearInterval(timerInterval);
+          setStatus('pagado', 'Pago confirmado');
+          showQROverlay('OK', 'PAGADO');
+          setTimeout(() => {
+            window.location.href = window._waUrl || 'https://wa.me/59163999873';
+          }, 1500);
+        } else if (data.estado === 'cancelado' || data.estado === 'expirado') {
+          clearInterval(pollInterval);
+          clearInterval(timerInterval);
+          setStatus('expirado', data.estado === 'cancelado' ? 'Pago cancelado' : 'Pago expirado');
+          showQROverlay('!', data.estado.toUpperCase());
+        }
+      } catch (e) {}
+    }
+
+    function setStatus(type, text) {
+      const bar = document.getElementById('statusBar');
+      bar.className = `pay-status-bar ${type}`;
+      document.getElementById('statusText').textContent = text;
+    }
+
+    function showQROverlay(icon, text) {
+      const overlay = document.getElementById('qrOverlay');
+      document.getElementById('overlayIcon').textContent = icon;
+      document.getElementById('overlayText').textContent = text;
+      overlay.classList.add('show');
+    }
+
+    function irAWhatsApp(e) {
+      e.preventDefault();
+      window.location.href = window._waUrl || 'https://wa.me/59163999873';
+    }
+
+    function showError(msg) {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('errorMsg').textContent = msg;
+      document.getElementById('errorScreen').classList.add('show');
+    }
+
+    init();
+  </script>
+</body>
+</html>

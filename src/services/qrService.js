@@ -43,12 +43,11 @@ function generarDatosQR(monto, referencia, descripcion) {
   qrString += tlv('58', 'BO');
   qrString += tlv('59', MERCHANT_NAME.substring(0, 25));
   qrString += tlv('60', MERCHANT_CITY.substring(0, 15));
-  if (referencia || descripcion) {
-    let additionalData = '';
-    if (referencia) additionalData += tlv('05', referencia.substring(0, 25));
-    if (descripcion) additionalData += tlv('08', descripcion.substring(0, 50));
-    qrString += tlv('62', additionalData);
-  }
+  const glosa = descripcion || 'VARIOS';
+  let additionalData = '';
+  if (referencia) additionalData += tlv('05', referencia.substring(0, 25));
+  additionalData += tlv('08', glosa.substring(0, 50));
+  qrString += tlv('62', additionalData);
   const crcPlaceholder = qrString + '6304';
   const crc = calcularCRC16(crcPlaceholder);
   qrString += '6304' + crc;

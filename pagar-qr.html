@@ -474,15 +474,19 @@
         <div class="pay-instructions">
           <div class="step">
             <div class="step-num">1</div>
-            <div class="step-text">Abre tu app de <strong>BancoSol</strong> u otro banco</div>
+            <div class="step-text">Abre tu app de <strong>BancoSol</strong> u otro banco y escanea el QR</div>
           </div>
           <div class="step">
             <div class="step-num">2</div>
-            <div class="step-text">Escanea el QR y transfiere <strong>exactamente el monto indicado</strong></div>
+            <div class="step-text">Ingresa el monto exacto: <strong id="instrMonto" style="color:#ffd700;cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
           </div>
           <div class="step">
             <div class="step-num">3</div>
-            <div class="step-text">Una vez confirmado, seras <strong>redirigido automaticamente</strong> a WhatsApp</div>
+            <div class="step-text">En Glosa/Adjunto escribe: <strong style="color:#ffd700;cursor:pointer;" onclick="copyText(this)" title="Toca para copiar">VARIOS</strong></div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-text">Confirma el pago y seras <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
           </div>
         </div>
 
@@ -518,6 +522,15 @@
 
   <script>
     const API_URL = '';
+
+    function copyText(el) {
+      navigator.clipboard.writeText(el.textContent).then(() => {
+        const original = el.textContent;
+        el.textContent = 'Copiado!';
+        el.style.color = '#25d366';
+        setTimeout(() => { el.textContent = original; el.style.color = '#ffd700'; }, 1200);
+      });
+    }
 
     let paymentId = null;
     let paymentToken = null;
@@ -576,6 +589,7 @@
       document.getElementById('payContent').style.display = 'block';
 
       document.getElementById('payAmount').textContent = `${total.toFixed(2)} Bs`;
+      document.getElementById('instrMonto').textContent = `${total.toFixed(2)} Bs`;
       document.getElementById('qrImage').src = `${API_URL}/api/admin/qr-banco?t=${Date.now()}`;
       document.getElementById('orderTotal').textContent = `${total.toFixed(2)} Bs`;
       document.getElementById('payRef').textContent = `Ref: ${paymentData.referencia || paymentId}`;

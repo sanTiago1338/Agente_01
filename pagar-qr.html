@@ -490,10 +490,32 @@
           </div>
         </div>
 
-        <div class="pay-timer" id="timerSection">
-          Expira en <span id="timerDisplay">30:00</span>
+        <div class="pay-timer" id="timerSection" style="margin-bottom:0.5rem;">
+          Redirigiendo a WhatsApp en <span id="timerDisplay" style="color:#25d366;">60</span> seg...
         </div>
       </div>
+
+      <!-- Boton Ya Pague -->
+      <a href="#" id="btnYaPague" onclick="irAWhatsApp(event)" style="
+        display:flex; align-items:center; justify-content:center; gap:0.6rem;
+        width:100%; padding:1rem; margin-bottom:0.5rem;
+        background:linear-gradient(135deg,#25D366,#128C7E); color:white;
+        font-family:'Outfit',sans-serif; font-weight:800; font-size:1rem;
+        border-radius:12px; text-decoration:none; letter-spacing:0.5px;
+        box-shadow:0 4px 20px rgba(37,211,102,0.4);
+        animation: pulse-wa 2s ease-in-out infinite;
+      ">YA PAGUE - ENVIAR COMPROBANTE</a>
+
+      <p style="text-align:center;font-size:0.75rem;color:#666;margin-bottom:1.25rem;">
+        Si ya pagaste, toca el boton o espera la redireccion automatica
+      </p>
+
+      <style>
+        @keyframes pulse-wa {
+          0%,100% { transform:scale(1); box-shadow:0 4px 20px rgba(37,211,102,0.4); }
+          50% { transform:scale(1.02); box-shadow:0 6px 28px rgba(37,211,102,0.6); }
+        }
+      </style>
 
       <!-- Order Summary -->
       <div class="pay-order-summary" id="orderSummary">
@@ -534,9 +556,7 @@
 
     let paymentId = null;
     let paymentToken = null;
-    let pollInterval = null;
     let timerInterval = null;
-    let expiresAt = null;
 
     async function init() {
       const params = new URLSearchParams(window.location.search);
@@ -606,38 +626,20 @@
       const whatsappMsg = `🦁 *ZONA VIP - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${ref}\n💰 *Monto:* ${total.toFixed(2)} Bs\n🛒 *Pedido:*\n${items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.`;
       window._waUrl = `https://wa.me/59163999873?text=${encodeURIComponent(whatsappMsg)}`;
 
-      const expMinutes = paymentData.expira_en_minutos || 30;
-      expiresAt = new Date(Date.now() + expMinutes * 60 * 1000);
-      startTimer();
-      startPolling();
+      startCountdown();
     }
 
-    function startTimer() {
-      updateTimer();
-      timerInterval = setInterval(updateTimer, 1000);
-    }
-
-    function updateTimer() {
-      const now = new Date();
-      const diff = expiresAt - now;
-
-      if (diff <= 0) {
-        clearInterval(timerInterval);
-        clearInterval(pollInterval);
-        document.getElementById('timerDisplay').textContent = '00:00';
-        setStatus('expirado', 'Tiempo expirado');
-        showQROverlay('!', 'EXPIRADO');
-        return;
-      }
-
-      const mins = Math.floor(diff / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      document.getElementById('timerDisplay').textContent =
-        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function startPolling() {
-      pollInterval = setInterval(checkStatus, 3000);
+    function startCountdown() {
+      let segundos = 60;
+      document.getElementById('timerDisplay').textContent = segundos;
+      timerInterval = setInterval(() => {
+        segundos--;
+        document.getElementById('timerDisplay').textContent = segundos;
+        if (segundos <= 0) {
+          clearInterval(timerInterval);
+          window.location.href = window._waUrl || 'https://wa.me/59163999873';
+        }
+      }, 1000);
     }
 
     async function checkStatus() {
@@ -648,7 +650,6 @@
         const data = await res.json();
 
         if (data.estado === 'pagado') {
-          clearInterval(pollInterval);
           clearInterval(timerInterval);
           setStatus('pagado', 'Pago confirmado');
           showQROverlay('OK', 'PAGADO');

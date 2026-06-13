@@ -45,7 +45,7 @@ app.use('/api/{*path}', (req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n  ZONA VIP - Servidor`);
   console.log(`  --------------------`);
   console.log(`  Tienda:  http://localhost:${PORT}`);

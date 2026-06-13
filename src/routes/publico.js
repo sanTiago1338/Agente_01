@@ -1,6 +1,6 @@
 const express = require('express');
 const crypto = require('crypto');
-const { v4: uuidv4 } = require('uuid');
+const uuidv4 = () => crypto.randomUUID();
 const router = express.Router();
 const { db } = require('../config/database');
 const { generarDatosQR, generarImagenQR } = require('../services/qrService');

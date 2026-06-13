@@ -543,7 +543,7 @@
   </div>
 
   <script>
-    const API_URL = '';
+    const API_URL = window.location.hostname.includes('github.io') ? 'https://agente01-production-c1c0.up.railway.app' : '';
 
     function copyText(el) {
       navigator.clipboard.writeText(el.textContent).then(() => {

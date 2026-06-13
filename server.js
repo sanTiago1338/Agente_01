@@ -12,9 +12,11 @@ const adminRoutes = require('./src/routes/admin');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const allowedOrigins = process.env.BASE_URL
-  ? [process.env.BASE_URL, `http://localhost:${PORT}`]
-  : [`http://localhost:${PORT}`];
+const allowedOrigins = [
+  process.env.BASE_URL,
+  'https://santiago1338.github.io',
+  `http://localhost:${PORT}`,
+].filter(Boolean);
 
 app.use(cors({
   origin(origin, cb) {

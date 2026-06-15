@@ -428,19 +428,19 @@
     }
 
     .product-logo-img {
-      width: 65%;
-      max-width: 130px;
-      max-height: 72%;
+      width: 88px;
+      height: 88px;
       object-fit: contain;
       position: relative;
       z-index: 2;
-      filter: drop-shadow(0 2px 14px rgba(0,0,0,0.6));
+      border-radius: 18px;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.6));
       transition: transform 0.3s ease, filter 0.3s ease;
     }
 
     .product-card:hover .product-logo-img {
-      transform: scale(1.08);
-      filter: drop-shadow(0 4px 20px rgba(0,0,0,0.8));
+      transform: scale(1.1);
+      filter: drop-shadow(0 6px 24px rgba(0,0,0,0.8));
     }
 
     .product-logo-generated {
@@ -1429,7 +1429,7 @@
       { id:95, cat:'ia', name:'Videoideas AI (37 dias, 1 dispositivo)', price:28.50, bs:'28,50Bs', stars:4, img:'videoideas.ai', imgColor:'#001a33,#003d7a', desc:'1 dispositivo Videoideas AI. Crea contenido viral.', type:'1-pantalla,' },
       { id:96, cat:'ia', name:'Freepik AI Premium (1 dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'FREEPIK\nAI', imgColor:'#003300,#1a7a1a', desc:'1 dispositivo Freepik AI Premium. Consultar disponibilidad.', type:'1-pantalla,mensual' },
       { id:97, cat:'ia', name:'KAPWING (1 dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'KAPWING\n', imgColor:'#003300,#1a7a1a', desc:'1 dispositivo KAPWING creador de video,imagen y gifs. Consultar disponibilidad.', type:'1-pantalla,mensual' },
-      { id:98, cat:'ia', name:'Lenovable (30 dias, 1 Dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'LENOVABLE', imgColor:'#1a0040,#6a00c8', desc:'1 mes Lenovable IA . Consultar disponibilidad.', type:'1- Dispositivo,mensual' },
+      { id:98, cat:'ia', name:'Lovable (30 dias, 1 Dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'LOVABLE', imgColor:'#1a0040,#6a00c8', desc:'1 mes Lovable IA . Consultar disponibilidad.', type:'1- Dispositivo,mensual' },
       { id:99, cat:'ia', name:'TALKPAL AI PRO (14 dias, 1 Dispositivo)', price:19, bs:'19,00Bs', stars:5, img:'TALKPAL AI', imgColor:'#1a0040,#6a00c8', desc:'1 mes TALKPAL IA . Consultar disponibilidad.', type:'1- Dispositivo,mensual' },
       { id:100, cat:'ia', name:'DEVCLUB STORE (1 Año, 1 Dispositivo)', price:70, bs:'70,00Bs', stars:5, img:'DEVCLUB STORE', imgColor:'#1a0040,#6a00c8', desc:'1 mes DEVCLUB STORE. Consultar disponibilidad.', type:'1- Dispositivo,Anual' },
       { id:101, cat:'ia', name:'UIZARD PRO (30 dias, 1 Dispositivo)', price:20, bs:'20,00Bs', stars:5, img:'UIZARD PRO', imgColor:'#1a0040,#6a00c8', desc:'1 mes UIZARD PRO Diseña con IA. Consultar disponibilidad.', type:'1- Dispositivo,mensual' },
@@ -1619,106 +1619,106 @@
     }
 
     function getImageUrl(productName, category, imgColor) {
-      const si  = 'https://cdn.simpleicons.org';   // simple-icons (colores de marca)
-      const cb  = 'https://logo.clearbit.com';      // clearbit (logos reales de empresa)
+      const gf  = 'https://www.google.com/s2/favicons?sz=128&domain=';
       const nameLC = productName.toLowerCase();
 
       const mapping = {
         // ── STREAMING ────────────────────────────────────────────────
-        'netflix':         `${si}/netflix`,
-        'disney':          `${si}/disneyplus/ffffff`,
-        'paramount':       `${si}/paramountplus/ffffff`,
-        'prime video':     `${si}/amazonprimevideo/ffffff`,
-        'magis':           `${cb}/magis.tv`,
-        'flujo':           `${cb}/flujoapp.com`,
-        'tele latino':     `${cb}/tele-latino.com`,
-        'iptv':            `${cb}/iptvsmarters.com`,
-        'hbo':             `${si}/hbo/8a2be2`,
-        'crunchyroll':     `${si}/crunchyroll`,
-        'capcut':          `${si}/capcut/00f2ea`,
-        'vix':             `${cb}/vix.com`,
-        'viki':            `${cb}/viki.com`,
-        'drama box':       `${cb}/dramabox.com`,
-        'peacock':         `${cb}/peacocktv.com`,
-        'shadowz':         `${cb}/shadowz.fr`,
-        'retrocrush':      `${cb}/retrocrush.tv`,
-        'mubi':            `${si}/mubi/ffffff`,
-        'ufc':             `${cb}/ufc.com`,
+        'netflix':         `${gf}netflix.com`,
+        'disney':          `${gf}disneyplus.com`,
+        'paramount':       `${gf}paramountplus.com`,
+        'prime video':     `${gf}primevideo.com`,
+        'magis':           `${gf}magistv.com`,
+        'flujo':           `${gf}flujotv.com`,
+        'tele latino':     `${gf}telelatino.net`,
+        'iptv':            `${gf}iptvsmarters.com`,
+        'hbo':             `${gf}max.com`,
+        'crunchyroll':     `${gf}crunchyroll.com`,
+        'capcut':          `${gf}capcut.com`,
+        'vix':             `${gf}vix.com`,
+        'viki':            `${gf}viki.com`,
+        'drama box':       `${gf}dramaboxapp.com`,
+        'peacock':         `${gf}peacocktv.com`,
+        'shadowz':         `${gf}shadowz.fr`,
+        'retrocrush':      `${gf}retrocrush.tv`,
+        'mubi':            `${gf}mubi.com`,
+        'ufc':             `${gf}ufc.com`,
 
         // ── MÚSICA ───────────────────────────────────────────────────
-        'youtube premium': `${si}/youtube`,
-        'youtube':         `${si}/youtube`,
-        'spotify':         `${si}/spotify`,
-        'tidal':           `${si}/tidal/00bfff`,
-        'deezer':          `${si}/deezer`,
-        'apple tv':        `${si}/appletv/ffffff`,
-        'apple music':     `${si}/applemusic`,
-        'donna ai':        `${cb}/donna.ai`,
-        'epidemic':        `${si}/epidemicsound/ffffff`,
-        'podimo':          `${cb}/podimo.com`,
-        'brain.fm':        `${cb}/brain.fm`,
-        'audio beta':      `${cb}/audiobeta.com`,
-        'soundcloud':      `${si}/soundcloud`,
-        'audiomack':       `${si}/audiomack`,
-        'napster':         `${si}/napster`,
+        'youtube premium': `${gf}youtube.com`,
+        'youtube':         `${gf}youtube.com`,
+        'spotify':         `${gf}spotify.com`,
+        'tidal':           `${gf}tidal.com`,
+        'deezer':          `${gf}deezer.com`,
+        'apple tv':        `${gf}tv.apple.com`,
+        'apple music':     `${gf}music.apple.com`,
+        'donna ai':        `${gf}donna.ai`,
+        'epidemic':        `${gf}epidemicsound.com`,
+        'podimo':          `${gf}podimo.com`,
+        'brain.fm':        `${gf}brain.fm`,
+        'audio beta':      `${gf}audiobeta.com`,
+        'soundcloud':      `${gf}soundcloud.com`,
+        'audiomack':       `${gf}audiomack.com`,
+        'napster':         `${gf}napster.com`,
 
         // ── IA & TOOLS ───────────────────────────────────────────────
-        'chatgpt':         `${si}/openai/10a37f`,
-        'grok':            `${si}/xai/ffffff`,
-        'leonardo':        `${cb}/leonardo.ai`,
-        'jarvis':          `${cb}/heyjasper.com`,
-        'google ai':       `${si}/google`,
-        'gemini':          `${si}/googlegemini/ffffff`,
-        'perplexity':      `${si}/perplexity/ffffff`,
-        'claude':          `${si}/anthropic/cc9b7a`,
-        'canva':           `${si}/canva`,
-        'adobe photoshop': `${si}/adobephotoshop`,
-        'adobe express':   `${si}/adobeexpress`,
-        'adobe':           `${si}/adobe`,
-        'beautiful ai':    `${cb}/beautiful.ai`,
-        'prezi':           `${si}/prezi`,
-        'gamma':           `${cb}/gamma.app`,
-        'trading':         `${si}/tradingview`,
-        'videoideas':      `${cb}/videoideas.ai`,
-        'freepik':         `${si}/freepik`,
-        'kapwing':         `${cb}/kapwing.com`,
-        'meitu':           `${cb}/meitu.com`,
-        'discord':         `${si}/discord`,
-        'dinolingo':       `${cb}/dinolingo.com`,
-        'duolingo':        `${si}/duolingo`,
-        'notion':          `${si}/notion/ffffff`,
-        'figma':           `${si}/figma`,
-        'talkpal':         `${cb}/talkpal.ai`,
-        'uizard':          `${cb}/uizard.io`,
-        'wispr':           `${cb}/wispr.ai`,
-        'creative fabrica':`${cb}/creativefabrica.com`,
-        'talkio':          `${cb}/talkio.ai`,
-        'mindstudio':      `${cb}/mindstudio.ai`,
-        'idagio':          `${cb}/idagio.com`,
-        'nextory':         `${cb}/nextory.com`,
+        'chatgpt':         `${gf}chatgpt.com`,
+        'grok':            `${gf}x.ai`,
+        'leonardo':        `${gf}leonardo.ai`,
+        'jarvis':          `${gf}jarvis.cx`,
+        'google ai':       `${gf}google.com`,
+        'gemini':          `${gf}gemini.google.com`,
+        'perplexity':      `${gf}perplexity.ai`,
+        'claude':          `${gf}claude.ai`,
+        'canva':           `${gf}canva.com`,
+        'adobe photoshop': `${gf}adobe.com`,
+        'adobe express':   `${gf}express.adobe.com`,
+        'adobe':           `${gf}adobe.com`,
+        'beautiful ai':    `${gf}beautiful.ai`,
+        'prezi':           `${gf}prezi.com`,
+        'gamma':           `${gf}gamma.app`,
+        'trading':         `${gf}tradingview.com`,
+        'videoideas':      `${gf}videoideas.ai`,
+        'freepik':         `${gf}freepik.com`,
+        'lovable':         `${gf}lovable.dev`,
+        'kapwing':         `${gf}kapwing.com`,
+        'meitu':           `${gf}meitu.com`,
+        'discord':         `${gf}discord.com`,
+        'dinolingo':       `${gf}dinolingo.com`,
+        'duolingo':        `${gf}duolingo.com`,
+        'notion':          `${gf}notion.so`,
+        'figma':           `${gf}figma.com`,
+        'talkpal':         `${gf}talkpal.ai`,
+        'uizard':          `${gf}uizard.io`,
+        'wispr':           `${gf}wispr.ai`,
+        'creative fabrica':`${gf}creativefabrica.com`,
+        'talkio':          `${gf}talkio.ai`,
+        'mindstudio':      `${gf}mindstudio.ai`,
+        'idagio':          `${gf}idagio.com`,
+        'nextory':         `${gf}nextory.com`,
 
         // ── JUEGOS ───────────────────────────────────────────────────
-        'brawl stars':     `${si}/brawlstars`,
-        'free fire':       `${si}/garena`,
-        'clash of clans':  `${cb}/clashofclans.com`,
-        'clash royale':    `${cb}/clashroyale.com`,
-        'roblox':          `${si}/roblox`,
-        'mobile legends':  `${cb}/mobilelegends.com`,
-        'pug mobile':      `${cb}/pubg.com`,
+        'brawl stars':     `${gf}brawlstars.com`,
+        'free fire':       `${gf}ff.garena.com`,
+        'clash of clans':  `${gf}clashofclans.com`,
+        'clash royale':    `${gf}clashroyale.com`,
+        'roblox':          `${gf}roblox.com`,
+        'mobile legends':  `${gf}mobilelegends.com`,
+        'pug mobile':      `${gf}pubg.com`,
 
         // ── SEGUIDORES ───────────────────────────────────────────────
-        'instagram':       `${si}/instagram`,
-        'tiktok':          `${si}/tiktok/ff2d55`,
-        'facebook':        `${si}/facebook`,
+        'instagram':       `${gf}instagram.com`,
+        'tiktok':          `${gf}tiktok.com`,
+        'facebook':        `${gf}facebook.com`,
 
         // ── VPN ──────────────────────────────────────────────────────
-        'potato':          `${cb}/potatovpn.com`,
-        'hma':             `${cb}/hidemyass.com`,
-        'vpn express':     `${si}/expressvpn`,
-        'expressvpn':      `${si}/expressvpn`,
-        'nordvpn':         `${si}/nordvpn`,
-        'norvpn':          `${si}/nordvpn`,
-        'surfshark':       `${si}/surfshark`,
+        'potato':          `${gf}potatovpn.com`,
+        'hma':             `${gf}hidemyass.com`,
+        'vpn express':     `${gf}expressvpn.com`,
+        'expressvpn':      `${gf}expressvpn.com`,
+        'nordvpn':         `${gf}nordvpn.com`,
+        'norvpn':          `${gf}nordvpn.com`,
+        'surfshark':       `${gf}surfshark.com`,
       };
 
       for(let [key, url] of Object.entries(mapping)) {
@@ -1846,7 +1846,7 @@
       const isGeneratedModal = imageUrl.startsWith('data:');
       document.getElementById('10').innerHTML = `
         <div class="product-img" style="height:160px; border-radius:10px; margin-bottom:1rem; overflow:hidden;">
-          <img class="${isGeneratedModal ? 'product-logo-generated' : 'product-logo-img'}" src="${imageUrl}" alt="${p.name}" ${isGeneratedModal ? '' : 'style="max-width:140px; max-height:110px;"'} onerror="this.onerror=null;this.src=generateLogoSvg('${p.name.replace(/'/g,"\\'")}','${p.imgColor}');this.className='product-logo-generated';">
+          <img class="${isGeneratedModal ? 'product-logo-generated' : 'product-logo-img'}" src="${imageUrl}" alt="${p.name}" ${isGeneratedModal ? '' : 'style="width:100px; height:100px; border-radius:18px;"'} onerror="this.onerror=null;this.src=generateLogoSvg('${p.name.replace(/'/g,"\\'")}','${p.imgColor}');this.className='product-logo-generated';">
         </div>
         <div class="modal-price">${p.bs}</div>
         <div class="modal-stars">${getStars(p.stars)}</div>

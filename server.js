@@ -1,13 +1,22 @@
+process.on('uncaughtException', (err) => {
+  console.error('FATAL ERROR:', err.stack || err.message);
+  process.exit(1);
+});
+
+console.log('Starting server... PORT=' + (process.env.PORT || 3000));
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
+console.log('Loading routes...');
 const pagosRoutes = require('./src/routes/pagos');
 const clientesRoutes = require('./src/routes/clientes');
 const publicoRoutes = require('./src/routes/publico');
 const webhookRoutes = require('./src/routes/webhook');
 const adminRoutes = require('./src/routes/admin');
+console.log('Routes loaded OK');
 
 const app = express();
 const PORT = process.env.PORT || 3000;

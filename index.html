@@ -428,18 +428,18 @@
     }
 
     .product-logo-img {
-      width: 88px;
-      height: 88px;
+      max-width: 88%;
+      height: 82%;
       object-fit: contain;
       position: relative;
       z-index: 2;
-      border-radius: 18px;
+      border-radius: 16px;
       filter: drop-shadow(0 4px 16px rgba(0,0,0,0.6));
       transition: transform 0.3s ease, filter 0.3s ease;
     }
 
     .product-card:hover .product-logo-img {
-      transform: scale(1.1);
+      transform: scale(1.08);
       filter: drop-shadow(0 6px 24px rgba(0,0,0,0.8));
     }
 
@@ -1628,11 +1628,11 @@
         'disney':          `${gf}disneyplus.com`,
         'paramount':       `${gf}paramountplus.com`,
         'prime video':     `${gf}primevideo.com`,
-        'magis':           `${gf}magistv.com`,
+        'magis':           `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff8800"/><stop offset="100%" stop-color="#ff4400"/></linearGradient></defs><rect width="128" height="128" rx="28" fill="url(#mg)"/><text x="64" y="62" font-family="Arial Black,Impact,sans-serif" font-size="30" font-weight="900" fill="#fff" text-anchor="middle" letter-spacing="1">MAGIS</text><text x="64" y="100" font-family="Arial Black,Impact,sans-serif" font-size="36" font-weight="900" fill="#fff" fill-opacity="0.9" text-anchor="middle" letter-spacing="3">TV</text></svg>')}`,
         'flujo':           `${gf}flujotv.com`,
         'tele latino':     `${gf}telelatino.net`,
         'iptv':            `${gf}iptvsmarters.com`,
-        'hbo':             `${gf}max.com`,
+        'hbo':             `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><defs><linearGradient id="hb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7b2ff7"/><stop offset="100%" stop-color="#4a00b0"/></linearGradient></defs><rect width="128" height="128" rx="28" fill="url(#hb)"/><text x="64" y="84" font-family="Arial Black,Impact,sans-serif" font-size="48" font-weight="900" fill="#fff" text-anchor="middle" letter-spacing="3">HBO</text></svg>')}`,
         'crunchyroll':     `${gf}crunchyroll.com`,
         'capcut':          `${gf}capcut.com`,
         'vix':             `${gf}vix.com`,

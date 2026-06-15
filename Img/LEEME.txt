@@ -1,0 +1,49 @@
+CARPETA DE LOGOS PERSONALIZADOS - ZONA VIP
+============================================
+
+Aqui puedes colocar tus propios logos de productos.
+
+COMO AGREGAR UN LOGO:
+---------------------
+1) Copia tu imagen aqui dentro (ej: netflix.png, disney.png, hbo.png)
+   Formatos soportados: .png .jpg .jpeg .webp .svg
+   Tamano recomendado: 256x256 px o 512x512 px (cuadrado)
+   Fondo transparente recomendado (PNG/WEBP)
+
+2) Abre el archivo "index.html" y busca el bloque LOCAL_LOGOS (cerca
+   de la linea 1621). Anade una entrada con la palabra clave del
+   producto y la ruta a tu imagen:
+
+      const LOCAL_LOGOS = {
+        'netflix':   'Img/netflix.png',
+        'disney':    'Img/disney.png',
+        'hbo':       'Img/hbo.png',
+        'spotify':   'Img/spotify.png',
+        'chatgpt':   'Img/chatgpt.png',
+      };
+
+   La clave (ej. 'netflix') solo necesita coincidir con UNA palabra
+   del nombre del producto. Por ejemplo 'netflix' captura
+   "Netflix Premium 4K", "Netflix 1 pantalla", etc.
+
+3) Guarda y recarga la pagina. El logo ocupara el 99% del espacio
+   de la tarjeta del producto automaticamente.
+
+NOMBRES SUGERIDOS PARA LOS ARCHIVOS:
+------------------------------------
+Streaming:  netflix.png  disney.png  hbo.png  magis-tv.png
+            paramount.png  prime-video.png  crunchyroll.png
+            vix.png  apple-tv.png  capcut.png
+Musica:     spotify.png  youtube.png  tidal.png  deezer.png
+            apple-music.png
+IA:         chatgpt.png  grok.png  gemini.png  claude.png
+            leonardo.png  perplexity.png
+Diseno:     canva.png  figma.png  photoshop.png  freepik.png
+Juegos:     free-fire.png  roblox.png  brawl-stars.png
+            clash-royale.png  mobile-legends.png
+Redes:      instagram.png  tiktok.png  facebook.png
+VPN:        nordvpn.png  expressvpn.png  surfshark.png
+
+NOTA: Si NO agregas una entrada en LOCAL_LOGOS, el sistema seguira
+mostrando automaticamente el logo desde Google favicons o un SVG
+generado con el nombre del producto.

@@ -428,8 +428,10 @@
     }
 
     .product-logo-img {
-      max-width: 88%;
-      height: 82%;
+      width: 99%;
+      height: 99%;
+      max-width: 99%;
+      max-height: 99%;
       object-fit: contain;
       position: relative;
       z-index: 2;
@@ -1618,9 +1620,30 @@
       return `data:image/svg+xml,${encodeURIComponent(svg)}`;
     }
 
+    // Logos personalizados locales (carpeta /Img/). Se busca por keyword.
+    // Para usar tu propio logo: coloca el archivo en /Img/ (ej. /Img/netflix.png)
+    // y añade aquí la entrada: 'netflix': 'Img/netflix.png'
+    // Formatos soportados: .png .jpg .jpeg .webp .svg
+    const LOCAL_LOGOS = {
+      'apple music':   'Img/Apple%20Music.jpg',
+      'capcut':        'Img/Cap%20cut.jpg',
+      'claude':        'Img/Claude.jpg',
+      'gamma':         'Img/Gamma.jpg',
+      'gemini':        'Img/Gemini.jpg',
+      'perplexity':    'Img/Perplexity.jpg',
+      'prime video':   'Img/Prime%20Video.jpg',
+      'spotify':       'Img/Spotyfi.jpg',
+      'vix':           'Img/Vix.jpg',
+    };
+
     function getImageUrl(productName, category, imgColor) {
       const gf  = 'https://www.google.com/s2/favicons?sz=128&domain=';
       const nameLC = productName.toLowerCase();
+
+      // 1) Primero busca un logo local en /Img/
+      for (let [key, url] of Object.entries(LOCAL_LOGOS)) {
+        if (nameLC.includes(key)) return url;
+      }
 
       const mapping = {
         // ── STREAMING ────────────────────────────────────────────────

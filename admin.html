@@ -270,7 +270,8 @@
   </div>
 
   <script>
-    const API_KEY = 'admin-zonavip-2024';
+    const API_KEY = localStorage.getItem('admin_api_key') || prompt('Ingresa tu API Key de administrador:');
+    if (API_KEY) localStorage.setItem('admin_api_key', API_KEY);
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('qrFile');
     const btnGuardar = document.getElementById('btnGuardar');

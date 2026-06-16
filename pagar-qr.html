@@ -623,7 +623,11 @@
       `).join('');
 
       const ref = paymentData.referencia || paymentId;
-      const whatsappMsg = `🦁 *ZONA VIP - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${ref}\n💰 *Monto:* ${total.toFixed(2)} Bs\n🛒 *Pedido:*\n${items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.`;
+      const needsPassword = items.some(i => i.needsPassword);
+      const passwordBlock = needsPassword
+        ? `\n━━━━━━━━━━━━━━━━━━\n🔒 *Para acreditar tu recarga, enviá la contraseña de tu cuenta por este chat.*`
+        : '';
+      const whatsappMsg = `🦁 *ZONA VIP - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${ref}\n💰 *Monto:* ${total.toFixed(2)} Bs\n🛒 *Pedido:*\n${items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
       window._waUrl = `https://wa.me/59163999873?text=${encodeURIComponent(whatsappMsg)}`;
 
       startCountdown();

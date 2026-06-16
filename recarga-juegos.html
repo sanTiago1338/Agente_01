@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZONA VIP | Recarga de Juegos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --negro: #0d0d0d;
+      --negro2: #161616;
+      --negro3: #1e1e1e;
+      --gris: #2c2c2c;
+      --gris2: #3a3a3a;
+      --gris-texto: #888;
+      --rojo: #e50914;
+      --rojo2: #ff1a26;
+      --dorado: #ffd700;
+      --dorado2: #e6c200;
+      --blanco: #ffffff;
+      --texto: #e0e0e0;
+      --texto-dim: #999;
+      --verde: #25D366;
+      --verde2: #2ecc71;
+      --rosa: #ff2d8a;
+      --barra-h: 60px;
+      --borde: rgba(255,255,255,0.07);
+      --borde-dorado: rgba(255,215,0,0.35);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--negro);
+      color: var(--texto);
+      padding-bottom: calc(var(--barra-h) + 1rem);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse at top, rgba(255,215,0,0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at bottom, rgba(229,9,20,0.05) 0%, transparent 55%);
+    }
+
+    /* ===== BANNER TOP ===== */
+    .banner-top {
+      background: linear-gradient(90deg, #b8860b 0%, #ffd700 50%, #b8860b 100%);
+      padding: 0.55rem 1rem;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #1a1a1a;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: var(--negro2);
+      border-bottom: 1px solid var(--borde);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+    .header-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.7rem;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, var(--rojo), var(--dorado));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+    .header-actions { display: flex; align-items: center; gap: 0.6rem; }
+    .header-icon-btn {
+      background: none; border: none;
+      color: var(--texto-dim);
+      cursor: pointer;
+      font-size: 1.25rem;
+      padding: 0.35rem;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .header-icon-btn:hover { color: var(--blanco); background: rgba(255,255,255,0.06); }
+    .header-user {
+      background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(229,9,20,0.15));
+      border: 1px solid var(--borde-dorado);
+      border-radius: 50px;
+      padding: 0.25rem 0.75rem 0.25rem 0.3rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.78rem; color: var(--blanco); font-weight: 600;
+    }
+    .header-user .avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--rojo), #8b0000);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+    }
+    .header-user .saldo { color: var(--dorado); font-weight: 700; font-size: 0.7rem; }
+
+    /* ===== HERO BANNER (CARRUSEL) ===== */
+    .hero-wrap { padding: 1rem; }
+    .hero {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      aspect-ratio: 16/7;
+      border: 1px solid var(--borde-dorado);
+      box-shadow: 0 8px 30px rgba(229,9,20,0.25);
+      user-select: none;
+      touch-action: pan-y;
+      background: #0d0d0d;
+    }
+    .hero-track {
+      position: absolute; inset: 0;
+      display: flex;
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+      will-change: transform;
+    }
+    .hero-slide {
+      flex: 0 0 100%;
+      position: relative;
+      display: flex; align-items: center;
+      padding: 1.25rem 1.75rem;
+      overflow: hidden;
+      background: var(--bg, linear-gradient(135deg, #2a0a0a, #0d0d0d));
+    }
+    .hero-slide::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(45deg, transparent 0 18px, rgba(255,255,255,0.025) 18px 19px),
+        radial-gradient(circle at 75% 30%, rgba(255,255,255,0.10) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .hero-slide-img {
+      flex: 0 0 38%;
+      max-width: 38%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      position: relative; z-index: 2;
+      border: 2px solid rgba(255,255,255,0.15);
+    }
+    .hero-icon {
+      flex: 0 0 38%;
+      max-width: 38%;
+      aspect-ratio: 1/1;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.2rem, 4vw, 2rem);
+      letter-spacing: 1px;
+      color: #fff;
+      text-align: center;
+      line-height: 1;
+      background: rgba(0,0,0,0.35);
+      border: 2px solid rgba(255,255,255,0.18);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 0 30px rgba(255,255,255,0.08);
+      text-shadow: 0 4px 12px rgba(0,0,0,0.7);
+      position: relative; z-index: 2;
+      padding: 0.5rem;
+    }
+    .hero-content {
+      flex: 1;
+      padding-left: 1rem;
+      position: relative; z-index: 2;
+    }
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.62rem; font-weight: 800; letter-spacing: 1.5px;
+      padding: 0.25rem 0.65rem; border-radius: 50px;
+      background: rgba(255,215,0,0.18);
+      color: var(--dorado);
+      border: 1px solid var(--borde-dorado);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .hero-tag--promo {
+      background: linear-gradient(135deg, var(--rojo), var(--rojo2));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(229,9,20,0.5);
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.3rem, 4.8vw, 2.4rem);
+      line-height: 0.95;
+      color: var(--blanco);
+      letter-spacing: 1px;
+      text-shadow: 0 4px 14px rgba(0,0,0,0.7);
+      margin-bottom: 0.3rem;
+    }
+    .hero-title .gold {
+      background: linear-gradient(135deg, var(--dorado), #ff8800);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.3;
+      margin-bottom: 0.55rem;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      background: var(--dorado);
+      color: var(--negro);
+      font-size: 0.7rem; font-weight: 800;
+      padding: 0.45rem 0.85rem;
+      border-radius: 50px;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 12px rgba(255,215,0,0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none; cursor: pointer;
+    }
+    .hero-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255,215,0,0.5);
+    }
+    .hero-dots {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; z-index: 5;
+    }
+    .hero-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      border: none; padding: 0; cursor: pointer;
+      transition: background 0.25s, width 0.25s;
+    }
+    .hero-dot.active {
+      background: var(--dorado);
+      width: 22px;
+      border-radius: 50px;
+    }
+    .hero-arrow {
+      position: absolute; top: 50%;
+      transform: translateY(-50%);
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: none;
+      align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1rem;
+      z-index: 5;
+      backdrop-filter: blur(4px);
+      transition: background 0.2s;
+    }
+    .hero-arrow:hover { background: rgba(229,9,20,0.85); }
+    .hero-arrow--prev { left: 0.5rem; }
+    .hero-arrow--next { right: 0.5rem; }
+    @media (min-width: 600px) {
+      .hero { aspect-ratio: 21/8; }
+      .hero-arrow { display: flex; }
+    }
+
+    /* ===== SECTION ===== */
+    .section { padding: 0.5rem 1rem 0.75rem; }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      color: var(--blanco);
+      margin-bottom: 0.85rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-title::before {
+      content: '';
+      width: 4px; height: 18px;
+      background: linear-gradient(180deg, var(--dorado), var(--rojo));
+      border-radius: 2px;
+    }
+
+    /* ===== GRID ===== */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.85rem;
+    }
+    @media (min-width: 560px)  { .games-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 820px)  { .games-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (min-width: 1100px) { .games-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    /* ===== GAME CARD ===== */
+    .game-card {
+      background: var(--negro2);
+      border: 1px solid var(--borde-dorado);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+                  box-shadow 0.3s ease,
+                  border-color 0.3s ease;
+      display: flex; flex-direction: column;
+      position: relative;
+    }
+    .game-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 12px 35px rgba(255,215,0,0.25),
+                  0 0 20px rgba(229,9,20,0.15);
+      border-color: var(--dorado);
+    }
+    .game-card:active { transform: scale(0.98); }
+
+    .game-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: center;
+      justify-content: center;
+    }
+    .game-img img {
+      width: 99%; height: 99%;
+      max-width: 99%; max-height: 99%;
+      object-fit: contain;
+      object-position: center;
+      transition: transform 0.4s ease;
+    }
+    .game-card:hover .game-img img { transform: scale(1.07); }
+
+    .game-img .placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .game-img .placeholder::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.15), transparent 50%),
+        radial-gradient(circle at 75% 80%, rgba(0,0,0,0.4), transparent 50%);
+      z-index: 1;
+    }
+    .game-img .placeholder .game-logo {
+      position: relative; z-index: 2;
+      width: 99%; height: 99%;
+      max-width: 99%; max-height: 99%;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.7));
+      transition: transform 0.4s ease;
+    }
+    /* Logo local: rellena toda la tarjeta sin espacios sobrantes */
+    .game-img .placeholder .game-logo--fill {
+      width: 100%; height: 100%;
+      max-width: 100%; max-height: 100%;
+      object-fit: cover;
+      object-position: center;
+      filter: none;
+    }
+    /* Ajustes finos para que se aprecien los logos */
+    .game-img .placeholder .game-logo--fill[alt="PUBG Mobile"] {
+      object-position: center 76%;
+    }
+    .game-img .placeholder .game-logo--fill[alt="Brawl Stars"] {
+      object-position: center 85%;
+    }
+    .game-img .placeholder .game-logo--fill[alt="Clash Royale"],
+    .game-img .placeholder .game-logo--fill[alt="Clash of Clans"] {
+      object-position: center 21%;
+    }
+    .game-img .placeholder .game-logo--fill[alt="Wuthering Waves"] {
+      object-position: center 73%;
+    }
+    .game-img .placeholder .game-logo--fill[alt="Sausage Man"] {
+      object-position: center 84%;
+    }
+    .game-img .placeholder .game-logo--fill[alt="Zenless Zone Zero"] {
+      object-position: center 100%;
+    }
+    /* Roblox: logo completo, ampliado para rellenar mejor la tarjeta */
+    .game-img .placeholder .game-logo--fill[alt="Roblox"] {
+      object-fit: contain;
+      object-position: center;
+      padding: 0;
+      transform: scale(1.18);
+    }
+    .game-card:hover .game-logo { transform: scale(1.06); }
+    .game-img .placeholder .logo-fallback {
+      position: relative; z-index: 2;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      color: var(--blanco);
+      text-align: center;
+      letter-spacing: 2px;
+      line-height: 0.95;
+      text-shadow: 0 3px 10px rgba(0,0,0,0.85);
+      padding: 0 0.6rem;
+    }
+
+    /* Badges */
+    .badge-check {
+      position: absolute;
+      top: 0.4rem; right: 0.4rem;
+      width: 22px; height: 22px;
+      background: var(--verde2);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 0.85rem; font-weight: 900;
+      box-shadow: 0 2px 8px rgba(46,204,113,0.55);
+      z-index: 5;
+    }
+    .badge-nuevo {
+      position: absolute;
+      top: -1px; left: -1px;
+      background: linear-gradient(135deg, var(--rosa), #c2185b);
+      color: white;
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 1px;
+      padding: 0.25rem 0.55rem;
+      border-radius: 0 0 8px 0;
+      text-transform: uppercase;
+      z-index: 5;
+    }
+    .badge-promo {
+      position: absolute;
+      top: -1px; left: -1px;
+      background: linear-gradient(135deg, #ff7a00, #ff3b00);
+      color: white;
+      font-size: 0.6rem; font-weight: 800; letter-spacing: 1px;
+      padding: 0.25rem 0.55rem;
+      border-radius: 0 0 8px 0;
+      text-transform: uppercase;
+      z-index: 6;
+      white-space: nowrap;
+    }
+
+    /* Card footer (name) */
+    .game-name {
+      padding: 0.4rem 0.5rem;
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--blanco);
+      background: linear-gradient(180deg, var(--negro2), var(--negro));
+      border-top: 1px solid var(--borde);
+    }
+
+    /* ===== BOTTOM NAV ===== */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: var(--barra-h);
+      background: var(--negro2);
+      border-top: 1px solid var(--borde);
+      display: flex; justify-content: space-around; align-items: center;
+      z-index: 100;
+    }
+    .nav-item {
+      background: none; border: none;
+      color: var(--texto-dim);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.15rem;
+      text-decoration: none;
+    }
+    .nav-item .nav-icon { font-size: 1.3rem; line-height: 1; }
+    .nav-item.active { color: var(--rojo); }
+    .nav-item:hover { color: var(--blanco); }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 200;
+      padding: 1rem;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: var(--negro2);
+      border: 1px solid var(--borde-dorado);
+      border-radius: 16px;
+      max-width: 380px;
+      width: 100%;
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    }
+    .modal-box h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem; letter-spacing: 2px;
+      color: var(--dorado);
+      margin-bottom: 0.5rem;
+    }
+    .modal-box p { font-size: 0.85rem; color: var(--texto-dim); margin-bottom: 1.25rem; }
+    .modal-box .btn-row { display: flex; gap: 0.5rem; }
+    .btn-modal {
+      flex: 1;
+      padding: 0.65rem;
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700; font-size: 0.85rem;
+      cursor: pointer; border: none;
+      transition: all 0.2s;
+    }
+    .btn-cancel { background: var(--gris); color: var(--blanco); }
+    .btn-cancel:hover { background: var(--gris2); }
+    .btn-wa {
+      background: var(--verde); color: white;
+      text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    }
+    .btn-wa:hover { background: #1ebe5a; }
+
+    /* ===== PAQUETES DENTRO DEL MODAL ===== */
+    .modal-box.with-pkgs {
+      max-width: 420px;
+      text-align: left;
+    }
+    .pkg-intro {
+      font-size: 0.78rem;
+      color: var(--texto-dim);
+      text-align: center;
+      margin-bottom: 0.85rem;
+    }
+    .pkg-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 50vh;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      padding-right: 0.25rem;
+    }
+    .pkg-list::-webkit-scrollbar { width: 6px; }
+    .pkg-list::-webkit-scrollbar-thumb { background: var(--gris2); border-radius: 6px; }
+    .pkg-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.65rem 0.8rem;
+      background: var(--negro3);
+      border: 1px solid var(--borde);
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+    .pkg-item:hover {
+      border-color: var(--borde-dorado);
+      background: linear-gradient(135deg, rgba(255,215,0,0.07), rgba(229,9,20,0.07));
+    }
+    .pkg-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      width: 100%;
+    }
+    .pkg-actions {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .pkg-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      padding: 0.45rem;
+      border-radius: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .pkg-btn-wa {
+      background: var(--verde);
+      color: white;
+    }
+    .pkg-btn-wa:hover { background: #1ebe5a; transform: translateY(-1px); }
+    .pkg-btn-qr {
+      background: linear-gradient(135deg, var(--dorado) 0%, #ffb300 100%);
+      color: #1a1a1a;
+    }
+    .pkg-btn-qr:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .pkg-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: 0;
+    }
+    .pkg-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(229,9,20,0.12));
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+    .pkg-qty {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      color: var(--blanco);
+      line-height: 1;
+    }
+    .pkg-unit {
+      font-size: 0.7rem;
+      color: var(--texto-dim);
+      font-weight: 500;
+    }
+    .pkg-price {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.5px;
+      color: var(--dorado);
+      flex-shrink: 0;
+    }
+    .pkg-note {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--texto-dim);
+      margin-bottom: 0.8rem;
+    }
+    .pkg-note .gold { color: var(--dorado); font-weight: 700; }
+
+    /* ===== MODO DE VENTA (Grid + Método de pago + COMPRAR AHORA) ===== */
+    .pkg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      max-height: 42vh;
+      overflow-y: auto;
+      padding: 0.15rem 0.25rem 0.15rem 0.15rem;
+    }
+    .pkg-grid::-webkit-scrollbar { width: 6px; }
+    .pkg-grid::-webkit-scrollbar-thumb { background: var(--gris2); border-radius: 6px; }
+
+    .pkg-card {
+      background: #2a0d3a;
+      border: 1.5px solid transparent;
+      border-radius: 12px;
+      padding: 0.65rem 0.45rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .pkg-card:hover {
+      border-color: rgba(236, 64, 192, 0.4);
+      transform: translateY(-2px);
+    }
+    .pkg-card.selected {
+      border-color: #ec40c0;
+      background: linear-gradient(135deg, #3a0d4d, #2a0d3a);
+      box-shadow: 0 0 0 2px rgba(236,64,192,0.25), 0 6px 18px rgba(236,64,192,0.25);
+    }
+    .pkg-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+    .pkg-card-icon { color: #5dd5ff; font-size: 1rem; line-height: 1; }
+    .pkg-card-price {
+      color: #ec40c0;
+      font-weight: 800;
+      font-size: 0.82rem;
+      letter-spacing: 0.3px;
+    }
+
+    /* Método de pago */
+    .pay-section { margin-bottom: 1rem; }
+    .pay-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--blanco);
+      margin-bottom: 0.55rem;
+    }
+    .pay-title .step-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--blanco);
+    }
+    .pay-methods {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+    }
+    .pay-method {
+      position: relative;
+      background: #2a0d3a;
+      border: 1.5px solid transparent;
+      border-radius: 50px;
+      padding: 0.65rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .pay-method:hover { border-color: rgba(236,64,192,0.4); }
+    .pay-method.selected {
+      border-color: #ec40c0;
+      box-shadow: 0 0 0 2px rgba(236,64,192,0.2);
+    }
+    .pay-method .pay-icon {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      background: rgba(236,64,192,0.18);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: #ec40c0;
+      flex-shrink: 0;
+    }
+    .pay-method[data-method="waso"] .pay-icon {
+      background: var(--verde);
+      color: #fff;
+      border-radius: 50%;
+      font-weight: 900;
+    }
+    .pay-method .pay-balance { color: var(--texto-dim); font-weight: 500; font-size: 0.72rem; margin-left: 0.15rem; }
+    .pay-discount {
+      position: absolute;
+      top: -8px; right: 8px;
+      background: var(--verde);
+      color: #fff;
+      font-size: 0.55rem;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      padding: 0.18rem 0.45rem;
+      border-radius: 50px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* ID del jugador */
+    .id-section { margin-bottom: 1rem; }
+    .id-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--blanco);
+      margin-bottom: 0.55rem;
+    }
+    .id-title .step-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--blanco);
+    }
+    .id-input {
+      width: 100%;
+      background: #2a0d3a;
+      border: 1.5px solid rgba(236,64,192,0.35);
+      border-radius: 50px;
+      padding: 0.7rem 1rem;
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .id-input::placeholder { color: var(--texto-dim); font-weight: 400; letter-spacing: 0.3px; }
+    .id-input:focus {
+      border-color: #ec40c0;
+      box-shadow: 0 0 0 2px rgba(236,64,192,0.25);
+    }
+    .id-hint {
+      font-size: 0.7rem;
+      color: var(--texto-dim);
+      margin-top: 0.35rem;
+      padding-left: 0.5rem;
+    }
+    .id-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    .id-row .id-input { width: 100%; }
+
+    /* Botón COMPRAR AHORA */
+    .btn-comprar {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #ec40c0, #d63bb0);
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 22px rgba(236,64,192,0.45);
+      transition: all 0.2s;
+    }
+    .btn-comprar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(236,64,192,0.6); }
+    .btn-comprar:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.3); }
+  </style>
+</head>
+<body>
+
+  <!-- BANNER TOP -->
+  <div class="banner-top">⚡ Recargas al instante</div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <a href="index.html" class="header-logo">ZONA_VIP</a>
+    <div class="header-actions">
+      <button class="header-icon-btn" title="Notificaciones">🔔</button>
+      <div class="header-user">
+        <div class="avatar">🎮</div>
+        <div>
+          <div>Recargas</div>
+          <div class="saldo">Bs 0.00</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO BANNER (CARRUSEL DINÁMICO) -->
+  <div class="hero-wrap">
+    <div class="hero" id="heroCarousel">
+      <div class="hero-track" id="heroTrack">
+        <!-- Free Fire -->
+        <div class="hero-slide" style="--bg: linear-gradient(135deg,#ff4500 0%, #8b0000 60%, #1a0000 100%);">
+          <img src="Img/Free fire.jpg" alt="Free Fire" class="hero-slide-img">
+          <div class="hero-content">
+            <span class="hero-tag hero-tag--promo">🔥 PROMO</span>
+            <div class="hero-title">DIAMANTES <span class="gold">FREE FIRE</span></div>
+            <div class="hero-sub">Recargá tus diamantes y pases al mejor precio</div>
+            <button class="hero-cta" onclick="document.querySelector('.section').scrollIntoView({behavior:'smooth'})">Ver paquetes →</button>
+          </div>
+        </div>
+        <!-- Mobile Legends -->
+        <div class="hero-slide" style="--bg: linear-gradient(135deg,#0d47a1 0%, #1976d2 60%, #0a1f3d 100%);">
+          <img src="Img/Mobile Legends.png" alt="Mobile Legends" class="hero-slide-img">
+          <div class="hero-content">
+            <span class="hero-tag">⚔️ MOBA</span>
+            <div class="hero-title">DIAMANTES <span class="gold">ML</span></div>
+            <div class="hero-sub">Skins, héroes y pases con recarga instantánea</div>
+            <button class="hero-cta" onclick="document.querySelector('.section').scrollIntoView({behavior:'smooth'})">Ver paquetes →</button>
+          </div>
+        </div>
+        <!-- Brawl Stars -->
+        <div class="hero-slide" style="--bg: linear-gradient(135deg,#4a0080 0%, #9b00ff 60%, #1a0033 100%);">
+          <img src="Img/Brawl Stars.png" alt="Brawl Stars" class="hero-slide-img">
+          <div class="hero-content">
+            <span class="hero-tag">💎 GEMAS</span>
+            <div class="hero-title">GEMAS <span class="gold">BRAWL STARS</span></div>
+            <div class="hero-sub">Brawlers, skins y pases Brawl con entrega rápida</div>
+            <button class="hero-cta" onclick="document.querySelector('.section').scrollIntoView({behavior:'smooth'})">Ver paquetes →</button>
+          </div>
+        </div>
+        <!-- Roblox -->
+        <div class="hero-slide" style="--bg: linear-gradient(135deg,#e60023 0%, #8b0000 60%, #1a1a1a 100%);">
+          <img src="Img/Roblox.png" alt="Roblox" class="hero-slide-img">
+          <div class="hero-content">
+            <span class="hero-tag">🎮 ROBUX</span>
+            <div class="hero-title">ROBUX <span class="gold">ROBLOX</span></div>
+            <div class="hero-sub">Recargás Robux desde 40 hasta 1700+ con bonus</div>
+            <button class="hero-cta" onclick="document.querySelector('.section').scrollIntoView({behavior:'smooth'})">Ver paquetes →</button>
+          </div>
+        </div>
+        <!-- PUBG Mobile -->
+        <div class="hero-slide" style="--bg: linear-gradient(135deg,#665200 0%, #332900 60%, #0d0d0d 100%);">
+          <img src="Img/Pug Mobile.png" alt="PUBG Mobile" class="hero-slide-img">
+          <div class="hero-content">
+            <span class="hero-tag">🪙 UC</span>
+            <div class="hero-title">UC <span class="gold">PUBG MOBILE</span></div>
+            <div class="hero-sub">Royal Pass, skins y Unknown Cash al mejor precio</div>
+            <button class="hero-cta" onclick="document.querySelector('.section').scrollIntoView({behavior:'smooth'})">Ver paquetes →</button>
+          </div>
+        </div>
+      </div>
+      <button class="hero-arrow hero-arrow--prev" onclick="heroMove(-1)" aria-label="Anterior">‹</button>
+      <button class="hero-arrow hero-arrow--next" onclick="heroMove(1)" aria-label="Siguiente">›</button>
+      <div class="hero-dots" id="heroDots"></div>
+    </div>
+  </div>
+
+  <!-- POPULAR GAMES -->
+  <section class="section">
+    <h2 class="section-title">Juegos Populares</h2>
+    <div class="games-grid" id="popularGrid"></div>
+  </section>
+
+  <!-- ALL GAMES -->
+  <section class="section">
+    <h2 class="section-title">Todos los Juegos</h2>
+    <div class="games-grid" id="allGrid"></div>
+  </section>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <a class="nav-item" href="index.html">
+      <span class="nav-icon">🏠</span>
+      Plataformas
+    </a>
+    <a class="nav-item active" href="recarga-juegos.html">
+      <span class="nav-icon">🎮</span>
+      Juegos
+    </a>
+    <a class="nav-item" href="index.html#cats">
+      <span class="nav-icon">≡</span>
+      Categorías
+    </a>
+    <a class="nav-item" href="contacto.html">
+      <span class="nav-icon">💬</span>
+      Contacto
+    </a>
+  </nav>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-box" id="modalBox">
+      <h3 id="modalTitle">Recargar</h3>
+      <p id="modalText">Escríbenos por WhatsApp para procesar tu recarga al instante.</p>
+      <div id="modalPkgs"></div>
+      <div class="btn-row">
+        <button class="btn-modal btn-cancel" onclick="closeModal()">Cancelar</button>
+        <a class="btn-modal btn-wa" id="modalWaBtn" target="_blank" rel="noopener">💬 WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WHATSAPP_NUM = '59163999873';
+
+    // Catálogo de juegos
+    const GF = 'https://www.google.com/s2/favicons?sz=128&domain=';
+    const GAMES = [
+      { name: 'Free Fire',          c1: '#ff4500', c2: '#8b0000', popular: true, tag: 'PROMO', logo: 'Img/Free%20fire.jpg',
+        unit: 'Diamantes', packages: [
+          { label: '100+20 Diamantes',   icon: '💎', price: 12.50  },
+          { label: '310+62 Diamantes',   icon: '💎', price: 36.00  },
+          { label: '520+104 Diamantes',  icon: '💎', price: 61.50  },
+          { label: '1060+212 Diamantes', icon: '💎', price: 109.50 },
+          { label: '2180+436 Diamantes', icon: '💎', price: 184.50 },
+          { label: '5600+1120 Diamantes', icon: '💎', price: 451.50 },
+          { label: 'Tarjeta Semanal',         icon: '🎫', price: 24.50 },
+          { label: 'Tarjeta Semanal Básica',  icon: '🎫', price: 13.50 },
+          { label: 'Tarjeta Mensual',         icon: '🎫', price: 87.60 },
+          { label: 'Pase Booyah',             icon: '🎟️', price: 35.50 },
+        ] },
+      { name: 'Mobile Legends',     c1: '#0d47a1', c2: '#1976d2', popular: true,                logo: 'Img/Mobile%20Legends.png',
+        unit: 'Diamantes', needsServerId: true, packages: [
+          { qty: 86,   price: 19.90  },
+          { qty: 172,  price: 33.90  },
+          { qty: 258,  price: 42.90  },
+          { qty: 706,  price: 129.90 },
+          { qty: 2195, price: 349.90 },
+          { qty: 3688, price: 555.90 },
+          { qty: 5532, price: 819.90 },
+          { qty: 9288, price: 1499.90 },
+          { label: 'Pase Crepúsculo',        icon: '🎫', price: 99.90 },
+          { label: 'Pase Semanal Élite',     icon: '🎫', price: 15.90 },
+          { label: 'Pase Semanal Diamantes', icon: '🎫', price: 27.90 },
+          { label: 'Pase Mensual Épico',     icon: '🎫', price: 54.90 },
+        ] },
+      { name: 'Blood Strike',       c1: '#3a0000', c2: '#8b0000', popular: true,                logo: 'Img/Blood%20Strike.png' },
+      { name: 'PUBG Mobile',        c1: '#1a1a00', c2: '#4d4d00', popular: true,                logo: 'Img/Pug%20Mobile.png' },
+      { name: 'Brawl Stars',        c1: '#4a0080', c2: '#9b00ff', popular: true,                logo: 'Img/Brawl%20Stars.png',
+        unit: 'Pases', packages: [
+          { label: 'Brawl Pass Normal', icon: '🎫', price: 56,  needsEmail: true },
+          { label: 'Brawl Pass Plus',   icon: '⭐', price: 75,  needsEmail: true },
+          { label: 'Pro Pass',          icon: '🏆', price: 139, needsEmail: true },
+          { label: 'Paquete Evento',    icon: '🎉', price: 0, consult: true, needsEmail: true },
+        ] },
+      { name: 'Clash Royale',       c1: '#990000', c2: '#e53935',                                logo: 'Img/Clash%20Royale.png' },
+      { name: 'Clash of Clans',     c1: '#003399', c2: '#0057e7',                                logo: 'Img/Clash%20of%20Clans.png' },
+      { name: 'Honor of Kings',     c1: '#5a0066', c2: '#9c27b0',                                logo: 'Img/Honor%20of%20Kings.png' },
+      { name: 'Arena Breakout',     c1: '#1a1a1a', c2: '#3a3a3a',                                logo: 'Img/Arena%20Breakout.png' },
+      { name: 'Wuthering Waves',    c1: '#1b2a3a', c2: '#5a6c7d',                                logo: 'Img/Wuthering%20Waves.png' },
+      { name: 'Where Winds Meet',   c1: '#3d2914', c2: '#8b6f47', nuevo: true,                   logo: 'Img/Where%20Winds%20Meet.png' },
+      { name: 'Genshin Impact',     c1: '#1a0033', c2: '#6a1b9a',                                logo: 'Img/Genshin%20Impact.png' },
+      { name: 'Roblox',             c1: '#1a1a1a', c2: '#e60023',                                logo: 'Img/Roblox.png',
+        unit: 'Robux', needsAccount: true, packages: [
+          { qty: 40,  price: 15 },
+          { qty: 80,  price: 25 },
+          { qty: 120, price: 45 },
+          { qty: 160, price: 49 },
+          { qty: 240, price: 59 },
+          { qty: 320, price: 78 },
+          { qty: 400, price: 89 },
+          { label: '400 + 100 Robux (Bonus)',  icon: '🎁', price: 105 },
+          { label: '800 + 200 Robux (Bonus)',  icon: '🎁', price: 185 },
+          { label: '1700 + 300 Robux (Bonus)', icon: '🎁', price: 340 },
+          { label: 'Suscripción Premium',      icon: '⭐', price: 154 },
+        ] },
+      { name: 'Honkai: Star Rail',  c1: '#0d1b3d', c2: '#3949ab',                                logo: 'Img/Honkai%20Star%20Rail.png' },
+      { name: 'Magic Chess',        c1: '#2a1457', c2: '#7c4dff',                                logo: 'Img/Magic%20Chess.png' },
+      { name: 'Super SUS',          c1: '#0d3a4d', c2: '#26c6da',                                logo: 'Img/Super%20SUS.png' },
+      { name: 'Farlight 84',        c1: '#3a2400', c2: '#ffa726',                                logo: 'Img/Farlight%2084.png' },
+      { name: 'Sausage Man',        c1: '#3a1500', c2: '#ff7043',                                logo: 'Img/Sausage%20Man.png' },
+      { name: 'Zenless Zone Zero',  c1: '#0d1f3d', c2: '#42a5f5', nuevo: true,                   logo: 'Img/Zenless%20Zone%20Zero.png' },
+      { name: 'Más juegos',         c1: '#1a1a1a', c2: '#3a3a3a',                                logo: '' },
+    ];
+
+    function cardHtml(g) {
+      const ph = `
+        <div class="placeholder" style="background:linear-gradient(135deg,${g.c1},${g.c2})">
+          ${g.logo
+            ? `<img class="game-logo${g.logo.startsWith('Img/') ? ' game-logo--fill' : ''}" src="${g.logo}" alt="${g.name}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo-fallback',textContent:'${g.name.replace(/'/g,"\\'").toUpperCase()}'}))">`
+            : `<div class="logo-fallback">+</div>`}
+        </div>`;
+      const badges = [
+        g.tag === 'PROMO' ? '<div class="badge-promo">PROMO</div>' : '',
+        g.nuevo ? '<div class="badge-nuevo">NUEVO</div>' : '',
+        '<div class="badge-check">✓</div>',
+      ].join('');
+      return `
+        <div class="game-card" onclick="openRecarga('${g.name.replace(/'/g,"\\'")}')">
+          <div class="game-img">${ph}${badges}</div>
+          <div class="game-name">${g.name}</div>
+        </div>
+      `;
+    }
+
+    function render() {
+      document.getElementById('popularGrid').innerHTML =
+        GAMES.filter(g => g.popular).map(cardHtml).join('');
+      document.getElementById('allGrid').innerHTML =
+        GAMES.map(cardHtml).join('');
+    }
+
+    let CURRENT_GAME = null;
+    const WASO_DISCOUNT = 0.10; // 10% descuento al pagar con Waso Coin
+
+    function updateInputForPkg(idx) {
+      const pkg = CURRENT_GAME?.packages?.[idx];
+      if (CURRENT_GAME?.needsAccount) return;
+      if (CURRENT_GAME?.needsServerId) return;
+      const needsEmail = !!(pkg && pkg.needsEmail);
+      const idSection = document.querySelector('.id-section');
+      const input = document.getElementById('playerId');
+      if (!idSection || !input) return;
+      const title = idSection.querySelector('.id-title');
+      const hint  = idSection.querySelector('.id-hint');
+      if (needsEmail) {
+        title.innerHTML = '<span class="step-num">2</span> Correo electrónico';
+        input.placeholder = 'tucorreo@email.com';
+        input.type = 'email';
+        input.inputMode = 'email';
+        hint.textContent = '📧 Te enviaremos los detalles a este correo';
+        input.dataset.needsEmail = '1';
+      } else {
+        title.innerHTML = '<span class="step-num">2</span> ID del jugador';
+        input.placeholder = 'Ingresá tu ID del juego';
+        input.type = 'text';
+        input.inputMode = 'numeric';
+        hint.textContent = '📋 Copiá tu ID desde el perfil del juego';
+        input.dataset.needsEmail = '';
+      }
+      input.value = '';
+    }
+    function selectPkg(el) {
+      el.parentElement.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      const idx = parseInt(el.dataset.idx, 10);
+      updateInputForPkg(idx);
+      // Update comprar button label
+      const pkg = CURRENT_GAME?.packages?.[idx];
+      const btn = document.getElementById('btnComprar');
+      if (btn && pkg) {
+        btn.textContent = pkg.consult ? 'Consultar por WhatsApp' : 'Comprar Ahora';
+      }
+      checkComprar();
+    }
+    function checkComprar() {
+      const btn = document.getElementById('btnComprar');
+      if (!btn) return;
+      const selPkg = document.querySelector('.pkg-card.selected');
+      let inputOk = true;
+      if (CURRENT_GAME?.needsAccount) {
+        const mail = document.getElementById('accEmail');
+        inputOk = !!(mail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail.value.trim()));
+      } else if (CURRENT_GAME?.needsServerId) {
+        const id = document.getElementById('mlId');
+        const sv = document.getElementById('mlServer');
+        const idOk = id && /^\d{4,}$/.test(id.value.trim());
+        const svOk = sv && /^\d{3,}$/.test(sv.value.trim());
+        inputOk = !!(idOk && svOk);
+      } else {
+        const idInput = document.getElementById('playerId');
+        if (idInput) {
+          const v = idInput.value.trim();
+          if (idInput.dataset.needsEmail) {
+            inputOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+          } else {
+            inputOk = v.length >= 4;
+          }
+        }
+      }
+      btn.disabled = !(selPkg && inputOk);
+    }
+    function selectPay(el) {
+      el.parentElement.querySelectorAll('.pay-method').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+    function comprarAhora() {
+      if (!CURRENT_GAME) return;
+      const selPkg = document.querySelector('.pkg-card.selected');
+      if (!selPkg) return;
+
+      const needsAccount = !!CURRENT_GAME.needsAccount;
+      const needsServerId = !!CURRENT_GAME.needsServerId;
+      let playerId = '';
+      let accountEmail = '';
+      let serverId = '';
+      let idLabel = 'ID';
+
+      if (needsAccount) {
+        const mail = document.getElementById('accEmail');
+        accountEmail = mail ? mail.value.trim() : '';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(accountEmail)) return;
+        playerId = accountEmail;
+        idLabel = 'Correo';
+      } else if (needsServerId) {
+        const idEl = document.getElementById('mlId');
+        const svEl = document.getElementById('mlServer');
+        playerId = idEl ? idEl.value.trim() : '';
+        serverId = svEl ? svEl.value.trim() : '';
+        if (!/^\d{4,}$/.test(playerId)) return;
+        if (!/^\d{3,}$/.test(serverId)) return;
+        idLabel = 'ID';
+      } else {
+        const idInput = document.getElementById('playerId');
+        playerId = idInput ? idInput.value.trim() : '';
+        const isEmail = !!(idInput && idInput.dataset.needsEmail);
+        if (isEmail) {
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(playerId)) return;
+          idLabel = 'Correo';
+        } else if (playerId.length < 4) {
+          return;
+        }
+      }
+
+      const idx = parseInt(selPkg.dataset.idx, 10);
+      const p = CURRENT_GAME.packages[idx];
+      const label = p.label || `${p.qty.toLocaleString('es-BO')} ${CURRENT_GAME.unit}`;
+
+      // Consult packages → WhatsApp instead of QR pay
+      if (p.consult) {
+        let accountBlock;
+        if (needsAccount) {
+          accountBlock = `\nCorreo: ${accountEmail}\n🔒 Te pediremos la contraseña por este chat`;
+        } else if (needsServerId) {
+          accountBlock = `\nID: ${playerId}\nServidor: ${serverId}`;
+        } else {
+          accountBlock = `\n${idLabel}: ${playerId}`;
+        }
+        const msg = encodeURIComponent(`Hola ZONA VIP! Quiero consultar el ${label} de ${CURRENT_GAME.name} 🎮${accountBlock}`);
+        window.open(`https://wa.me/${WHATSAPP_NUM}?text=${msg}`, '_blank');
+        return;
+      }
+
+      const detail = needsServerId
+        ? `[ID: ${playerId} | Servidor: ${serverId}]`
+        : `[${idLabel}: ${playerId}]`;
+      const fullLabel = `${CURRENT_GAME.name} — ${label} ${detail}`;
+      const cartItem = {
+        name: fullLabel.substring(0, 120),
+        price: p.price, qty: 1,
+        playerId, game: CURRENT_GAME.name, item: label,
+      };
+      if (needsAccount) {
+        cartItem.accountEmail = accountEmail;
+        cartItem.needsPassword = true;
+      }
+      if (needsServerId) {
+        cartItem.serverId = serverId;
+      }
+      const params = new URLSearchParams({
+        cart: encodeURIComponent(JSON.stringify([cartItem])),
+        total: p.price.toFixed(2),
+        playerId,
+      });
+      window.location.href = `pagar-qr.html?${params.toString()}`;
+    }
+
+    function openRecarga(name) {
+      const modal = document.getElementById('modal');
+      const box = document.getElementById('modalBox');
+      const pkgsEl = document.getElementById('modalPkgs');
+      const game = GAMES.find(g => g.name === name);
+      CURRENT_GAME = game;
+
+      document.getElementById('modalTitle').textContent = `Recargar ${name}`;
+
+      if (game && game.packages && game.packages.length) {
+        box.classList.add('with-pkgs');
+        document.getElementById('modalText').innerHTML =
+          `<span class="pkg-intro">Elegí tu paquete</span>`;
+
+        const fmtBs = n => 'Bs ' + n.toFixed(2).replace('.', ',');
+        const cards = game.packages.map((p, idx) => {
+          const icon  = p.icon  || '💎';
+          const label = p.label || `${p.qty.toLocaleString('es-BO')} ${game.unit}`;
+          const shortLabel = label.replace(/\s*Diamantes?$/i, '').replace(/\s*Robux$/i, '');
+          const priceHtml = p.consult ? 'Consultar' : fmtBs(p.price);
+          return `
+            <div class="pkg-card" data-idx="${idx}" onclick="selectPkg(this)">
+              <div class="pkg-card-top"><span class="pkg-card-icon">${icon}</span><span>${shortLabel}</span></div>
+              <div class="pkg-card-price">${priceHtml}</div>
+            </div>`;
+        }).join('');
+
+        let accountSection;
+        if (game.needsAccount) {
+          accountSection = `
+            <div class="id-section">
+              <div class="id-title"><span class="step-num">2</span> Correo de la cuenta</div>
+              <input type="email" id="accEmail" class="id-input" placeholder="tucorreo@email.com" inputmode="email" autocomplete="off" autocapitalize="none" oninput="checkComprar()">
+              <div class="id-hint">📧 Correo de tu cuenta de ${game.name} — la contraseña te la pediremos por WhatsApp</div>
+            </div>
+          `;
+        } else if (game.needsServerId) {
+          accountSection = `
+            <div class="id-section">
+              <div class="id-title"><span class="step-num">2</span> Información del Usuario</div>
+              <div class="id-row">
+                <input type="text" id="mlId" class="id-input" placeholder="Ingresá tu ID" inputmode="numeric" autocomplete="off" oninput="checkComprar()">
+                <input type="text" id="mlServer" class="id-input" placeholder="(Servidor Id)" inputmode="numeric" autocomplete="off" oninput="checkComprar()">
+              </div>
+              <div class="id-hint">📋 Tu ID y Servidor aparecen en tu perfil del juego</div>
+            </div>
+          `;
+        } else {
+          accountSection = `
+            <div class="id-section">
+              <div class="id-title"><span class="step-num">2</span> ID del jugador</div>
+              <input type="text" id="playerId" class="id-input" placeholder="Ingresá tu ID del juego" inputmode="numeric" autocomplete="off" oninput="checkComprar()">
+              <div class="id-hint">📋 Copiá tu ID desde el perfil del juego</div>
+            </div>
+          `;
+        }
+
+        pkgsEl.innerHTML = `
+          <div class="pkg-grid">${cards}</div>
+          ${accountSection}
+          <button class="btn-comprar" id="btnComprar" disabled onclick="comprarAhora()">Comprar Ahora</button>
+        `;
+
+        // Auto-select first package
+        const firstCard = pkgsEl.querySelector('.pkg-card');
+        if (firstCard) selectPkg(firstCard);
+
+        const waBtn = document.getElementById('modalWaBtn');
+        waBtn.style.display = 'flex';
+        const generalMsg = encodeURIComponent(`Hola ZONA VIP! Quiero info de recargas de ${name} 🎮`);
+        waBtn.href = `https://wa.me/${WHATSAPP_NUM}?text=${generalMsg}`;
+        waBtn.textContent = '💬 Consultar otro monto';
+      } else {
+        box.classList.remove('with-pkgs');
+        pkgsEl.innerHTML = '';
+        document.getElementById('modalText').textContent =
+          `Escríbenos por WhatsApp para procesar tu recarga de ${name} al instante.`;
+        const waBtn = document.getElementById('modalWaBtn');
+        waBtn.style.display = 'flex';
+        const msg = encodeURIComponent(`Hola ZONA VIP! Quiero recargar ${name} 🎮`);
+        waBtn.href = `https://wa.me/${WHATSAPP_NUM}?text=${msg}`;
+        waBtn.textContent = '💬 WhatsApp';
+      }
+
+      modal.classList.add('show');
+    }
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+    function payRecargaQR(btn) {
+      const label = btn.dataset.label;
+      const price = parseFloat(btn.dataset.price);
+      if (!label || !(price > 0)) return;
+      const cartData = [{ name: label.substring(0, 50), price, qty: 1 }];
+      const params = new URLSearchParams({
+        cart: encodeURIComponent(JSON.stringify(cartData)),
+        total: price.toFixed(2),
+      });
+      window.location.href = `pagar-qr.html?${params.toString()}`;
+    }
+
+    render();
+
+    // ===== HERO CAROUSEL =====
+    (function() {
+      const track = document.getElementById('heroTrack');
+      const dotsWrap = document.getElementById('heroDots');
+      const carousel = document.getElementById('heroCarousel');
+      if (!track || !dotsWrap || !carousel) return;
+      const total = track.children.length;
+      let current = 0;
+      let timer = null;
+      const INTERVAL = 5000;
+
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', 'Ir al slide ' + (i + 1));
+        dot.addEventListener('click', () => goTo(i));
+        dotsWrap.appendChild(dot);
+      }
+
+      function goTo(idx) {
+        current = (idx + total) % total;
+        track.style.transform = `translateX(-${current * 100}%)`;
+        Array.from(dotsWrap.children).forEach((d, i) => {
+          d.classList.toggle('active', i === current);
+        });
+        restart();
+      }
+
+      window.heroMove = function(dir) { goTo(current + dir); };
+
+      function start() { timer = setInterval(() => goTo(current + 1), INTERVAL); }
+      function stop() { if (timer) { clearInterval(timer); timer = null; } }
+      function restart() { stop(); start(); }
+
+      carousel.addEventListener('mouseenter', stop);
+      carousel.addEventListener('mouseleave', start);
+
+      let startX = 0, deltaX = 0, dragging = false;
+      carousel.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX; deltaX = 0; dragging = true; stop();
+      }, { passive: true });
+      carousel.addEventListener('touchmove', e => {
+        if (!dragging) return;
+        deltaX = e.touches[0].clientX - startX;
+      }, { passive: true });
+      carousel.addEventListener('touchend', () => {
+        if (!dragging) return;
+        dragging = false;
+        if (Math.abs(deltaX) > 40) goTo(current + (deltaX < 0 ? 1 : -1));
+        else start();
+      });
+
+      start();
+    })();
+  </script>
+</body>
+</html>

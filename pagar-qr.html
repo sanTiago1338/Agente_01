@@ -610,7 +610,7 @@
 
       document.getElementById('payAmount').textContent = `${total.toFixed(2)} Bs`;
       document.getElementById('instrMonto').textContent = `${total.toFixed(2)} Bs`;
-      document.getElementById('qrImage').src = `${API_URL}/api/admin/qr-banco?t=${Date.now()}`;
+      document.getElementById('qrImage').src = 'Img/Qr.jpg';
       document.getElementById('orderTotal').textContent = `${total.toFixed(2)} Bs`;
       document.getElementById('payRef').textContent = `Ref: ${paymentData.referencia || paymentId}`;
 

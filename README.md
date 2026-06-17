@@ -47,7 +47,7 @@ zona-vip-tienda/
 
 ## 📞 Contacto
 
-- **WhatsApp**: +591 63999873
+- **WhatsApp**: +591 63998656
 - **Horario**: Atención todos los días
 - **Respuesta**: Rápida y confiable
 

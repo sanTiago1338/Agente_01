@@ -443,7 +443,7 @@
       <div class="error-title">ERROR AL CREAR EL PAGO</div>
       <div class="error-msg" id="errorMsg">No se pudo conectar con el servidor de pagos.</div>
       <a href="index.html" class="btn-back" style="max-width:280px;">Volver a la tienda</a>
-      <a href="https://wa.me/59163999873" target="_blank" class="btn-wa-help" style="max-width:280px;">
+      <a href="https://wa.me/59163998656" target="_blank" class="btn-wa-help" style="max-width:280px;">
         Contactar por WhatsApp
       </a>
     </div>
@@ -628,7 +628,7 @@
         ? `\n━━━━━━━━━━━━━━━━━━\n🔒 *Para acreditar tu recarga, enviá la contraseña de tu cuenta por este chat.*`
         : '';
       const whatsappMsg = `🦁 *ZONA VIP - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${ref}\n💰 *Monto:* ${total.toFixed(2)} Bs\n🛒 *Pedido:*\n${items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
-      window._waUrl = `https://wa.me/59163999873?text=${encodeURIComponent(whatsappMsg)}`;
+      window._waUrl = `https://wa.me/59163998656?text=${encodeURIComponent(whatsappMsg)}`;
 
       startCountdown();
     }
@@ -641,7 +641,7 @@
         document.getElementById('timerDisplay').textContent = segundos;
         if (segundos <= 0) {
           clearInterval(timerInterval);
-          window.location.href = window._waUrl || 'https://wa.me/59163999873';
+          window.location.href = window._waUrl || 'https://wa.me/59163998656';
         }
       }, 1000);
     }
@@ -658,7 +658,7 @@
           setStatus('pagado', 'Pago confirmado');
           showQROverlay('OK', 'PAGADO');
           setTimeout(() => {
-            window.location.href = window._waUrl || 'https://wa.me/59163999873';
+            window.location.href = window._waUrl || 'https://wa.me/59163998656';
           }, 1500);
         } else if (data.estado === 'cancelado' || data.estado === 'expirado') {
           clearInterval(pollInterval);
@@ -684,7 +684,7 @@
 
     function irAWhatsApp(e) {
       e.preventDefault();
-      window.location.href = window._waUrl || 'https://wa.me/59163999873';
+      window.location.href = window._waUrl || 'https://wa.me/59163998656';
     }
 
     function showError(msg) {

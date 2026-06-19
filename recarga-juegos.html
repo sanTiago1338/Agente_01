@@ -905,6 +905,27 @@
       gap: 0.5rem;
     }
     .id-row .id-input { width: 100%; }
+    .id-static {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      background: rgba(42,13,58,0.55);
+      border: 1.5px solid rgba(255,255,255,0.08);
+      border-radius: 50px;
+      padding: 0.7rem 0.8rem;
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-align: center;
+      user-select: none;
+    }
+    .id-static::before {
+      content: '🌐';
+      font-size: 0.95rem;
+    }
 
     /* Botón COMPRAR AHORA */
     .btn-comprar {
@@ -1173,7 +1194,7 @@
           { label: 'Pase batalla premium',  icon: '🏆', price: 210.10, tab: 'Pases' },
         ] },
       { name: 'Genshin Impact',     c1: '#1a0033', c2: '#6a1b9a',                                logo: 'Img/Genshin%20Impact.png',
-        unit: 'Crystals', packages: [
+        unit: 'Crystals', autoRegion: true, packages: [
           { label: '60 Genesis Crystals',         icon: '💎', price: 15.60,   tab: 'Crystals' },
           { label: '300 + 30 Genesis Crystals',   icon: '💎', price: 57.90,   tab: 'Crystals' },
           { label: '980 + 110 Genesis Crystals',  icon: '💎', price: 164.20,  tab: 'Crystals' },
@@ -1202,15 +1223,151 @@
           { label: '1700 + 300 Robux (Bonus)', icon: '🎁', price: 340, tab: 'Robux' },
           { label: 'Suscripción Premium',      icon: '⭐', price: 154, tab: 'Pases' },
         ] },
-      { name: 'Honkai: Star Rail',  c1: '#0d1b3d', c2: '#3949ab',                                logo: 'Img/Honkai%20Star%20Rail.png' },
-      { name: 'Magic Chess',        c1: '#2a1457', c2: '#7c4dff',                                logo: 'Img/Magic%20Chess.png' },
-      { name: 'Super SUS',          c1: '#0d3a4d', c2: '#26c6da',                                logo: 'Img/Super%20SUS.png' },
-      { name: 'Farlight 84',        c1: '#3a2400', c2: '#ffa726',                                logo: 'Img/Farlight%2084.png' },
-      { name: 'Sausage Man',        c1: '#3a1500', c2: '#ff7043',                                logo: 'Img/Sausage%20Man.png' },
-      { name: 'Zenless Zone Zero',  c1: '#0d1f3d', c2: '#42a5f5', nuevo: true,                   logo: 'Img/Zenless%20Zone%20Zero.png' },
+      { name: 'Honkai: Star Rail',  c1: '#0d1b3d', c2: '#3949ab',                                logo: 'Img/Honkai%20Star%20Rail.png',
+        unit: 'Oneiric Shard', autoRegion: true, packages: [
+          { label: '60 Oneiric Shard',   icon: '💎', price: 15.50,   tab: 'Oneiric' },
+          { label: '330 Oneiric Shard',  icon: '💎', price: 57.70,   tab: 'Oneiric' },
+          { label: '1090 Oneiric Shard', icon: '💎', price: 163.20,  tab: 'Oneiric' },
+          { label: '2240 Oneiric Shard', icon: '💎', price: 326.70,  tab: 'Oneiric' },
+          { label: '3880 Oneiric Shard', icon: '💎', price: 537.90,  tab: 'Oneiric' },
+          { label: '8080 Oneiric Shard', icon: '💎', price: 1066.00, tab: 'Oneiric' },
+          { label: 'Express Supply Pass', icon: '🎫', price: 57.80,   tab: 'Pases' },
+        ] },
+      { name: 'Magic Chess: Go Go', c1: '#2a1457', c2: '#7c4dff',                                logo: 'Img/Magic%20Chess.png',
+        unit: 'Diamonds', needsServerId: true,
+        idLabels: { title: 'Ingresar ID', primary: 'Player ID', secondary: 'Zone ID', hint: '📋 Copiá tu Player ID y Zone ID desde tu perfil del juego' },
+        packages: [
+          { label: '77 + 8 Diamonds',     icon: '💎', price: 18.80,  tab: 'Golds' },
+          { label: '154 + 16 Diamonds',   icon: '💎', price: 32.00,  tab: 'Golds' },
+          { label: '217 + 23 Diamonds',   icon: '💎', price: 45.00,  tab: 'Golds' },
+          { label: '256 + 40 Diamonds',   icon: '💎', price: 60.00,  tab: 'Golds' },
+          { label: '367 + 41 Diamonds',   icon: '💎', price: 74.00,  tab: 'Golds' },
+          { label: '503 + 65 Diamonds',   icon: '💎', price: 98.00,  tab: 'Golds' },
+          { label: '774 + 101 Diamonds',  icon: '💎', price: 145.00, tab: 'Golds' },
+          { label: '1708 + 302 Diamonds', icon: '💎', price: 313.00, tab: 'Golds' },
+          { label: '4003 + 827 Diamonds', icon: '💎', price: 710.00, tab: 'Golds' },
+          { label: 'Membresias semanal',  icon: '🎫', price: 24.50,  tab: 'Pases' },
+        ] },
+      { name: 'Super SUS',          c1: '#2d0033', c2: '#d81b60', nuevo: true,                   logo: 'Img/Super%20SUS.png',
+        unit: 'Goldstar', packages: [
+          { label: '100 Goldstar',         icon: '💎', price: 11.70,  tab: 'Recargas' },
+          { label: '300 + 10 Goldstar',    icon: '💎', price: 24.10,  tab: 'Recargas' },
+          { label: '500 + 20 Goldstar',    icon: '💎', price: 37.80,  tab: 'Recargas' },
+          { label: '1000 + 60 Goldstar',   icon: '💎', price: 75.60,  tab: 'Recargas' },
+          { label: '2000 + 180 Goldstar',  icon: '💎', price: 141.20, tab: 'Recargas' },
+          { label: '5000 + 600 Goldstar',  icon: '💎', price: 338.00, tab: 'Recargas' },
+          { label: 'Tarjeta semanal',      icon: '🎫', price: 12.80,  tab: 'Membresías' },
+          { label: 'SUPER PASS',           icon: '⭐', price: 44.30,  tab: 'Membresías' },
+          { label: 'SUPER PASS BUNDLE',    icon: '🎁', price: 84.50,  tab: 'Membresías' },
+          { label: 'Tarjeta Mensual',      icon: '📅', price: 95.70,  tab: 'Membresías' },
+          { label: 'Tarjeta Super',        icon: '🏆', price: 105.60, tab: 'Membresías' },
+        ] },
+      { name: 'Farlight 84',        c1: '#3a2400', c2: '#ffa726', nuevo: true,                   logo: 'Img/Farlight%2084.png',
+        unit: 'Diamonds', packages: [
+          { label: '5 Diamonds',      icon: '💎', price: 6.40,   tab: 'Diamantes' },
+          { label: '10 Diamonds',     icon: '💎', price: 6.80,   tab: 'Diamantes' },
+          { label: '20 Diamonds',     icon: '💎', price: 7.80,   tab: 'Diamantes' },
+          { label: '30 Diamonds',     icon: '💎', price: 8.90,   tab: 'Diamantes' },
+          { label: '40 Diamonds',     icon: '💎', price: 9.90,   tab: 'Diamantes' },
+          { label: '50 Diamonds',     icon: '💎', price: 10.10,  tab: 'Diamantes' },
+          { label: '60 Diamonds',     icon: '💎', price: 11.20,  tab: 'Diamantes' },
+          { label: '80 Diamonds',     icon: '💎', price: 13.30,  tab: 'Diamantes' },
+          { label: '100 Diamonds',    icon: '💎', price: 20.10,  tab: 'Diamantes' },
+          { label: '165 Diamonds',    icon: '💎', price: 25.40,  tab: 'Diamantes' },
+          { label: '220 Diamonds',    icon: '💎', price: 30.70,  tab: 'Diamantes' },
+          { label: '330 Diamonds',    icon: '💎', price: 39.90,  tab: 'Diamantes' },
+          { label: '880 Diamonds',    icon: '💎', price: 89.40,  tab: 'Diamantes' },
+          { label: '2240 Diamonds',   icon: '💎', price: 216.10, tab: 'Diamantes' },
+          { label: '4700 Diamonds',   icon: '💎', price: 422.70, tab: 'Diamantes' },
+          { label: 'Tarjeta semanal', icon: '🎫', price: 38.40,  tab: 'Pases y Otros' },
+          { label: 'Tarjeta mensual', icon: '📅', price: 157.10, tab: 'Pases y Otros' },
+        ] },
+      { name: 'Sausage Man',        c1: '#3a1500', c2: '#ff7043', nuevo: true,                   logo: 'Img/Sausage%20Man.png',
+        unit: 'Candies', packages: [
+          { label: '61 Candies',    icon: '🍬', price: 12.80 },
+          { label: '186 Candies',   icon: '🍬', price: 28.80 },
+          { label: '318 Candies',   icon: '🍬', price: 44.70 },
+          { label: '686 Candies',   icon: '🍬', price: 89.50 },
+          { label: '1378 Candies',  icon: '🍬', price: 169.40 },
+          { label: '2118 Candies',  icon: '🍬', price: 247.70 },
+          { label: '3548 Candies',  icon: '🍬', price: 407.30 },
+          { label: '7108 Candies',  icon: '🍬', price: 806.10 },
+        ] },
+      { name: 'Zenless Zone Zero',  c1: '#0d1f3d', c2: '#42a5f5', nuevo: true,                   logo: 'Img/Zenless%20Zone%20Zero.png',
+        unit: 'Monochromes', autoRegion: true, packages: [
+          { label: '60 Monochrome',          icon: '💎', price: 15.50,   tab: 'Monochromes' },
+          { label: '300 + 30 Monochrome',    icon: '💎', price: 57.90,   tab: 'Monochromes' },
+          { label: '980 + 110 Monochrome',   icon: '💎', price: 164.00,  tab: 'Monochromes' },
+          { label: '1980 + 260 Monochrome',  icon: '💎', price: 328.20,  tab: 'Monochromes' },
+          { label: '3280 + 600 Monochrome',  icon: '💎', price: 540.60,  tab: 'Monochromes' },
+          { label: '6480 + 1600 Monochrome', icon: '💎', price: 1071.20, tab: 'Monochromes' },
+          { label: 'Inter-Knot Membership',  icon: '🎫', price: 58.00,   tab: 'Pases' },
+        ] },
       { name: 'Stumble Guys Top Up', c1: '#ff8800', c2: '#ffd54f', nuevo: true,                  logo: 'Img/Stumble%20Guys.png' },
-      { name: 'Delta Force',        c1: '#1a3300', c2: '#558b2f', nuevo: true,                   logo: 'Img/Delta%20Force.png' },
-      { name: '¡HAIKYU!',           c1: '#3a1f00', c2: '#ff9800', nuevo: true,                   logo: 'Img/%C2%A1HAIKYU!.png' },
+      { name: 'Delta Force',        c1: '#1a3300', c2: '#558b2f', nuevo: true,                   logo: 'Img/Delta%20Force.png',
+        unit: 'Golds', packages: [
+          { label: '18 Golds',            icon: '🪙', price: 7.79,    tab: 'Recargas' },
+          { label: '30 Golds',            icon: '🪙', price: 9.29,    tab: 'Recargas' },
+          { label: '60 Golds',            icon: '🪙', price: 11.69,   tab: 'Recargas' },
+          { label: '300 Golds',           icon: '🪙', price: 38.99,   tab: 'Recargas' },
+          { label: '420 Golds',           icon: '🪙', price: 51.99,   tab: 'Recargas' },
+          { label: '680 Golds',           icon: '🪙', price: 77.99,   tab: 'Recargas' },
+          { label: '1.280 Golds',         icon: '🪙', price: 144.99,  tab: 'Recargas' },
+          { label: '1.680 Golds',         icon: '🪙', price: 177.99,  tab: 'Recargas' },
+          { label: '3.280 Golds',         icon: '🪙', price: 345.99,  tab: 'Recargas' },
+          { label: '6.480 Golds',         icon: '🪙', price: 681.99,  tab: 'Recargas' },
+          { label: '12.960 Golds',        icon: '🪙', price: 1354.99, tab: 'Recargas' },
+          { label: '19.440 Golds',        icon: '🪙', price: 2029.19, tab: 'Recargas' },
+          { label: 'Suministros - Eco',           icon: '📦', price: 10.00, tab: 'Ofertas Especiales' },
+          { label: 'Suministros Avanzados - Eco', icon: '📦', price: 20.00, tab: 'Ofertas Especiales' },
+        ] },
+      { name: '¡HAIKYU!',           c1: '#3a1f00', c2: '#ff9800', nuevo: true,                   logo: 'Img/%C2%A1HAIKYU!.png',
+        unit: 'Diamonds', packages: [
+          { label: '60 Diamonds',    icon: '💎', price: 12.49,  tab: 'Diamantes' },
+          { label: '300 Diamonds',   icon: '💎', price: 40.99,  tab: 'Diamantes' },
+          { label: '980 Diamonds',   icon: '💎', price: 109.99, tab: 'Diamantes' },
+          { label: '1.980 Diamonds', icon: '💎', price: 219.99, tab: 'Diamantes' },
+          { label: '3.280 Diamonds', icon: '💎', price: 369.99, tab: 'Diamantes' },
+          { label: '6.480 Diamonds', icon: '💎', price: 719.99, tab: 'Diamantes' },
+          { label: 'Paquete Especial Festival I',     icon: '🎉', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Paquete Especial Festival II',    icon: '🎉', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Pase mensual',                    icon: '🎫', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Pase mensual prémium',            icon: '🎫', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Pase prémium',                    icon: '⭐', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Pase prémium DX',                 icon: '🏆', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Mejora el pase prémium',          icon: '📈', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Reclutamiento supremo especial I',   icon: '⭐', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Reclutamiento supremo especial II',  icon: '⭐', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Reclutamiento supremo especial III', icon: '⭐', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Reclutamiento supremo especial IV',  icon: '⭐', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Megarreclutamiento especial I',   icon: '🏆', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Megarreclutamiento especial II',  icon: '🏆', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Megarreclutamiento especial III', icon: '🏆', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Megarreclutamiento especial IV',  icon: '🏆', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Reclutamiento de recuerdos especial I',   icon: '✨', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Reclutamiento de recuerdos especial II',  icon: '✨', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Reclutamiento de recuerdos especial III', icon: '✨', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Reclutamiento de recuerdos especial IV',  icon: '✨', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Recarga de resistencia I',  icon: '⚡', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Recarga de resistencia II', icon: '⚡', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Paquete solo para principiantes', icon: '🎁', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Oferta especial de 1.er hincha',   icon: '🎁', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Oferta esp. de 1.er recuerdo',     icon: '🎁', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Oferta esp. de 1.er crecimien.',   icon: '🎁', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Bonificaciones por subir de nivel', icon: '📈', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Megaboleto de reclutamiento I',   icon: '🎟️', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Megaboleto de reclutamiento II',  icon: '🎟️', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Megaboleto de reclutamiento III', icon: '🎟️', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Megaboleto de reclutamiento IV',  icon: '🎟️', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Megaboleto de reclutamiento V',   icon: '🎟️', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: 'Megaboleto de reclutamiento VI',  icon: '🎟️', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: '1 boleto de reclutamiento',   icon: '🎫', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: '5 boletos de reclutamiento',  icon: '🎫', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: '10 boletos de reclutamiento', icon: '🎫', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: '20 boletos de reclutamiento', icon: '🎫', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: '30 boletos de reclutamiento', icon: '🎫', price: 0, consult: true, tab: 'Ofertas Especiales' },
+          { label: '55 boletos de reclutamiento', icon: '🎫', price: 0, consult: true, tab: 'Ofertas Especiales' },
+        ] },
       { name: 'Más juegos',         c1: '#1a1a1a', c2: '#3a3a3a',                                logo: '' },
     ];
 
@@ -1248,6 +1405,7 @@
       const pkg = CURRENT_GAME?.packages?.[idx];
       if (CURRENT_GAME?.needsAccount) return;
       if (CURRENT_GAME?.needsServerId) return;
+      if (CURRENT_GAME?.autoRegion) return;
       const needsEmail = !!(pkg && pkg.needsEmail);
       const idSection = document.querySelector('.id-section');
       const input = document.getElementById('playerId');
@@ -1470,22 +1628,42 @@
             </div>
           `;
         } else if (game.needsServerId) {
+          const lbls = game.idLabels || {};
+          const titleTxt = lbls.title || 'Información del Usuario';
+          const phPrimary = lbls.primary || 'Ingresá tu ID';
+          const phSecondary = lbls.secondary || '(Servidor Id)';
+          const hintTxt = lbls.hint || '📋 Tu ID y Servidor aparecen en tu perfil del juego';
           accountSection = `
             <div class="id-section">
-              <div class="id-title"><span class="step-num">2</span> Información del Usuario</div>
+              <div class="id-title"><span class="step-num">2</span> ${titleTxt}</div>
               <div class="id-row">
-                <input type="text" id="mlId" class="id-input" placeholder="Ingresá tu ID" inputmode="numeric" autocomplete="off" oninput="checkComprar()">
-                <input type="text" id="mlServer" class="id-input" placeholder="(Servidor Id)" inputmode="numeric" autocomplete="off" oninput="checkComprar()">
+                <input type="text" id="mlId" class="id-input" placeholder="${phPrimary}" inputmode="numeric" autocomplete="off" oninput="checkComprar()">
+                <input type="text" id="mlServer" class="id-input" placeholder="${phSecondary}" inputmode="numeric" autocomplete="off" oninput="checkComprar()">
               </div>
-              <div class="id-hint">📋 Tu ID y Servidor aparecen en tu perfil del juego</div>
+              <div class="id-hint">${hintTxt}</div>
+            </div>
+          `;
+        } else if (game.autoRegion) {
+          accountSection = `
+            <div class="id-section">
+              <div class="id-title"><span class="step-num">2</span> Ingresar Cuenta</div>
+              <div class="id-row">
+                <input type="text" id="playerId" class="id-input" placeholder="Ingresar UID..." inputmode="numeric" autocomplete="off" oninput="checkComprar()">
+                <div class="id-static">Región Automática</div>
+              </div>
+              <div class="id-hint">📋 Detectamos tu región automáticamente con tu UID</div>
             </div>
           `;
         } else {
+          const lbls = game.idLabels || {};
+          const titleTxt = lbls.title || 'ID del jugador';
+          const phTxt = lbls.primary || 'Ingresá tu ID del juego';
+          const hintTxt = lbls.hint || '📋 Copiá tu ID desde el perfil del juego';
           accountSection = `
             <div class="id-section">
-              <div class="id-title"><span class="step-num">2</span> ID del jugador</div>
-              <input type="text" id="playerId" class="id-input" placeholder="Ingresá tu ID del juego" inputmode="numeric" autocomplete="off" oninput="checkComprar()">
-              <div class="id-hint">📋 Copiá tu ID desde el perfil del juego</div>
+              <div class="id-title"><span class="step-num">2</span> ${titleTxt}</div>
+              <input type="text" id="playerId" class="id-input" placeholder="${phTxt}" inputmode="numeric" autocomplete="off" oninput="checkComprar()">
+              <div class="id-hint">${hintTxt}</div>
             </div>
           `;
         }

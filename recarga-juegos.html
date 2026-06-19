@@ -634,6 +634,37 @@
     }
     .pkg-note .gold { color: var(--dorado); font-weight: 700; }
 
+    /* ===== Tabs de categoría de paquetes ===== */
+    .pkg-tabs {
+      display: flex;
+      gap: 0.25rem;
+      background: rgba(0,0,0,0.5);
+      padding: 0.3rem;
+      border-radius: 14px;
+      margin-bottom: 0.85rem;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .pkg-tab {
+      flex: 1;
+      padding: 0.6rem 0.5rem;
+      border: none;
+      background: transparent;
+      color: #b8b8b8;
+      font-weight: 700;
+      font-size: 0.88rem;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      letter-spacing: 0.3px;
+    }
+    .pkg-tab:hover:not(.active) { color: #fff; background: rgba(255,255,255,0.04); }
+    .pkg-tab.active {
+      background: linear-gradient(135deg, #ec40c0, #b026d4);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(236,64,192,0.45), inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+
     /* ===== MODO DE VENTA (Grid + Método de pago + COMPRAR AHORA) ===== */
     .pkg-grid {
       display: grid;
@@ -1031,46 +1062,54 @@
     const GAMES = [
       { name: 'Free Fire',          c1: '#ff4500', c2: '#8b0000', popular: true, tag: 'PROMO', logo: 'Img/Free%20fire.jpg',
         unit: 'Diamantes', packages: [
-          { label: '100+20 Diamantes',   icon: '💎', price: 12.50  },
-          { label: '310+62 Diamantes',   icon: '💎', price: 36.00  },
-          { label: '520+104 Diamantes',  icon: '💎', price: 61.50  },
-          { label: '1060+212 Diamantes', icon: '💎', price: 109.50 },
-          { label: '2180+436 Diamantes', icon: '💎', price: 184.50 },
-          { label: '5600+1120 Diamantes', icon: '💎', price: 451.50 },
-          { label: 'Tarjeta Semanal',         icon: '🎫', price: 24.50 },
-          { label: 'Tarjeta Semanal Básica',  icon: '🎫', price: 13.50 },
-          { label: 'Tarjeta Mensual',         icon: '🎫', price: 87.60 },
-          { label: 'Pase Booyah',             icon: '🎟️', price: 35.50 },
+          { label: '100+20 Diamantes',   icon: '💎', price: 12.50,  tab: 'Diamantes' },
+          { label: '310+62 Diamantes',   icon: '💎', price: 36.00,  tab: 'Diamantes' },
+          { label: '520+104 Diamantes',  icon: '💎', price: 61.50,  tab: 'Diamantes' },
+          { label: '1060+212 Diamantes', icon: '💎', price: 109.50, tab: 'Diamantes' },
+          { label: '2180+436 Diamantes', icon: '💎', price: 184.50, tab: 'Diamantes' },
+          { label: '5600+1120 Diamantes',icon: '💎', price: 451.50, tab: 'Diamantes' },
+          { label: 'Tarjeta Semanal',        icon: '🎫', price: 24.50, tab: 'Pases' },
+          { label: 'Tarjeta Semanal Básica', icon: '🎫', price: 13.50, tab: 'Pases' },
+          { label: 'Tarjeta Mensual',        icon: '🎫', price: 87.60, tab: 'Pases' },
+          { label: 'Pase Booyah',            icon: '🎟️', price: 35.50, tab: 'Pases' },
         ] },
       { name: 'Mobile Legends',     c1: '#0d47a1', c2: '#1976d2', popular: true,                logo: 'Img/Mobile%20Legends.png',
         unit: 'Diamantes', needsServerId: true, packages: [
-          { qty: 86,   price: 19.90  },
-          { qty: 172,  price: 33.90  },
-          { qty: 258,  price: 42.90  },
-          { qty: 706,  price: 129.90 },
-          { qty: 2195, price: 349.90 },
-          { qty: 3688, price: 555.90 },
-          { qty: 5532, price: 819.90 },
-          { qty: 9288, price: 1499.90 },
-          { label: 'Pase Crepúsculo',        icon: '🎫', price: 99.90 },
-          { label: 'Pase Semanal Élite',     icon: '🎫', price: 15.90 },
-          { label: 'Pase Semanal Diamantes', icon: '🎫', price: 27.90 },
-          { label: 'Pase Mensual Épico',     icon: '🎫', price: 54.90 },
+          { qty: 86,   price: 19.90,  tab: 'Diamantes' },
+          { qty: 172,  price: 33.90,  tab: 'Diamantes' },
+          { qty: 258,  price: 42.90,  tab: 'Diamantes' },
+          { qty: 706,  price: 129.90, tab: 'Diamantes' },
+          { qty: 2195, price: 349.90, tab: 'Diamantes' },
+          { qty: 3688, price: 555.90, tab: 'Diamantes' },
+          { qty: 5532, price: 819.90, tab: 'Diamantes' },
+          { qty: 9288, price: 1499.90,tab: 'Diamantes' },
+          { label: 'Pase Crepúsculo',        icon: '🎫', price: 99.90, tab: 'Pases' },
+          { label: 'Pase Semanal Élite',     icon: '🎫', price: 15.90, tab: 'Pases' },
+          { label: 'Pase Semanal Diamantes', icon: '🎫', price: 27.90, tab: 'Pases' },
+          { label: 'Pase Mensual Épico',     icon: '🎫', price: 54.90, tab: 'Pases' },
         ] },
       { name: 'Blood Strike',       c1: '#3a0000', c2: '#8b0000', popular: true,                logo: 'Img/Blood%20Strike.png',
         unit: 'Golds', packages: [
-          { label: '105 Golds',                 icon: '💎', price: 12.70 },
-          { label: '320 Golds',                 icon: '💎', price: 27.60 },
-          { label: '540 Golds',                 icon: '💎', price: 42.60 },
-          { label: '1100 Golds',                icon: '💎', price: 85.40 },
-          { label: '2260 Golds',                icon: '💎', price: 160.70 },
-          { label: '5800 Golds',                icon: '💎', price: 387.40 },
-          { label: 'Ultra Skin Lucky Chest',    icon: '🎁', price: 14.50 },
-          { label: 'Pase para subir de nivel',  icon: '📈', price: 27.70 },
-          { label: 'Pase de ataque élite',      icon: '⭐', price: 45.40 },
-          { label: 'Pase Ataque Premium',       icon: '🏆', price: 89.50 },
+          { label: '105 Golds',                 icon: '💎', price: 12.70,  tab: 'Golds' },
+          { label: '320 Golds',                 icon: '💎', price: 27.60,  tab: 'Golds' },
+          { label: '540 Golds',                 icon: '💎', price: 42.60,  tab: 'Golds' },
+          { label: '1100 Golds',                icon: '💎', price: 85.40,  tab: 'Golds' },
+          { label: '2260 Golds',                icon: '💎', price: 160.70, tab: 'Golds' },
+          { label: '5800 Golds',                icon: '💎', price: 387.40, tab: 'Golds' },
+          { label: 'Ultra Skin Lucky Chest',    icon: '🎁', price: 10.30,  tab: 'Pases' },
+          { label: 'Pase para subir de nivel',  icon: '📈', price: 22.70,  tab: 'Pases' },
+          { label: 'Pase de ataque élite',      icon: '⭐', price: 40.40,  tab: 'Pases' },
+          { label: 'Pase Ataque Premium',       icon: '🏆', price: 89.50,  tab: 'Pases' },
         ] },
-      { name: 'PUBG Mobile',        c1: '#1a1a00', c2: '#4d4d00', popular: true,                logo: 'Img/Pug%20Mobile.png' },
+      { name: 'PUBG Mobile',        c1: '#1a1a00', c2: '#4d4d00', popular: true,                logo: 'Img/Pug%20Mobile.png',
+        unit: 'UC', packages: [
+          { label: '60 UC',           icon: '💎', price: 14.06 },
+          { label: '300 + 25 UC',     icon: '💎', price: 50.01 },
+          { label: '600 + 60 UC',     icon: '💎', price: 95.13 },
+          { label: '1500 + 300 UC',   icon: '💎', price: 235.47 },
+          { label: '3000 + 850 UC',   icon: '💎', price: 470.98 },
+          { label: '6000 + 2100 UC',  icon: '💎', price: 921.13 },
+        ] },
       { name: 'Brawl Stars',        c1: '#4a0080', c2: '#9b00ff', popular: true,                logo: 'Img/Brawl%20Stars.png',
         unit: 'Pases', packages: [
           { label: 'Brawl Pass Normal', icon: '🎫', price: 56,  needsEmail: true },
@@ -1080,47 +1119,88 @@
         ] },
       { name: 'Clash Royale',       c1: '#990000', c2: '#e53935',                                logo: 'Img/Clash%20Royale.png' },
       { name: 'Clash of Clans',     c1: '#003399', c2: '#0057e7',                                logo: 'Img/Clash%20of%20Clans.png' },
-      { name: 'Honor of Kings',     c1: '#5a0066', c2: '#9c27b0',                                logo: 'Img/Honor%20of%20Kings.png' },
-      { name: 'Arena Breakout',     c1: '#1a1a1a', c2: '#3a3a3a',                                logo: 'Img/Arena%20Breakout.png' },
+      { name: 'Honor of Kings',     c1: '#5a0066', c2: '#9c27b0',                                logo: 'Img/Honor%20of%20Kings.png',
+        unit: 'Tokens', packages: [
+          { label: '16 Tokens',         icon: '💎', price: 7.56 },
+          { label: '80 Tokens',         icon: '💎', price: 13.80 },
+          { label: '240 Tokens',        icon: '💎', price: 31.50 },
+          { label: '400 Tokens',        icon: '💎', price: 49.30 },
+          { label: '560 Tokens',        icon: '💎', price: 71.90 },
+          { label: '800 + 30 Tokens',   icon: '💎', price: 98.50 },
+          { label: '1200 + 45 Tokens',  icon: '💎', price: 143.40 },
+          { label: '2400 + 108 Tokens', icon: '💎', price: 275.00 },
+          { label: '4000 + 180 Tokens', icon: '💎', price: 452.00 },
+          { label: '8000 + 360 Tokens', icon: '💎', price: 895.00 },
+        ] },
+      { name: 'Arena Breakout',     c1: '#1a1a1a', c2: '#3a3a3a',                                logo: 'Img/Arena%20Breakout.png',
+        unit: 'Bonds', packages: [
+          { label: '60 + 6 Bonds',                  icon: '💎', price: 13.50,  tab: 'Bonds' },
+          { label: '310 + 25 Bonds',                icon: '💎', price: 47.90,  tab: 'Bonds' },
+          { label: '630 + 45 Bonds',                icon: '💎', price: 90.90,  tab: 'Bonds' },
+          { label: '1580 + 110 Bonds',              icon: '💎', price: 224.80, tab: 'Bonds' },
+          { label: '3200 + 200 Bonds',              icon: '💎', price: 440.90, tab: 'Bonds' },
+          { label: '6500 + 320 Bonds',              icon: '💎', price: 870.40, tab: 'Bonds' },
+          { label: 'Selección Principiante',        icon: '🎫', price: 14.90,  tab: 'Pases' },
+          { label: 'Pase Batalla Avanzado Mes',     icon: '🎫', price: 15.00,  tab: 'Pases' },
+          { label: 'Privilegio Caja Antivala',      icon: '📦', price: 28.00,  tab: 'Pases' },
+          { label: 'Pase batalla Premium Mes',      icon: '⭐', price: 51.00,  tab: 'Pases' },
+          { label: 'Caja Compuesta',                icon: '📦', price: 79.00,  tab: 'Pases' },
+          { label: 'Pase Batalla Premium Trimestral', icon: '🏆', price: 125.40, tab: 'Pases' },
+        ] },
       { name: 'Wuthering Waves',    c1: '#1b2a3a', c2: '#5a6c7d',                                logo: 'Img/Wuthering%20Waves.png',
         unit: 'Lunites', needsServerId: true, packages: [
-          { label: '60 Lunites',           icon: '💎', price: 13.70 },
-          { label: '300 + 30 Lunites',     icon: '💎', price: 49.20 },
-          { label: '980 + 110 Lunites',    icon: '💎', price: 138.00 },
-          { label: '1980 + 260 Lunites',   icon: '💎', price: 276.10 },
-          { label: '3280 + 600 Lunites',   icon: '💎', price: 451.00 },
-          { label: '6480 + 1600 Lunites',  icon: '💎', price: 877.70 },
-          { label: 'Suscripción Lunite',   icon: '⭐', price: 54.20 },
+          { label: '60 Lunites',           icon: '💎', price: 13.70,  tab: 'Lunites' },
+          { label: '300 + 30 Lunites',     icon: '💎', price: 49.20,  tab: 'Lunites' },
+          { label: '980 + 110 Lunites',    icon: '💎', price: 138.00, tab: 'Lunites' },
+          { label: '1980 + 260 Lunites',   icon: '💎', price: 276.10, tab: 'Lunites' },
+          { label: '3280 + 600 Lunites',   icon: '💎', price: 451.00, tab: 'Lunites' },
+          { label: '6480 + 1600 Lunites',  icon: '💎', price: 877.70, tab: 'Lunites' },
+          { label: 'Suscripción Lunite',   icon: '⭐', price: 54.20,  tab: 'Pases' },
         ] },
       { name: 'Where Winds Meet',   c1: '#3d2914', c2: '#8b6f47', nuevo: true,                   logo: 'Img/Where%20Winds%20Meet.png',
         unit: 'Echo Beads', packages: [
-          { label: '60 Echo Beads',     icon: '💎', price: 14.60 },
-          { label: '180 Echo Beads',    icon: '💎', price: 34.90 },
-          { label: '300 Echo Beads',    icon: '💎', price: 55.00 },
-          { label: '600 Echo Beads',    icon: '💎', price: 110.10 },
-          { label: '900 Echo Beads',    icon: '💎', price: 160.80 },
-          { label: '1800 Echo Beads',   icon: '💎', price: 311.90 },
-          { label: '3000 Echo Beads',   icon: '💎', price: 510.30 },
-          { label: '6000 Echo Beads',   icon: '💎', price: 1019.30 },
-          { label: '12000 Echo Beads',  icon: '💎', price: 2026.90 },
-          { label: 'Pase mensual',          icon: '🎫', price: 60.00 },
-          { label: 'Pase batalla Élite',    icon: '⭐', price: 110.10 },
-          { label: 'Pase batalla premium',  icon: '🏆', price: 210.10 },
+          { label: '60 Echo Beads',     icon: '💎', price: 14.60,   tab: 'Recargas' },
+          { label: '180 Echo Beads',    icon: '💎', price: 34.90,   tab: 'Recargas' },
+          { label: '300 Echo Beads',    icon: '💎', price: 55.00,   tab: 'Recargas' },
+          { label: '600 Echo Beads',    icon: '💎', price: 110.10,  tab: 'Recargas' },
+          { label: '900 Echo Beads',    icon: '💎', price: 160.80,  tab: 'Recargas' },
+          { label: '1800 Echo Beads',   icon: '💎', price: 311.90,  tab: 'Recargas' },
+          { label: '3000 Echo Beads',   icon: '💎', price: 510.30,  tab: 'Recargas' },
+          { label: '6000 Echo Beads',   icon: '💎', price: 1019.30, tab: 'Recargas' },
+          { label: '12000 Echo Beads',  icon: '💎', price: 2026.90, tab: 'Recargas' },
+          { label: 'Pase mensual',          icon: '🎫', price: 60.00,  tab: 'Pases' },
+          { label: 'Pase batalla Élite',    icon: '⭐', price: 110.10, tab: 'Pases' },
+          { label: 'Pase batalla premium',  icon: '🏆', price: 210.10, tab: 'Pases' },
         ] },
-      { name: 'Genshin Impact',     c1: '#1a0033', c2: '#6a1b9a',                                logo: 'Img/Genshin%20Impact.png' },
+      { name: 'Genshin Impact',     c1: '#1a0033', c2: '#6a1b9a',                                logo: 'Img/Genshin%20Impact.png',
+        unit: 'Crystals', packages: [
+          { label: '60 Genesis Crystals',         icon: '💎', price: 15.60,   tab: 'Crystals' },
+          { label: '300 + 30 Genesis Crystals',   icon: '💎', price: 57.90,   tab: 'Crystals' },
+          { label: '980 + 110 Genesis Crystals',  icon: '💎', price: 164.20,  tab: 'Crystals' },
+          { label: '1980 + 260 Genesis Crystals', icon: '💎', price: 328.80,  tab: 'Crystals' },
+          { label: '3280 + 600 Genesis Crystals', icon: '💎', price: 541.30,  tab: 'Crystals' },
+          { label: '6480 + 1600 Genesis Crystals',icon: '💎', price: 1072.90, tab: 'Crystals' },
+          { label: 'Blessing of the Welkin Moon', icon: '🌙', price: 58.00,   tab: 'Blessings' },
+          { label: '60 Chronal Nexus',            icon: '⏳', price: 15.60,   tab: 'Chronal' },
+          { label: '300 + 30 Chronal Nexus',      icon: '⏳', price: 58.00,   tab: 'Chronal' },
+          { label: '980 + 110 Chronal Nexus',     icon: '⏳', price: 164.60,  tab: 'Chronal' },
+          { label: '1980 + 260 Chronal Nexus',    icon: '⏳', price: 329.30,  tab: 'Chronal' },
+          { label: '3280 + 600 Chronal Nexus',    icon: '⏳', price: 542.30,  tab: 'Chronal' },
+          { label: '6480 + 1600 Chronal Nexus',   icon: '⏳', price: 1074.70, tab: 'Chronal' },
+        ] },
       { name: 'Roblox',             c1: '#1a1a1a', c2: '#e60023',                                logo: 'Img/Roblox.png',
         unit: 'Robux', needsAccount: true, packages: [
-          { qty: 40,  price: 15 },
-          { qty: 80,  price: 25 },
-          { qty: 120, price: 45 },
-          { qty: 160, price: 49 },
-          { qty: 240, price: 59 },
-          { qty: 320, price: 78 },
-          { qty: 400, price: 89 },
-          { label: '400 + 100 Robux (Bonus)',  icon: '🎁', price: 105 },
-          { label: '800 + 200 Robux (Bonus)',  icon: '🎁', price: 185 },
-          { label: '1700 + 300 Robux (Bonus)', icon: '🎁', price: 340 },
-          { label: 'Suscripción Premium',      icon: '⭐', price: 154 },
+          { qty: 40,  price: 15,  tab: 'Robux' },
+          { qty: 80,  price: 25,  tab: 'Robux' },
+          { qty: 120, price: 45,  tab: 'Robux' },
+          { qty: 160, price: 49,  tab: 'Robux' },
+          { qty: 240, price: 59,  tab: 'Robux' },
+          { qty: 320, price: 78,  tab: 'Robux' },
+          { qty: 400, price: 89,  tab: 'Robux' },
+          { label: '400 + 100 Robux (Bonus)',  icon: '🎁', price: 105, tab: 'Robux' },
+          { label: '800 + 200 Robux (Bonus)',  icon: '🎁', price: 185, tab: 'Robux' },
+          { label: '1700 + 300 Robux (Bonus)', icon: '🎁', price: 340, tab: 'Robux' },
+          { label: 'Suscripción Premium',      icon: '⭐', price: 154, tab: 'Pases' },
         ] },
       { name: 'Honkai: Star Rail',  c1: '#0d1b3d', c2: '#3949ab',                                logo: 'Img/Honkai%20Star%20Rail.png' },
       { name: 'Magic Chess',        c1: '#2a1457', c2: '#7c4dff',                                logo: 'Img/Magic%20Chess.png' },
@@ -1191,6 +1271,25 @@
       }
       input.value = '';
     }
+    function switchPkgTab(btn, tabName) {
+      const bar = btn.parentElement;
+      bar.querySelectorAll('.pkg-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      const grid = bar.parentElement.querySelector('.pkg-grid');
+      if (!grid) return;
+      let firstVisible = null;
+      grid.querySelectorAll('.pkg-card').forEach(card => {
+        if (card.dataset.tab === tabName) {
+          card.style.display = '';
+          if (!firstVisible) firstVisible = card;
+        } else {
+          card.style.display = 'none';
+          card.classList.remove('selected');
+        }
+      });
+      if (firstVisible) selectPkg(firstVisible);
+    }
+
     function selectPkg(el) {
       el.parentElement.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('selected'));
       el.classList.add('selected');
@@ -1331,13 +1430,31 @@
           `<span class="pkg-intro">Elegí tu paquete</span>`;
 
         const fmtBs = n => 'Bs ' + n.toFixed(2).replace('.', ',');
+
+        // Detectar tabs (categorías) en los paquetes
+        const tabs = [];
+        game.packages.forEach(p => {
+          const t = p.tab;
+          if (t && !tabs.includes(t)) tabs.push(t);
+        });
+        const useTabs = tabs.length >= 2;
+        const activeTab = useTabs ? tabs[0] : null;
+
+        const tabsHtml = useTabs ? `
+          <div class="pkg-tabs">
+            ${tabs.map((t, i) => `<button type="button" class="pkg-tab${i === 0 ? ' active' : ''}" onclick="switchPkgTab(this, '${t.replace(/'/g, "\\'")}')">${t}</button>`).join('')}
+          </div>
+        ` : '';
+
         const cards = game.packages.map((p, idx) => {
           const icon  = p.icon  || '💎';
           const label = p.label || `${p.qty.toLocaleString('es-BO')} ${game.unit}`;
           const shortLabel = label.replace(/\s*Diamantes?$/i, '').replace(/\s*Robux$/i, '');
           const priceHtml = p.consult ? 'Consultar' : fmtBs(p.price);
+          const tabAttr = useTabs ? ` data-tab="${(p.tab || '').replace(/"/g, '&quot;')}"` : '';
+          const hidden = useTabs && p.tab !== activeTab ? ' style="display:none;"' : '';
           return `
-            <div class="pkg-card" data-idx="${idx}" onclick="selectPkg(this)">
+            <div class="pkg-card" data-idx="${idx}"${tabAttr}${hidden} onclick="selectPkg(this)">
               <div class="pkg-card-top"><span class="pkg-card-icon">${icon}</span><span>${shortLabel}</span></div>
               <div class="pkg-card-price">${priceHtml}</div>
             </div>`;
@@ -1374,13 +1491,16 @@
         }
 
         pkgsEl.innerHTML = `
+          ${tabsHtml}
           <div class="pkg-grid">${cards}</div>
           ${accountSection}
           <button class="btn-comprar" id="btnComprar" disabled onclick="comprarAhora()">Comprar Ahora</button>
         `;
 
-        // Auto-select first package
-        const firstCard = pkgsEl.querySelector('.pkg-card');
+        // Auto-select first VISIBLE package (respeta el tab activo)
+        const firstCard = useTabs
+          ? pkgsEl.querySelector(`.pkg-card[data-tab="${activeTab}"]`)
+          : pkgsEl.querySelector('.pkg-card');
         if (firstCard) selectPkg(firstCard);
 
         const waBtn = document.getElementById('modalWaBtn');

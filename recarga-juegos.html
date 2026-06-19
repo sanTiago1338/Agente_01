@@ -1083,31 +1083,49 @@
     const GAMES = [
       { name: 'Free Fire',          c1: '#ff4500', c2: '#8b0000', popular: true, tag: 'PROMO', logo: 'Img/Free%20fire.jpg',
         unit: 'Diamantes', packages: [
-          { label: '100+20 Diamantes',   icon: '💎', price: 12.50,  tab: 'Diamantes' },
-          { label: '310+62 Diamantes',   icon: '💎', price: 36.00,  tab: 'Diamantes' },
-          { label: '520+104 Diamantes',  icon: '💎', price: 61.50,  tab: 'Diamantes' },
-          { label: '1060+212 Diamantes', icon: '💎', price: 109.50, tab: 'Diamantes' },
-          { label: '2180+436 Diamantes', icon: '💎', price: 184.50, tab: 'Diamantes' },
-          { label: '5600+1120 Diamantes',icon: '💎', price: 451.50, tab: 'Diamantes' },
-          { label: 'Tarjeta Semanal',        icon: '🎫', price: 24.50, tab: 'Pases' },
-          { label: 'Tarjeta Semanal Básica', icon: '🎫', price: 13.50, tab: 'Pases' },
-          { label: 'Tarjeta Mensual',        icon: '🎫', price: 87.60, tab: 'Pases' },
-          { label: 'Pase Booyah',            icon: '🎟️', price: 35.50, tab: 'Pases' },
+          { label: '100+20',   icon: '💎', price: 11.89,  tab: 'Diamantes' },
+          { label: '310+62',   icon: '💎', price: 33.77,  tab: 'Diamantes' },
+          { label: '520+104',  icon: '💎', price: 48.95,  tab: 'Diamantes' },
+          { label: '1060+212', icon: '💎', price: 82.95,  tab: 'Diamantes' },
+          { label: '2180+436', icon: '💎', price: 159.95, tab: 'Diamantes' },
+          { label: '5600+1120',icon: '💎', price: 389.95, tab: 'Diamantes' },
+          { label: 'Tarjeta Semanal',                  icon: '🎫', price: 24.50, tab: 'Pases' },
+          { label: 'Tarjeta Semanal Básica',           icon: '🎫', price: 13.50, tab: 'Pases' },
+          { label: 'Tarjeta Mensual',                  icon: '🎫', price: 87.60, tab: 'Pases' },
+          { label: 'Conjunto Rey Sinfonía Explosiva',  icon: '🎵', price: 63.60, tab: 'Pases' },
+          { label: 'Conjunto Reina Melodía Explosiva', icon: '🎶', price: 63.60, tab: 'Pases' },
+          { label: 'Evo Access 7D',                    icon: '⚡', price: 12.60, tab: 'Pases' },
+          { label: 'Evo Access 30D',                   icon: '⚡', price: 29.99, tab: 'Pases' },
+          { label: 'Pase Booyah',                      icon: '🎟️', price: 32.60, tab: 'Pases' },
+          { label: 'Pase Nivel 6',  icon: '📈', price: 0, consult: true, tab: 'Pase de Nivel' },
+          { label: 'Pase Nivel 10', icon: '📈', price: 0, consult: true, tab: 'Pase de Nivel' },
+          { label: 'Pase Nivel 15', icon: '📈', price: 0, consult: true, tab: 'Pase de Nivel' },
+          { label: 'Pase Nivel 20', icon: '📈', price: 0, consult: true, tab: 'Pase de Nivel' },
+          { label: 'Pase Nivel 25', icon: '📈', price: 0, consult: true, tab: 'Pase de Nivel' },
+          { label: 'Pase Nivel 30', icon: '📈', price: 0, consult: true, tab: 'Pase de Nivel' },
         ] },
       { name: 'Mobile Legends',     c1: '#0d47a1', c2: '#1976d2', popular: true,                logo: 'Img/Mobile%20Legends.png',
         unit: 'Diamantes', needsServerId: true, packages: [
-          { qty: 86,   price: 19.90,  tab: 'Diamantes' },
-          { qty: 172,  price: 33.90,  tab: 'Diamantes' },
-          { qty: 258,  price: 42.90,  tab: 'Diamantes' },
-          { qty: 706,  price: 129.90, tab: 'Diamantes' },
-          { qty: 2195, price: 349.90, tab: 'Diamantes' },
-          { qty: 3688, price: 555.90, tab: 'Diamantes' },
-          { qty: 5532, price: 819.90, tab: 'Diamantes' },
-          { qty: 9288, price: 1499.90,tab: 'Diamantes' },
-          { label: 'Pase Crepúsculo',        icon: '🎫', price: 99.90, tab: 'Pases' },
-          { label: 'Pase Semanal Élite',     icon: '🎫', price: 15.90, tab: 'Pases' },
-          { label: 'Pase Semanal Diamantes', icon: '🎫', price: 27.90, tab: 'Pases' },
-          { label: 'Pase Mensual Épico',     icon: '🎫', price: 54.90, tab: 'Pases' },
+          { label: '10 + 1',      icon: '💎', price: 7.50,    tab: 'Diamantes' },
+          { label: '20 + 2',      icon: '💎', price: 9.15,    tab: 'Diamantes' },
+          { label: '78 + 8',      icon: '💎', price: 18.45,   tab: 'Diamantes' },
+          { label: '156 + 16',    icon: '💎', price: 31.15,   tab: 'Diamantes' },
+          { label: '234 + 23',    icon: '💎', price: 42.25,   tab: 'Diamantes' },
+          { label: '303 + 33',    icon: '💎', price: 58.00,   tab: 'Diamantes' },
+          { label: '504 + 66',    icon: '💎', price: 93.00,   tab: 'Diamantes' },
+          { label: '625 + 81',    icon: '💎', price: 110.50,  tab: 'Diamantes' },
+          { label: '1007 + 156',  icon: '💎', price: 177.00,  tab: 'Diamantes' },
+          { label: '1860 + 335',  icon: '💎', price: 310.00,  tab: 'Diamantes' },
+          { label: '3099 + 589',  icon: '💎', price: 509.00,  tab: 'Diamantes' },
+          { label: '4649 + 883',  icon: '💎', price: 762.00,  tab: 'Diamantes' },
+          { label: '5035 + 1007', icon: '💎', price: 847.00,  tab: 'Diamantes' },
+          { label: '7740 + 1548', icon: '💎', price: 1259.00, tab: 'Diamantes' },
+          { label: 'Pase Semanal',          icon: '🎫', price: 24.60,   tab: 'Pases' },
+          { label: 'Pase Crepuscular',      icon: '🎫', price: 92.60,   tab: 'Pases' },
+          { label: '50 + 5 Diamantes',      icon: '💎', price: 13.85,   tab: 'Especial' },
+          { label: '150 + 15 Diamantes',    icon: '💎', price: 29.75,   tab: 'Especial' },
+          { label: '250 + 25 Diamantes',    icon: '💎', price: 44.35,   tab: 'Especial' },
+          { label: '500 + 65 Diamantes',    icon: '💎', price: 83.85,   tab: 'Especial' },
         ] },
       { name: 'Blood Strike',       c1: '#3a0000', c2: '#8b0000', popular: true,                logo: 'Img/Blood%20Strike.png',
         unit: 'Golds', packages: [
@@ -1611,9 +1629,12 @@
           const priceHtml = p.consult ? 'Consultar' : fmtBs(p.price);
           const tabAttr = useTabs ? ` data-tab="${(p.tab || '').replace(/"/g, '&quot;')}"` : '';
           const hidden = useTabs && p.tab !== activeTab ? ' style="display:none;"' : '';
+          const hasName = /[a-zA-Z]/.test(shortLabel);
+          const showIcon = !(icon === '💎' && hasName);
+          const iconHtml = showIcon ? `<span class="pkg-card-icon">${icon}</span>` : '';
           return `
             <div class="pkg-card" data-idx="${idx}"${tabAttr}${hidden} onclick="selectPkg(this)">
-              <div class="pkg-card-top"><span class="pkg-card-icon">${icon}</span><span>${shortLabel}</span></div>
+              <div class="pkg-card-top">${iconHtml}<span>${shortLabel}</span></div>
               <div class="pkg-card-price">${priceHtml}</div>
             </div>`;
         }).join('');

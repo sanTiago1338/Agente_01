@@ -495,6 +495,24 @@
         </div>
       </div>
 
+      <!-- Datos de cliente (correo / usuario) - aparece solo si el producto lo requiere -->
+      <div id="customerDataBox" style="display:none; background:rgba(255,215,0,0.06); border:1px solid rgba(255,215,0,0.25); border-radius:12px; padding:1rem; margin-bottom:0.75rem;">
+        <div style="font-weight:700; font-size:0.9rem; color:#ffd700; margin-bottom:0.25rem;">Datos para activar tu cuenta</div>
+        <div style="font-size:0.75rem; color:#aaa; margin-bottom:0.75rem;" id="customerDataHint">Estos datos se enviaran junto al comprobante por WhatsApp.</div>
+
+        <div id="emailField" style="display:none; margin-bottom:0.6rem;">
+          <label for="customerEmail" style="display:block; font-size:0.78rem; color:#e0e0e0; margin-bottom:0.3rem; font-weight:600;">CORREO:</label>
+          <input id="customerEmail" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" style="width:100%; padding:0.7rem 0.8rem; background:#0a0a0a; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:8px; font-size:0.9rem; font-family:'Outfit',sans-serif;">
+        </div>
+
+        <div id="usernameField" style="display:none;">
+          <label for="customerUsername" style="display:block; font-size:0.78rem; color:#e0e0e0; margin-bottom:0.3rem; font-weight:600;">USUARIO / NOMBRE:</label>
+          <input id="customerUsername" type="text" placeholder="Nombre o usuario" autocomplete="name" style="width:100%; padding:0.7rem 0.8rem; background:#0a0a0a; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:8px; font-size:0.9rem; font-family:'Outfit',sans-serif;">
+        </div>
+
+        <div id="customerDataError" style="display:none; color:#e50914; font-size:0.78rem; margin-top:0.5rem; font-weight:600;"></div>
+      </div>
+
       <!-- Boton Ya Pague -->
       <a href="#" id="btnYaPague" onclick="irAWhatsApp(event)" style="
         display:flex; align-items:center; justify-content:center; gap:0.6rem;
@@ -624,16 +642,53 @@
 
       const ref = paymentData.referencia || paymentId;
       const needsPassword = items.some(i => i.needsPassword);
-      const passwordBlock = needsPassword
-        ? `\n━━━━━━━━━━━━━━━━━━\n🔒 *Para acreditar tu recarga, enviá la contraseña de tu cuenta por este chat.*`
-        : '';
-      const whatsappMsg = `🦁 *ZONA VIP - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${ref}\n💰 *Monto:* ${total.toFixed(2)} Bs\n🛒 *Pedido:*\n${items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
-      window._waUrl = `https://wa.me/59163998656?text=${encodeURIComponent(whatsappMsg)}`;
+      const needsEmail = items.some(i => i.needsEmail);
+      const needsUsername = items.some(i => i.needsUsername);
+
+      window._payState = { ref, total, items, needsEmail, needsUsername, needsPassword };
+
+      if (needsEmail || needsUsername) {
+        const box = document.getElementById('customerDataBox');
+        box.style.display = 'block';
+        if (needsEmail) document.getElementById('emailField').style.display = 'block';
+        if (needsUsername) document.getElementById('usernameField').style.display = 'block';
+        const hint = needsUsername
+          ? 'Necesitamos tu correo y nombre/usuario para crear y enviarte tu cuenta Claude Pro.'
+          : 'Necesitamos tu correo para activar este servicio.';
+        document.getElementById('customerDataHint').textContent = hint;
+      }
+
+      buildWhatsappUrl();
 
       startCountdown();
     }
 
+    function buildWhatsappUrl() {
+      const s = window._payState;
+      if (!s) return;
+      const passwordBlock = s.needsPassword
+        ? `\n━━━━━━━━━━━━━━━━━━\n🔒 *Para acreditar tu recarga, enviá la contraseña de tu cuenta por este chat.*`
+        : '';
+      const email = (document.getElementById('customerEmail') || {}).value || '';
+      const username = (document.getElementById('customerUsername') || {}).value || '';
+      let customerBlock = '';
+      if (s.needsEmail || s.needsUsername) {
+        const lines = ['', '━━━━━━━━━━━━━━━━━━', '👤 *DATOS DEL CLIENTE*'];
+        if (s.needsEmail) lines.push(`📧 *Correo:* ${email.trim() || '(pendiente)'}`);
+        if (s.needsUsername) lines.push(`🧾 *Usuario / Nombre:* ${username.trim() || '(pendiente)'}`);
+        customerBlock = lines.join('\n');
+      }
+      const whatsappMsg = `🦁 *ZONA VIP - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${s.ref}\n💰 *Monto:* ${s.total.toFixed(2)} Bs\n🛒 *Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
+      window._waUrl = `https://wa.me/59163998656?text=${encodeURIComponent(whatsappMsg)}`;
+    }
+
     function startCountdown() {
+      const s = window._payState || {};
+      if (s.needsEmail || s.needsUsername) {
+        const timer = document.getElementById('timerSection');
+        if (timer) timer.style.display = 'none';
+        return;
+      }
       let segundos = 60;
       document.getElementById('timerDisplay').textContent = segundos;
       timerInterval = setInterval(() => {
@@ -684,6 +739,32 @@
 
     function irAWhatsApp(e) {
       e.preventDefault();
+      const s = window._payState || {};
+      const errorEl = document.getElementById('customerDataError');
+      const errors = [];
+      if (s.needsEmail) {
+        const email = (document.getElementById('customerEmail').value || '').trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          errors.push('Ingresa un correo valido.');
+          document.getElementById('customerEmail').focus();
+        }
+      }
+      if (s.needsUsername) {
+        const username = (document.getElementById('customerUsername').value || '').trim();
+        if (!username) {
+          errors.push('Ingresa tu usuario o nombre.');
+          if (errors.length === 1) document.getElementById('customerUsername').focus();
+        }
+      }
+      if (errors.length) {
+        if (errorEl) {
+          errorEl.textContent = errors.join(' ');
+          errorEl.style.display = 'block';
+        }
+        return;
+      }
+      if (errorEl) errorEl.style.display = 'none';
+      buildWhatsappUrl();
       window.location.href = window._waUrl || 'https://wa.me/59163998656';
     }
 

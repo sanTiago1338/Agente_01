@@ -1939,8 +1939,8 @@
       { id:77, cat:'ia', name:'Google IA Pro + Gemini (mensual, completa)', price:49.50, bs:'49,50Bs', stars:5, img:'GOOGLE\nIA+GEMINI', imgColor:'#003087,#1a5fb4', desc:'Cuenta completa Google AI Pro + Gemini mensual.', type:'completa (4 dispositivos),mensual' },
       { id:78, cat:'ia', name:'Perplexity Pro (cuenta completa)', price:35, bs:'35,00Bs', stars:5, img:'PERPLEXITY\nPRO', imgColor:'#003333,#00b4d8', desc:'Cuenta completa (4 dispositivos) Perplexity Pro.', type:'completa,premium' },
       { id:79, cat:'ia', name:'Perplexity Pro (1 pantalla)', price:19.50, bs:'19,50Bs', stars:5, img:'PERPLEXITY', imgColor:'#003333,#00b4d8', desc:'1 pantalla Perplexity Pro.', type:'1-pantalla,mensual' },
-      { id:80, cat:'ia', name:'Claude IA Pro Renovable (cuenta completa)', price:269, bs:'269,00Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', tag:'OFERTA', desc:'Cuenta completa (7-8 dispositivos) Claude IA Pro (Anthropic) Renovable. A pedido.', type:'completa,premium' },
-      { id:81, cat:'ia', name:'Claude IA Pro Renovable (1 pantalla)', price:39.50, bs:'39,50Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', tag:'RENOVABLE', desc:'1 pantalla Claude IA Pro Renovable mensual.', type:'1-pantalla,mensual,premium' },
+      { id:80, cat:'ia', name:'Claude IA Pro Renovable (cuenta completa, a correo de cliente)', price:269, bs:'269,00Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', tag:'OFERTA', desc:'Cuenta completa (7-8 dispositivos) Claude IA Pro (Anthropic) Renovable. A correo de cliente. A pedido.', type:'completa,premium' },
+      { id:81, cat:'ia', name:'Claude IA Pro Renovable (1 Dispositivo Designado)', price:39.50, bs:'39,50Bs', stars:5, img:'CLAUDE\nPRO', imgColor:'#2d1b00,#cc7722', tag:'RENOVABLE', desc:'1 Dispositivo (Designado) Claude IA Pro Renovable mensual.', type:'1-dispositivo,mensual,premium' },
       { id:82, cat:'ia', name:'Canva Pro (1 mes, 1 dispositivo)', price:12.50, bs:'12,50Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'1 mes Canva Pro (A correo de cliente). 1 dispositivo.', type:'1-dispositivo,mensual' },
       { id:83, cat:'ia', name:'Canva Edu (1 mes, 1 dispositivo)', price:11, bs:'11,00Bs', stars:5, img:'CANVA\nEdu', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'1 mes Canva Edu (A correo de cliente). 1 dispositivo.', type:'1-dispositivo,mensual' },
       { id:84, cat:'ia', name:'Canva Edu (3 meses, 1 dispositivo)', price:29, bs:'29,00Bs', stars:5, img:'CANVA\nPRO', imgColor:'#003d5c,#00b4d8', tag:'🔥', desc:'3 meses Canva Edu. 1 dispositivo.', type:'1-pantalla,' },
@@ -2670,10 +2670,23 @@
       document.querySelector('.cat-tabs-wrap').scrollIntoView({ behavior: 'smooth' });
     }
 
+    function productFlags(name) {
+      const lower = (name || '').toLowerCase();
+      const flags = {};
+      if (lower.includes('a correo de cliente') || lower.includes('correo de cliente')) {
+        flags.needsEmail = true;
+      }
+      if (lower.includes('claude') && lower.includes('pro') && (lower.includes('completa') || lower.includes('cuenta completa'))) {
+        flags.needsEmail = true;
+        flags.needsUsername = true;
+      }
+      return flags;
+    }
+
     function payProductQR(id) {
       const p = PRODUCTS.find(x => x.id === id);
       if (!p || p.price <= 0) return;
-      const cartData = [{ name: p.name.substring(0, 50), price: p.price, qty: 1 }];
+      const cartData = [{ name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p.name) }];
       const params = new URLSearchParams({
         cart: encodeURIComponent(JSON.stringify(cartData)),
         total: p.price.toFixed(2),
@@ -2684,9 +2697,10 @@
     function payWithQR() {
       const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
       const cartData = cart.map(item => ({
-        name: item.name.substring(0, 50),
+        name: item.name.substring(0, 80),
         price: item.price,
         qty: item.qty,
+        ...productFlags(item.name),
       }));
       const params = new URLSearchParams({
         cart: encodeURIComponent(JSON.stringify(cartData)),

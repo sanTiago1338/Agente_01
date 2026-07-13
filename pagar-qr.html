@@ -561,8 +561,6 @@
   </div>
 
   <script>
-    const API_URL = window.location.hostname.includes('github.io') ? 'https://agente01-production-c1c0.up.railway.app' : '';
-
     function copyText(el) {
       navigator.clipboard.writeText(el.textContent).then(() => {
         const original = el.textContent;
@@ -572,11 +570,13 @@
       });
     }
 
-    let paymentId = null;
-    let paymentToken = null;
     let timerInterval = null;
 
-    async function init() {
+    function generarReferencia() {
+      return 'ZV-' + Math.random().toString(36).slice(2, 10).toUpperCase();
+    }
+
+    function init() {
       const params = new URLSearchParams(window.location.search);
       const cartData = params.get('cart');
       const total = parseFloat(params.get('total')) || 0;
@@ -594,35 +594,10 @@
         return;
       }
 
-      try {
-        const descripcion = items.map(i => `${i.qty}x ${i.name}`).join(', ');
-
-        const res = await fetch(`${API_URL}/api/pagos/publico`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            monto: total,
-            descripcion: descripcion.substring(0, 200),
-            telefono: 'zona-vip-web',
-          }),
-        });
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || 'Error del servidor');
-        }
-
-        const data = await res.json();
-        paymentId = data.id;
-        paymentToken = data.token;
-
-        renderPayment(items, total, data);
-      } catch (err) {
-        showError(err.message || 'No se pudo conectar con el servidor de pagos. Asegurate de que la API este corriendo.');
-      }
+      renderPayment(items, total, generarReferencia());
     }
 
-    function renderPayment(items, total, paymentData) {
+    function renderPayment(items, total, ref) {
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('payContent').style.display = 'block';
 
@@ -630,7 +605,7 @@
       document.getElementById('instrMonto').textContent = `${total.toFixed(2)} Bs`;
       document.getElementById('qrImage').src = 'Img/Qr.jpg';
       document.getElementById('orderTotal').textContent = `${total.toFixed(2)} Bs`;
-      document.getElementById('payRef').textContent = `Ref: ${paymentData.referencia || paymentId}`;
+      document.getElementById('payRef').textContent = `Ref: ${ref}`;
 
       const orderItems = document.getElementById('orderItems');
       orderItems.innerHTML = items.map(item => `
@@ -640,7 +615,6 @@
         </div>
       `).join('');
 
-      const ref = paymentData.referencia || paymentId;
       const needsPassword = items.some(i => i.needsPassword);
       const needsEmail = items.some(i => i.needsEmail);
       const needsUsername = items.some(i => i.needsUsername);
@@ -699,42 +673,6 @@
           window.location.href = window._waUrl || 'https://wa.me/59163998656';
         }
       }, 1000);
-    }
-
-    async function checkStatus() {
-      if (!paymentId || !paymentToken) return;
-      try {
-        const res = await fetch(`${API_URL}/api/pagos/publico/${paymentId}/estado?token=${paymentToken}`);
-        if (!res.ok) return;
-        const data = await res.json();
-
-        if (data.estado === 'pagado') {
-          clearInterval(timerInterval);
-          setStatus('pagado', 'Pago confirmado');
-          showQROverlay('OK', 'PAGADO');
-          setTimeout(() => {
-            window.location.href = window._waUrl || 'https://wa.me/59163998656';
-          }, 1500);
-        } else if (data.estado === 'cancelado' || data.estado === 'expirado') {
-          clearInterval(pollInterval);
-          clearInterval(timerInterval);
-          setStatus('expirado', data.estado === 'cancelado' ? 'Pago cancelado' : 'Pago expirado');
-          showQROverlay('!', data.estado.toUpperCase());
-        }
-      } catch (e) {}
-    }
-
-    function setStatus(type, text) {
-      const bar = document.getElementById('statusBar');
-      bar.className = `pay-status-bar ${type}`;
-      document.getElementById('statusText').textContent = text;
-    }
-
-    function showQROverlay(icon, text) {
-      const overlay = document.getElementById('qrOverlay');
-      document.getElementById('overlayIcon').textContent = icon;
-      document.getElementById('overlayText').textContent = text;
-      overlay.classList.add('show');
     }
 
     function irAWhatsApp(e) {

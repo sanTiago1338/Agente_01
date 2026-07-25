@@ -443,7 +443,7 @@
       <div class="error-title">ERROR AL CREAR EL PAGO</div>
       <div class="error-msg" id="errorMsg">No se pudo conectar con el servidor de pagos.</div>
       <a href="index.html" class="btn-back" style="max-width:280px;">Volver a la tienda</a>
-      <a href="https://wa.me/59163998656" target="_blank" class="btn-wa-help" style="max-width:280px;">
+      <a href="https://wa.me/59157707335" target="_blank" class="btn-wa-help" style="max-width:280px;">
         Contactar por WhatsApp
       </a>
     </div>
@@ -653,7 +653,7 @@
         customerBlock = lines.join('\n');
       }
       const whatsappMsg = `🦁 *ZONA VIP - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${s.ref}\n💰 *Monto:* ${s.total.toFixed(2)} Bs\n🛒 *Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
-      window._waUrl = `https://wa.me/59163998656?text=${encodeURIComponent(whatsappMsg)}`;
+      window._waUrl = `https://wa.me/59157707335?text=${encodeURIComponent(whatsappMsg)}`;
     }
 
     function startCountdown() {
@@ -670,7 +670,7 @@
         document.getElementById('timerDisplay').textContent = segundos;
         if (segundos <= 0) {
           clearInterval(timerInterval);
-          window.location.href = window._waUrl || 'https://wa.me/59163998656';
+          window.location.href = window._waUrl || 'https://wa.me/59157707335';
         }
       }, 1000);
     }
@@ -703,7 +703,7 @@
       }
       if (errorEl) errorEl.style.display = 'none';
       buildWhatsappUrl();
-      window.location.href = window._waUrl || 'https://wa.me/59163998656';
+      window.location.href = window._waUrl || 'https://wa.me/59157707335';
     }
 
     function showError(msg) {

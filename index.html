@@ -389,7 +389,7 @@
       background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
       border: 2px solid rgba(255,255,255,0.18);
       border-radius: 14px;
-      padding: 0.7rem 0.7rem 0;
+      padding: 0.7rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -462,7 +462,7 @@
       font-weight: 900;
       letter-spacing: 0.5px;
       padding: 0.4rem 0.7rem;
-      margin: 0 -0.7rem;
+      margin: 0 -0.7rem -0.7rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1591,13 +1591,13 @@
           <a href="#" class="hero-cta" onclick="document.getElementById('2').value='Spotify Premium Renovable';filterProducts();return false;">Ver plan →</a>
         </div>
       </div>
-      <!-- Slide 5: Magis TV PRO Mundial -->
+      <!-- Slide 5: Magis TV PRO -->
       <div class="hero-slide" style="--bg: linear-gradient(135deg,#1a0533 0%, #7b1fa2 50%, #0d0d0d 100%);">
         <img src="Img/Magis%20TV.jpg" alt="Magis TV PRO" class="hero-slide-img">
         <div class="hero-slide-info">
-          <span class="hero-tag hero-tag--new">🏆 MUNDIAL 2026</span>
+          <span class="hero-tag hero-tag--new">🏆 LIGA BOLIVIANA</span>
           <div class="hero-title">MAGIS TV <span>PRO</span></div>
-          <div class="hero-sub">Mirá el Mundial en vivo · Liga Boliviana incluida 🇧🇴</div>
+          <div class="hero-sub">Fútbol en vivo · Liga Boliviana incluida 🇧🇴</div>
           <a href="#" class="hero-cta" onclick="document.getElementById('2').value='Magis TV PRO';filterProducts();return false;">Ver planes →</a>
         </div>
       </div>
@@ -1607,7 +1607,7 @@
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">🏆 LIGA BOLIVIANA</span>
           <div class="hero-title">IPTV <span>SMARTERS PRO</span></div>
-          <div class="hero-sub">3 meses + 2 GRATIS · Liga Boliviana y Mundial 🇧🇴</div>
+          <div class="hero-sub">3 meses + 2 GRATIS · Liga Boliviana incluida 🇧🇴</div>
           <a href="#" class="hero-cta" onclick="document.getElementById('2').value='IPTV Smarters';filterProducts();return false;">Ver planes →</a>
         </div>
       </div>
@@ -1634,46 +1634,40 @@
       <span class="tops-subtitle">Las plataformas IPTV más buscadas</span>
     </div>
     <div class="tops-scroll">
-      <a href="#" class="tops-card" style="--c1:#ffb300;--c2:#ff8000;" data-search="Flujo TV">
-        <div class="tops-card-head"><span class="tops-icon">▶</span><span class="tops-name">FLUJO TV</span></div>
-        <div class="tops-ribbon"><span class="tops-trophy">🏆</span>TRANSMITE EL MUNDIAL</div>
-      </a>
+      <!-- Con Liga Boliviana (van primero) -->
       <a href="#" class="tops-card" style="--c1:#0d1b5e;--c2:#1976d2;" data-search="Magis TV">
         <div class="tops-card-head"><span class="tops-icon">🌀</span><span class="tops-name">MAGIS TV-PRO<br><small>→ OLEADA TV</small></span></div>
         <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
-        <div class="tops-ribbon"><span class="tops-trophy">🏆</span>TRANSMITE EL MUNDIAL</div>
       </a>
       <a href="#" class="tops-card" style="--c1:#003366;--c2:#00509e;" data-search="PRO Z TV">
         <div class="tops-card-head"><span class="tops-icon">📺</span><span class="tops-name">IPTV SMARTER<br><small>PRO Z TV</small></span></div>
         <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
-        <div class="tops-ribbon"><span class="tops-trophy">🏆</span>TRANSMITE EL MUNDIAL</div>
       </a>
       <a href="#" class="tops-card" style="--c1:#5a0000;--c2:#a30000;" data-search="Tele Latino">
         <div class="tops-card-head"><span class="tops-icon">▶</span><span class="tops-name">TELE LATINO<br><small>MAX</small></span></div>
         <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
-        <div class="tops-ribbon"><span class="tops-trophy">🏆</span>TRANSMITE EL MUNDIAL</div>
       </a>
       <a href="#" class="tops-card" style="--c1:#0a1a4a;--c2:#1565c0;" data-search="Nubia TV">
         <div class="tops-card-head"><span class="tops-icon">📺</span><span class="tops-name">NUBIA TV-GX<br><small>MAX</small></span></div>
         <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
-        <div class="tops-ribbon"><span class="tops-trophy">🏆</span>TRANSMITE EL MUNDIAL</div>
       </a>
       <a href="#" class="tops-card" style="--c1:#3a0000;--c2:#7a0000;" data-search="Veltix">
         <div class="tops-card-head"><span class="tops-icon">V</span><span class="tops-name">VELTIX</span></div>
         <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
-        <div class="tops-ribbon"><span class="tops-trophy">🏆</span>TRANSMITE EL MUNDIAL</div>
+      </a>
+      <!-- Sin Liga Boliviana -->
+      <a href="#" class="tops-card" style="--c1:#ffb300;--c2:#ff8000;" data-search="Flujo TV">
+        <div class="tops-card-head"><span class="tops-icon">▶</span><span class="tops-name">FLUJO TV</span></div>
       </a>
       <a href="#" class="tops-card" style="--c1:#0d2546;--c2:#1976d2;" data-search="IPTV Smarters">
         <div class="tops-card-head"><span class="tops-icon">📺</span><span class="tops-name">IPTV SMARTER<br><small>PRO</small></span></div>
-        <div class="tops-ribbon"><span class="tops-trophy">🏆</span>TRANSMITE EL MUNDIAL</div>
       </a>
       <a href="#" class="tops-card" style="--c1:#003087;--c2:#0078ff;" data-search="Paramount">
         <div class="tops-card-head"><span class="tops-icon">★</span><span class="tops-name">PARAMOUNT+<br><small>UFC INCLUIDO</small></span></div>
         <div class="tops-ribbon" style="background:linear-gradient(135deg,#D20A0A,#7a0000);"><span class="tops-trophy">🥊</span>TIENE UFC EN VIVO</div>
       </a>
-      <a href="#" class="tops-card tops-card--off" style="--c1:#1a1a1a;--c2:#3a3a3a;" data-search="Plex TV">
+      <a href="#" class="tops-card" style="--c1:#1a1a1a;--c2:#3a3a3a;" data-search="Plex TV">
         <div class="tops-card-head"><span class="tops-icon">⚫</span><span class="tops-name">PLEX TV</span></div>
-        <div class="tops-ribbon tops-ribbon--off"><span class="tops-trophy">✖</span>NO TRANSMITE EL MUNDIAL</div>
       </a>
     </div>
   </section>
@@ -1857,18 +1851,18 @@
       { id:20, cat:'streaming', name:'Tele Latino (6 meses, 1 pantalla)', price:90, bs:'90,00Bs', stars:4, img:'TELE\nLATINO', imgColor:'#1a0000,#8b0000', desc:'IPTV Tele Latino. 1 pantalla por 6 meses.', type:'1-pantalla' },
       { id:21, cat:'streaming', name:'IPTV Smarters PRO (1 mes)', price:15, bs:'15,00Bs', stars:5, img:'IPTV\nSMARTERS', imgColor:'#003300,#1a6600', desc:'IPTV Smarters PRO. 1 mes individual.', type:'1-pantalla,mensual' },
       { id:22, cat:'streaming', name:'IPTV Smarters PRO (3 meses + 2 gratis)', price:40, bs:'40,00Bs', stars:5, img:'IPTV\nSMARTERS', imgColor:'#003300,#1a6600', tag:'OFERTA', desc:'3 meses + 2 meses gratis IPTV Smarters PRO.', type:'1-pantalla' },
-      { id:230, cat:'streaming', name:'IPTV Smarter PRO Z TV (1 mes, 1 pantalla)', price:14, bs:'14,00Bs', stars:5, img:'IPTV SMARTER\nPRO Z TV', imgColor:'#1a0533,#7b1fa2', tag:'TOP', desc:'IPTV Smarter PRO Z TV. 1 pantalla por 1 mes. Incluye Liga Boliviana y transmite el Mundial.', type:'1-pantalla,mensual' },
-      { id:231, cat:'streaming', name:'IPTV Smarter PRO Z TV (3 meses, 1 pantalla)', price:33, bs:'33,00Bs', stars:5, img:'IPTV SMARTER\nPRO Z TV', imgColor:'#1a0533,#7b1fa2', desc:'IPTV Smarter PRO Z TV. 1 pantalla por 3 meses. Incluye Liga Boliviana y transmite el Mundial.', type:'1-pantalla' },
-      { id:232, cat:'streaming', name:'IPTV Smarter PRO Z TV (6 meses, 1 pantalla)', price:55, bs:'55,00Bs', stars:5, img:'IPTV SMARTER\nPRO Z TV', imgColor:'#1a0533,#7b1fa2', tag:'OFERTA', desc:'IPTV Smarter PRO Z TV. 1 pantalla por 6 meses. Incluye Liga Boliviana y transmite el Mundial.', type:'1-pantalla' },
-      { id:200, cat:'streaming', name:'Veltix (1 mes, 1 pantalla)', price:45, bs:'45,00Bs', stars:5, img:'VELTIX', imgColor:'#3a0000,#7a0000', tag:'TOP', desc:'Veltix IPTV. 1 pantalla por 1 mes. Incluye Liga Boliviana y transmite el Mundial.', type:'1-pantalla,mensual' },
-      { id:201, cat:'streaming', name:'Veltix (2 meses, 1 pantalla)', price:95, bs:'95,00Bs', stars:5, img:'VELTIX', imgColor:'#3a0000,#7a0000', desc:'Veltix IPTV. 1 pantalla por 2 meses. Incluye Liga Boliviana y transmite el Mundial.', type:'1-pantalla' },
-      { id:202, cat:'streaming', name:'Veltix (6 meses + 1 mes gratis, 1 pantalla)', price:190, bs:'190,00Bs', stars:5, img:'VELTIX', imgColor:'#3a0000,#7a0000', tag:'OFERTA', desc:'Veltix IPTV. 1 pantalla por 6 meses + 1 mes gratis. Incluye Liga Boliviana y transmite el Mundial.', type:'1-pantalla' },
-      { id:227, cat:'streaming', name:'Nubia TV-GX MAX (1 mes, 1 pantalla)', price:45, bs:'45,00Bs', stars:5, img:'NUBIA\nTV-GX MAX', imgColor:'#0a1a4a,#1565c0', tag:'TOP', desc:'Nubia TV-GX MAX. 1 pantalla por 1 mes. Incluye Liga Boliviana y transmite el Mundial.', type:'1-pantalla,mensual' },
-      { id:228, cat:'streaming', name:'Nubia TV-GX MAX (2 meses, 1 pantalla)', price:95, bs:'95,00Bs', stars:5, img:'NUBIA\nTV-GX MAX', imgColor:'#0a1a4a,#1565c0', desc:'Nubia TV-GX MAX. 1 pantalla por 2 meses. Incluye Liga Boliviana y transmite el Mundial.', type:'1-pantalla' },
-      { id:229, cat:'streaming', name:'Nubia TV-GX MAX (6 meses + 1 mes gratis, 1 pantalla)', price:190, bs:'190,00Bs', stars:5, img:'NUBIA\nTV-GX MAX', imgColor:'#0a1a4a,#1565c0', tag:'OFERTA', desc:'Nubia TV-GX MAX. 1 pantalla por 6 meses + 1 mes gratis. Incluye Liga Boliviana y transmite el Mundial.', type:'1-pantalla' },
-      { id:220, cat:'streaming', name:'Plex TV (1 mes, 1 dispositivo)', price:20, bs:'20,00Bs', stars:4, img:'PLEX TV', imgColor:'#1a1a1a,#3a3a3a', desc:'Plex TV streaming. 1 dispositivo por 1 mes. No transmite el Mundial.', type:'1-pantalla,mensual' },
-      { id:221, cat:'streaming', name:'Plex TV (2 dispositivos, 1 mes)', price:33, bs:'33,00Bs', stars:4, img:'PLEX TV', imgColor:'#1a1a1a,#3a3a3a', desc:'Plex TV streaming. 2 dispositivos por 1 mes. No transmite el Mundial.', type:'mensual' },
-      { id:222, cat:'streaming', name:'Plex TV (4 dispositivos, 1 mes)', price:44, bs:'44,00Bs', stars:4, img:'PLEX TV', imgColor:'#1a1a1a,#3a3a3a', tag:'OFERTA', desc:'Plex TV streaming. 4 dispositivos (cuenta completa) por 1 mes. No transmite el Mundial.', type:'completa,mensual' },
+      { id:230, cat:'streaming', name:'IPTV Smarter PRO Z TV (1 mes, 1 pantalla)', price:14, bs:'14,00Bs', stars:5, img:'IPTV SMARTER\nPRO Z TV', imgColor:'#1a0533,#7b1fa2', tag:'TOP', desc:'IPTV Smarter PRO Z TV. 1 pantalla por 1 mes. Incluye Liga Boliviana.', type:'1-pantalla,mensual' },
+      { id:231, cat:'streaming', name:'IPTV Smarter PRO Z TV (3 meses, 1 pantalla)', price:33, bs:'33,00Bs', stars:5, img:'IPTV SMARTER\nPRO Z TV', imgColor:'#1a0533,#7b1fa2', desc:'IPTV Smarter PRO Z TV. 1 pantalla por 3 meses. Incluye Liga Boliviana.', type:'1-pantalla' },
+      { id:232, cat:'streaming', name:'IPTV Smarter PRO Z TV (6 meses, 1 pantalla)', price:55, bs:'55,00Bs', stars:5, img:'IPTV SMARTER\nPRO Z TV', imgColor:'#1a0533,#7b1fa2', tag:'OFERTA', desc:'IPTV Smarter PRO Z TV. 1 pantalla por 6 meses. Incluye Liga Boliviana.', type:'1-pantalla' },
+      { id:200, cat:'streaming', name:'Veltix (1 mes, 1 pantalla)', price:45, bs:'45,00Bs', stars:5, img:'VELTIX', imgColor:'#3a0000,#7a0000', tag:'TOP', desc:'Veltix IPTV. 1 pantalla por 1 mes. Incluye Liga Boliviana.', type:'1-pantalla,mensual' },
+      { id:201, cat:'streaming', name:'Veltix (2 meses, 1 pantalla)', price:95, bs:'95,00Bs', stars:5, img:'VELTIX', imgColor:'#3a0000,#7a0000', desc:'Veltix IPTV. 1 pantalla por 2 meses. Incluye Liga Boliviana.', type:'1-pantalla' },
+      { id:202, cat:'streaming', name:'Veltix (6 meses + 1 mes gratis, 1 pantalla)', price:190, bs:'190,00Bs', stars:5, img:'VELTIX', imgColor:'#3a0000,#7a0000', tag:'OFERTA', desc:'Veltix IPTV. 1 pantalla por 6 meses + 1 mes gratis. Incluye Liga Boliviana.', type:'1-pantalla' },
+      { id:227, cat:'streaming', name:'Nubia TV-GX MAX (1 mes, 1 pantalla)', price:45, bs:'45,00Bs', stars:5, img:'NUBIA\nTV-GX MAX', imgColor:'#0a1a4a,#1565c0', tag:'TOP', desc:'Nubia TV-GX MAX. 1 pantalla por 1 mes. Incluye Liga Boliviana.', type:'1-pantalla,mensual' },
+      { id:228, cat:'streaming', name:'Nubia TV-GX MAX (2 meses, 1 pantalla)', price:95, bs:'95,00Bs', stars:5, img:'NUBIA\nTV-GX MAX', imgColor:'#0a1a4a,#1565c0', desc:'Nubia TV-GX MAX. 1 pantalla por 2 meses. Incluye Liga Boliviana.', type:'1-pantalla' },
+      { id:229, cat:'streaming', name:'Nubia TV-GX MAX (6 meses + 1 mes gratis, 1 pantalla)', price:190, bs:'190,00Bs', stars:5, img:'NUBIA\nTV-GX MAX', imgColor:'#0a1a4a,#1565c0', tag:'OFERTA', desc:'Nubia TV-GX MAX. 1 pantalla por 6 meses + 1 mes gratis. Incluye Liga Boliviana.', type:'1-pantalla' },
+      { id:220, cat:'streaming', name:'Plex TV (1 mes, 1 dispositivo)', price:20, bs:'20,00Bs', stars:4, img:'PLEX TV', imgColor:'#1a1a1a,#3a3a3a', desc:'Plex TV streaming. 1 dispositivo por 1 mes.', type:'1-pantalla,mensual' },
+      { id:221, cat:'streaming', name:'Plex TV (2 dispositivos, 1 mes)', price:33, bs:'33,00Bs', stars:4, img:'PLEX TV', imgColor:'#1a1a1a,#3a3a3a', desc:'Plex TV streaming. 2 dispositivos por 1 mes.', type:'mensual' },
+      { id:222, cat:'streaming', name:'Plex TV (4 dispositivos, 1 mes)', price:44, bs:'44,00Bs', stars:4, img:'PLEX TV', imgColor:'#1a1a1a,#3a3a3a', tag:'OFERTA', desc:'Plex TV streaming. 4 dispositivos (cuenta completa) por 1 mes.', type:'completa,mensual' },
       { id:23, cat:'streaming', name:'HBO Max (1 mes, cuenta completa)', price:29, bs:'29,00Bs', stars:5, img:'HBO\nMAX', imgColor:'#0a0a0a,#1a1a1a', desc:'Cuenta completa (4 dispositivos) HBO Max por 1 mes.', type:'completa,mensual,premium' },
       { id:24, cat:'streaming', name:'HBO Max (1 mes, 1 pantalla)', price:12.90, bs:'12.90Bs', stars:5, img:'HBO\nMAX', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla HBO Max por 1 mes.', type:'1-pantalla,mensual,premium' },
       { id:25, cat:'streaming', name:'HBO Max (3 meses, 1 pantalla)', price:29, bs:'29,00Bs', stars:5, img:'HBO\nMAX', imgColor:'#0a0a0a,#1a1a1a', desc:'1 pantalla HBO Max por 3 meses.', type:'1-pantalla,premium' },
@@ -2783,5 +2777,6 @@
     })();
   </script>
 
+  <script src="wa-bubble.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Selección inicial de Planes · Zona VIP</title>
+<style>
+  :root {
+    --negro:#0a0a0a; --panel:#141414; --panel2:#1c1c1c; --borde:#2a2a2a;
+    --rojo:#e50914; --dorado:#ffd700; --texto:#f5f5f5; --gris:#9a9a9a;
+    --ok:#22c55e; --warn:#f59e0b; --error:#ef4444; --info:#7dabff;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; min-height:100vh; background:var(--negro); color:var(--texto);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    display:grid; place-items:start center; padding:40px 20px 80px;
+    background-image:radial-gradient(900px 400px at 50% -80px, rgba(59,130,246,.10), transparent 65%);
+  }
+  .card { width:100%; max-width:600px; background:var(--panel);
+          border:1px solid var(--borde); border-radius:14px; padding:28px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h1 .zv { color:var(--rojo); }
+  .sub { color:var(--gris); font-size:14px; margin:0 0 24px; line-height:1.5; }
+  .paso { display:flex; align-items:center; gap:8px; font-size:12px; letter-spacing:.08em;
+          text-transform:uppercase; color:var(--gris); margin:0 0 12px; }
+  .paso b { background:var(--rojo); color:#fff; width:20px; height:20px; border-radius:50%;
+            display:grid; place-items:center; font-size:11px; }
+  label { display:block; font-size:13px; color:var(--gris); margin:0 0 6px; }
+  input { width:100%; padding:11px 13px; background:var(--panel2); border:1px solid var(--borde);
+          border-radius:8px; color:var(--texto); font-size:15px; margin-bottom:14px; font-family:inherit; }
+  input:focus { outline:2px solid var(--rojo); outline-offset:1px; }
+  button { width:100%; padding:13px; border:none; border-radius:8px; font-size:15px;
+           font-weight:700; cursor:pointer; font-family:inherit; }
+  button:hover:not(:disabled) { filter:brightness(1.15); }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  .btn-azul { background:#2563eb; color:#fff; }
+  .btn-gris { background:var(--panel2); color:var(--texto); border:1px solid var(--borde); margin-top:9px; }
+  .oculto { display:none; }
+  .aviso { background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.35);
+           border-radius:8px; padding:13px 15px; font-size:13.5px; line-height:1.55; margin-bottom:18px; }
+  .aviso b { color:var(--info); }
+  .previa { background:#0d0d0d; border:1px solid var(--borde); border-radius:8px;
+            padding:12px; max-height:270px; overflow-y:auto; margin-bottom:16px; font-size:12.5px; }
+  .previa div { padding:3px 0; border-bottom:1px solid #1a1a1a; }
+  .previa div:last-child { border-bottom:none; }
+  .previa .ok { color:var(--ok); }
+  .previa .no { color:var(--error); }
+  #log { background:#0d0d0d; border:1px solid var(--borde); border-radius:8px; padding:12px;
+         font-family:Consolas,"SF Mono",monospace; font-size:12px; line-height:1.65;
+         max-height:230px; overflow-y:auto; white-space:pre-wrap; }
+  .l-ok{color:var(--ok);} .l-err{color:var(--error);} .l-info{color:var(--gris);} .l-gold{color:var(--dorado);}
+  .final { background:rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.35);
+           border-radius:8px; padding:16px; margin-top:18px; }
+  .final h3 { margin:0 0 8px; font-size:16px; color:var(--ok); }
+  .final p { margin:0 0 6px; font-size:13.5px; color:var(--gris); line-height:1.55; }
+  code { background:var(--panel2); padding:1px 5px; border-radius:3px; color:var(--dorado); font-size:12.5px; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1><span class="zv">ZONA VIP</span> · Selección inicial de Planes</h1>
+  <p class="sub">
+    Marca <code>mostrarEnPlanes</code> en las 28 plataformas que aparecían en la
+    tabla original de <b>planes.html</b>, antes de migrar a Firestore.
+    Después podés cambiar la selección cuando quieras desde el panel.
+  </p>
+
+  <!-- 1 · LOGIN -->
+  <section id="secLogin">
+    <div class="paso"><b>1</b> Iniciá sesión como admin</div>
+    <form id="formLogin">
+      <label for="email">Email</label>
+      <input type="email" id="email" required autocomplete="username" placeholder="tucorreo@gmail.com">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+      <button type="submit" class="btn-azul" id="btnLogin">Entrar</button>
+    </form>
+    <p id="errorLogin" class="oculto" style="color:var(--error);font-size:13px;margin:12px 0 0"></p>
+  </section>
+
+  <!-- 2 · PREVISUALIZAR -->
+  <section id="secPrevia" class="oculto">
+    <div class="paso"><b>2</b> Revisá qué se va a marcar</div>
+    <div class="aviso" id="resumenPrevia">Buscando coincidencias…</div>
+    <div class="previa" id="listaPrevia"></div>
+    <button class="btn-azul" id="btnAplicar" disabled>Aplicar selección</button>
+    <button class="btn-gris" id="btnTodos">O mostrar TODOS los productos en Planes</button>
+  </section>
+
+  <!-- 3 · RESULTADO -->
+  <section id="secProgreso" class="oculto">
+    <div class="paso"><b>3</b> Aplicando…</div>
+    <div id="log"></div>
+    <div id="final" class="final oculto">
+      <h3>✅ Listo</h3>
+      <p>Abrí <b>planes.html</b> para ver el resultado.</p>
+      <p>Para cambiar la selección: panel → botón <b>📋</b> en cada producto.</p>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+import { db, auth } from '../js/firebase-config.js';
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { collection, getDocs, writeBatch, doc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const $ = id => document.getElementById(id);
+const productosRef = collection(db, 'productos');
+const TAM_LOTE = 400;
+
+// Las 28 plataformas que estaban en la tabla original de planes.html,
+// recuperadas del historial de git (commit 896c185).
+const ORIGINALES = [
+  '🟥 Netflix Premium 4K', '🟣 Disney+ + ESPN', '🔵 Disney+ Estándar',
+  '🔷 Paramount+ UFC (30 días)', '🟣 Prime Video', '🟢 HBO Max',
+  '🧡 Crunchyroll (1 mes)', '🔴 VIX Plus', '🟪 YouTube Premium',
+  '🪩 Spotify Premium (37 días, asignado)', '🍎 Apple Music', '🪩 Tidal Premium',
+  '🪩 Deezer Premium', '🤖 ChatGPT Plus', '🤖 ChatGPT Business', '🔹 Claude Pro',
+  '🟩 Perplexity Pro', '🟦 Canva Pro (A correo de cliente)', '🔹 Adobe Photoshop (6m)',
+  '🌅 CapCut Pro', '🔮 EPOP (7 días)', '🎬 LingoPie (7 días)', '🗣️ Busuu Premium (7 días)',
+  '🧘 Gaia (7 días)', '🎸 Yousician (7 días)', '📚 Brainly Tutor (7 días)',
+  '⚛️ Atomesus Prime (Plan Anual)', '🧞 Genie AI Premium'
+];
+
+// Quita emojis, acentos, puntuación y palabras de relleno para poder comparar
+const norm = s => String(s)
+  .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2190}-\u{21FF}]/gu, ' ')
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .toLowerCase()
+  .replace(/\+/g, ' plus ')
+  .replace(/[^\w\s]/g, ' ')
+  .replace(/\b(renovable|premium|pro|plan|dias|dia|mes|meses|asignado|cuenta|completa|pantalla|correo|de|cliente|a|el|la)\b/g, ' ')
+  .replace(/\s+/g, ' ').trim();
+
+const plataformaDe = n => String(n || '').replace(/\s*\([^)]*\)\s*$/, '').trim();
+
+let PRODUCTOS = [];
+let aMarcar = new Set();   // ids de productos que se marcan
+
+function log(msg, clase = 'l-info') {
+  const l = document.createElement('div');
+  l.className = clase;
+  l.textContent = msg;
+  $('log').appendChild(l);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+// ---------- LOGIN ----------
+$('formLogin').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('btnLogin');
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  $('errorLogin').classList.add('oculto');
+  try {
+    await signInWithEmailAndPassword(auth, $('email').value.trim(), $('password').value);
+    $('secLogin').classList.add('oculto');
+    $('secPrevia').classList.remove('oculto');
+    await previsualizar();
+  } catch (err) {
+    const msgs = {
+      'auth/invalid-credential': 'Email o contraseña incorrectos.',
+      'auth/too-many-requests':  'Demasiados intentos. Esperá unos minutos.'
+    };
+    $('errorLogin').textContent = '❌ ' + (msgs[err.code] || err.message);
+    $('errorLogin').classList.remove('oculto');
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+});
+
+// ---------- EMPAREJAR ----------
+async function previsualizar() {
+  const snap = await getDocs(productosRef);
+  PRODUCTOS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const plataformas = [...new Set(PRODUCTOS.map(p => plataformaDe(p.nombre)))];
+  const filas = [];
+  aMarcar = new Set();
+
+  ORIGINALES.forEach(orig => {
+    const tokens = norm(orig).split(' ').filter(t => t.length > 2);
+    let mejor = null, puntaje = 0;
+
+    plataformas.forEach(pl => {
+      const p = norm(pl);
+      const aciertos = tokens.filter(t => p.includes(t)).length;
+      const s = tokens.length ? aciertos / tokens.length : 0;
+      if (s > puntaje) { puntaje = s; mejor = pl; }
+    });
+
+    if (mejor && puntaje >= 0.6) {
+      const productos = PRODUCTOS.filter(p => plataformaDe(p.nombre) === mejor);
+      productos.forEach(p => aMarcar.add(p.id));
+      filas.push(`<div class="ok">✓ ${orig} → <b>${mejor}</b> · ${productos.length} producto(s)</div>`);
+    } else {
+      filas.push(`<div class="no">✕ ${orig} → sin coincidencia</div>`);
+    }
+  });
+
+  $('listaPrevia').innerHTML = filas.join('');
+  $('resumenPrevia').innerHTML =
+    `<b>${aMarcar.size} productos</b> se van a marcar para aparecer en Planes,
+     de un catálogo de ${PRODUCTOS.length}. El resto queda sin marcar.`;
+  $('btnAplicar').disabled = aMarcar.size === 0;
+  $('btnAplicar').textContent = `Marcar ${aMarcar.size} productos`;
+}
+
+// ---------- APLICAR ----------
+async function aplicar(ids, etiqueta) {
+  $('secPrevia').classList.add('oculto');
+  $('secProgreso').classList.remove('oculto');
+
+  try {
+    log(`Actualizando ${PRODUCTOS.length} productos…`);
+    let marcados = 0;
+
+    for (let i = 0; i < PRODUCTOS.length; i += TAM_LOTE) {
+      const lote = writeBatch(db);
+      PRODUCTOS.slice(i, i + TAM_LOTE).forEach(p => {
+        const valor = ids.has(p.id);
+        if (valor) marcados++;
+        lote.update(doc(db, 'productos', p.id), {
+          mostrarEnPlanes: valor,
+          fechaActualizacion: serverTimestamp()
+        });
+      });
+      await lote.commit();
+      log(`  ✓ lote ${Math.floor(i / TAM_LOTE) + 1}`, 'l-ok');
+    }
+
+    log('');
+    log('───────── RESUMEN ─────────', 'l-gold');
+    log(`Selección        : ${etiqueta}`, 'l-gold');
+    log(`Marcados         : ${marcados}`);
+    log(`Sin marcar       : ${PRODUCTOS.length - marcados}`);
+    $('final').classList.remove('oculto');
+  } catch (err) {
+    log('');
+    log('❌ ERROR: ' + (err.code || '') + ' ' + err.message, 'l-err');
+    console.error(err);
+  }
+}
+
+$('btnAplicar').addEventListener('click', () => aplicar(aMarcar, 'las 28 plataformas originales'));
+$('btnTodos').addEventListener('click', () =>
+  aplicar(new Set(PRODUCTOS.map(p => p.id)), 'todo el catálogo'));
+</script>
+</body>
+</html>

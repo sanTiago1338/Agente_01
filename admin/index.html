@@ -209,6 +209,7 @@
   .metrica-n.warn   { color: var(--warn); }
   .metrica-n.dorado { color: var(--dorado); }
   .metrica-n.rojo   { color: var(--rojo); }
+  .metrica-n.info   { color: #7dabff; }
   .metrica-l {
     font-size: 11.5px;
     color: var(--gris-dim);
@@ -367,6 +368,15 @@
   .tag-oferta   { background: rgba(229,9,20,.15);   color: #ff6b73; }
   .tag-destacado{ background: rgba(255,215,0,.13);  color: var(--dorado); }
   .tag-cat      { background: var(--panel-3);       color: var(--gris); text-transform: none; letter-spacing: 0; }
+  .tag-planes   { background: rgba(59,130,246,.14);  color: #7dabff; }
+
+  /* Botón 📋 encendido = el producto sale en planes.html */
+  .btn-icono.activo {
+    background: rgba(59,130,246,.18);
+    border-color: rgba(59,130,246,.5);
+    color: #7dabff;
+  }
+  .btn-icono.activo:hover { background: rgba(59,130,246,.3); color: #fff; }
 
   /* ================= PAGINACIÓN ================= */
   .paginacion {
@@ -526,6 +536,7 @@
       <div class="metrica"><div class="metrica-n warn"     id="mAgotados">–</div><div class="metrica-l">Agotados</div></div>
       <div class="metrica"><div class="metrica-n rojo"     id="mOfertas">–</div><div class="metrica-l">En oferta</div></div>
       <div class="metrica"><div class="metrica-n dorado"   id="mDestacados">–</div><div class="metrica-l">Destacados</div></div>
+      <div class="metrica"><div class="metrica-n info"     id="mPlanes">–</div><div class="metrica-l">En Planes</div></div>
     </section>
 
     <!-- ===== Herramientas ===== -->
@@ -546,6 +557,8 @@
         <option value="agotado">Solo agotados</option>
         <option value="oferta">Solo en oferta</option>
         <option value="destacado">Solo destacados</option>
+        <option value="planes">Solo los que salen en Planes</option>
+        <option value="sinplanes">Los que NO salen en Planes</option>
       </select>
 
       <select id="ordenar" aria-label="Ordenar">
@@ -701,6 +714,7 @@ function actualizarMetricas() {
   $('mAgotados').textContent   = TODOS.filter(p => p.activo === false).length;
   $('mOfertas').textContent    = TODOS.filter(p => p.oferta === true).length;
   $('mDestacados').textContent = TODOS.filter(p => p.destacado === true).length;
+  $('mPlanes').textContent     = TODOS.filter(p => p.mostrarEnPlanes === true).length;
 }
 
 // ===========================================================
@@ -738,6 +752,8 @@ function visibles() {
     if (estado === 'agotado'   && p.activo !== false)   return false;
     if (estado === 'oferta'    && p.oferta !== true)    return false;
     if (estado === 'destacado' && p.destacado !== true) return false;
+    if (estado === 'planes'    && p.mostrarEnPlanes !== true) return false;
+    if (estado === 'sinplanes' && p.mostrarEnPlanes === true) return false;
     return true;
   });
 
@@ -787,11 +803,14 @@ function fila(p) {
   const enOferta = p.oferta === true && p.precioOferta > 0;
   const desc     = porcentajeDescuento(p);
 
+  const enPlanes = p.mostrarEnPlanes === true;
+
   const etiquetas = [
     agotado ? '<span class="tag tag-agotado">Agotado</span>'
             : '<span class="tag tag-ok">Disponible</span>',
     enOferta        ? `<span class="tag tag-oferta">Oferta ${desc ? '-' + desc + '%' : ''}</span>` : '',
-    p.destacado     ? '<span class="tag tag-destacado">★ Destacado</span>' : ''
+    p.destacado     ? '<span class="tag tag-destacado">★ Destacado</span>' : '',
+    enPlanes        ? '<span class="tag tag-planes">📋 Planes</span>' : ''
   ].filter(Boolean).join('');
 
   return `
@@ -811,6 +830,8 @@ function fila(p) {
       <td class="celda-cat"><span class="tag tag-cat">${escapar(p.categoria || '—')}</span></td>
       <td class="celda-estado">${etiquetas}</td>
       <td class="celda-acciones">
+        <button class="btn-icono${enPlanes ? ' activo' : ''}" data-accion="planes" data-id="${p.id}"
+                title="${enPlanes ? 'Quitar de la página Planes' : 'Mostrar en la página Planes'}">📋</button>
         <button class="btn-icono" data-accion="editar"   data-id="${p.id}" title="Editar">✏️</button>
         <button class="btn-icono" data-accion="agotar"   data-id="${p.id}" title="${agotado ? 'Marcar disponible' : 'Marcar agotado'}">${agotado ? '📦' : '🚫'}</button>
         <button class="btn-icono peligro" data-accion="borrar" data-id="${p.id}" title="Eliminar">🗑️</button>

@@ -222,6 +222,9 @@ contenedor.innerHTML = `
                 <label class="zv-sw" id="swOferta">
                   <input type="checkbox" id="fOferta"> En oferta
                 </label>
+                <label class="zv-sw" id="swPlanes" title="Aparece en la tabla de planes.html">
+                  <input type="checkbox" id="fPlanes"> 📋 Mostrar en Planes
+                </label>
               </div>
             </div>
 
@@ -359,12 +362,13 @@ function limpiarErrores() {
 }
 
 function pintarSwitches() {
-  [['swActivo','fActivo'], ['swDestacado','fDestacado'], ['swOferta','fOferta']]
+  [['swActivo','fActivo'], ['swDestacado','fDestacado'],
+   ['swOferta','fOferta'], ['swPlanes','fPlanes']]
     .forEach(([sw, chk]) => $(sw).classList.toggle('on', $(chk).checked));
   $('cOferta').style.display = $('fOferta').checked ? '' : 'none';
 }
 
-['fActivo','fDestacado','fOferta'].forEach(id =>
+['fActivo','fDestacado','fOferta','fPlanes'].forEach(id =>
   $(id).addEventListener('change', pintarSwitches));
 
 // Previsualización de la imagen mientras escribís la URL
@@ -397,8 +401,28 @@ window.accionProducto = function (accion, producto) {
   if (accion === 'nuevo')   return abrirEditor(null);
   if (accion === 'editar')  return abrirEditor(producto);
   if (accion === 'agotar')  return alternarDisponible(producto);
+  if (accion === 'planes')  return alternarPlanes(producto);
   if (accion === 'borrar')  return pedirConfirmacionBorrado(producto);
 };
+
+// ------------------------------------------------------------
+// Mostrar / quitar de la página de Planes — un click, reversible
+// ------------------------------------------------------------
+async function alternarPlanes(p) {
+  const nuevoEstado = p.mostrarEnPlanes !== true;
+  try {
+    await updateDoc(doc(db, 'productos', p.id), {
+      mostrarEnPlanes: nuevoEstado,
+      fechaActualizacion: serverTimestamp()
+    });
+    aviso(nuevoEstado
+      ? `📋 "${recortar(p.nombre)}" ahora sale en Planes`
+      : `"${recortar(p.nombre)}" ya no sale en Planes`, 'ok');
+  } catch (err) {
+    console.error(err);
+    aviso(`No se pudo cambiar: ${err.message}`, 'error');
+  }
+}
 
 // ------------------------------------------------------------
 // 7a. Abrir el editor
@@ -424,6 +448,7 @@ function abrirEditor(p) {
   $('fActivo').checked     = p ? p.activo !== false : true;
   $('fDestacado').checked  = p?.destacado === true;
   $('fOferta').checked     = p?.oferta === true;
+  $('fPlanes').checked     = p?.mostrarEnPlanes === true;
 
   pintarSwitches();
   actualizarPrevia();
@@ -483,6 +508,8 @@ $('zvForm').addEventListener('submit', async e => {
     orden:        parseInt($('fOrden').value, 10) || siguienteOrden(),
     activo:       $('fActivo').checked,
     destacado:    $('fDestacado').checked,
+    // Controla si el producto aparece en la tabla de planes.html
+    mostrarEnPlanes: $('fPlanes').checked,
     fechaActualizacion: serverTimestamp()
   };
 

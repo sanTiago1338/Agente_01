@@ -235,9 +235,19 @@
       </td>`;
     }
 
+    // Qué productos entran en esta página.
+    //
+    // El panel tiene un checkbox "Mostrar en Planes" por producto.
+    // Si todavía no marcaste ninguno mostramos el catálogo completo,
+    // así la página nunca queda vacía por accidente.
+    function seleccion(productos) {
+      const marcados = productos.filter(p => p.mostrarEnPlanes === true);
+      return marcados.length > 0 ? marcados : productos;
+    }
+
     function render() {
       const filtro = ($('buscarPlan').value || '').trim().toLowerCase();
-      const grupos = agrupar(TODOS)
+      const grupos = agrupar(seleccion(TODOS))
         .filter(g => !filtro || g.plataforma.toLowerCase().includes(filtro));
 
       if (grupos.length === 0) {

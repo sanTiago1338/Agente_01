@@ -106,197 +106,26 @@
       <div class="line"></div>
     </div>
 
-    <!-- STREAMING -->
-    <h3 style="color:var(--rojo); font-family:'Bebas Neue',sans-serif; letter-spacing:2px; font-size:1.4rem; margin-bottom:1rem; margin-top:2rem;">🎬 STREAMING & VIDEO</h3>
-    <div style="background:var(--negro2); border:1px solid rgba(255,255,255,0.06); border-radius:12px; overflow:hidden; margin-bottom:2rem;">
-      <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-        <thead>
-          <tr style="background:rgba(229,9,20,0.15);">
-            <th style="padding:1rem; text-align:left; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Plataforma</th>
-            <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">1 Pantalla</th>
-            <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Cuenta Completa</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🟥 Netflix Premium 4K</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 29.50</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 109 <span style="background:var(--rojo); color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:4px; margin-left:4px; vertical-align:middle;">OFERTA</span></td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🟣 Disney+ + ESPN</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 19.50 + 7</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 84,90</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🔵 Disney+ Estándar</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 16</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 40</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🔷 Paramount+ UFC (30 días)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 15</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 45</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🟣 Prime Video</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 12.80</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 29</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🟢 HBO Max</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 12</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 27</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🧡 Crunchyroll (1 mes)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 10.90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 25.90</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🔴 VIX Plus</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 6</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 10</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- ==========================================================
+         TABLAS DE PRECIOS · se generan desde Firestore
+         ==========================================================
+         Antes acá había 43 precios escritos a mano que quedaban
+         desincronizados con la tienda. Ahora salen de la misma
+         colección "productos" que usa index.html.
+         Para cambiar un precio: panel de admin. Nunca este archivo.
+         ========================================================== -->
+
+    <div style="position:relative; margin-bottom:1.5rem;">
+      <input type="search" id="buscarPlan" placeholder="🔍 Buscar plataforma…" autocomplete="off"
+             style="width:100%; padding:0.85rem 1rem; background:var(--negro2); border:1px solid rgba(255,255,255,0.08);
+                    border-radius:10px; color:var(--blanco); font-size:0.95rem; font-family:inherit;">
     </div>
 
-    <!-- MÚSICA -->
-    <h3 style="color:var(--rojo); font-family:'Bebas Neue',sans-serif; letter-spacing:2px; font-size:1.4rem; margin-bottom:1rem;">🎵 MÚSICA & AUDIO</h3>
-    <div style="background:var(--negro2); border:1px solid rgba(255,255,255,0.06); border-radius:12px; overflow:hidden; margin-bottom:2rem;">
-      <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-        <thead>
-          <tr style="background:rgba(229,9,20,0.15);">
-            <th style="padding:1rem; text-align:left; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Plataforma</th>
-            <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">1 Pantalla / Mes</th>
-            <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Nota</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🟪 YouTube Premium</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 21,90 – 24,90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim); font-size:0.82rem;">Según correo · Familiar: Bs. 55</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🪩 Spotify Premium (37 días, asignado)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 30</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim); font-size:0.82rem;">A correo de cliente: Bs. 39</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🍎 Apple Music</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 28</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim); font-size:0.82rem;">Familiar: Bs. 50</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🍎 Apple Music Individual 30 días <span style="background:var(--rojo); color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:4px; margin-left:4px; vertical-align:middle;">ANDROID</span></td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 19,90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim); font-size:0.82rem;">Solo 1 dispositivo Android</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🪩 Tidal Premium</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 16</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim); font-size:0.82rem;">HiFi Quality</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🪩 Deezer Premium</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 16</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim); font-size:0.82rem;">Familiar: Bs. 30</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- IA -->
-    <h3 style="color:var(--rojo); font-family:'Bebas Neue',sans-serif; letter-spacing:2px; font-size:1.4rem; margin-bottom:1rem;">🤖 IA & HERRAMIENTAS</h3>
-    <div style="background:var(--negro2); border:1px solid rgba(255,255,255,0.06); border-radius:12px; overflow:hidden; margin-bottom:2rem;">
-      <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
-        <thead>
-          <tr style="background:rgba(229,9,20,0.15);">
-            <th style="padding:1rem; text-align:left; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Servicio</th>
-            <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">1 Pantalla</th>
-            <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Cuenta Completa</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🤖 ChatGPT Plus</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 28</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 189</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🤖 ChatGPT Business</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:#ff4444; font-weight:700;">AGOTADO</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:#ff4444; font-weight:700;">AGOTADO</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🔹 Claude Pro</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 39</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 260</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🟩 Perplexity Pro</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 19.90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 39</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🟦 Canva Pro (A correo de cliente)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 10</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🔹 Adobe Photoshop (6m)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 50</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🌅 CapCut Pro</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 19</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🔮 EPOP (7 días)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 12,90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🎬 LingoPie (7 días)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 12,90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🗣️ Busuu Premium (7 días)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 12,90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🧘 Gaia (7 días)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 12,90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🎸 Yousician (7 días)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 12,90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">📚 Brainly Tutor (7 días)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 12,90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04); background:rgba(255,255,255,0.02);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">⚛️ Atomesus Prime (Plan Anual)</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 40 <span style="background:var(--rojo); color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:4px; margin-left:4px; vertical-align:middle;">ANUAL</span></td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim); font-size:0.82rem;">Garantía 6 meses</td>
-          </tr>
-          <tr style="border-top:1px solid rgba(255,255,255,0.04);">
-            <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;">🧞 Genie AI Premium</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">Bs. 19,90</td>
-            <td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>
-          </tr>
-        </tbody>
-      </table>
+    <div id="tablasPrecios">
+      <div style="text-align:center; padding:3rem 1rem; color:var(--texto-dim);">
+        <div style="font-size:2rem; margin-bottom:0.6rem;">⏳</div>
+        Cargando precios…
+      </div>
     </div>
 
     <hr class="divisor">
@@ -329,6 +158,160 @@
     <p>Streaming &middot; Apps Premium &middot; IA &middot; Recargas de Juegos</p>
     <p style="margin-top:0.5rem;">📲 +591 57707335 &nbsp;|&nbsp; &copy; 2025 Zona VIP Bolivia</p>
   </footer>
+
+  <!-- ==========================================================
+       PRECIOS EN VIVO DESDE FIRESTORE
+       ==========================================================
+       Agrupa los productos por "plataforma" (el nombre sin el
+       paréntesis final) y arma una fila por cada una, con sus
+       precios de 1 pantalla y cuenta completa.
+       ========================================================== -->
+  <script type="module">
+    import { subscribeProductos, precioFinal, formatBs, porcentajeDescuento }
+      from './js/productos-service.js';
+
+    const $ = id => document.getElementById(id);
+
+    // Título de cada bloque. Una categoría nueva sale en mayúsculas.
+    const TITULOS = {
+      streaming:  '🎬 STREAMING & VIDEO',
+      musica:     '🎵 MÚSICA & AUDIO',
+      ia:         '🤖 IA & HERRAMIENTAS',
+      seguidores: '📱 SEGUIDORES & REDES',
+      vpn:        '🔐 VPN & SEGURIDAD',
+      juegos:     '🎮 JUEGOS'
+    };
+    const ORDEN = ['streaming', 'musica', 'ia', 'seguidores', 'vpn', 'juegos'];
+
+    // Mismas reglas de normalización que usa la tienda
+    const SINONIMOS = {
+      '1-device': '1-dispositivo', '1- dispositivo': '1-dispositivo',
+      '1 dispositivo': '1-dispositivo', '1 pantalla': '1-pantalla'
+    };
+    const tiposDe = p => String(p.tipo || '')
+      .split(',').map(t => t.trim().toLowerCase()).filter(Boolean)
+      .map(t => t.startsWith('completa') ? 'completa' : (SINONIMOS[t] || t));
+
+    // "Netflix Premium 4K (1 pantalla)" -> "Netflix Premium 4K"
+    const plataformaDe = n => String(n || '').replace(/\s*\([^)]*\)\s*$/, '').trim();
+
+    const escapar = s => String(s || '').replace(/[&<>"]/g,
+      c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    let TODOS = [];
+
+    function agrupar(productos) {
+      const grupos = new Map();
+      productos.forEach(p => {
+        const clave = p.categoria + '||' + plataformaDe(p.nombre);
+        if (!grupos.has(clave)) grupos.set(clave, []);
+        grupos.get(clave).push(p);
+      });
+
+      return [...grupos.entries()].map(([clave, items]) => {
+        const [categoria, plataforma] = clave.split('||');
+        const individual = items.find(p => tiposDe(p).some(t => t === '1-pantalla' || t === '1-dispositivo'));
+        const completa   = items.find(p => tiposDe(p).includes('completa'));
+        const disponible = items.some(p => p.activo !== false);
+        const minimo     = Math.min(...items.map(precioFinal).filter(n => n > 0));
+
+        return {
+          categoria, plataforma, individual, completa, disponible,
+          desde: Number.isFinite(minimo) ? minimo : null,
+          planes: items.length,
+          orden: Math.min(...items.map(p => p.orden ?? 999999))
+        };
+      }).sort((a, b) => a.orden - b.orden);
+    }
+
+    // Celda de precio, con badge si está en oferta
+    function celdaPrecio(p) {
+      if (!p) return '<td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>';
+      const desc = porcentajeDescuento(p);
+      const agotado = p.activo === false;
+      return `<td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;${agotado ? ' opacity:.45; text-decoration:line-through;' : ''}">
+        Bs. ${formatBs(precioFinal(p)).replace('Bs', '')}
+        ${desc > 0 ? `<span style="background:var(--rojo); color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:4px; margin-left:4px; vertical-align:middle;">-${desc}%</span>` : ''}
+      </td>`;
+    }
+
+    function render() {
+      const filtro = ($('buscarPlan').value || '').trim().toLowerCase();
+      const grupos = agrupar(TODOS)
+        .filter(g => !filtro || g.plataforma.toLowerCase().includes(filtro));
+
+      if (grupos.length === 0) {
+        $('tablasPrecios').innerHTML = `
+          <div style="text-align:center; padding:3rem 1rem; color:var(--texto-dim);">
+            <div style="font-size:2rem; margin-bottom:0.6rem;">🔍</div>
+            No encontramos «${escapar(filtro)}»
+          </div>`;
+        return;
+      }
+
+      const categorias = [...new Set(grupos.map(g => g.categoria))]
+        .sort((a, b) => {
+          const ia = ORDEN.indexOf(a), ib = ORDEN.indexOf(b);
+          return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+        });
+
+      $('tablasPrecios').innerHTML = categorias.map(cat => {
+        const filas = grupos.filter(g => g.categoria === cat);
+        return `
+        <h3 style="color:var(--rojo); font-family:'Bebas Neue',sans-serif; letter-spacing:2px; font-size:1.4rem; margin-bottom:1rem; margin-top:2rem;">
+          ${TITULOS[cat] || '🏷️ ' + escapar(cat).toUpperCase()}
+          <span style="color:var(--texto-dim); font-size:0.8rem; font-family:'Outfit',sans-serif; letter-spacing:0;">${filas.length}</span>
+        </h3>
+        <div style="background:var(--negro2); border:1px solid rgba(255,255,255,0.06); border-radius:12px; overflow-x:auto; margin-bottom:2rem;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+            <thead>
+              <tr style="background:rgba(229,9,20,0.15);">
+                <th style="padding:1rem; text-align:left; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Plataforma</th>
+                <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">1 Pantalla</th>
+                <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Cuenta Completa</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filas.map((g, i) => `
+                <tr style="border-top:1px solid rgba(255,255,255,0.04);${i % 2 ? ' background:rgba(255,255,255,0.02);' : ''}">
+                  <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;${g.disponible ? '' : ' opacity:.5;'}">
+                    ${escapar(g.plataforma)}
+                    ${!g.disponible ? '<span style="background:#3a1416; color:#ff8f8f; font-size:0.6rem; padding:2px 6px; border-radius:4px; margin-left:6px;">AGOTADO</span>' : ''}
+                    ${g.planes > 2 ? `<span style="display:block; color:var(--texto-dim); font-size:0.72rem; font-weight:400; margin-top:2px;">${g.planes} planes disponibles</span>` : ''}
+                  </td>
+                  ${(!g.individual && !g.completa)
+                    ? `<td colspan="2" style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;">desde Bs. ${g.desde ?? '—'}</td>`
+                    : celdaPrecio(g.individual) + celdaPrecio(g.completa)}
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`;
+      }).join('');
+    }
+
+    let debounce;
+    $('buscarPlan').addEventListener('input', () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(render, 180);
+    });
+
+    subscribeProductos(
+      productos => {
+        TODOS = productos;
+        render();
+        console.log(`%c✓ Precios cargados: ${productos.length} productos`,
+                    'color:#22c55e;font-weight:bold');
+      },
+      error => {
+        $('tablasPrecios').innerHTML = `
+          <div style="text-align:center; padding:3rem 1rem;">
+            <div style="font-size:2rem; margin-bottom:0.6rem;">⚠️</div>
+            <div style="color:var(--blanco); font-weight:700; margin-bottom:0.3rem;">No se pudieron cargar los precios</div>
+            <div style="color:var(--texto-dim); font-size:0.9rem;">${escapar(error.message)}</div>
+          </div>`;
+      }
+    );
+  </script>
 
 </body>
 </html>

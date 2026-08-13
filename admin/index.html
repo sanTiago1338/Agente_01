@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Productos · Panel Zona VIP</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --negro:    #0a0a0a;
+    --panel:    #141414;
+    --panel-2:  #1c1c1c;
+    --panel-3:  #232323;
+    --borde:    #2a2a2a;
+    --borde-2:  #383838;
+    --rojo:     #e50914;
+    --dorado:   #ffd700;
+    --texto:    #f5f5f5;
+    --gris:     #9a9a9a;
+    --gris-dim: #6b6b6b;
+    --ok:       #22c55e;
+    --warn:     #f59e0b;
+    --error:    #ef4444;
+    --info:     #3b82f6;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--negro);
+    color: var(--texto);
+    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+  }
+
+  /* ================= PANTALLA DE CARGA ================= */
+  #verificando {
+    position: fixed;
+    inset: 0;
+    background: var(--negro);
+    display: grid;
+    place-items: center;
+    z-index: 100;
+    gap: 14px;
+    align-content: center;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--borde);
+    border-top-color: var(--rojo);
+    border-radius: 50%;
+    animation: girar .7s linear infinite;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  #verificando p { color: var(--gris-dim); font-size: 13px; margin: 0; }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.5s; } }
+
+  /* ================= BARRA SUPERIOR ================= */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: rgba(10,10,10,.93);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--borde);
+  }
+  .header-in {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .logo {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 26px;
+    letter-spacing: .05em;
+    line-height: 1;
+    margin: 0;
+  }
+  .logo .zona { color: var(--rojo); }
+  .logo .adm  { color: var(--gris-dim); font-size: 12px; letter-spacing: .2em; display: block; font-family: 'Outfit', sans-serif; }
+
+  .header-derecha {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .usuario {
+    font-size: 12.5px;
+    color: var(--gris-dim);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ================= BOTONES ================= */
+  .btn {
+    padding: 9px 15px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter .15s, background .15s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover:not(:disabled) { filter: brightness(1.18); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-rojo   { background: var(--rojo); color: #fff; }
+  .btn-fantasma { background: transparent; color: var(--gris); border-color: var(--borde-2); }
+  .btn-fantasma:hover:not(:disabled) { color: var(--texto); background: var(--panel-2); }
+  .btn-icono {
+    padding: 6px 9px;
+    background: var(--panel-3);
+    border: 1px solid var(--borde-2);
+    border-radius: 7px;
+    color: var(--gris);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    font-family: inherit;
+  }
+  .btn-icono:hover { color: var(--texto); background: #2e2e2e; }
+  .btn-icono.peligro:hover { color: #fff; background: var(--error); border-color: var(--error); }
+
+  /* ================= LAYOUT ================= */
+  main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+  }
+
+  /* ================= CAMBIO DE VISTA ================= */
+  .vistas {
+    border-bottom: 1px solid var(--borde);
+    background: var(--negro);
+    position: sticky;
+    top: 57px;
+    z-index: 25;
+  }
+  .vistas-in {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 4px;
+  }
+  .vista-tab {
+    padding: 12px 18px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--gris-dim);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .vista-tab:hover { color: var(--texto); }
+  .vista-tab.activa {
+    color: var(--texto);
+    border-bottom-color: var(--rojo);
+  }
+  @media (max-width: 820px) {
+    .vistas-in { padding: 0 15px; }
+    .vistas { top: 53px; }
+  }
+
+  /* ================= TARJETAS DE RESUMEN ================= */
+  .resumen {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+    gap: 1px;
+    background: var(--borde);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .metrica {
+    background: var(--panel);
+    padding: 15px 16px;
+  }
+  .metrica-n {
+    font-size: 27px;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .metrica-n.ok     { color: var(--ok); }
+  .metrica-n.warn   { color: var(--warn); }
+  .metrica-n.dorado { color: var(--dorado); }
+  .metrica-n.rojo   { color: var(--rojo); }
+  .metrica-l {
+    font-size: 11.5px;
+    color: var(--gris-dim);
+    margin-top: 5px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  /* ================= BARRA DE HERRAMIENTAS ================= */
+  .herramientas {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .buscador {
+    position: relative;
+    flex: 1 1 260px;
+    min-width: 200px;
+  }
+  .buscador input {
+    width: 100%;
+    padding: 10px 36px 10px 36px;
+    background: var(--panel-2);
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    color: var(--texto);
+    font-size: 14.5px;
+    font-family: inherit;
+  }
+  .buscador input:focus {
+    outline: none;
+    border-color: var(--rojo);
+    box-shadow: 0 0 0 3px rgba(229,9,20,.13);
+  }
+  .buscador input::placeholder { color: #555; }
+  .buscador .lupa {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--gris-dim);
+    pointer-events: none;
+    font-size: 14px;
+  }
+  .buscador .limpiar {
+    position: absolute;
+    right: 8px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none;
+    color: var(--gris-dim);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 6px;
+    line-height: 1;
+    display: none;
+  }
+  .buscador .limpiar:hover { color: var(--texto); }
+  .buscador.con-texto .limpiar { display: block; }
+
+  select {
+    padding: 10px 12px;
+    background: var(--panel-2);
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    color: var(--texto);
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    min-width: 145px;
+  }
+  select:focus { outline: none; border-color: var(--rojo); }
+
+  /* ================= TABLA ================= */
+  .tabla-caja {
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .tabla-scroll { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead th {
+    background: var(--panel-2);
+    padding: 11px 14px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--gris-dim);
+    font-weight: 700;
+    border-bottom: 1px solid var(--borde);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 11px 14px;
+    border-bottom: 1px solid #1e1e1e;
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #191919; }
+  tbody tr.inactivo .celda-nombre,
+  tbody tr.inactivo .celda-precio { opacity: .48; }
+
+  .miniatura {
+    width: 42px; height: 42px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--panel-3);
+    display: block;
+    flex-shrink: 0;
+  }
+  .celda-nombre { min-width: 230px; }
+  .nombre-txt {
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+  .nombre-sub {
+    font-size: 11.5px;
+    color: var(--gris-dim);
+  }
+  .celda-precio {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .precio-tachado {
+    display: block;
+    font-size: 11.5px;
+    color: var(--gris-dim);
+    text-decoration: line-through;
+    font-weight: 400;
+  }
+  .celda-acciones { text-align: right; white-space: nowrap; }
+  .celda-acciones .btn-icono + .btn-icono { margin-left: 5px; }
+
+  /* ================= ETIQUETAS ================= */
+  .tag {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .tag + .tag { margin-left: 4px; }
+  .tag-ok       { background: rgba(34,197,94,.13);  color: var(--ok); }
+  .tag-agotado  { background: rgba(239,68,68,.13);  color: var(--error); }
+  .tag-oferta   { background: rgba(229,9,20,.15);   color: #ff6b73; }
+  .tag-destacado{ background: rgba(255,215,0,.13);  color: var(--dorado); }
+  .tag-cat      { background: var(--panel-3);       color: var(--gris); text-transform: none; letter-spacing: 0; }
+
+  /* ================= PAGINACIÓN ================= */
+  .paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 16px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--borde);
+  }
+  .pag-btn {
+    min-width: 34px;
+    padding: 7px 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--borde);
+    border-radius: 7px;
+    color: var(--gris);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .pag-btn:hover:not(:disabled) { color: var(--texto); border-color: var(--borde-2); }
+  .pag-btn.activo { background: var(--rojo); color: #fff; border-color: var(--rojo); font-weight: 700; }
+  .pag-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .pag-info { color: var(--gris-dim); font-size: 12.5px; margin-right: 8px; }
+
+  /* ================= ESTADOS ================= */
+  .estado-vacio {
+    padding: 60px 20px;
+    text-align: center;
+  }
+  .estado-vacio .emo { font-size: 40px; margin-bottom: 12px; }
+  .estado-vacio h3 { margin: 0 0 6px; font-size: 17px; }
+  .estado-vacio p  { margin: 0; color: var(--gris-dim); font-size: 13.5px; }
+
+  .fila-esqueleto td { padding: 14px; }
+  .esq {
+    background: linear-gradient(90deg, #1a1a1a 25%, #262626 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: brillo 1.4s ease-in-out infinite;
+    border-radius: 5px;
+    height: 14px;
+  }
+  @keyframes brillo { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) { .esq { animation: none; } }
+
+  /* ================= AVISOS (toast) ================= */
+  #avisos {
+    position: fixed;
+    bottom: 20px; right: 20px;
+    z-index: 90;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    max-width: min(340px, calc(100vw - 40px));
+  }
+  .aviso {
+    padding: 12px 15px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    background: var(--panel-3);
+    border: 1px solid var(--borde-2);
+    box-shadow: 0 10px 30px rgba(0,0,0,.55);
+    animation: entrar .25s ease-out;
+  }
+  .aviso.ok    { border-color: rgba(34,197,94,.5);  background: #12251a; }
+  .aviso.error { border-color: rgba(239,68,68,.5);  background: #251314; }
+  @keyframes entrar { from { opacity: 0; transform: translateY(10px); } }
+
+  .oculto { display: none !important; }
+
+  /* ================= CELULAR: tabla -> tarjetas ================= */
+  @media (max-width: 820px) {
+    .header-in { padding: 11px 15px; }
+    main { padding: 18px 14px 70px; }
+    .usuario { display: none; }
+
+    thead { display: none; }
+    table, tbody, tr, td { display: block; width: 100%; }
+    tbody tr {
+      background: var(--panel-2);
+      border: 1px solid var(--borde);
+      border-radius: 11px;
+      margin-bottom: 10px;
+      padding: 13px;
+      position: relative;
+    }
+    tbody tr:hover td { background: transparent; }
+    tbody td {
+      border: none;
+      padding: 3px 0;
+    }
+    .celda-img {
+      position: absolute;
+      top: 13px; left: 13px;
+    }
+    .celda-nombre {
+      padding-left: 54px !important;
+      min-height: 46px;
+      min-width: 0;
+    }
+    .celda-precio { padding-left: 54px !important; font-size: 17px; }
+    .celda-cat, .celda-estado { padding-top: 8px !important; }
+    .celda-acciones {
+      text-align: left;
+      padding-top: 11px !important;
+      border-top: 1px solid var(--borde);
+      margin-top: 9px;
+    }
+    .celda-acciones .btn-icono { padding: 8px 13px; }
+    .fila-esqueleto { padding: 20px !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Tapa todo hasta confirmar que hay sesión -->
+<div id="verificando">
+  <div class="spinner" role="status" aria-label="Verificando sesión"></div>
+  <p>Verificando sesión…</p>
+</div>
+
+<div id="app" hidden>
+
+  <header>
+    <div class="header-in">
+      <h1 class="logo">
+        <span class="zona">ZONA</span>_VIP
+        <span class="adm">Administración</span>
+      </h1>
+      <div class="header-derecha">
+        <span class="usuario" id="usuarioEmail"></span>
+        <a class="btn btn-fantasma" href="../index.html" target="_blank" rel="noopener">Ver tienda ↗</a>
+        <button class="btn btn-fantasma" id="btnSalir">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Cambiar entre Productos y Juegos -->
+  <nav class="vistas">
+    <div class="vistas-in">
+      <button class="vista-tab activa" data-vista="productos">🛒 Productos</button>
+      <button class="vista-tab" data-vista="juegos">🎮 Juegos</button>
+    </div>
+  </nav>
+
+  <!-- La sección de juegos la construye admin/js/admin-juegos.js -->
+  <div id="vistaJuegos" hidden></div>
+
+  <main id="vistaProductos">
+    <!-- ===== Resumen ===== -->
+    <section class="resumen" aria-label="Resumen del catálogo">
+      <div class="metrica"><div class="metrica-n"          id="mTotal">–</div><div class="metrica-l">Productos</div></div>
+      <div class="metrica"><div class="metrica-n ok"       id="mActivos">–</div><div class="metrica-l">Disponibles</div></div>
+      <div class="metrica"><div class="metrica-n warn"     id="mAgotados">–</div><div class="metrica-l">Agotados</div></div>
+      <div class="metrica"><div class="metrica-n rojo"     id="mOfertas">–</div><div class="metrica-l">En oferta</div></div>
+      <div class="metrica"><div class="metrica-n dorado"   id="mDestacados">–</div><div class="metrica-l">Destacados</div></div>
+    </section>
+
+    <!-- ===== Herramientas ===== -->
+    <section class="herramientas">
+      <div class="buscador" id="cajaBuscador">
+        <span class="lupa">🔍</span>
+        <input type="search" id="buscar" placeholder="Buscar producto por nombre…" autocomplete="off">
+        <button class="limpiar" id="btnLimpiar" aria-label="Limpiar búsqueda">✕</button>
+      </div>
+
+      <select id="filtroCat" aria-label="Filtrar por categoría">
+        <option value="">Todas las categorías</option>
+      </select>
+
+      <select id="filtroEstado" aria-label="Filtrar por estado">
+        <option value="">Todos los estados</option>
+        <option value="activo">Solo disponibles</option>
+        <option value="agotado">Solo agotados</option>
+        <option value="oferta">Solo en oferta</option>
+        <option value="destacado">Solo destacados</option>
+      </select>
+
+      <select id="ordenar" aria-label="Ordenar">
+        <option value="orden">Orden del catálogo</option>
+        <option value="nombre">Nombre (A-Z)</option>
+        <option value="precio-asc">Precio ↑</option>
+        <option value="precio-desc">Precio ↓</option>
+        <option value="nuevo">Más nuevos primero</option>
+      </select>
+
+      <button class="btn btn-rojo" id="btnNuevo">+ Nuevo producto</button>
+    </section>
+
+    <!-- ===== Tabla ===== -->
+    <section class="tabla-caja">
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:58px"></th>
+              <th>Producto</th>
+              <th style="width:110px">Precio</th>
+              <th style="width:130px">Categoría</th>
+              <th style="width:190px">Estado</th>
+              <th style="width:130px"></th>
+            </tr>
+          </thead>
+          <tbody id="cuerpoTabla"></tbody>
+        </table>
+      </div>
+      <div id="paginacion"></div>
+    </section>
+  </main>
+</div>
+
+<div id="avisos" aria-live="polite"></div>
+
+<script type="module">
+import { auth } from '../js/firebase-config.js';
+import { subscribeProductos, precioFinal, formatBs, porcentajeDescuento }
+  from '../js/productos-service.js';
+import { onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+const $ = id => document.getElementById(id);
+const POR_PAGINA = 50;
+
+let TODOS   = [];       // catálogo completo desde Firestore
+let pagina  = 1;
+let cargado = false;
+
+// ===========================================================
+// GUARD DE SESIÓN
+// ===========================================================
+onAuthStateChanged(auth, usuario => {
+  if (!usuario) { location.replace('login.html'); return; }
+  $('usuarioEmail').textContent = usuario.email;
+  $('verificando').remove();
+  $('app').hidden = false;
+  escucharCatalogo();
+});
+
+$('btnSalir').addEventListener('click', async () => {
+  await signOut(auth);
+  location.replace('login.html');
+});
+
+// ===========================================================
+// AVISOS
+// ===========================================================
+function aviso(texto, tipo = '') {
+  const el = document.createElement('div');
+  el.className = `aviso ${tipo}`;
+  el.textContent = texto;
+  $('avisos').appendChild(el);
+  setTimeout(() => el.remove(), 3600);
+}
+// Lo usará admin-productos.js en el paso siguiente
+window.avisoAdmin = aviso;
+
+// ===========================================================
+// IMÁGENES
+// ===========================================================
+// Los productos guardan rutas como "Img/Netflix.jpg", relativas a la raíz
+// del sitio. Como el panel vive en /admin/, hay que subir un nivel.
+// Las URLs https:// y los data: quedan tal cual.
+function urlImagen(p) {
+  const src = (p.imagen || '').trim();
+  if (!src) return placeholderSvg(p.nombre);
+  if (src.startsWith('http') || src.startsWith('data:') || src.startsWith('../')) return src;
+  return '../' + src;
+}
+
+function placeholderSvg(nombre = '?') {
+  const letra = (nombre.trim()[0] || '?').toUpperCase();
+  return 'data:image/svg+xml,' + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="10" fill="#2a2a2a"/>
+      <text x="32" y="33" font-family="Arial" font-size="26" font-weight="bold"
+            fill="#6b6b6b" text-anchor="middle" dominant-baseline="central">${letra}</text>
+    </svg>`);
+}
+
+function escapar(s = '') {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+// ===========================================================
+// SUSCRIPCIÓN EN TIEMPO REAL
+// ===========================================================
+function escucharCatalogo() {
+  esqueletos();
+  subscribeProductos(
+    productos => {
+      TODOS = productos;
+      cargado = true;
+      actualizarMetricas();
+      llenarFiltroCategorias();
+      render();
+    },
+    error => {
+      cargado = true;
+      $('cuerpoTabla').innerHTML = `<tr><td colspan="6">
+        <div class="estado-vacio">
+          <div class="emo">⚠️</div>
+          <h3>No se pudo cargar el catálogo</h3>
+          <p>${escapar(error.message)}</p>
+        </div></td></tr>`;
+      aviso('Error al conectar con Firestore', 'error');
+    }
+  );
+}
+
+function esqueletos() {
+  $('cuerpoTabla').innerHTML = Array.from({ length: 8 }, () => `
+    <tr class="fila-esqueleto">
+      <td><div class="esq" style="width:42px;height:42px;border-radius:8px"></div></td>
+      <td><div class="esq" style="width:62%"></div></td>
+      <td><div class="esq" style="width:54px"></div></td>
+      <td><div class="esq" style="width:74px"></div></td>
+      <td><div class="esq" style="width:96px"></div></td>
+      <td></td>
+    </tr>`).join('');
+}
+
+// ===========================================================
+// MÉTRICAS
+// ===========================================================
+function actualizarMetricas() {
+  $('mTotal').textContent      = TODOS.length;
+  $('mActivos').textContent    = TODOS.filter(p => p.activo !== false).length;
+  $('mAgotados').textContent   = TODOS.filter(p => p.activo === false).length;
+  $('mOfertas').textContent    = TODOS.filter(p => p.oferta === true).length;
+  $('mDestacados').textContent = TODOS.filter(p => p.destacado === true).length;
+}
+
+// ===========================================================
+// FILTRO DE CATEGORÍAS (se arma solo desde los datos)
+// ===========================================================
+let categoriasCargadas = '';
+function llenarFiltroCategorias() {
+  const cats = [...new Set(TODOS.map(p => p.categoria).filter(Boolean))].sort();
+  const firma = cats.join('|');
+  if (firma === categoriasCargadas) return;   // sin cambios, no re-dibujar
+  categoriasCargadas = firma;
+
+  const sel = $('filtroCat');
+  const elegida = sel.value;
+  sel.innerHTML = '<option value="">Todas las categorías</option>' +
+    cats.map(c => {
+      const n = TODOS.filter(p => p.categoria === c).length;
+      return `<option value="${escapar(c)}">${escapar(c)} (${n})</option>`;
+    }).join('');
+  sel.value = elegida;
+}
+
+// ===========================================================
+// FILTRAR + ORDENAR
+// ===========================================================
+function visibles() {
+  const q      = $('buscar').value.trim().toLowerCase();
+  const cat    = $('filtroCat').value;
+  const estado = $('filtroEstado').value;
+
+  let lista = TODOS.filter(p => {
+    if (q && !(p.nombre || '').toLowerCase().includes(q)) return false;
+    if (cat && p.categoria !== cat) return false;
+    if (estado === 'activo'    && p.activo === false)   return false;
+    if (estado === 'agotado'   && p.activo !== false)   return false;
+    if (estado === 'oferta'    && p.oferta !== true)    return false;
+    if (estado === 'destacado' && p.destacado !== true) return false;
+    return true;
+  });
+
+  const orden = $('ordenar').value;
+  const copia = [...lista];
+  if (orden === 'nombre')      copia.sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
+  if (orden === 'precio-asc')  copia.sort((a,b) => precioFinal(a) - precioFinal(b));
+  if (orden === 'precio-desc') copia.sort((a,b) => precioFinal(b) - precioFinal(a));
+  if (orden === 'nuevo')       copia.sort((a,b) => (b.fechaCreacion?.seconds || 0) - (a.fechaCreacion?.seconds || 0));
+  return copia;
+}
+
+// ===========================================================
+// RENDER
+// ===========================================================
+function render() {
+  if (!cargado) return;
+
+  const lista = visibles();
+  const total = lista.length;
+  const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
+  if (pagina > paginas) pagina = 1;
+
+  const desde = (pagina - 1) * POR_PAGINA;
+  const trozo = lista.slice(desde, desde + POR_PAGINA);
+
+  if (total === 0) {
+    const buscando = $('buscar').value.trim();
+    $('cuerpoTabla').innerHTML = `<tr><td colspan="6">
+      <div class="estado-vacio">
+        <div class="emo">🔍</div>
+        <h3>Sin resultados</h3>
+        <p>${buscando
+              ? `Ningún producto coincide con «${escapar(buscando)}»`
+              : 'Probá cambiando los filtros'}</p>
+      </div></td></tr>`;
+    $('paginacion').innerHTML = '';
+    return;
+  }
+
+  $('cuerpoTabla').innerHTML = trozo.map(fila).join('');
+  renderPaginacion(paginas, total, desde, trozo.length);
+}
+
+function fila(p) {
+  const agotado  = p.activo === false;
+  const enOferta = p.oferta === true && p.precioOferta > 0;
+  const desc     = porcentajeDescuento(p);
+
+  const etiquetas = [
+    agotado ? '<span class="tag tag-agotado">Agotado</span>'
+            : '<span class="tag tag-ok">Disponible</span>',
+    enOferta        ? `<span class="tag tag-oferta">Oferta ${desc ? '-' + desc + '%' : ''}</span>` : '',
+    p.destacado     ? '<span class="tag tag-destacado">★ Destacado</span>' : ''
+  ].filter(Boolean).join('');
+
+  return `
+    <tr class="${agotado ? 'inactivo' : ''}" data-id="${p.id}">
+      <td class="celda-img">
+        <img class="miniatura" src="${escapar(urlImagen(p))}" alt=""
+             loading="lazy" onerror="this.onerror=null;this.src='${placeholderSvg(p.nombre)}'">
+      </td>
+      <td class="celda-nombre">
+        <div class="nombre-txt">${escapar(p.nombre || '(sin nombre)')}</div>
+        <div class="nombre-sub">${escapar(p.tipo || '')}</div>
+      </td>
+      <td class="celda-precio">
+        ${formatBs(precioFinal(p))}
+        ${enOferta ? `<span class="precio-tachado">${formatBs(p.precio)}</span>` : ''}
+      </td>
+      <td class="celda-cat"><span class="tag tag-cat">${escapar(p.categoria || '—')}</span></td>
+      <td class="celda-estado">${etiquetas}</td>
+      <td class="celda-acciones">
+        <button class="btn-icono" data-accion="editar"   data-id="${p.id}" title="Editar">✏️</button>
+        <button class="btn-icono" data-accion="agotar"   data-id="${p.id}" title="${agotado ? 'Marcar disponible' : 'Marcar agotado'}">${agotado ? '📦' : '🚫'}</button>
+        <button class="btn-icono peligro" data-accion="borrar" data-id="${p.id}" title="Eliminar">🗑️</button>
+      </td>
+    </tr>`;
+}
+
+function renderPaginacion(paginas, total, desde, enPagina) {
+  if (paginas <= 1) {
+    $('paginacion').innerHTML =
+      `<div class="paginacion"><span class="pag-info">${total} producto${total === 1 ? '' : 's'}</span></div>`;
+    return;
+  }
+  let html = `<div class="paginacion">
+    <span class="pag-info">${desde + 1}–${desde + enPagina} de ${total}</span>
+    <button class="pag-btn" data-pag="${pagina - 1}" ${pagina === 1 ? 'disabled' : ''}>‹</button>`;
+
+  for (let i = 1; i <= paginas; i++) {
+    if (i === 1 || i === paginas || Math.abs(i - pagina) <= 1) {
+      html += `<button class="pag-btn ${i === pagina ? 'activo' : ''}" data-pag="${i}">${i}</button>`;
+    } else if (Math.abs(i - pagina) === 2) {
+      html += `<span style="color:var(--gris-dim)">…</span>`;
+    }
+  }
+  html += `<button class="pag-btn" data-pag="${pagina + 1}" ${pagina === paginas ? 'disabled' : ''}>›</button></div>`;
+  $('paginacion').innerHTML = html;
+}
+
+// ===========================================================
+// EVENTOS
+// ===========================================================
+let debounce;
+$('buscar').addEventListener('input', e => {
+  $('cajaBuscador').classList.toggle('con-texto', e.target.value !== '');
+  clearTimeout(debounce);
+  debounce = setTimeout(() => { pagina = 1; render(); }, 180);
+});
+
+$('btnLimpiar').addEventListener('click', () => {
+  $('buscar').value = '';
+  $('cajaBuscador').classList.remove('con-texto');
+  pagina = 1;
+  render();
+  $('buscar').focus();
+});
+
+['filtroCat', 'filtroEstado', 'ordenar'].forEach(id =>
+  $(id).addEventListener('change', () => { pagina = 1; render(); }));
+
+$('paginacion').addEventListener('click', e => {
+  const btn = e.target.closest('[data-pag]');
+  if (!btn || btn.disabled) return;
+  pagina = Number(btn.dataset.pag);
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Acciones de fila — las implementa admin-productos.js (paso C3)
+$('cuerpoTabla').addEventListener('click', e => {
+  const btn = e.target.closest('[data-accion]');
+  if (!btn) return;
+  const { accion, id } = btn.dataset;
+  const producto = TODOS.find(p => p.id === id);
+  if (!producto) return;
+
+  if (typeof window.accionProducto === 'function') {
+    window.accionProducto(accion, producto);
+  } else {
+    aviso('Los botones de editar y borrar se activan en el próximo paso (C3).');
+  }
+});
+
+$('btnNuevo').addEventListener('click', () => {
+  if (typeof window.accionProducto === 'function') {
+    window.accionProducto('nuevo', null);
+  } else {
+    aviso('El formulario de nuevo producto llega en el próximo paso (C3).');
+  }
+});
+
+// Para que admin-productos.js pueda releer el catálogo ya cargado
+window.catalogoAdmin = () => TODOS;
+
+// ===========================================================
+// CAMBIO ENTRE PRODUCTOS Y JUEGOS
+// ===========================================================
+document.querySelector('.vistas-in').addEventListener('click', e => {
+  const btn = e.target.closest('[data-vista]');
+  if (!btn) return;
+
+  document.querySelectorAll('.vista-tab').forEach(t => t.classList.remove('activa'));
+  btn.classList.add('activa');
+
+  const esJuegos = btn.dataset.vista === 'juegos';
+  $('vistaProductos').hidden = esJuegos;
+  $('vistaJuegos').hidden    = !esJuegos;
+  window.scrollTo({ top: 0 });
+});
+</script>
+
+<!-- CRUD de productos: se trae su propia interfaz (modales + estilos) -->
+<script type="module" src="js/admin-productos.js"></script>
+
+<!-- Subida de imágenes: se engancha al editor de arriba, va después -->
+<script type="module" src="js/admin-imagenes.js"></script>
+
+<!-- Administración de juegos de recarga: construye la vista 🎮 Juegos -->
+<script type="module" src="js/admin-juegos.js"></script>
+</body>
+</html>

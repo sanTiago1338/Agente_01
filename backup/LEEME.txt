@@ -1,0 +1,40 @@
+RESPALDO DEL CATÁLOGO — ZONA VIP
+=================================
+Creado: 13 de agosto de 2026
+
+QUÉ HAY ACÁ
+-----------
+catalogo-original.js
+    Los 204 productos tal como estaban ANTES de pasar a Firestore.
+    Es la única copia fuera de la base de datos: index.html ya no
+    tiene los productos escritos en el código.
+
+migrar.html
+    Herramienta para volver a subir ese catálogo a Firestore.
+
+
+CUÁNDO USAR ESTO
+----------------
+Solo en una emergencia. Por ejemplo:
+
+  - Borraste productos por error desde el panel y querés volver
+    al catálogo original.
+  - La colección "productos" de Firestore se dañó o se vació.
+
+OJO: migrar.html BORRA TODO lo que haya en la colección "productos"
+antes de subir el respaldo. Si desde la migración creaste productos
+nuevos o cambiaste precios, esos cambios SE PIERDEN.
+
+
+CÓMO USARLO
+-----------
+1. Levantá el servidor local:      npm start
+2. Abrí:   http://localhost:3000/backup/migrar.html
+3. Iniciá sesión con tu cuenta de admin
+4. Escribí MIGRAR y confirmá
+
+
+NO BORRES ESTA CARPETA
+----------------------
+No la carga ninguna página de la tienda ni del panel: no afecta
+la velocidad ni el funcionamiento. Ocupa 178 KB. Dejala como está.

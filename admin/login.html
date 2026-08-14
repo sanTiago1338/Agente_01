@@ -310,7 +310,13 @@ const ERRORES = {
   'auth/user-disabled':       'Esta cuenta está deshabilitada.',
   'auth/too-many-requests':   'Demasiados intentos fallidos. Esperá unos minutos y probá de nuevo.',
   'auth/network-request-failed': 'Sin conexión. Revisá tu internet.',
-  'auth/missing-password':    'Escribí tu contraseña.'
+  'auth/missing-password':    'Escribí tu contraseña.',
+  // Pasa cuando el sitio corre en un dominio que Firebase no tiene autorizado.
+  // Se arregla en: Firebase Console → Authentication → Settings →
+  // Dominios autorizados → Agregar dominio.
+  'auth/unauthorized-domain':
+    'Este dominio no está autorizado en Firebase. Entrá a Authentication → Settings → Dominios autorizados y agregá ' +
+    location.hostname + '.'
 };
 
 function mostrar(texto, tipo = 'error') {

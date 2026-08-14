@@ -563,6 +563,379 @@
       .skeleton-box { animation: none; background: var(--superficie-2); }
     }
 
+    /* ==========================================================
+       VISTA DE CATEGORÍAS (pantalla de inicio del catálogo)
+       ==========================================================
+       El inicio muestra seis tarjetas en vez de 204 productos.
+       Además de verse más ordenado, carga bastante menos: son seis
+       tarjetas sin imágenes contra doce con logo cada una.
+       ========================================================== */
+    .cats-head {
+      padding: 1.6rem 1rem 1.1rem;
+      text-align: center;
+    }
+    .cats-head h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.85rem;
+      letter-spacing: 1.5px;
+      color: var(--tinta);
+      margin: 0 0 0.25rem;
+    }
+    .cats-head p {
+      margin: 0;
+      color: var(--tinta-suave);
+      font-size: 0.88rem;
+    }
+
+    .cats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.85rem;
+      padding: 0 0.9rem 2rem;
+    }
+
+    .cat-card {
+      --tinte: var(--marca);
+      position: relative;
+      background: #fff;
+      border: 1px solid var(--borde);
+      border-radius: 16px;
+      padding: 1.35rem 1rem 1.15rem;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+      box-shadow: var(--sombra);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      overflow: hidden;
+      font-family: inherit;
+    }
+    .cat-card::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: var(--tinte);
+      opacity: .85;
+    }
+    .cat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--sombra-alta);
+      border-color: color-mix(in srgb, var(--tinte) 40%, transparent);
+    }
+    .cat-card:active { transform: translateY(-1px); }
+    .cat-card:focus-visible {
+      outline: 2px solid var(--tinte);
+      outline-offset: 2px;
+    }
+
+    .cat-card-icono {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1.7rem;
+      margin-bottom: 0.55rem;
+      background: color-mix(in srgb, var(--tinte) 11%, #fff);
+    }
+    .cat-card-nombre {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.15rem;
+      letter-spacing: 1px;
+      color: var(--tinta);
+      line-height: 1.15;
+    }
+    .cat-card-desc {
+      font-size: 0.72rem;
+      color: var(--tinta-suave);
+      line-height: 1.35;
+      margin-top: 0.1rem;
+      min-height: 1.9em;
+    }
+    .cat-card-cuenta {
+      margin-top: 0.6rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--tinte);
+      background: color-mix(in srgb, var(--tinte) 9%, #fff);
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+    }
+    .cat-card-cuenta.vacia {
+      color: var(--tinta-suave);
+      background: var(--superficie-2);
+    }
+
+    /* Volver al listado de categorías */
+    .btn-volver {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: none;
+      border: none;
+      color: var(--marca);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0.35rem 0;
+    }
+    .btn-volver:hover { text-decoration: underline; }
+
+    @media (min-width: 600px) {
+      .cats-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 0 1rem 2.5rem; }
+      .cats-head h2 { font-size: 2.1rem; }
+      .cat-card { padding: 1.6rem 1.1rem 1.35rem; }
+      .cat-card-icono { width: 62px; height: 62px; font-size: 1.9rem; }
+      .cat-card-nombre { font-size: 1.3rem; }
+      .cat-card-desc { font-size: 0.76rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cat-card { transition: none; }
+      .cat-card:hover { transform: none; }
+    }
+
+    /* ==========================================================
+       TARJETA DE PLATAFORMA
+       ==========================================================
+       Una tarjeta por servicio (Netflix, Disney+...) en vez de una
+       por cada variante. Muestra el precio más bajo y al tocarla
+       abre un panel con todos sus planes.
+       ========================================================== */
+    .plat-card {
+      background: #fff;
+      border: 1px solid var(--borde);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--sombra);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      font-family: inherit;
+      text-align: left;
+      padding: 0;
+    }
+    .plat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--sombra-alta);
+      border-color: rgba(229,9,20,.28);
+    }
+    .plat-card:focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
+
+    .plat-img {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      background: var(--superficie-2);
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .plat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .plat-img img.contenida { width: 72%; height: 72%; object-fit: contain; }
+
+    .plat-badge {
+      position: absolute;
+      top: .45rem; left: .45rem;
+      background: linear-gradient(135deg, var(--marca), var(--marca-oscura));
+      color: #fff;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: .78rem;
+      letter-spacing: .5px;
+      padding: .12rem .42rem;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(20,22,26,.2);
+    }
+    .plat-planes {
+      position: absolute;
+      top: .45rem; right: .45rem;
+      background: rgba(255,255,255,.94);
+      color: var(--tinta-media);
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      padding: .18rem .45rem;
+      border-radius: 20px;
+      box-shadow: 0 1px 4px rgba(20,22,26,.12);
+    }
+
+    .plat-body { padding: .7rem .8rem .5rem; flex: 1; }
+    .plat-desde {
+      font-size: .58rem;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+      font-weight: 700;
+    }
+    .plat-precio {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.45rem;
+      letter-spacing: .5px;
+      color: var(--oro);
+      line-height: 1.05;
+    }
+    .plat-precio .antes {
+      font-family: 'Outfit', sans-serif;
+      font-size: .72rem;
+      color: var(--tinta-suave);
+      text-decoration: line-through;
+      margin-left: .3rem;
+      letter-spacing: 0;
+    }
+    .plat-nombre {
+      font-weight: 700;
+      font-size: .82rem;
+      color: var(--tinta);
+      line-height: 1.3;
+      margin-top: .2rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .plat-cta {
+      margin: 0 .8rem .8rem;
+      padding: .55rem;
+      border-radius: 9px;
+      background: var(--superficie-2);
+      color: var(--marca);
+      font-size: .74rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      text-align: center;
+      transition: background .18s, color .18s;
+    }
+    .plat-card:hover .plat-cta { background: var(--marca); color: #fff; }
+    .plat-card--agotada { opacity: .55; }
+
+    /* ---------- Panel de planes ---------- */
+    .planes-head {
+      display: flex;
+      align-items: center;
+      gap: .85rem;
+      padding: 0 0 1rem;
+      border-bottom: 1px solid var(--borde);
+      margin-bottom: 1rem;
+    }
+    .planes-head img {
+      width: 62px; height: 62px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: var(--superficie-2);
+      flex-shrink: 0;
+    }
+    .planes-head h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      color: var(--tinta);
+      margin: 0;
+      line-height: 1.1;
+    }
+    .planes-head p { margin: .15rem 0 0; font-size: .78rem; color: var(--tinta-suave); }
+
+    .plan-item {
+      border: 1px solid var(--borde);
+      border-radius: 12px;
+      padding: .9rem;
+      margin-bottom: .7rem;
+      background: #fff;
+    }
+    .plan-item--agotado { opacity: .6; }
+    .plan-item-top {
+      display: flex;
+      align-items: flex-start;
+      gap: .5rem;
+      margin-bottom: .6rem;
+    }
+    .plan-item-nombre {
+      font-weight: 700;
+      font-size: .92rem;
+      color: var(--tinta);
+      line-height: 1.3;
+      flex: 1;
+    }
+    .plan-estado {
+      font-size: .58rem;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: .18rem .45rem;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .plan-estado.ok   { background: rgba(18,140,126,.11); color: #0f7a6e; }
+    .plan-estado.off  { background: rgba(229,9,20,.09);   color: var(--marca); }
+
+    .plan-features { list-style: none; padding: 0; margin: 0 0 .75rem; }
+    .plan-features li {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: .76rem;
+      color: var(--tinta-suave);
+      padding: .16rem 0;
+    }
+    .plan-features li b { color: var(--tinta-media); font-weight: 600; }
+
+    .plan-item-pie {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding-top: .7rem;
+      border-top: 1px solid var(--borde);
+      flex-wrap: wrap;
+    }
+    .plan-precio-lbl {
+      font-size: .58rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+      font-weight: 700;
+    }
+    .plan-precio {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.55rem;
+      color: var(--oro);
+      line-height: 1;
+      letter-spacing: .5px;
+    }
+    .plan-precio .antes {
+      font-family: 'Outfit', sans-serif;
+      font-size: .72rem;
+      color: var(--tinta-suave);
+      text-decoration: line-through;
+      margin-left: .3rem;
+      letter-spacing: 0;
+    }
+    .plan-comprar {
+      background: var(--marca);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: .6rem 1.15rem;
+      font-family: inherit;
+      font-size: .82rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      transition: filter .15s;
+    }
+    .plan-comprar:hover:not(:disabled) { filter: brightness(1.12); }
+    .plan-comprar:disabled { background: var(--separador-2); color: var(--tinta-suave); cursor: not-allowed; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .plat-card { transition: none; }
+      .plat-card:hover { transform: none; }
+    }
+
     /* ===== PRODUCTS GRID ===== */
     .products-grid {
       padding: 0 0.75rem;
@@ -1788,16 +2161,32 @@
     </div>
   </section>
 
+  <!-- ==========================================================
+       VISTA 1 · CATEGORÍAS (lo primero que ve el cliente)
+       ========================================================== -->
+  <section id="vistaCategorias">
+    <div class="cats-head">
+      <h2>Explorá por categoría</h2>
+      <p>Elegí una para ver sus productos</p>
+    </div>
+    <div class="cats-grid" id="catsGrid"></div>
+  </section>
+
+  <!-- ==========================================================
+       VISTA 2 · PRODUCTOS (al elegir una categoría o al buscar)
+       ========================================================== -->
+  <div id="vistaProductos" hidden>
+
   <!-- BREADCRUMB -->
   <div class="breadcrumb">
-    <a href="#">Hogar</a>
+    <button class="btn-volver" onclick="volverACategorias()">← Todas las categorías</button>
     <span>/</span>
-    <a href="#">"Todas las categorías"</a>
+    <a href="#" id="migaCategoria" onclick="return false;">Categoría</a>
   </div>
 
   <!-- PAGE HEADER -->
   <div class="page-header">
-    <h1>Todos los productos</h1>
+    <h1 id="tituloCategoria">Productos</h1>
     <button class="filter-btn" onclick="toggleFilter()">▼ Filtrar</button>
   </div>
 
@@ -1831,6 +2220,8 @@
 
   <!-- PAGINATION -->
   <div class="pagination" id="6"></div>
+
+  </div><!-- /vistaProductos -->
 
   <!-- FOOTER -->
   <div class="footer-info">
@@ -1951,9 +2342,20 @@
     window.__aplicarCatalogo = function (productos) {
       PRODUCTS = productos;
       catalogoCargado = true;
-      renderCategorias();   // pestañas según lo que haya en Firestore
+      renderCategorias();          // pestañas según lo que haya en Firestore
+      renderTarjetasCategorias();  // tarjetas de la pantalla de inicio
       renderSubfiltros();
       renderProducts();
+
+      // Si la URL trae #streaming, abrimos esa categoría directo.
+      // Se hace una sola vez, al llegar el primer catálogo.
+      if (!window.__vistaInicial) {
+        window.__vistaInicial = true;
+        const desdeUrl = decodeURIComponent(location.hash.replace('#', '')).trim();
+        if (categoriaValida(desdeUrl)) abrirCategoria(desdeUrl, false);
+        else aplicarVista();
+      }
+
       // El carrito se rearma con los precios frescos que acaban de llegar.
       reconstruirCarrito();
     };
@@ -2383,11 +2785,89 @@
       if (pag) pag.innerHTML = '';
     }
 
+    // ==========================================================
+    // AGRUPACIÓN POR PLATAFORMA
+    // ==========================================================
+    // La grilla ya no muestra una tarjeta por variante, sino una por
+    // servicio. "Netflix Premium 4K (1 pantalla)" y "(Cuenta Completa)"
+    // se juntan en una tarjeta que dice "DESDE 29.90Bs", y al tocarla
+    // se abre un panel con los dos planes.
+    // ==========================================================
+
+    // "Netflix Premium 4K (1 pantalla)" -> "Netflix Premium 4K"
+    function plataformaDe(nombre) {
+      return String(nombre || '').replace(/\s*\([^)]*\)\s*$/, '').trim();
+    }
+
+    // Precio con el mismo formato que usa el resto de la tienda
+    function formatoBs(n) {
+      const num = Number(n) || 0;
+      return Number.isInteger(num) ? num + 'Bs' : num.toFixed(2) + 'Bs';
+    }
+
+    // Lista de características de cada plan. Todo sale de datos que ya
+    // existen, salvo entrega y soporte, que son la promesa fija del
+    // negocio (la misma que anuncia la franja superior).
+    function caracteristicasDe(p) {
+      const t = tiposDe(p);
+      const filas = [
+        ['⚡', 'Entrega', 'Activación inmediata'],
+        ['🛡️', 'Soporte', 'Incluido']
+      ];
+
+      const acceso = t.includes('completa')      ? 'Cuenta completa'
+                   : t.includes('1-pantalla')    ? '1 pantalla'
+                   : t.includes('1-dispositivo') ? '1 dispositivo'
+                   : null;
+      if (acceso) filas.push(['📺', 'Acceso', acceso]);
+
+      const plazo = t.includes('mensual')  ? 'Mensual'
+                  : t.includes('semanal')  ? 'Semanal'
+                  : t.includes('anual')    ? 'Anual'
+                  : t.includes('multimes') ? 'Multi-mes'
+                  : null;
+      const renovable = /renovable/i.test(p.name) || /renovable/i.test(p.tag || '');
+      if (plazo || renovable) {
+        const texto = renovable ? (plazo ? plazo + ' · Renovable' : 'Renovable') : plazo;
+        filas.push(['🔄', 'Suscripción', texto]);
+      }
+      return filas;
+    }
+
+    // Junta los productos ya filtrados en plataformas
+    function agruparEnPlataformas(lista) {
+      const mapa = new Map();
+      lista.forEach(p => {
+        const clave = p.cat + '||' + plataformaDe(p.name);
+        if (!mapa.has(clave)) mapa.set(clave, []);
+        mapa.get(clave).push(p);
+      });
+
+      return [...mapa.entries()].map(([clave, planes]) => {
+        const disponibles = planes.filter(p => !p.soldOut);
+        const base = disponibles[0] || planes[0];
+        const precios = (disponibles.length ? disponibles : planes).map(p => p.price);
+        const conOferta = planes.filter(p => p.descuento > 0);
+        return {
+          clave,
+          nombre: plataformaDe(base.name),
+          planes: planes.slice().sort((a, b) => a.price - b.price),
+          base,
+          desde: Math.min(...precios),
+          agotada: disponibles.length === 0,
+          descuento: conOferta.length ? Math.max(...conOferta.map(p => p.descuento)) : 0
+        };
+      });
+    }
+
+    // Plataformas de la vista actual, para que el panel las encuentre
+    let PLATAFORMAS_VISIBLES = [];
+
     function renderProducts() {
       // Todavía no llegó el catálogo desde Firestore.
       if (!catalogoCargado) { renderSkeletons(); return; }
 
-      let filtered = PRODUCTS.filter(p => {
+      const filtrados = PRODUCTS.filter(p => {
         const catOk = currentCat === 'all' || p.cat === currentCat;
         // tiposDe() unifica las variantes ("1-device" = "1-dispositivo")
         const subOk = currentSub === 'all' || tiposDe(p).includes(currentSub);
@@ -2395,27 +2875,29 @@
         return catOk && subOk && searchOk;
       });
 
-      // Sort
-      const sort = document.getElementById('4').value;
-      if(sort === 'price-asc') filtered.sort((a,b) => a.price - b.price);
-      if(sort === 'price-desc') filtered.sort((a,b) => b.price - a.price);
-      if(sort === 'name') filtered.sort((a,b) => a.name.localeCompare(b.name));
+      const grupos = agruparEnPlataformas(filtrados);
 
-      const total = filtered.length;
+      const sort = document.getElementById('4').value;
+      if (sort === 'price-asc')  grupos.sort((a, b) => a.desde - b.desde);
+      if (sort === 'price-desc') grupos.sort((a, b) => b.desde - a.desde);
+      if (sort === 'name')       grupos.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+      PLATAFORMAS_VISIBLES = grupos;
+
+      const total = grupos.length;
       const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
-      if(currentPage > totalPages) currentPage = 1;
+      if (currentPage > totalPages) currentPage = 1;
 
       const start = (currentPage - 1) * ITEMS_PER_PAGE;
-      const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
+      const pageItems = grupos.slice(start, start + ITEMS_PER_PAGE);
 
       const grid = document.getElementById('5');
 
-      // Ningún producto coincide con el filtro o la búsqueda.
       if (total === 0) {
         grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3.5rem 1rem;">
           <div style="font-size:2.5rem; margin-bottom:.75rem;">🔍</div>
-          <div style="font-weight:800; color:#fff; margin-bottom:.4rem;">Sin resultados</div>
-          <div style="font-size:.9rem; color:var(--gris-texto);">
+          <div style="font-weight:800; color:var(--tinta); margin-bottom:.4rem;">Sin resultados</div>
+          <div style="font-size:.9rem; color:var(--tinta-suave);">
             ${currentSearch ? `No encontramos nada para «${currentSearch}»` : 'No hay productos en esta categoría'}
           </div>
         </div>`;
@@ -2423,41 +2905,91 @@
         return;
       }
 
-      grid.innerHTML = pageItems.map(p => {
-        const imageUrl = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
-        const isGenerated = imageUrl.startsWith('data:');
-        const isFill = (p.imagenFill === true) || FILL_LOGOS.has(imageUrl);
-        const soldOut = p.soldOut === true;
-        const imgClass = isGenerated
-          ? 'product-logo-generated'
-          : isFill
-            ? 'product-logo-img product-logo-img--fill'
-            : 'product-logo-img';
+      grid.innerHTML = pageItems.map(g => {
+        const p = g.base;
+        const url = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
+        const generada = url.startsWith('data:');
+        const contener = generada || !((p.imagenFill === true) || FILL_LOGOS.has(url));
+        const n = g.planes.length;
+        const nombreSeguro = p.name.replace(/'/g, "\\'");
 
         return `
-        <div class="product-card${soldOut ? ' product-card--soldout' : ''}">
-          <div class="product-img" onclick="openProduct(${p.id})">
-            ${p.descuento > 0 && !soldOut ? `<span class="product-badge-desc">-${p.descuento}%</span>` : ''}
-            ${p.tag && !soldOut ? `<span class="product-badge-img">${p.tag}</span>` : ''}
-            <img class="${imgClass}" src="${imageUrl}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=generateLogoSvg('${p.name.replace(/'/g,"\\'")}','${p.imgColor}');this.className='product-logo-generated';">
+        <button type="button" class="plat-card${g.agotada ? ' plat-card--agotada' : ''}"
+                onclick="abrirPlataforma('${g.clave.replace(/'/g, "\\'")}')">
+          <div class="plat-img">
+            ${g.descuento > 0 && !g.agotada ? `<span class="plat-badge">-${g.descuento}%</span>` : ''}
+            ${n > 1 ? `<span class="plat-planes">${n} planes</span>` : ''}
+            <img src="${url}" alt="" loading="lazy" decoding="async" class="${contener ? 'contenida' : ''}"
+                 onerror="this.onerror=null;this.src=generateLogoSvg('${nombreSeguro}','${p.imgColor}');this.className='contenida';">
           </div>
-          <div class="product-body">
-            <div class="product-price">${p.bs}${p.precioAntes ? `<span class="product-price-antes">${p.precioAntes}</span>` : ''}</div>
-            <div class="product-stars">${getStars(p.stars)}</div>
-            <div class="product-name" onclick="openProduct(${p.id})" style="cursor:pointer;">${p.name}</div>
-            <div class="product-seller">
-              <strong>Tiago Store</strong>
-            </div>
+          <div class="plat-body">
+            <div class="plat-desde">${g.agotada ? 'No disponible' : 'Desde'}</div>
+            <div class="plat-precio">${formatoBs(g.desde)}</div>
+            <div class="plat-nombre">${g.nombre}</div>
           </div>
-          <button class="product-btn${soldOut ? ' product-btn--disabled' : ''}" ${soldOut ? 'disabled' : ''} onclick="${soldOut ? "showToast('✖ Producto agotado'); event.stopPropagation();" : `addToCart(${p.id}); event.stopPropagation();`}">
-            ${soldOut ? '✖ AGOTADO' : '🛒 Agregar al Carrito'}
-          </button>
-        </div>
-      `;
+          <div class="plat-cta">${g.agotada ? 'Ver detalles' : 'Ver planes →'}</div>
+        </button>`;
       }).join('');
 
       renderPagination(totalPages);
     }
+
+    // ==========================================================
+    // PANEL DE PLANES DE UNA PLATAFORMA
+    // ==========================================================
+    // Reutiliza el mismo modal que ya usaba openProduct(), así el
+    // cierre, el fondo y el scroll se comportan igual que siempre.
+    function abrirPlataforma(clave) {
+      const g = PLATAFORMAS_VISIBLES.find(x => x.clave === clave);
+      if (!g) return;
+
+      const p = g.base;
+      const url = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
+      const nombreSeguro = p.name.replace(/'/g, "\\'");
+
+      const planes = g.planes.map(pl => {
+        const agotado = pl.soldOut === true;
+        const filas = caracteristicasDe(pl).map(([ic, et, val]) =>
+          `<li><span>${ic}</span> ${et} <b>${val}</b></li>`).join('');
+
+        return `
+        <div class="plan-item${agotado ? ' plan-item--agotado' : ''}">
+          <div class="plan-item-top">
+            <div class="plan-item-nombre">${pl.name}</div>
+            <span class="plan-estado ${agotado ? 'off' : 'ok'}">${agotado ? 'Agotado' : 'Disponible'}</span>
+          </div>
+          <ul class="plan-features">${filas}</ul>
+          <div class="plan-item-pie">
+            <div>
+              <div class="plan-precio-lbl">Precio final</div>
+              <div class="plan-precio">${pl.bs}${pl.precioAntes ? `<span class="antes">${pl.precioAntes}</span>` : ''}</div>
+            </div>
+            <button class="plan-comprar" ${agotado ? 'disabled' : ''}
+                    onclick="${agotado ? '' : `addToCart(${pl.id})`}">
+              ${agotado ? '✖ Agotado' : '🛒 Comprar'}
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+
+      document.getElementById('10').innerHTML = `
+        <div class="planes-head">
+          <img src="${url}" alt=""
+               onerror="this.onerror=null;this.src=generateLogoSvg('${nombreSeguro}','${p.imgColor}');">
+          <div>
+            <h3>${g.nombre}</h3>
+            <p>${g.planes.length} ${g.planes.length === 1 ? 'plan disponible' : 'planes disponibles'} · Activación inmediata</p>
+          </div>
+        </div>
+        ${planes}
+        <div style="text-align:center; padding:.75rem 0 .25rem; font-size:.75rem; color:var(--tinta-suave);">
+          ¿Dudas? Escribinos por WhatsApp antes de comprar.
+        </div>`;
+
+      document.getElementById('8').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
 
     function renderPagination(totalPages) {
       const pag = document.getElementById('6');
@@ -2515,6 +3047,140 @@
 
     // Categorías que se muestran siempre, aunque todavía no tengan productos.
     const CATEGORIAS_FIJAS = ['combos'];
+
+    // ==========================================================
+    // VISTA DE CATEGORÍAS
+    // ==========================================================
+    // El catálogo tiene dos vistas: primero las categorías, y al
+    // elegir una se muestran sus productos. Todo lo demás —filtros,
+    // buscador, carrito, Firestore— funciona igual que antes.
+    // ==========================================================
+
+    // Ícono, color y descripción de cada categoría.
+    // Una categoría nueva usa el genérico de abajo.
+    const CAT_INFO = {
+      streaming:  { icono: '🎬', color: '#e50914', desc: 'Netflix, Disney+, Prime Video y más' },
+      musica:     { icono: '🎵', color: '#1db954', desc: 'Spotify, YouTube Premium, Tidal' },
+      ia:         { icono: '🤖', color: '#6366f1', desc: 'ChatGPT, Claude, Canva y herramientas' },
+      combos:     { icono: '🎁', color: '#f0a500', desc: 'Paquetes con varios servicios' },
+      vpn:        { icono: '🔐', color: '#0ea5e9', desc: 'Navegá seguro desde cualquier lugar' },
+      seguidores: { icono: '📱', color: '#ec4899', desc: 'Instagram, TikTok y Facebook' },
+      juegos:     { icono: '🎮', color: '#8b5cf6', desc: 'Recargas para tus juegos' },
+      recargas:   { icono: '💎', color: '#14b8a6', desc: 'Recargas y saldos' },
+      apps:       { icono: '📲', color: '#f97316', desc: 'Aplicaciones premium' },
+      cursos:     { icono: '📚', color: '#0891b2', desc: 'Cursos y formación' }
+    };
+    const CAT_GENERICA = { icono: '🏷️', color: '#767c88', desc: '' };
+    const infoCat = c => CAT_INFO[c] || CAT_GENERICA;
+
+    // Nombre limpio para títulos (sin el emoji de la pestaña)
+    function nombreCat(c) {
+      return etiquetaCat(c).replace(/^[^\s]+\s/, '');
+    }
+
+    let vistaCatalogo = 'categorias';   // 'categorias' | 'productos'
+
+    function renderTarjetasCategorias() {
+      const grid = document.getElementById('catsGrid');
+      if (!grid) return;
+
+      const presentes = PRODUCTS.map(p => p.cat).filter(Boolean);
+      const cats = [...new Set([...presentes, ...CATEGORIAS_FIJAS])].sort((a, b) => {
+        const ia = ORDEN_CATEGORIAS.indexOf(a);
+        const ib = ORDEN_CATEGORIAS.indexOf(b);
+        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib) || a.localeCompare(b);
+      });
+
+      grid.innerHTML = cats.map(c => {
+        const info = infoCat(c);
+        const n = PRODUCTS.filter(p => p.cat === c).length;
+        return `
+        <button type="button" class="cat-card" style="--tinte:${info.color}"
+                onclick="abrirCategoria('${c}')" aria-label="Ver ${nombreCat(c)}">
+          <span class="cat-card-icono">${info.icono}</span>
+          <span class="cat-card-nombre">${nombreCat(c)}</span>
+          <span class="cat-card-desc">${info.desc}</span>
+          <span class="cat-card-cuenta${n === 0 ? ' vacia' : ''}">
+            ${n === 0 ? 'Muy pronto' : n + (n === 1 ? ' producto' : ' productos')}
+          </span>
+        </button>`;
+      }).join('');
+    }
+
+    // Cambia entre las dos vistas
+    function aplicarVista() {
+      const enCategorias = vistaCatalogo === 'categorias';
+      document.getElementById('vistaCategorias').hidden = !enCategorias;
+      document.getElementById('vistaProductos').hidden  = enCategorias;
+    }
+
+    function abrirCategoria(cat, empujarHistorial = true) {
+      vistaCatalogo = 'productos';
+      currentCat = cat;
+      currentSub = 'all';
+      currentPage = 1;
+      currentSearch = '';
+      const buscador = document.getElementById('2');
+      if (buscador) buscador.value = '';
+
+      document.getElementById('tituloCategoria').textContent = nombreCat(cat);
+      document.getElementById('migaCategoria').textContent   = nombreCat(cat);
+
+      aplicarVista();
+      renderCategorias();
+      renderSubfiltros();
+      renderProducts();
+
+      if (empujarHistorial) history.pushState({ cat }, '', '#' + cat);
+      document.getElementById('vistaProductos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function volverACategorias(empujarHistorial = true) {
+      vistaCatalogo = 'categorias';
+      currentCat = 'all';
+      currentSub = 'all';
+      currentSearch = '';
+      currentPage = 1;
+      const buscador = document.getElementById('2');
+      if (buscador) buscador.value = '';
+
+      aplicarVista();
+      renderTarjetasCategorias();
+
+      if (empujarHistorial) history.pushState({}, '', location.pathname);
+      document.getElementById('vistaCategorias').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Buscar desde el inicio salta directo a los resultados
+    function mostrarResultadosBusqueda() {
+      if (vistaCatalogo === 'categorias') {
+        vistaCatalogo = 'productos';
+        currentCat = 'all';
+        currentSub = 'all';
+        document.getElementById('tituloCategoria').textContent = 'Resultados';
+        document.getElementById('migaCategoria').textContent   = 'Búsqueda';
+        aplicarVista();
+        renderCategorias();
+        renderSubfiltros();
+      }
+    }
+
+    // ¿Existe esa categoría? (o es una de las fijas, como combos)
+    function categoriaValida(c) {
+      return !!c && (PRODUCTS.some(p => p.cat === c) || CATEGORIAS_FIJAS.includes(c));
+    }
+
+    // Atrás/adelante del navegador y cambios de #hash escritos a mano.
+    // Si no hay state usamos el hash, así un enlace tipo /#vpn también
+    // abre la categoría aunque la página no se recargue.
+    function sincronizarConUrl(deEvento) {
+      const cat = (deEvento && deEvento.state && deEvento.state.cat)
+        || decodeURIComponent(location.hash.replace('#', '')).trim();
+      if (categoriaValida(cat)) abrirCategoria(cat, false);
+      else volverACategorias(false);
+    }
+    window.addEventListener('popstate',   e => sincronizarConUrl(e));
+    window.addEventListener('hashchange', () => sincronizarConUrl(null));
 
     // Los "tipo" del catálogo vienen con variantes escritas distinto:
     // "1-dispositivo", "1- Dispositivo", "1-device"... Las unificamos
@@ -2605,11 +3271,20 @@
     }
 
     function filterCat(cat, el) {
+      // Desde las pestañas, "TODOS" devuelve a la pantalla de categorías
+      if (cat === 'all' && !currentSearch.trim()) { volverACategorias(); return; }
+
       currentCat = cat;
       currentSub = 'all';   // el subfiltro anterior puede no existir acá
       currentPage = 1;
       document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
       el.classList.add('active');
+
+      const titulo = document.getElementById('tituloCategoria');
+      const miga    = document.getElementById('migaCategoria');
+      if (titulo) titulo.textContent = nombreCat(cat);
+      if (miga)   miga.textContent   = nombreCat(cat);
+
       renderSubfiltros();
       renderProducts();
     }
@@ -2625,6 +3300,15 @@
     function filterProducts() {
       currentSearch = document.getElementById('2').value;
       currentPage = 1;
+
+      // Si escribe desde el inicio, saltamos a los resultados.
+      // Si borra todo estando en resultados, volvemos a las categorías.
+      if (currentSearch.trim() !== '') mostrarResultadosBusqueda();
+      else if (vistaCatalogo === 'productos' && currentCat === 'all') {
+        volverACategorias(false);
+        return;
+      }
+
       renderProducts();
     }
 

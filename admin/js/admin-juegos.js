@@ -476,15 +476,28 @@ function pintarPaquetes() {
 
   const grupos = [...new Set(paquetesEdit.map(p => p.grupo).filter(Boolean))];
 
-  $('jgPkLista').innerHTML = paquetesEdit.map((p, i) => `
+  const unidad = $('jgfUnidad').value.trim() || 'unidades';
+
+  $('jgPkLista').innerHTML = paquetesEdit.map((p, i) => {
+    // Algunos paquetes no tienen nombre y se identifican por cantidad
+    // (los Robux de Roblox se muestran en la tienda como "40 Robux").
+    // Los mostramos como sugerencia para que se entienda qué son.
+    const porCantidad = !(p.nombre || '').trim() && p.cantidad != null;
+    const sugerencia  = porCantidad
+      ? `${Number(p.cantidad).toLocaleString('es-BO')} ${unidad}`
+      : '100+10 Diamantes';
+
+    return `
     <div class="jg-pk${p.consultar ? ' consulta' : ''}" data-i="${i}">
       <input class="icono" data-campo="icono" value="${escapar(p.icono)}" placeholder="💎" maxlength="4">
-      <input data-campo="nombre" value="${escapar(p.nombre)}" placeholder="100+10 Diamantes">
+      <input data-campo="nombre" value="${escapar(p.nombre)}" placeholder="${escapar(sugerencia)}"
+             ${porCantidad ? 'style="font-style:italic;" title="Se muestra como &quot;' + escapar(sugerencia) + '&quot;. Si escribís un nombre, reemplaza a ese texto."' : ''}>
       <input class="precio" data-campo="precio" type="number" step="0.01" min="0"
              value="${p.consultar ? '' : (p.precio ?? '')}" placeholder="Bs." ${p.consultar ? 'disabled' : ''}>
       <input class="grupo" data-campo="grupo" value="${escapar(p.grupo)}" placeholder="Grupo" list="jgGrupos">
       <button type="button" class="quitar" data-quitar="${i}" title="Quitar">✕</button>
-    </div>`).join('') +
+    </div>`;
+  }).join('') +
     `<datalist id="jgGrupos">${grupos.map(g => `<option value="${escapar(g)}">`).join('')}</datalist>`;
 }
 
@@ -535,8 +548,11 @@ $('jgForm').addEventListener('submit', async e => {
     nuevo:            $('jgfNuevo').checked,
     necesitaServerId: $('jgfServer').checked,
     necesitaCuenta:   $('jgfCuenta').checked,
+    // Ojo: hay paquetes sin nombre que se identifican por "cantidad"
+    // (los Robux de Roblox, por ejemplo, se muestran como "40 Robux").
+    // Si filtráramos solo por nombre, esos paquetes se borrarían al guardar.
     paquetes: paquetesEdit
-      .filter(p => (p.nombre || '').trim() !== '')
+      .filter(p => (p.nombre || '').trim() !== '' || p.cantidad != null)
       .map((p, i) => ({
         nombre:        String(p.nombre).trim(),
         icono:         String(p.icono || '').trim(),

@@ -8,15 +8,57 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --negro: #0a0a0a;
-      --negro2: #111111;
-      --negro3: #1a1a1a;
-      --rojo: #e50914;
-      --dorado: #ffd700;
-      --verde: #25d366;
-      --texto: #e0e0e0;
-      --texto-dim: #888;
-      --borde: rgba(255,255,255,0.08);
+
+  /* ==========================================================
+     PALETA CLARA
+     ==========================================================
+     Los nombres --negro, --blanco, etc. son históricos: los usa el
+     HTML en muchos lugares. Abajo quedan como alias de los tokens
+     nuevos, así el tema se cambia desde un solo bloque.
+     ========================================================== */
+  --fondo:        #ffffff;
+  --superficie:   #fbfbfc;
+  --superficie-2: #f4f5f7;
+  --separador:    #ececef;
+  --separador-2:  #dfe0e5;
+  --tinta:        #14161a;
+  --tinta-media:  #3d424b;
+  --tinta-suave:  #767c88;
+  --marca:        #e50914;
+  --marca-oscura: #b8070f;
+  --oro:          #9a7400;
+  --oro-claro:    #f5c518;
+  --ambar:        #f0a500;
+  --verde-wa:     #128C7E;
+  --sombra:       0 1px 2px rgba(20,22,26,.05), 0 4px 14px rgba(20,22,26,.06);
+  --sombra-alta:  0 2px 6px rgba(20,22,26,.07), 0 12px 32px rgba(20,22,26,.10);
+
+  --negro: var(--fondo);
+  --negro2: var(--superficie);
+  --negro3: var(--superficie-2);
+  --gris: var(--separador);
+  --gris2: var(--separador-2);
+  --gris-claro: var(--tinta-suave);
+  --gris-texto: var(--tinta-suave);
+  --rojo: var(--marca);
+  --rojo2: var(--marca-oscura);
+  --rojo-hover: var(--marca-oscura);
+  --dorado: var(--oro);
+  --dorado2: var(--oro-claro);
+  --blanco: var(--tinta);
+  --texto: var(--tinta-media);
+  --texto-dim: var(--tinta-suave);
+  --verde: var(--verde-wa);
+
+      --negro: var(--fondo);
+      --negro2: var(--fondo);
+      --negro3: var(--superficie-2);
+      --rojo: var(--marca);
+      --dorado: var(--oro);
+      --verde: var(--verde-wa);
+      --texto: var(--tinta-media);
+      --texto-dim: var(--tinta-suave);
+      --borde: rgba(20,22,26,0.072);
     }
 
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -145,7 +187,7 @@
     .pay-qr-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.7);
+      background: rgba(20,22,26,0.140);
       border-radius: 12px;
       display: none;
       justify-content: center;
@@ -422,6 +464,26 @@
       margin-top: 0.5rem;
       opacity: 0.6;
     }
+  
+  /* ===== BURBUJAS DECORATIVAS =====
+     Círculos difusos detrás del contenido. Solo visual: no
+     interceptan clicks y se apagan en pantallas chicas. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle 220px at 12% 14%, rgba(229,9,20,.05),   transparent 70%),
+      radial-gradient(circle 170px at 88% 22%, rgba(245,197,24,.07), transparent 70%),
+      radial-gradient(circle 130px at 78% 68%, rgba(229,9,20,.035),  transparent 70%),
+      radial-gradient(circle 190px at 8%  76%, rgba(245,197,24,.05), transparent 70%),
+      radial-gradient(circle 90px  at 46% 40%, rgba(229,9,20,.028),  transparent 70%);
+  }
+  body > * { position: relative; z-index: 1; }
+  @media (max-width: 600px) { body::before { display: none; } }
+  
   </style>
 </head>
 <body>
@@ -478,11 +540,11 @@
           </div>
           <div class="step">
             <div class="step-num">2</div>
-            <div class="step-text">Ingresa el monto exacto: <strong id="instrMonto" style="color:#ffd700;cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
+            <div class="step-text">Ingresa el monto exacto: <strong id="instrMonto" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
           </div>
           <div class="step">
             <div class="step-num">3</div>
-            <div class="step-text">En Glosa/Adjunto escribe: <strong style="color:#ffd700;cursor:pointer;" onclick="copyText(this)" title="Toca para copiar">VARIOS</strong></div>
+            <div class="step-text">En Glosa/Adjunto escribe: <strong style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar">VARIOS</strong></div>
           </div>
           <div class="step">
             <div class="step-num">4</div>
@@ -491,7 +553,7 @@
         </div>
 
         <div class="pay-timer" id="timerSection" style="margin-bottom:0.5rem;">
-          Redirigiendo a WhatsApp en <span id="timerDisplay" style="color:#25d366;">60</span> seg...
+          Redirigiendo a WhatsApp en <span id="timerDisplay" style="color:var(--verde-wa);">60</span> seg...
         </div>
       </div>
 
@@ -565,7 +627,7 @@
       navigator.clipboard.writeText(el.textContent).then(() => {
         const original = el.textContent;
         el.textContent = 'Copiado!';
-        el.style.color = '#25d366';
+        el.style.color = '#128C7E';
         setTimeout(() => { el.textContent = original; el.style.color = '#ffd700'; }, 1200);
       });
     }

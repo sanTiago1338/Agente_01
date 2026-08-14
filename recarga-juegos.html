@@ -1166,6 +1166,22 @@
         return;
       }
 
+      // Cargó bien pero no hay juegos: avisamos en vez de dejar la grilla en blanco
+      if (GAMES.length === 0) {
+        popular.innerHTML = '';
+        todos.innerHTML = `
+          <div style="grid-column:1/-1; text-align:center; padding:3.5rem 1rem; color:#9a9a9a;">
+            <div style="font-size:2.6rem; margin-bottom:.7rem;">🎮</div>
+            <div style="font-weight:800; color:#fff; margin-bottom:.35rem; font-size:1.05rem;">
+              Todavía no hay juegos cargados
+            </div>
+            <div style="font-size:.9rem; line-height:1.55;">
+              Escribinos por WhatsApp y te pasamos los precios de la recarga que necesites.
+            </div>
+          </div>`;
+        return;
+      }
+
       popular.innerHTML = GAMES.filter(g => g.popular).map(cardHtml).join('');
       todos.innerHTML   = GAMES.map(cardHtml).join('');
     }

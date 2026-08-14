@@ -562,142 +562,6 @@
     @media (prefers-reduced-motion: reduce) {
       .skeleton-box { animation: none; background: var(--superficie-2); }
     }
-
-    /* ==========================================================
-       VISTA DE CATEGORÍAS (pantalla de inicio del catálogo)
-       ==========================================================
-       El inicio muestra seis tarjetas en vez de 204 productos.
-       Además de verse más ordenado, carga bastante menos: son seis
-       tarjetas sin imágenes contra doce con logo cada una.
-       ========================================================== */
-    .cats-head {
-      padding: 1.6rem 1rem 1.1rem;
-      text-align: center;
-    }
-    .cats-head h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.85rem;
-      letter-spacing: 1.5px;
-      color: var(--tinta);
-      margin: 0 0 0.25rem;
-    }
-    .cats-head p {
-      margin: 0;
-      color: var(--tinta-suave);
-      font-size: 0.88rem;
-    }
-
-    .cats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.85rem;
-      padding: 0 0.9rem 2rem;
-    }
-
-    .cat-card {
-      --tinte: var(--marca);
-      position: relative;
-      background: #fff;
-      border: 1px solid var(--borde);
-      border-radius: 16px;
-      padding: 1.35rem 1rem 1.15rem;
-      cursor: pointer;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.15rem;
-      box-shadow: var(--sombra);
-      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-      overflow: hidden;
-      font-family: inherit;
-    }
-    .cat-card::before {
-      content: '';
-      position: absolute;
-      inset: 0 0 auto 0;
-      height: 3px;
-      background: var(--tinte);
-      opacity: .85;
-    }
-    .cat-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--sombra-alta);
-      border-color: color-mix(in srgb, var(--tinte) 40%, transparent);
-    }
-    .cat-card:active { transform: translateY(-1px); }
-    .cat-card:focus-visible {
-      outline: 2px solid var(--tinte);
-      outline-offset: 2px;
-    }
-
-    .cat-card-icono {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 1.7rem;
-      margin-bottom: 0.55rem;
-      background: color-mix(in srgb, var(--tinte) 11%, #fff);
-    }
-    .cat-card-nombre {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.15rem;
-      letter-spacing: 1px;
-      color: var(--tinta);
-      line-height: 1.15;
-    }
-    .cat-card-desc {
-      font-size: 0.72rem;
-      color: var(--tinta-suave);
-      line-height: 1.35;
-      margin-top: 0.1rem;
-      min-height: 1.9em;
-    }
-    .cat-card-cuenta {
-      margin-top: 0.6rem;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: .04em;
-      color: var(--tinte);
-      background: color-mix(in srgb, var(--tinte) 9%, #fff);
-      padding: 0.2rem 0.6rem;
-      border-radius: 20px;
-    }
-    .cat-card-cuenta.vacia {
-      color: var(--tinta-suave);
-      background: var(--superficie-2);
-    }
-
-    /* Volver al listado de categorías */
-    .btn-volver {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: none;
-      border: none;
-      color: var(--marca);
-      font-family: inherit;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 0.35rem 0;
-    }
-    .btn-volver:hover { text-decoration: underline; }
-
-    @media (min-width: 600px) {
-      .cats-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 0 1rem 2.5rem; }
-      .cats-head h2 { font-size: 2.1rem; }
-      .cat-card { padding: 1.6rem 1.1rem 1.35rem; }
-      .cat-card-icono { width: 62px; height: 62px; font-size: 1.9rem; }
-      .cat-card-nombre { font-size: 1.3rem; }
-      .cat-card-desc { font-size: 0.76rem; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .cat-card { transition: none; }
-      .cat-card:hover { transform: none; }
-    }
-
     /* ==========================================================
        TARJETA DE PLATAFORMA
        ==========================================================
@@ -776,14 +640,6 @@
       letter-spacing: .5px;
       color: var(--oro);
       line-height: 1.05;
-    }
-    .plat-precio .antes {
-      font-family: 'Outfit', sans-serif;
-      font-size: .72rem;
-      color: var(--tinta-suave);
-      text-decoration: line-through;
-      margin-left: .3rem;
-      letter-spacing: 0;
     }
     .plat-nombre {
       font-weight: 700;
@@ -868,8 +724,8 @@
       border-radius: 20px;
       white-space: nowrap;
     }
-    .plan-estado.ok   { background: rgba(18,140,126,.11); color: #0f7a6e; }
-    .plan-estado.off  { background: rgba(229,9,20,.09);   color: var(--marca); }
+    .plan-estado.ok  { background: rgba(18,140,126,.11); color: #0f7a6e; }
+    .plan-estado.off { background: rgba(229,9,20,.09);   color: var(--marca); }
 
     .plan-features { list-style: none; padding: 0; margin: 0 0 .75rem; }
     .plan-features li {
@@ -905,6 +761,7 @@
       line-height: 1;
       letter-spacing: .5px;
     }
+    .plat-precio .antes,
     .plan-precio .antes {
       font-family: 'Outfit', sans-serif;
       font-size: .72rem;
@@ -935,6 +792,7 @@
       .plat-card { transition: none; }
       .plat-card:hover { transform: none; }
     }
+
 
     /* ===== PRODUCTS GRID ===== */
     .products-grid {
@@ -2161,32 +2019,16 @@
     </div>
   </section>
 
-  <!-- ==========================================================
-       VISTA 1 · CATEGORÍAS (lo primero que ve el cliente)
-       ========================================================== -->
-  <section id="vistaCategorias">
-    <div class="cats-head">
-      <h2>Explorá por categoría</h2>
-      <p>Elegí una para ver sus productos</p>
-    </div>
-    <div class="cats-grid" id="catsGrid"></div>
-  </section>
-
-  <!-- ==========================================================
-       VISTA 2 · PRODUCTOS (al elegir una categoría o al buscar)
-       ========================================================== -->
-  <div id="vistaProductos" hidden>
-
   <!-- BREADCRUMB -->
   <div class="breadcrumb">
-    <button class="btn-volver" onclick="volverACategorias()">← Todas las categorías</button>
+    <a href="#">Hogar</a>
     <span>/</span>
-    <a href="#" id="migaCategoria" onclick="return false;">Categoría</a>
+    <a href="#" id="migaCategoria" onclick="return false;">"Todas las categorías"</a>
   </div>
 
   <!-- PAGE HEADER -->
   <div class="page-header">
-    <h1 id="tituloCategoria">Productos</h1>
+    <h1 id="tituloCategoria">Todas las plataformas</h1>
     <button class="filter-btn" onclick="toggleFilter()">▼ Filtrar</button>
   </div>
 
@@ -2220,8 +2062,6 @@
 
   <!-- PAGINATION -->
   <div class="pagination" id="6"></div>
-
-  </div><!-- /vistaProductos -->
 
   <!-- FOOTER -->
   <div class="footer-info">
@@ -2342,20 +2182,9 @@
     window.__aplicarCatalogo = function (productos) {
       PRODUCTS = productos;
       catalogoCargado = true;
-      renderCategorias();          // pestañas según lo que haya en Firestore
-      renderTarjetasCategorias();  // tarjetas de la pantalla de inicio
+      renderCategorias();   // pestañas según lo que haya en Firestore
       renderSubfiltros();
       renderProducts();
-
-      // Si la URL trae #streaming, abrimos esa categoría directo.
-      // Se hace una sola vez, al llegar el primer catálogo.
-      if (!window.__vistaInicial) {
-        window.__vistaInicial = true;
-        const desdeUrl = decodeURIComponent(location.hash.replace('#', '')).trim();
-        if (categoriaValida(desdeUrl)) abrirCategoria(desdeUrl, false);
-        else aplicarVista();
-      }
-
       // El carrito se rearma con los precios frescos que acaban de llegar.
       reconstruirCarrito();
     };
@@ -3048,139 +2877,14 @@
     // Categorías que se muestran siempre, aunque todavía no tengan productos.
     const CATEGORIAS_FIJAS = ['combos'];
 
-    // ==========================================================
-    // VISTA DE CATEGORÍAS
-    // ==========================================================
-    // El catálogo tiene dos vistas: primero las categorías, y al
-    // elegir una se muestran sus productos. Todo lo demás —filtros,
-    // buscador, carrito, Firestore— funciona igual que antes.
-    // ==========================================================
 
-    // Ícono, color y descripción de cada categoría.
-    // Una categoría nueva usa el genérico de abajo.
-    const CAT_INFO = {
-      streaming:  { icono: '🎬', color: '#e50914', desc: 'Netflix, Disney+, Prime Video y más' },
-      musica:     { icono: '🎵', color: '#1db954', desc: 'Spotify, YouTube Premium, Tidal' },
-      ia:         { icono: '🤖', color: '#6366f1', desc: 'ChatGPT, Claude, Canva y herramientas' },
-      combos:     { icono: '🎁', color: '#f0a500', desc: 'Paquetes con varios servicios' },
-      vpn:        { icono: '🔐', color: '#0ea5e9', desc: 'Navegá seguro desde cualquier lugar' },
-      seguidores: { icono: '📱', color: '#ec4899', desc: 'Instagram, TikTok y Facebook' },
-      juegos:     { icono: '🎮', color: '#8b5cf6', desc: 'Recargas para tus juegos' },
-      recargas:   { icono: '💎', color: '#14b8a6', desc: 'Recargas y saldos' },
-      apps:       { icono: '📲', color: '#f97316', desc: 'Aplicaciones premium' },
-      cursos:     { icono: '📚', color: '#0891b2', desc: 'Cursos y formación' }
-    };
-    const CAT_GENERICA = { icono: '🏷️', color: '#767c88', desc: '' };
-    const infoCat = c => CAT_INFO[c] || CAT_GENERICA;
-
-    // Nombre limpio para títulos (sin el emoji de la pestaña)
+    // Nombre limpio para el título (sin el emoji de la pestaña)
+    // Título sin el emoji: "🎬 STREAMING" -> "STREAMING"
     function nombreCat(c) {
-      return etiquetaCat(c).replace(/^[^\s]+\s/, '');
+      if (c === 'all') return 'Todas las plataformas';
+      const partes = etiquetaCat(c).split(' ');
+      return partes.length > 1 ? partes.slice(1).join(' ') : partes[0];
     }
-
-    let vistaCatalogo = 'categorias';   // 'categorias' | 'productos'
-
-    function renderTarjetasCategorias() {
-      const grid = document.getElementById('catsGrid');
-      if (!grid) return;
-
-      const presentes = PRODUCTS.map(p => p.cat).filter(Boolean);
-      const cats = [...new Set([...presentes, ...CATEGORIAS_FIJAS])].sort((a, b) => {
-        const ia = ORDEN_CATEGORIAS.indexOf(a);
-        const ib = ORDEN_CATEGORIAS.indexOf(b);
-        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib) || a.localeCompare(b);
-      });
-
-      grid.innerHTML = cats.map(c => {
-        const info = infoCat(c);
-        const n = PRODUCTS.filter(p => p.cat === c).length;
-        return `
-        <button type="button" class="cat-card" style="--tinte:${info.color}"
-                onclick="abrirCategoria('${c}')" aria-label="Ver ${nombreCat(c)}">
-          <span class="cat-card-icono">${info.icono}</span>
-          <span class="cat-card-nombre">${nombreCat(c)}</span>
-          <span class="cat-card-desc">${info.desc}</span>
-          <span class="cat-card-cuenta${n === 0 ? ' vacia' : ''}">
-            ${n === 0 ? 'Muy pronto' : n + (n === 1 ? ' producto' : ' productos')}
-          </span>
-        </button>`;
-      }).join('');
-    }
-
-    // Cambia entre las dos vistas
-    function aplicarVista() {
-      const enCategorias = vistaCatalogo === 'categorias';
-      document.getElementById('vistaCategorias').hidden = !enCategorias;
-      document.getElementById('vistaProductos').hidden  = enCategorias;
-    }
-
-    function abrirCategoria(cat, empujarHistorial = true) {
-      vistaCatalogo = 'productos';
-      currentCat = cat;
-      currentSub = 'all';
-      currentPage = 1;
-      currentSearch = '';
-      const buscador = document.getElementById('2');
-      if (buscador) buscador.value = '';
-
-      document.getElementById('tituloCategoria').textContent = nombreCat(cat);
-      document.getElementById('migaCategoria').textContent   = nombreCat(cat);
-
-      aplicarVista();
-      renderCategorias();
-      renderSubfiltros();
-      renderProducts();
-
-      if (empujarHistorial) history.pushState({ cat }, '', '#' + cat);
-      document.getElementById('vistaProductos').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function volverACategorias(empujarHistorial = true) {
-      vistaCatalogo = 'categorias';
-      currentCat = 'all';
-      currentSub = 'all';
-      currentSearch = '';
-      currentPage = 1;
-      const buscador = document.getElementById('2');
-      if (buscador) buscador.value = '';
-
-      aplicarVista();
-      renderTarjetasCategorias();
-
-      if (empujarHistorial) history.pushState({}, '', location.pathname);
-      document.getElementById('vistaCategorias').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    // Buscar desde el inicio salta directo a los resultados
-    function mostrarResultadosBusqueda() {
-      if (vistaCatalogo === 'categorias') {
-        vistaCatalogo = 'productos';
-        currentCat = 'all';
-        currentSub = 'all';
-        document.getElementById('tituloCategoria').textContent = 'Resultados';
-        document.getElementById('migaCategoria').textContent   = 'Búsqueda';
-        aplicarVista();
-        renderCategorias();
-        renderSubfiltros();
-      }
-    }
-
-    // ¿Existe esa categoría? (o es una de las fijas, como combos)
-    function categoriaValida(c) {
-      return !!c && (PRODUCTS.some(p => p.cat === c) || CATEGORIAS_FIJAS.includes(c));
-    }
-
-    // Atrás/adelante del navegador y cambios de #hash escritos a mano.
-    // Si no hay state usamos el hash, así un enlace tipo /#vpn también
-    // abre la categoría aunque la página no se recargue.
-    function sincronizarConUrl(deEvento) {
-      const cat = (deEvento && deEvento.state && deEvento.state.cat)
-        || decodeURIComponent(location.hash.replace('#', '')).trim();
-      if (categoriaValida(cat)) abrirCategoria(cat, false);
-      else volverACategorias(false);
-    }
-    window.addEventListener('popstate',   e => sincronizarConUrl(e));
-    window.addEventListener('hashchange', () => sincronizarConUrl(null));
 
     // Los "tipo" del catálogo vienen con variantes escritas distinto:
     // "1-dispositivo", "1- Dispositivo", "1-device"... Las unificamos
@@ -3271,9 +2975,6 @@
     }
 
     function filterCat(cat, el) {
-      // Desde las pestañas, "TODOS" devuelve a la pantalla de categorías
-      if (cat === 'all' && !currentSearch.trim()) { volverACategorias(); return; }
-
       currentCat = cat;
       currentSub = 'all';   // el subfiltro anterior puede no existir acá
       currentPage = 1;
@@ -3300,14 +3001,6 @@
     function filterProducts() {
       currentSearch = document.getElementById('2').value;
       currentPage = 1;
-
-      // Si escribe desde el inicio, saltamos a los resultados.
-      // Si borra todo estando en resultados, volvemos a las categorías.
-      if (currentSearch.trim() !== '') mostrarResultadosBusqueda();
-      else if (vistaCatalogo === 'productos' && currentCat === 'all') {
-        volverACategorias(false);
-        return;
-      }
 
       renderProducts();
     }

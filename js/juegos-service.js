@@ -1,5 +1,5 @@
 // ============================================================
-// ZONA VIP · Servicio de Juegos (solo lectura)
+// TIAGO STORE · Servicio de Juegos (solo lectura)
 // ============================================================
 // Acceso a la colección "juegos" de Firestore.
 //

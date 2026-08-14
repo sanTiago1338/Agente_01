@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pagar con QR - ZONA VIP</title>
+  <title>Pagar con QR - Tiago Store</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -489,7 +489,7 @@
 <body>
 
   <div class="pay-header">
-    <a href="index.html">ZONA_VIP</a>
+    <a href="index.html">Tiago Store</a>
   </div>
 
   <div class="pay-container">
@@ -714,7 +714,7 @@
         if (s.needsUsername) lines.push(`🧾 *Usuario / Nombre:* ${username.trim() || '(pendiente)'}`);
         customerBlock = lines.join('\n');
       }
-      const whatsappMsg = `🦁 *ZONA VIP - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${s.ref}\n💰 *Monto:* ${s.total.toFixed(2)} Bs\n🛒 *Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
+      const whatsappMsg = `🦁 *TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${s.ref}\n💰 *Monto:* ${s.total.toFixed(2)} Bs\n🛒 *Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
       window._waUrl = `https://wa.me/59157707335?text=${encodeURIComponent(whatsappMsg)}`;
     }
 

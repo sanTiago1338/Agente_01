@@ -1,5 +1,5 @@
 // ============================================================
-// ZONA VIP · CRUD de productos (panel de administración)
+// TIAGO STORE · CRUD de productos (panel de administración)
 // ============================================================
 // Este módulo se trae su propia interfaz: al cargarse inyecta
 // su CSS y sus modales en la página. Por eso admin/index.html

@@ -1,5 +1,5 @@
 // ============================================================
-// ZONA VIP · Servicio de Productos (solo lectura)
+// TIAGO STORE · Servicio de Productos (solo lectura)
 // ============================================================
 // Capa única de acceso a la colección "productos" de Firestore.
 // Todas las funciones que necesita la tienda pública viven acá.

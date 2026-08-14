@@ -8,7 +8,7 @@ async function notificarNuevoPago(pago) {
   }
 
   const mensaje =
-    `🦁 *ZONA VIP - NUEVO PAGO*\n` +
+    `🦁 *TIAGO STORE - NUEVO PAGO*\n` +
     `━━━━━━━━━━━━━━━━━━\n` +
     `💰 *Monto:* ${pago.monto.toFixed(2)} Bs\n` +
     `📋 *Ref:* ${pago.referencia}\n` +

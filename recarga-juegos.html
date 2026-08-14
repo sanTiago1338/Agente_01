@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZONA VIP | Recarga de Juegos</title>
+  <title>Tiago Store | Recarga de Juegos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
   <style>
@@ -1029,7 +1029,7 @@
 
   <!-- HEADER -->
   <header class="header">
-    <a href="index.html" class="header-logo">ZONA_VIP</a>
+    <a href="index.html" class="header-logo">Tiago Store</a>
     <div class="header-actions">
       <button class="header-icon-btn" title="Notificaciones">🔔</button>
       <div class="header-user">
@@ -1396,7 +1396,7 @@
         } else {
           accountBlock = `\n${idLabel}: ${playerId}`;
         }
-        const msg = encodeURIComponent(`Hola ZONA VIP! Quiero consultar el ${label} de ${CURRENT_GAME.name} 🎮${accountBlock}`);
+        const msg = encodeURIComponent(`Hola Tiago Store! Quiero consultar el ${label} de ${CURRENT_GAME.name} 🎮${accountBlock}`);
         window.open(`https://wa.me/${WHATSAPP_NUM}?text=${msg}`, '_blank');
         return;
       }
@@ -1538,7 +1538,7 @@
 
         const waBtn = document.getElementById('modalWaBtn');
         waBtn.style.display = 'flex';
-        const generalMsg = encodeURIComponent(`Hola ZONA VIP! Quiero info de recargas de ${name} 🎮`);
+        const generalMsg = encodeURIComponent(`Hola Tiago Store! Quiero info de recargas de ${name} 🎮`);
         waBtn.href = `https://wa.me/${WHATSAPP_NUM}?text=${generalMsg}`;
         waBtn.textContent = '💬 Consultar otro monto';
       } else {
@@ -1548,7 +1548,7 @@
           `Escríbenos por WhatsApp para procesar tu recarga de ${name} al instante.`;
         const waBtn = document.getElementById('modalWaBtn');
         waBtn.style.display = 'flex';
-        const msg = encodeURIComponent(`Hola ZONA VIP! Quiero recargar ${name} 🎮`);
+        const msg = encodeURIComponent(`Hola Tiago Store! Quiero recargar ${name} 🎮`);
         waBtn.href = `https://wa.me/${WHATSAPP_NUM}?text=${msg}`;
         waBtn.textContent = '💬 WhatsApp';
       }

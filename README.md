@@ -1,4 +1,4 @@
-﻿# ZONA VIP - Tienda de Servicios Premium
+﻿# TIAGO STORE - Tienda de Servicios Premium
 
 Plataforma de venta de servicios de streaming, aplicaciones premium, herramientas de IA y recargas de juegos en Bolivia.
 
@@ -81,7 +81,7 @@ zona-vip-tienda/
 
 ## 📄 Licencia
 
-Proyecto privado - Zona VIP Bolivia © 2025
+Proyecto privado - Tiago Store Bolivia © 2025
 
 ---
 

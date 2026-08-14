@@ -1,5 +1,5 @@
 // ============================================================
-// ZONA VIP · Subida y compresión de imágenes
+// TIAGO STORE · Subida y compresión de imágenes
 // ============================================================
 // Comprime la imagen EN EL NAVEGADOR antes de guardarla, y la
 // deja como data URI dentro del producto en Firestore.

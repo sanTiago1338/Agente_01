@@ -1,5 +1,5 @@
 // ============================================================
-// ZONA VIP · Administración de juegos de recarga
+// TIAGO STORE · Administración de juegos de recarga
 // ============================================================
 // Construye la vista "🎮 Juegos" del panel y permite editar los
 // juegos y los precios de sus paquetes sin tocar código.

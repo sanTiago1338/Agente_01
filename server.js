@@ -55,7 +55,7 @@ app.use('/api/{*path}', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\n  ZONA VIP - Servidor`);
+  console.log(`\n  TIAGO STORE - Servidor`);
   console.log(`  --------------------`);
   console.log(`  Tienda:  http://localhost:${PORT}`);
   console.log(`  Admin:   http://localhost:${PORT}/admin.html`);

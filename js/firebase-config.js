@@ -1,5 +1,5 @@
 // ============================================================
-// ZONA VIP · Configuración de Firebase
+// TIAGO STORE · Configuración de Firebase
 // ============================================================
 // Punto único de conexión con Firebase.
 // Todos los demás archivos JS importan desde acá.

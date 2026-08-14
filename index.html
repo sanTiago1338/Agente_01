@@ -105,36 +105,44 @@
     }
 
     /* ===== HEADER ===== */
-    .header {
+    /* ===== BARRA DE NAVEGACIÓN =====
+       Marca a la izquierda, enlaces al centro, carrito a la derecha.
+       Reemplaza al encabezado separado que había antes. */
+    .nav-principal {
       background: var(--negro2);
       border-bottom: 1px solid var(--borde);
-      padding: 0.75rem 1rem;
+      padding: 0.6rem 1.25rem;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 1rem;
       position: sticky;
       top: 0;
       z-index: 90;
     }
 
-    .header-logo {
+    .nav-marca {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.7rem;
-      letter-spacing: 3px;
-      background: linear-gradient(135deg, var(--rojo), var(--dorado));
+      font-size: 1.45rem;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--rojo), var(--oro));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    .header-actions {
+    .nav-menu {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      justify-content: center;
+      gap: 1.75rem;
+      flex: 1;
+      flex-wrap: wrap;
     }
 
-    .header-icon-btn {
+    .nav-carrito {
       background: none;
       border: none;
       color: var(--texto-dim);
@@ -144,9 +152,9 @@
       border-radius: 8px;
       transition: color 0.2s, background 0.2s;
       position: relative;
+      flex-shrink: 0;
     }
-
-    .header-icon-btn:hover { color: var(--blanco); background: rgba(20,22,26,0.054); }
+    .nav-carrito:hover { color: var(--blanco); background: rgba(20,22,26,0.054); }
 
     .cart-badge {
       position: absolute;
@@ -160,16 +168,24 @@
       font-weight: 800;
     }
 
-    .lang-btn {
-      background: rgba(20,22,26,0.054);
-      border: 1px solid var(--borde);
-      color: var(--texto-dim);
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.3rem 0.7rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: 'Outfit', sans-serif;
+    /* En pantallas chicas: marca y carrito en la primera fila,
+       los cuatro enlaces repartidos en una segunda fila. */
+    @media (max-width: 640px) {
+      .nav-principal {
+        flex-wrap: wrap;
+        padding: 0.5rem 0.9rem 0.45rem;
+        gap: 0.4rem;
+      }
+      .nav-marca { font-size: 1.2rem; }
+      .nav-carrito { margin-left: auto; }
+      .nav-menu {
+        order: 3;
+        flex: 0 0 100%;   /* pisa el flex:1 de la regla base */
+        gap: 0.5rem;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+      }
+      .nav-menu .nav-link { font-size: 0.74rem; }
     }
 
     /* ===== SEARCH BAR ===== */
@@ -1610,30 +1626,35 @@
   <!-- BANNER -->
   <div class="banner-top">🦁 ZONA VIP · Activación Inmediata · Precios en Bolivianos · Soporte 24/7</div>
 
-  <!-- NAV MENU -->
-  <nav style="background: var(--negro2); border-bottom: 1px solid var(--borde); padding: 0.75rem 1rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
-    <a href="index.html" style="text-decoration: none; color: var(--rojo); font-weight: 700; font-size: 0.9rem;">🛒 TIENDA</a>
-    <a href="#tops" class="nav-link" style="text-decoration: none; color: var(--dorado); font-weight: 700; font-size: 0.9rem;">🏆 TOPS</a>
-    <a href="planes.html" class="nav-link" style="text-decoration: none; color: var(--texto); font-weight: 600; font-size: 0.9rem;">💰 PLANES</a>
-    <a href="contacto.html" class="nav-link" style="text-decoration: none; color: var(--texto); font-weight: 600; font-size: 0.9rem;">📲 CONTACTO</a>
+  <!-- NAV: marca · menú · carrito -->
+  <nav class="nav-principal">
+    <a href="index.html" class="nav-marca">Tiago Store</a>
+
+    <div class="nav-menu">
+      <a href="index.html"    class="nav-link nav-link--activo">🛒 TIENDA</a>
+      <a href="#tops"         class="nav-link nav-link--oro">🏆 TOPS</a>
+      <a href="planes.html"   class="nav-link">💰 PLANES</a>
+      <a href="contacto.html" class="nav-link">📲 CONTACTO</a>
+    </div>
+
+    <button class="nav-carrito" onclick="openCart()" title="Carrito">
+      🛒
+      <span class="cart-badge" id="1">0</span>
+    </button>
   </nav>
   <style>
-    .nav-link { transition: color 0.2s; }
+    .nav-link {
+      text-decoration: none;
+      color: var(--texto);
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      transition: color 0.2s;
+    }
     .nav-link:hover { color: var(--rojo); }
+    .nav-link--activo { color: var(--rojo); font-weight: 700; }
+    .nav-link--oro    { color: var(--dorado); font-weight: 700; }
   </style>
-
-  <!-- HEADER -->
-  <header class="header">
-    <a href="index.html" class="header-logo">ZONA_VIP</a>
-    <div class="header-actions">
-      <button class="lang-btn">🇧🇴 ES</button>
-      <button class="header-icon-btn" onclick="openCart()" title="Carrito">
-        🛒
-        <span class="cart-badge" id="1">0</span>
-      </button>
-      <button class="header-icon-btn" title="Notificaciones">🔔</button>
-    </div>
-  </header>
 
   <!-- PROMO BANNER (agentes) -->
   <div class="promo-banner">

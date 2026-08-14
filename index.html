@@ -2474,8 +2474,9 @@
       streaming:  '🎬 STREAMING',
       musica:     '🎵 MÚSICA',
       ia:         '🤖 IA & TOOLS',
-      seguidores: '📱 SEGUIDORES',
+      combos:     '🎁 COMBOS',
       vpn:        '🔐 VPN',
+      seguidores: '📱 SEGUIDORES',
       juegos:     '🎮 JUEGOS',
       recargas:   '💎 RECARGAS',
       apps:       '📲 APPS',
@@ -2484,6 +2485,15 @@
     function etiquetaCat(c) {
       return ETIQUETAS_CAT[c] || ('🏷️ ' + String(c).toUpperCase());
     }
+
+    // Orden en que se muestran las pestañas.
+    // Una categoría que exista en Firestore y no esté en esta lista se
+    // agrega al final, así crear una nueva desde el panel sigue funcionando
+    // sin tocar este archivo.
+    const ORDEN_CATEGORIAS = ['streaming', 'musica', 'ia', 'combos', 'vpn', 'seguidores'];
+
+    // Categorías que se muestran siempre, aunque todavía no tengan productos.
+    const CATEGORIAS_FIJAS = ['combos'];
 
     // Los "tipo" del catálogo vienen con variantes escritas distinto:
     // "1-dispositivo", "1- Dispositivo", "1-device"... Las unificamos
@@ -2526,7 +2536,15 @@
       const wrap = document.querySelector('.cat-tabs');
       if (!wrap) return;
 
-      const cats = [...new Set(PRODUCTS.map(p => p.cat).filter(Boolean))].sort();
+      // Las que hay en Firestore + las fijas, ordenadas según ORDEN_CATEGORIAS.
+      // Lo que no esté en esa lista va al final, alfabético.
+      const enFirestore = PRODUCTS.map(p => p.cat).filter(Boolean);
+      const cats = [...new Set([...enFirestore, ...CATEGORIAS_FIJAS])].sort((a, b) => {
+        const ia = ORDEN_CATEGORIAS.indexOf(a);
+        const ib = ORDEN_CATEGORIAS.indexOf(b);
+        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib) || a.localeCompare(b);
+      });
+
       // Si borraste la categoría que estaba filtrando, volvemos a TODOS
       if (currentCat !== 'all' && !cats.includes(currentCat)) currentCat = 'all';
 

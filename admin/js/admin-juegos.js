@@ -302,7 +302,9 @@ function urlLogo(logo, nombre) {
 }
 
 function logoPorDefecto(nombre = '?') {
-  const letra = (String(nombre).trim()[0] || '?').toUpperCase();
+  // [...cadena] corta por caracteres de verdad: con nombre[0] un emoji
+  // quedaba partido al medio y encodeURIComponent tiraba "URI malformed".
+  const letra = ([...String(nombre).trim()][0] || '?').toUpperCase();
   return 'data:image/svg+xml,' + encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
       <rect width="64" height="64" rx="10" fill="#2a2a2a"/>

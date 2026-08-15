@@ -3324,6 +3324,8 @@
           planes: planes.slice().sort((a, b) => a.price - b.price),
           base,
           desde: Math.min(...precios),
+          // El plan más recientemente creado manda para "El más nuevo"
+          nuevo: Math.max(...planes.map(p => p.nuevo || 0)),
           agotada: disponibles.length === 0,
           descuento: conOferta.length ? Math.max(...conOferta.map(p => p.descuento)) : 0
         };
@@ -3348,6 +3350,11 @@
       const grupos = agruparEnPlataformas(filtrados);
 
       const sort = document.getElementById('4').value;
+      // "El más nuevo" venía sin implementar: era la opción por defecto
+      // y no hacía nada, así que lo recién publicado caía al final del
+      // catálogo. Los productos viejos no traen fecha y quedan en 0, o
+      // sea que conservan el orden de siempre detrás de los nuevos.
+      if (sort === 'new')        grupos.sort((a, b) => b.nuevo - a.nuevo);
       if (sort === 'price-asc')  grupos.sort((a, b) => a.desde - b.desde);
       if (sort === 'price-desc') grupos.sort((a, b) => b.desde - a.desde);
       if (sort === 'name')       grupos.sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -4245,7 +4252,10 @@
         suscripcion: p.suscripcion  || '',
         soldOut:     p.activo    === false,
         destacado:   p.destacado === true,
-        oferta:      p.oferta    === true
+        oferta:      p.oferta    === true,
+        // Para ordenar por "El más nuevo". Los productos migrados del
+        // catálogo viejo no tienen fecha: quedan en 0, detrás.
+        nuevo:       p.fechaCreacion?.seconds || 0
       };
     }
 

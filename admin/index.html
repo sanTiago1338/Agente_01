@@ -579,12 +579,14 @@
         <option value="sinplanes">Los que NO salen en Planes</option>
       </select>
 
+      <!-- Arranca por "más nuevos": lo que acabás de publicar tiene que
+           estar arriba, no en la última página del catálogo. -->
       <select id="ordenar" aria-label="Ordenar">
+        <option value="nuevo">Más nuevos primero</option>
         <option value="orden">Orden del catálogo</option>
         <option value="nombre">Nombre (A-Z)</option>
         <option value="precio-asc">Precio ↑</option>
         <option value="precio-desc">Precio ↓</option>
-        <option value="nuevo">Más nuevos primero</option>
       </select>
 
       <button class="btn btn-rojo" id="btnNuevo">+ Nuevo producto</button>

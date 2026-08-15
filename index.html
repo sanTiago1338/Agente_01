@@ -605,14 +605,25 @@
     .plat-img {
       position: relative;
       aspect-ratio: 1 / 1;
-      /* Solo se ve si el logo tiene transparencias: en vez de un gris
-         muerto, asoma el color de la plataforma. */
-      background: var(--acento, var(--superficie-2));
+      /* El mismo blanco de la tarjeta: lo que sobre al costado de una
+         imagen que no es cuadrada se lee como parte de la tarjeta y no
+         como un recuadro de color aparte. */
+      background: #fff;
       display: grid;
       place-items: center;
       overflow: hidden;
     }
-    .plat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* La imagen va absoluta para que no estire la caja: una foto vertical
+       (853x1280) le ganaba al aspect-ratio y dejaba tarjetas de distinto
+       alto. Absoluta queda fuera del flujo y el cuadrado siempre manda.
+       contain = se ve entera, sin recortarle los bordes. */
+    .plat-img img {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      display: block;
+    }
 
     .plat-badge {
       position: absolute;

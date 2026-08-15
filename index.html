@@ -677,17 +677,272 @@
 
     .plat-card--agotada { opacity: .55; }
 
-    /* ---------- Panel de planes ---------- */
-    .planes-titulo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.65rem;
-      letter-spacing: 1px;
-      color: var(--tinta);
-      margin: 0 0 1rem;
-      padding-bottom: .8rem;
+    /* ==========================================================
+       PANEL DE PLANES
+       ==========================================================
+       Cabecera, banner con el logo de fondo, tarjetas en dos
+       columnas y la guía de activación al final.
+       ========================================================== */
+
+    /* Con el panel abierto el modal se ensancha para las dos columnas */
+    .modal-sheet.ancho { max-width: 940px; }
+
+    .pl-cab {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--tinta-media);
+      padding-bottom: .9rem;
       border-bottom: 1px solid var(--borde);
-      text-align: center;
-      line-height: 1.1;
+      margin-bottom: 1.1rem;
+    }
+    .pl-cab::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--acento, var(--marca));
+      flex-shrink: 0;
+    }
+
+    /* ---------- Banner ---------- */
+    .pl-hero {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+      min-height: 190px;
+      display: flex;
+      align-items: flex-end;
+      background: #14161a center/cover no-repeat;
+    }
+    .pl-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(105deg,
+        rgba(10,11,13,.94) 0%,
+        rgba(10,11,13,.86) 45%,
+        rgba(10,11,13,.55) 100%);
+    }
+    .pl-hero-txt {
+      position: relative;
+      z-index: 1;
+      padding: 1.5rem 1.4rem;
+      max-width: 34rem;
+    }
+    .pl-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      font-size: .6rem;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      padding: .3rem .7rem;
+      border-radius: 30px;
+      margin-bottom: .7rem;
+    }
+    .pl-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--acento, var(--marca));
+    }
+    .pl-hero h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.9rem, 6vw, 2.9rem);
+      letter-spacing: 1.5px;
+      color: #fff;
+      margin: 0 0 .5rem;
+      line-height: .95;
+      text-shadow: 0 2px 14px rgba(0,0,0,.5);
+    }
+    .pl-hero p {
+      margin: 0;
+      color: rgba(255,255,255,.82);
+      font-size: .85rem;
+      line-height: 1.5;
+    }
+    .pl-hero p b { color: #fff; }
+
+    /* ---------- Tarjetas de plan ---------- */
+    .pl-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: .8rem;
+      margin-bottom: 1.25rem;
+    }
+    @media (min-width: 700px) { .pl-grid { grid-template-columns: 1fr 1fr; } }
+
+    .plan-item {
+      border: 1px solid var(--borde);
+      border-radius: 14px;
+      padding: 1rem;
+      background: #fff;
+      box-shadow: var(--sombra);
+      display: flex;
+      flex-direction: column;
+    }
+    .plan-item--agotado { opacity: .6; }
+
+    .plan-item-cab {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .6rem;
+      margin-bottom: .8rem;
+    }
+    .plan-logo {
+      width: 48px; height: 48px;
+      border-radius: 11px;
+      object-fit: cover;
+      background: var(--superficie-2);
+      flex-shrink: 0;
+    }
+    .plan-chips {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: .3rem;
+    }
+    .plan-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      font-size: .6rem;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: .22rem .55rem;
+      border-radius: 30px;
+      white-space: nowrap;
+    }
+    .plan-chip.ok   { background: rgba(18,140,126,.11); color: #0f7a6e; }
+    .plan-chip.off  { background: rgba(229,9,20,.09);   color: var(--marca); }
+    .plan-chip.zona { background: var(--superficie-2);  color: var(--tinta-suave); }
+
+    .plan-item-nombre {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--tinta);
+      line-height: 1.3;
+      margin-bottom: .7rem;
+    }
+
+    .plan-features { list-style: none; padding: 0; margin: 0 0 .9rem; }
+    .plan-features li {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: .78rem;
+      color: var(--tinta-suave);
+      padding: .2rem 0;
+    }
+    .plan-features li b { color: var(--tinta); font-weight: 700; }
+
+    .plan-item-pie {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding-top: .85rem;
+      border-top: 1px solid var(--borde);
+      margin-top: auto;
+      flex-wrap: wrap;
+    }
+    .plan-precio-lbl {
+      font-size: .58rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+      font-weight: 800;
+    }
+    .plan-precio {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.85rem;
+      color: var(--tinta);
+      line-height: 1;
+      letter-spacing: .5px;
+    }
+    .plat-precio .antes,
+    .plan-precio .antes {
+      font-family: 'Outfit', sans-serif;
+      font-size: .72rem;
+      color: var(--tinta-suave);
+      text-decoration: line-through;
+      margin-left: .3rem;
+      letter-spacing: 0;
+    }
+    .plan-comprar {
+      background: linear-gradient(135deg, var(--marca), var(--marca-oscura));
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: .65rem 1.3rem;
+      font-family: inherit;
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      box-shadow: 0 4px 14px rgba(229,9,20,.24);
+      transition: filter .15s, transform .15s;
+    }
+    .plan-comprar:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+    .plan-comprar:disabled {
+      background: var(--separador);
+      color: var(--tinta-suave);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* ---------- Guía de activación ---------- */
+    .pl-guia {
+      border: 1px solid var(--borde);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      background: var(--superficie);
+    }
+    .pl-guia-cab {
+      display: flex;
+      align-items: center;
+      gap: .7rem;
+      margin-bottom: .7rem;
+    }
+    .pl-guia-ico {
+      width: 38px; height: 38px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: rgba(229,9,20,.09);
+      font-size: 1.05rem;
+      flex-shrink: 0;
+    }
+    .pl-guia-cab b { display: block; font-size: .92rem; color: var(--tinta); }
+    .pl-guia-cab small {
+      display: block;
+      font-size: .58rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+      font-weight: 700;
+      margin-top: .1rem;
+    }
+    .pl-guia-txt {
+      font-size: .82rem;
+      color: var(--tinta-media);
+      line-height: 1.6;
+      white-space: pre-line;
     }
 
     /* ---------- Checkout ---------- */
@@ -2979,19 +3234,28 @@
       const p = g.base;
       const url = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
       const nombreSeguro = p.name.replace(/'/g, "\\'");
+      const vivo = acentoDe(p);
 
-      const planes = g.planes.map(pl => {
+      const tarjetas = g.planes.map(pl => {
         const agotado = pl.soldOut === true;
+        const urlPlan = getImageUrl(pl.name, pl.cat, pl.imgColor, pl.imagenUrl);
         const filas = caracteristicasDe(pl).map(([ic, et, val]) =>
           `<li><span>${ic}</span> ${et} <b>${val}</b></li>`).join('');
 
         return `
         <div class="plan-item${agotado ? ' plan-item--agotado' : ''}">
-          <div class="plan-item-top">
-            <div class="plan-item-nombre">${pl.name}</div>
-            <span class="plan-estado ${agotado ? 'off' : 'ok'}">${agotado ? 'Agotado' : 'Disponible'}</span>
+          <div class="plan-item-cab">
+            <img class="plan-logo" src="${urlPlan}" alt="" loading="lazy"
+                 onerror="this.onerror=null;this.src=generateLogoSvg('${pl.name.replace(/'/g, "\\'")}','${pl.imgColor}');">
+            <div class="plan-chips">
+              <span class="plan-chip ${agotado ? 'off' : 'ok'}">${agotado ? '● Agotado' : '● Disponible'}</span>
+              <span class="plan-chip zona">🌎 Global</span>
+            </div>
           </div>
+
+          <div class="plan-item-nombre">${pl.name}</div>
           <ul class="plan-features">${filas}</ul>
+
           <div class="plan-item-pie">
             <div>
               <div class="plan-precio-lbl">Precio final</div>
@@ -2999,20 +3263,50 @@
             </div>
             <button class="plan-comprar" ${agotado ? 'disabled' : ''}
                     onclick="${agotado ? '' : `abrirCheckout(${pl.id})`}">
-              ${agotado ? '✖ Agotado' : '🛒 Comprar'}
+              🛒 Comprar
             </button>
           </div>
         </div>`;
       }).join('');
 
-      // Solo el nombre de la plataforma como título, y debajo sus planes.
-      document.getElementById('10').innerHTML = `
-        <h3 class="planes-titulo">${g.nombre}</h3>
-        ${planes}`;
+      // La guía sale de la descripción que ya tiene el producto.
+      // Si ningún plan tiene descripción, la sección no se muestra.
+      const guia = g.planes.map(pl => (pl.desc || '').trim()).filter(Boolean);
+      const guiaHtml = guia.length ? `
+        <div class="pl-guia">
+          <div class="pl-guia-cab">
+            <span class="pl-guia-ico">⚡</span>
+            <div>
+              <b>Guía de activación</b>
+              <small>Reglas del servicio</small>
+            </div>
+          </div>
+          <div class="pl-guia-txt">${[...new Set(guia)].join('\n')}</div>
+        </div>` : '';
 
+      document.getElementById('10').innerHTML = `
+        <div style="--acento:${vivo}">
+          <div class="pl-cab">Servicios de ${g.nombre}</div>
+
+          <div class="pl-hero" style="background-image:url('${url}')">
+            <div class="pl-hero-txt">
+              <span class="pl-badge">Suscripciones premium</span>
+              <h3>${g.nombre}</h3>
+              <p>Elegí el plan que mejor se adapte a lo que necesitás.<br>
+                 <b>Activación inmediata</b> y soporte incluido.</p>
+            </div>
+          </div>
+
+          <div class="pl-grid">${tarjetas}</div>
+          ${guiaHtml}
+        </div>`;
+
+      document.getElementById('9').classList.add('ancho');
       document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
+      document.getElementById('9').scrollTop = 0;
     }
+
 
     // ==========================================================
     // CHECKOUT DE UN PLAN
@@ -3087,6 +3381,8 @@
       const boton = document.getElementById('ckPagar');
       check.addEventListener('change', () => { boton.disabled = !check.checked; });
 
+      // El checkout es angosto: sacamos el ancho del panel de planes
+      document.getElementById('9').classList.remove('ancho');
       document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
       document.getElementById('9').scrollTop = 0;
@@ -3380,6 +3676,8 @@
     function closeModal(e) {
       if(!e || e.target === document.getElementById('8')) {
         document.getElementById('8').classList.remove('open');
+        // El panel de planes ensancha el modal: lo devolvemos a su ancho
+        document.getElementById('9').classList.remove('ancho');
         document.body.style.overflow = '';
       }
     }

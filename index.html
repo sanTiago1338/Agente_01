@@ -2585,7 +2585,10 @@
   <!-- SORT -->
   <div class="sort-row" id="3">
     <label>Ordenar por</label>
+    <!-- Arranca en "Recomendado": el orden del catálogo, cada producto
+         en su sección. "El más nuevo" queda para quien lo elija. -->
     <select class="sort-select" id="4" onchange="sortProducts()">
+      <option value="orden">Recomendado</option>
       <option value="new">El más nuevo</option>
       <option value="price-asc">Precio: menor a mayor</option>
       <option value="price-desc">Precio: mayor a menor</option>

@@ -3213,18 +3213,23 @@
     // Lista de características de cada plan. Todo sale de datos que ya
     // existen, salvo entrega y soporte, que son la promesa fija del
     // negocio (la misma que anuncia la franja superior).
+    // Las cuatro filas se pueden escribir a mano desde el panel
+    // (campos entrega, soporte, acceso y suscripción). Si el campo
+    // quedó vacío se deduce del tipo y del nombre, como siempre.
+    // Un guión suelto ("-") esconde esa fila.
+    function textoFicha(escrito, deducido) {
+      const v = String(escrito || '').trim();
+      if (v === '-') return null;
+      return v || deducido;
+    }
+
     function caracteristicasDe(p) {
       const t = tiposDe(p);
-      const filas = [
-        ['⚡', 'Entrega', 'De 5 a 30 minutos'],
-        ['🛡️', 'Soporte', 'Incluido']
-      ];
 
       const acceso = t.includes('completa')      ? 'Cuenta completa'
                    : t.includes('1-pantalla')    ? '1 pantalla'
                    : t.includes('1-dispositivo') ? '1 dispositivo'
                    : null;
-      if (acceso) filas.push(['📺', 'Acceso', acceso]);
 
       const plazo = t.includes('mensual')  ? 'Mensual'
                   : t.includes('semanal')  ? 'Semanal'
@@ -3232,11 +3237,16 @@
                   : t.includes('multimes') ? 'Multi-mes'
                   : null;
       const renovable = /renovable/i.test(p.name) || /renovable/i.test(p.tag || '');
-      if (plazo || renovable) {
-        const texto = renovable ? (plazo ? plazo + ' · Renovable' : 'Renovable') : plazo;
-        filas.push(['🔄', 'Suscripción', texto]);
-      }
-      return filas;
+      const suscripcion = (plazo || renovable)
+        ? (renovable ? (plazo ? plazo + ' · Renovable' : 'Renovable') : plazo)
+        : null;
+
+      return [
+        ['⚡',  'Entrega',     textoFicha(p.entrega,     'De 5 a 30 minutos')],
+        ['🛡️', 'Soporte',     textoFicha(p.soporte,     'Incluido')],
+        ['📺',  'Acceso',      textoFicha(p.acceso,      acceso)],
+        ['🔄',  'Suscripción', textoFicha(p.suscripcion, suscripcion)]
+      ].filter(fila => fila[2]);
     }
 
     // Junta dos grupos cuando el nombre de uno es el comienzo del otro.
@@ -3767,7 +3777,9 @@
     function tiposDe(p) {
       return String(p.type || '')
         .split(',')
-        .map(t => t.trim().toLowerCase())
+        // El .replace junta los espacios repetidos: "1  Dispositivo"
+        // venía del panel y no coincidía con ningún sinónimo.
+        .map(t => t.trim().toLowerCase().replace(/\s+/g, ' '))
         .filter(Boolean)
         .map(t => t.startsWith('completa') ? 'completa' : (SINONIMOS_TIPO[t] || t));
     }
@@ -4226,6 +4238,11 @@
         tag:         p.etiqueta     || '',
         desc:        p.descripcion  || '',
         type:        p.tipo         || '',
+        // Ficha del plan — si están vacíos, la tienda los deduce sola
+        entrega:     p.entrega      || '',
+        soporte:     p.soporte      || '',
+        acceso:      p.acceso       || '',
+        suscripcion: p.suscripcion  || '',
         soldOut:     p.activo    === false,
         destacado:   p.destacado === true,
         oferta:      p.oferta    === true

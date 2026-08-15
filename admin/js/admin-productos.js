@@ -106,6 +106,20 @@ estilos.textContent = `
     box-shadow: 0 0 0 3px rgba(229,9,20,.13);
   }
   .zv-campo.malo input, .zv-campo.malo textarea { border-color: #ef4444; }
+
+  /* Ficha del plan: las cuatro filas que ve el cliente en la tarjeta */
+  .zv-ficha {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+  }
+  @media (max-width: 560px) { .zv-ficha { grid-template-columns: 1fr; } }
+  .zv-ficha span {
+    display: block;
+    font-size: 11.5px;
+    color: #6b6b6b;
+    margin-bottom: 4px;
+  }
   .zv-error {
     display: none; color: #ff8f8f; font-size: 12px; margin-top: 5px;
   }
@@ -272,6 +286,31 @@ contenedor.innerHTML = `
             <div class="zv-campo">
               <label for="fOrden">Orden <span class="ayuda">— menor aparece antes</span></label>
               <input type="number" id="fOrden" step="1" min="0" placeholder="100">
+            </div>
+
+            <div class="zv-campo zv-ancho">
+              <label>
+                Ficha del plan
+                <span class="ayuda">— las cuatro filas de la tarjeta. Vacío = la tienda lo deduce sola · un guión (-) esconde la fila</span>
+              </label>
+              <div class="zv-ficha">
+                <div>
+                  <span>⚡ Entrega</span>
+                  <input type="text" id="fEntrega" placeholder="De 5 a 30 minutos" autocomplete="off">
+                </div>
+                <div>
+                  <span>🛡️ Soporte</span>
+                  <input type="text" id="fSoporte" placeholder="Incluido" autocomplete="off">
+                </div>
+                <div>
+                  <span>📺 Acceso</span>
+                  <input type="text" id="fAcceso" placeholder="1 pantalla · Cuenta completa…" autocomplete="off">
+                </div>
+                <div>
+                  <span>🔄 Suscripción</span>
+                  <input type="text" id="fSuscripcion" placeholder="Mensual · Renovable" autocomplete="off">
+                </div>
+              </div>
             </div>
 
           </div>
@@ -542,6 +581,10 @@ function abrirEditor(p) {
   $('fEstrellas').value    = String(p?.estrellas ?? 5);
   $('fTipo').value         = p?.tipo          ?? '';
   $('fOrden').value        = p?.orden         ?? siguienteOrden();
+  $('fEntrega').value      = p?.entrega       ?? '';
+  $('fSoporte').value      = p?.soporte       ?? '';
+  $('fAcceso').value       = p?.acceso        ?? '';
+  $('fSuscripcion').value  = p?.suscripcion   ?? '';
   $('fActivo').checked     = p ? p.activo !== false : true;
   $('fDestacado').checked  = p?.destacado === true;
   $('fOferta').checked     = p?.oferta === true;
@@ -603,6 +646,11 @@ $('zvForm').addEventListener('submit', async e => {
     estrellas:    parseInt($('fEstrellas').value, 10),
     tipo:         $('fTipo').value.trim(),
     orden:        parseInt($('fOrden').value, 10) || siguienteOrden(),
+    // Ficha del plan — vacío significa "deducilo vos, tienda"
+    entrega:      $('fEntrega').value.trim(),
+    soporte:      $('fSoporte').value.trim(),
+    acceso:       $('fAcceso').value.trim(),
+    suscripcion:  $('fSuscripcion').value.trim(),
     activo:       $('fActivo').checked,
     destacado:    $('fDestacado').checked,
     // Controla si el producto aparece en la tabla de planes.html

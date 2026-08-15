@@ -644,23 +644,22 @@
 
     /* Nombre de la plataforma, en su color de marca */
     .plat-nombre {
-      padding: .8rem .7rem .55rem;
+      padding: .7rem .7rem .45rem;
       font-weight: 800;
       font-size: .84rem;
       letter-spacing: .01em;
       color: var(--acento-txt);
       line-height: 1.3;
       text-align: center;
-      flex: 1;
+      /* Sin flex:1 el nombre no se estira, así que el botón queda
+         pegado abajo del texto. Cuando la fila estira la tarjeta
+         porque una vecina tiene el nombre más largo, ese sobrante
+         cae debajo del botón y se lee como margen, no como hueco. */
+      flex: none;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      /* Reserva las dos líneas siempre. Si no, "IPTV Smarter PRO Z TV"
-         ocupa dos y "UFC" una, y en el teléfono esa fila queda más alta
-         que las demás. */
-      min-height: calc(2.6em + 1.35rem);
-      box-sizing: content-box;
     }
 
     /* Botón "Ver catálogo" con el color de la plataforma */

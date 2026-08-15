@@ -586,15 +586,6 @@
       text-align: left;
       padding: 0;
     }
-    /* Franja del color de la plataforma */
-    .plat-card::before {
-      content: '';
-      position: absolute;
-      inset: 0 0 auto 0;
-      height: 3px;
-      background: var(--acento);
-      z-index: 2;
-    }
     .plat-card:hover {
       transform: translateY(-4px);
       box-shadow: var(--sombra-alta);
@@ -615,13 +606,14 @@
     }
     /* La imagen va absoluta para que no estire la caja: una foto vertical
        (853x1280) le ganaba al aspect-ratio y dejaba tarjetas de distinto
-       alto. Absoluta queda fuera del flujo y el cuadrado siempre manda.
-       contain = se ve entera, sin recortarle los bordes. */
+       alto en cada pantalla. Absoluta queda fuera del flujo y el cuadrado
+       siempre manda, del teléfono al escritorio.
+       cover = llena la tarjeta, como estaba antes. */
     .plat-img img {
       position: absolute;
       inset: 0;
       width: 100%; height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       display: block;
     }
 
@@ -664,6 +656,11 @@
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      /* Reserva las dos líneas siempre. Si no, "IPTV Smarter PRO Z TV"
+         ocupa dos y "UFC" una, y en el teléfono esa fila queda más alta
+         que las demás. */
+      min-height: calc(2.6em + 1.35rem);
+      box-sizing: content-box;
     }
 
     /* Botón "Ver catálogo" con el color de la plataforma */

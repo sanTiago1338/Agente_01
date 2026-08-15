@@ -348,6 +348,24 @@
     text-decoration: line-through;
     font-weight: 400;
   }
+  /* El precio es un botón: cambiarlo es lo que más se hace */
+  .precio-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: 1px dashed transparent;
+    border-radius: 7px;
+    padding: 5px 7px;
+    margin: -5px -7px;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  .precio-btn:hover { border-color: var(--rojo, #e50914); background: rgba(229,9,20,.07); }
+  .precio-btn:focus-visible { outline: 2px solid var(--rojo, #e50914); outline-offset: 1px; }
+  .precio-lapiz { opacity: 0; font-size: 11px; margin-left: 5px; }
+  .precio-btn:hover .precio-lapiz { opacity: .75; }
   .celda-acciones { text-align: right; white-space: nowrap; }
   .celda-acciones .btn-icono + .btn-icono { margin-left: 5px; }
 
@@ -824,8 +842,12 @@ function fila(p) {
         <div class="nombre-sub">${escapar(p.tipo || '')}</div>
       </td>
       <td class="celda-precio">
-        ${formatBs(precioFinal(p))}
-        ${enOferta ? `<span class="precio-tachado">${formatBs(p.precio)}</span>` : ''}
+        <button class="precio-btn" data-accion="precio" data-id="${p.id}"
+                title="Clic para cambiar el precio">
+          ${formatBs(precioFinal(p))}
+          ${enOferta ? `<span class="precio-tachado">${formatBs(p.precio)}</span>` : ''}
+          <span class="precio-lapiz">✏️</span>
+        </button>
       </td>
       <td class="celda-cat"><span class="tag tag-cat">${escapar(p.categoria || '—')}</span></td>
       <td class="celda-estado">${etiquetas}</td>

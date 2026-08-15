@@ -285,6 +285,43 @@ contenedor.innerHTML = `
     </div>
   </div>
 
+  <!-- ===== Precio rápido ===== -->
+  <!-- Cambiar un precio es lo que más se hace, así que tiene su propio
+       modal de dos campos en vez de abrir el formulario completo. -->
+  <div class="zv-fondo" id="zvFondoPrecio">
+    <div class="zv-modal chico" role="dialog" aria-modal="true" aria-labelledby="zvPrecioTitulo">
+      <div class="zv-cab">
+        <h2 id="zvPrecioTitulo">Cambiar precio</h2>
+        <button class="zv-cerrar" data-cerrar aria-label="Cerrar">✕</button>
+      </div>
+
+      <form id="zvFormPrecio" novalidate>
+        <div class="zv-cuerpo">
+          <p id="zvPrecioNombre" style="margin:0 0 16px; color:#9a9a9a; font-size:13.5px;"></p>
+
+          <div class="zv-campo" id="cPrecioRapido" style="margin-bottom:14px;">
+            <label for="fPrecioRapido">Precio normal (Bs.)</label>
+            <input type="number" id="fPrecioRapido" step="0.01" min="0" placeholder="29.90">
+            <div class="zv-error">El precio tiene que ser mayor a 0.</div>
+          </div>
+
+          <div class="zv-campo" id="cOfertaRapida">
+            <label for="fOfertaRapida">
+              Precio de oferta <span class="ayuda">— dejalo vacío si no hay oferta</span>
+            </label>
+            <input type="number" id="fOfertaRapida" step="0.01" min="0" placeholder="—">
+            <div class="zv-error">Tiene que ser mayor a 0 y menor al precio normal.</div>
+          </div>
+        </div>
+
+        <div class="zv-pie">
+          <button type="button" class="zv-btn gris" data-cerrar>Cancelar</button>
+          <button type="submit" class="zv-btn rojo" id="zvGuardarPrecio">Guardar precio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ===== Confirmar borrado ===== -->
   <div class="zv-fondo" id="zvFondoBorrar">
     <div class="zv-modal chico" role="alertdialog" aria-modal="true">
@@ -309,6 +346,7 @@ document.body.appendChild(contenedor);
 const $ = id => document.getElementById(id);
 let editando = null;   // producto en edición, o null si es nuevo
 let borrando = null;
+let cambiandoPrecio = null;   // producto al que se le cambia solo el precio
 
 // ============================================================
 // 4. IMÁGENES
@@ -342,6 +380,7 @@ function cerrarTodo() {
   document.body.style.overflow = '';
   editando = null;
   borrando = null;
+  cambiandoPrecio = null;
 }
 
 document.addEventListener('click', e => {
@@ -400,10 +439,68 @@ function llenarCategorias() {
 window.accionProducto = function (accion, producto) {
   if (accion === 'nuevo')   return abrirEditor(null);
   if (accion === 'editar')  return abrirEditor(producto);
+  if (accion === 'precio')  return abrirPrecio(producto);
   if (accion === 'agotar')  return alternarDisponible(producto);
   if (accion === 'planes')  return alternarPlanes(producto);
   if (accion === 'borrar')  return pedirConfirmacionBorrado(producto);
 };
+
+// ------------------------------------------------------------
+// Precio rápido — clic en el precio de la tabla
+// ------------------------------------------------------------
+// Solo toca precio y oferta; el resto del producto queda igual.
+function abrirPrecio(p) {
+  cambiandoPrecio = p;
+  limpiarErrores();
+
+  $('zvPrecioNombre').textContent = p.nombre || '(sin nombre)';
+  $('fPrecioRapido').value  = p.precio ?? '';
+  $('fOfertaRapida').value  = (p.oferta === true && p.precioOferta > 0) ? p.precioOferta : '';
+
+  abrir($('zvFondoPrecio'));
+  setTimeout(() => { $('fPrecioRapido').focus(); $('fPrecioRapido').select(); }, 60);
+}
+
+$('zvFormPrecio').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!cambiandoPrecio) return;
+  limpiarErrores();
+
+  const precio = parseFloat($('fPrecioRapido').value);
+  const texto  = $('fOfertaRapida').value.trim();
+  const oferta = texto === '' ? null : parseFloat(texto);
+
+  let hayError = false;
+  if (!(precio > 0)) { $('cPrecioRapido').classList.add('malo'); hayError = true; }
+  if (oferta !== null && !(oferta > 0 && oferta < precio)) {
+    $('cOfertaRapida').classList.add('malo'); hayError = true;
+  }
+  if (hayError) {
+    document.querySelector('.zv-campo.malo input')?.focus();
+    return;
+  }
+
+  const p = cambiandoPrecio;
+  $('zvGuardarPrecio').disabled = true;
+  $('zvGuardarPrecio').textContent = 'Guardando…';
+
+  try {
+    await updateDoc(doc(db, 'productos', p.id), {
+      precio,
+      precioOferta: oferta,
+      oferta: oferta !== null,
+      fechaActualizacion: serverTimestamp()
+    });
+    aviso(`✓ "${recortar(p.nombre)}" ahora cuesta ${(oferta ?? precio).toFixed(2)} Bs`, 'ok');
+    cerrarTodo();
+  } catch (err) {
+    console.error(err);
+    aviso(`No se pudo guardar el precio: ${err.message}`, 'error');
+  } finally {
+    $('zvGuardarPrecio').disabled = false;
+    $('zvGuardarPrecio').textContent = 'Guardar precio';
+  }
+});
 
 // ------------------------------------------------------------
 // Mostrar / quitar de la página de Planes — un click, reversible

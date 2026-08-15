@@ -2663,14 +2663,68 @@
       return filas;
     }
 
+    // Junta dos grupos cuando el nombre de uno es el comienzo del otro.
+    //
+    // "Netflix Premium 4K" y "Netflix Premium 4K Renovable" son el mismo
+    // servicio con distinto plan, pero como los nombres difieren quedaban
+    // en tarjetas separadas. Acá se unen bajo el nombre más corto.
+    //
+    // Solo compara dentro de la misma categoría y exige que la diferencia
+    // arranque con un espacio, para no juntar "Plex" con "Plexus".
+    function fusionarPorPrefijo(mapa) {
+      const porCategoria = {};
+      [...mapa.keys()].forEach(clave => {
+        const corte = clave.indexOf('||');
+        const cat = clave.slice(0, corte);
+        (porCategoria[cat] = porCategoria[cat] || []).push({ clave, nombre: clave.slice(corte + 2) });
+      });
+
+      // clave larga -> clave corta que la absorbe
+      const absorbidoPor = new Map();
+
+      Object.values(porCategoria).forEach(grupos => {
+        grupos.sort((a, b) => a.nombre.length - b.nombre.length);
+        grupos.forEach((corto, i) => {
+          const prefijo = corto.nombre.toLowerCase() + ' ';
+          for (let j = i + 1; j < grupos.length; j++) {
+            const largo = grupos[j];
+            if (absorbidoPor.has(largo.clave)) continue;
+            if (largo.nombre.toLowerCase().startsWith(prefijo)) {
+              absorbidoPor.set(largo.clave, corto.clave);
+            }
+          }
+        });
+      });
+
+      if (absorbidoPor.size === 0) return mapa;
+
+      // Sigue la cadena por si A absorbió a B y B a C.
+      // Nunca hay ciclos: solo se apunta de un nombre largo a uno más corto.
+      const raizDe = clave => {
+        let r = clave;
+        while (absorbidoPor.has(r)) r = absorbidoPor.get(r);
+        return r;
+      };
+
+      const fusionado = new Map();
+      mapa.forEach((planes, clave) => {
+        const raiz = raizDe(clave);
+        if (!fusionado.has(raiz)) fusionado.set(raiz, []);
+        fusionado.get(raiz).push(...planes);
+      });
+      return fusionado;
+    }
+
     // Junta los productos ya filtrados en plataformas
     function agruparEnPlataformas(lista) {
-      const mapa = new Map();
+      let mapa = new Map();
       lista.forEach(p => {
         const clave = p.cat + '||' + plataformaDe(p.name);
         if (!mapa.has(clave)) mapa.set(clave, []);
         mapa.get(clave).push(p);
       });
+
+      mapa = fusionarPorPrefijo(mapa);
 
       return [...mapa.entries()].map(([clave, planes]) => {
         const disponibles = planes.filter(p => !p.soldOut);
@@ -2679,7 +2733,8 @@
         const conOferta = planes.filter(p => p.descuento > 0);
         return {
           clave,
-          nombre: plataformaDe(base.name),
+          // El nombre sale de la clave, que ya es el más corto del grupo
+          nombre: clave.slice(clave.indexOf('||') + 2),
           planes: planes.slice().sort((a, b) => a.price - b.price),
           base,
           desde: Math.min(...precios),

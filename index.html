@@ -605,13 +605,14 @@
     .plat-img {
       position: relative;
       aspect-ratio: 1 / 1;
-      background: var(--superficie-2);
+      /* Solo se ve si el logo tiene transparencias: en vez de un gris
+         muerto, asoma el color de la plataforma. */
+      background: var(--acento, var(--superficie-2));
       display: grid;
       place-items: center;
       overflow: hidden;
     }
     .plat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .plat-img img.contenida { width: 72%; height: 72%; object-fit: contain; }
 
     .plat-badge {
       position: absolute;
@@ -707,6 +708,9 @@
       background: var(--acento, var(--marca));
       flex-shrink: 0;
     }
+    /* El título ocupa el ancho libre para que la ✕ quede a la derecha */
+    .pl-cab > span { flex: 1; }
+    .pl-cab .ck-cerrar { letter-spacing: 0; margin: -.35rem -.2rem -.35rem 0; }
 
     /* ---------- Banner ---------- */
     .pl-hero {
@@ -945,120 +949,288 @@
       white-space: pre-line;
     }
 
-    /* ---------- Checkout ---------- */
+    /* ==========================================================
+       CHECKOUT
+       ==========================================================
+       Cabecera, resumen del plan, recordatorio de renovación,
+       términos y el bloque de total con el botón de pago.
+       ========================================================== */
+    .ck-cab {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--borde);
+      margin-bottom: 1.1rem;
+    }
+    .ck-cab h3 {
+      margin: 0;
+      flex: 1;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--tinta);
+      line-height: 1.3;
+    }
+    .ck-cerrar {
+      background: none;
+      border: none;
+      color: var(--tinta-suave);
+      font-size: 1.3rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: .25rem .45rem;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .ck-cerrar:hover { color: var(--tinta); background: var(--superficie-2); }
+
+    .ck-caja {
+      border: 1px solid var(--borde);
+      border-radius: 14px;
+      padding: 1rem;
+      margin-bottom: .75rem;
+      background: var(--superficie);
+    }
+
+    /* ---------- Resumen del plan ---------- */
+    .ck-resumen { display: flex; align-items: flex-start; gap: .9rem; }
+    .ck-logo {
+      width: 54px; height: 54px;
+      border-radius: 13px;
+      object-fit: cover;
+      background: var(--superficie-2);
+      flex-shrink: 0;
+    }
     .ck-rubro {
       font-size: .62rem;
       font-weight: 800;
       letter-spacing: .16em;
       text-transform: uppercase;
-      color: var(--marca);
-      margin-bottom: .3rem;
+      color: var(--acento, var(--marca));
+      margin-bottom: .2rem;
     }
     .ck-titulo {
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 800;
       color: var(--tinta);
-      margin: 0 0 .6rem;
+      margin: 0 0 .45rem;
       line-height: 1.3;
     }
     .ck-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: .35rem .85rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--borde);
-      margin-bottom: 1rem;
+      align-items: center;
+      gap: .3rem .55rem;
     }
     .ck-meta span {
-      font-size: .74rem;
+      font-size: .71rem;
       color: var(--tinta-suave);
       white-space: nowrap;
     }
+    .ck-meta i {
+      font-style: normal;
+      color: var(--separador-2);
+      user-select: none;
+    }
 
-    .ck-total {
+    /* ---------- Recordatorio de renovación ---------- */
+    .ck-renovar { display: flex; align-items: center; gap: 1rem; }
+    .ck-renovar-txt { flex: 1; }
+    .ck-renovar b {
+      display: block;
+      font-size: .84rem;
+      color: var(--tinta);
+      text-transform: uppercase;
+      letter-spacing: .02em;
+      margin-bottom: .25rem;
+    }
+    .ck-renovar p {
+      margin: 0;
+      font-size: .74rem;
+      color: var(--tinta-suave);
+      line-height: 1.5;
+    }
+
+    /* Interruptor sí / no */
+    .ck-switch { position: relative; flex-shrink: 0; cursor: pointer; }
+    .ck-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .ck-switch-pista {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: .75rem;
-      background: var(--superficie-2);
-      border-radius: 12px;
-      padding: .9rem 1rem;
-      margin-bottom: 1rem;
+      width: 62px; height: 30px;
+      border-radius: 30px;
+      background: var(--separador-2);
+      transition: background .2s;
+      position: relative;
     }
-    .ck-total-lbl {
-      font-size: .62rem;
+    .ck-switch-bola {
+      position: absolute;
+      left: 3px;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(20,22,26,.28);
+      transition: left .2s;
+      display: grid;
+      place-items: center;
+      font-size: .5rem;
       font-weight: 800;
-      letter-spacing: .13em;
-      text-transform: uppercase;
       color: var(--tinta-suave);
     }
-    .ck-total-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.8rem;
-      color: var(--oro);
-      line-height: 1;
-      letter-spacing: .5px;
+    .ck-switch-bola::after { content: 'NO'; }
+    .ck-switch input:checked + .ck-switch-pista { background: var(--marca); }
+    .ck-switch input:checked + .ck-switch-pista .ck-switch-bola { left: 35px; color: var(--marca); }
+    .ck-switch input:checked + .ck-switch-pista .ck-switch-bola::after { content: 'SÍ'; }
+    .ck-switch input:focus-visible + .ck-switch-pista { outline: 2px solid var(--marca); outline-offset: 2px; }
+
+    /* ---------- Términos ---------- */
+    /* La caja late en rojo hasta que el cliente tilda la casilla,
+       que es lo único que separa la compra del pago. */
+    .ck-terminos-caja { transition: border-color .15s, background .15s, box-shadow .3s; }
+    .ck-terminos-caja:not(:has(input:checked)) {
+      animation: ck-latido 1.7s ease-in-out infinite;
     }
-    .ck-total-val .antes {
-      font-family: 'Outfit', sans-serif;
-      font-size: .75rem;
-      color: var(--tinta-suave);
-      text-decoration: line-through;
-      margin-left: .35rem;
-      letter-spacing: 0;
+    .ck-terminos-caja:has(input:checked) {
+      border-color: rgba(229,9,20,.35);
+      background: rgba(229,9,20,.03);
+      animation: none;
+    }
+    @keyframes ck-latido {
+      0%, 100% { border-color: var(--borde);      box-shadow: 0 0 0 0   rgba(229,9,20,0);   }
+      50%      { border-color: rgba(229,9,20,.65); box-shadow: 0 0 0 5px rgba(229,9,20,.13); }
+    }
+    /* La casilla también se marca en rojo mientras siga vacía */
+    .ck-terminos-caja:not(:has(input:checked)) .ck-terminos input {
+      outline: 2px solid rgba(229,9,20,.45);
+      outline-offset: 2px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ck-terminos-caja { animation: none !important; }
     }
 
     .ck-terminos {
       display: flex;
       align-items: flex-start;
-      gap: .6rem;
-      padding: .8rem .9rem;
-      border: 1px solid var(--borde);
-      border-radius: 10px;
-      margin-bottom: .8rem;
+      gap: .7rem;
       cursor: pointer;
-      font-size: .82rem;
+      font-size: .84rem;
       color: var(--tinta-media);
       user-select: none;
-      transition: border-color .15s, background .15s;
-    }
-    .ck-terminos:hover { border-color: var(--separador-2); }
-    .ck-terminos:has(input:checked) {
-      border-color: rgba(229,9,20,.35);
-      background: rgba(229,9,20,.03);
     }
     .ck-terminos input {
-      width: 18px; height: 18px;
+      width: 19px; height: 19px;
       accent-color: var(--marca);
       cursor: pointer;
       flex-shrink: 0;
-      margin-top: .05rem;
+      margin-top: .02rem;
     }
-    .ck-terminos a { color: var(--marca); }
+    .ck-terminos a { color: var(--marca); font-weight: 600; }
+    .ck-terminos b { color: var(--tinta); font-weight: 700; }
+
+    /* Detalle de los términos, plegado por defecto */
+    .ck-ver-terminos {
+      margin: .65rem 0 0 1.7rem;
+      padding: 0;
+      background: none;
+      border: none;
+      color: var(--marca);
+      font-family: inherit;
+      font-size: .77rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .ck-ver-terminos::after { content: ' ▾'; text-decoration: none; }
+    .ck-ver-terminos.abierto::after { content: ' ▴'; }
+    .ck-lista-terminos {
+      margin: .6rem 0 0 1.7rem;
+      padding: .8rem .9rem .8rem 2rem;
+      border-radius: 10px;
+      background: var(--superficie-2);
+      font-size: .76rem;
+      color: var(--tinta-media);
+      line-height: 1.55;
+    }
+    .ck-lista-terminos li + li { margin-top: .45rem; }
+
+    /* Botón de pago del carrito: gris mientras no se acepten los términos */
+    #cartPagarQR:disabled {
+      background: var(--separador) !important;
+      color: var(--tinta-suave) !important;
+      box-shadow: none !important;
+      cursor: not-allowed;
+    }
+
+    /* ---------- Total y pago ---------- */
+    .ck-pago { padding: 1.1rem; }
+    .ck-total-fila {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .ck-total-lbl {
+      font-size: .64rem;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+    }
+    .ck-total-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.3rem;
+      color: var(--marca);
+      line-height: 1;
+      letter-spacing: 1px;
+    }
+    .ck-total-val .antes {
+      font-family: 'Outfit', sans-serif;
+      font-size: .78rem;
+      color: var(--tinta-suave);
+      text-decoration: line-through;
+      margin-left: .4rem;
+      letter-spacing: 0;
+    }
 
     .ck-pagar {
       width: 100%;
-      padding: .9rem;
+      padding: 1rem;
       border: none;
-      border-radius: 11px;
-      background: var(--marca);
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff2b38, var(--marca) 55%, var(--marca-oscura));
       color: #fff;
       font-family: inherit;
       font-size: .95rem;
       font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: filter .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .55rem;
+      box-shadow: 0 6px 20px rgba(229,9,20,.28);
+      transition: filter .15s, transform .15s;
     }
-    .ck-pagar:hover:not(:disabled) { filter: brightness(1.12); }
+    .ck-pagar:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
     .ck-pagar:disabled {
       background: var(--separador);
       color: var(--tinta-suave);
+      box-shadow: none;
       cursor: not-allowed;
+    }
+    .ck-aviso {
+      margin: .6rem 0 0;
+      text-align: center;
+      font-size: .7rem;
+      color: var(--tinta-suave);
     }
 
     .ck-volver {
       width: 100%;
-      margin-top: .6rem;
+      margin-top: .5rem;
       padding: .6rem;
       background: none;
       border: none;
@@ -1068,6 +1240,7 @@
       cursor: pointer;
     }
     .ck-volver:hover { color: var(--marca); }
+
 
     .plan-item {
       border: 1px solid var(--borde);
@@ -1162,6 +1335,8 @@
     }
     .plan-comprar:hover:not(:disabled) { filter: brightness(1.12); }
     .plan-comprar:disabled { background: var(--separador-2); color: var(--tinta-suave); cursor: not-allowed; }
+    /* El de "Consultar" es un enlace a WhatsApp, no un botón */
+    a.plan-comprar { text-decoration: none; background: var(--verde-wa, #25d366); }
 
     @media (prefers-reduced-motion: reduce) {
       .plat-card { transition: none; }
@@ -2230,7 +2405,7 @@
 <body>
 
   <!-- BANNER -->
-  <div class="banner-top">🦁 TIAGO STORE · Activación Inmediata · Precios en Bolivianos · Soporte 24/7</div>
+  <div class="banner-top">🦁 TIAGO STORE · Entrega de 5 a 30 min · Precios en Bolivianos · Soporte 24/7</div>
 
   <!-- NAV: marca · menú · carrito -->
   <nav class="nav-principal">
@@ -2792,60 +2967,26 @@
       'youtube':       'Img/You%20Tube.jpg',
     };
 
-    // Logos nuevos (suben con object-fit:cover, sin sobrante)
-    const FILL_LOGOS = new Set([
-      'Img/Disney%20%2B%20ESPN%20Completo.jpg',
-      'Img/Disney%20%2B%20ESPN.jpg',
-      'Img/You%20Tube.jpg',
-      'Img/Zona%20IPTV.jpg',
-      'Img/Canva%20EDU.jpg',
-      'Img/Amazon%20Music.jpg',
-      'Img/Chat%20Gpt.jpg',
-      'Img/Deezer.jpg',
-      'Img/Drama%20Box.jpg',
-      'Img/FLUJO%20TV.jpg',
-      'Img/Grok.jpg',
-      'Img/Hho%20Max%203%20meses.jpg',
-      'Img/IPTV.jpg',
-      'Img/Leonardo%20IA.jpg',
-      'Img/Magis%20TV.jpg',
-      'Img/Netflix.jpg',
-      'Img/Tele%20Latino.jpg',
-      'Img/UFC.jpg',
-      'Img/NOTION%20BUSINESS%20AI.png',
-      'Img/RIXX%20PRO%20AI.png',
-      'Img/WINK%20STUDIO%20VIDEO%20EDITOR.png',
-      'Img/IBISPAINT%20PREMIUM.png',
-      'Img/MOCLOW%20AI.png',
-      'Img/PELIDOM.png',
-      'Img/PIXLR%20PREMIUM.png',
-      'Img/LINEAR%20PLAN%20BUSINESS%20PROFESIONAL%20(2%20A%C3%91OS).png',
-      'Img/BEAUTIFUL%20AI.png',
-      'Img/iQIYI%20VIP.png',
-      'Img/HALLOW.png',
-      'Img/QOBUZ%20STUDIO.png',
-      'Img/OPENART%20AI.png',
-      'Img/VPN%20HMA%207DIAS.jpg',
-      'Img/Brawl%20Stars.png',
-      'Img/Clash%20of%20Clans.png',
-      'Img/Clash%20Royale.png',
-      'Img/Roblox.png',
-      'Img/Mobile%20Legends.png',
-      'Img/Pug%20Mobile.png',
-      'Img/Canva%20Pro.jpeg',
-      'Img/Claude%20Pro%20Completa.jpeg',
-      'Img/Hbo.jpeg',
-      'Img/Tidal.jpeg',
-      'Img/Viki%20Rakuten%20.jpeg',
-    ]);
+    // Todas las imágenes llenan la tarjeta: las fotos y los pósters son
+    // cuadrados o casi, y los logos que generamos son vectores que
+    // agrandan sin perder filo.
+    //
+    // El caso aparte es el favicon de Google, que se pide con su tamaño
+    // en la URL (sz=128). A 128px no alcanza para llenar la tarjeta sin
+    // verse borroso, así que pedimos el mismo ícono al doble. Vale
+    // también para las imágenes viejas guardadas en Firestore, que
+    // quedaron apuntando a sz=128.
+    function enAlta(url) {
+      return url.includes('/s2/favicons') ? url.replace(/([?&]sz=)\d+/, '$1256') : url;
+    }
 
     function getImageUrl(productName, category, imgColor, urlGuardada) {
       // 0) Si el producto tiene imagen guardada en Firestore (subida desde el
       //    panel de admin, o migrada del catálogo viejo), esa manda y corta acá.
       //    Esto es lo que permite cambiar la imagen de un producto sin tocar código.
-      if (typeof urlGuardada === 'string' && urlGuardada.trim() !== '') return urlGuardada;
+      if (typeof urlGuardada === 'string' && urlGuardada.trim() !== '') return enAlta(urlGuardada);
 
-      const gf  = 'https://www.google.com/s2/favicons?sz=128&domain=';
+      const gf  = 'https://www.google.com/s2/favicons?sz=256&domain=';
       const nameLC = productName.toLowerCase();
 
       // ChatGPT GO y Business mantienen su imagen original (favicon), no el logo local
@@ -2999,8 +3140,39 @@
     // ==========================================================
 
     // "Netflix Premium 4K (1 pantalla)" -> "Netflix Premium 4K"
+    //
+    // Saca dos cosas que hablan del plan y no de la plataforma:
+    // los paréntesis, estén donde estén, y las palabras de variante
+    // del final. Así "Claude IA Pro Renovable" y "Claude IA Pro
+    // (cuenta asignada) Privada" caen en la misma tarjeta.
+    const VARIANTE_FINAL = /\s+(renovable|privad[oa]|personal|compartid[oa]|complet[ao]|individual)$/i;
+
+    // Marcas que van sí o sí en una sola tarjeta, aunque sus planes se
+    // llamen distinto entre sí ("Deezer PRO Familiar" y "Deezer Premium").
+    // Si el nombre del producto menciona la marca, cae acá.
+    //
+    // Para unir otra plataforma, agregá su nombre a esta lista: el texto
+    // que escribas es el que se muestra en la tarjeta.
+    const MARCAS_UNIFICADAS = ['Tidal', 'Deezer', 'Gemini', 'Nextory', 'Duolingo']
+      .map(marca => [marca, new RegExp(`\\b${marca}\\b`, 'i')]);
+
     function plataformaDe(nombre) {
-      return String(nombre || '').replace(/\s*\([^)]*\)\s*$/, '').trim();
+      const marca = MARCAS_UNIFICADAS.find(([, busca]) => busca.test(String(nombre || '')));
+      if (marca) return marca[0];
+
+      let n = String(nombre || '')
+        .replace(/\([^)]*\)/g, ' ')   // "(cuenta asignada)", "(1 pantalla)"
+        .replace(/\s+/g, ' ')         // los dobles espacios que quedan
+        .trim();
+
+      // En bucle por si arrastra más de una: "... Renovable Privada"
+      let previo;
+      do {
+        previo = n;
+        n = n.replace(VARIANTE_FINAL, '').trim();
+      } while (n !== previo && n !== '');
+
+      return n || String(nombre || '').trim();
     }
 
     // Precio con el mismo formato que usa el resto de la tienda
@@ -3044,7 +3216,7 @@
     function caracteristicasDe(p) {
       const t = tiposDe(p);
       const filas = [
-        ['⚡', 'Entrega', 'Activación inmediata'],
+        ['⚡', 'Entrega', 'De 5 a 30 minutos'],
         ['🛡️', 'Soporte', 'Incluido']
       ];
 
@@ -3196,8 +3368,6 @@
       grid.innerHTML = pageItems.map(g => {
         const p = g.base;
         const url = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
-        const generada = url.startsWith('data:');
-        const contener = generada || !((p.imagenFill === true) || FILL_LOGOS.has(url));
         const n = g.planes.length;
         const nombreSeguro = p.name.replace(/'/g, "\\'");
 
@@ -3211,8 +3381,8 @@
                 style="--acento:${vivo}; --acento-txt:${legible}"
                 onclick="abrirPlataforma('${g.clave.replace(/'/g, "\\'")}')">
           <div class="plat-img">
-            <img src="${url}" alt="" loading="lazy" decoding="async" class="${contener ? 'contenida' : ''}"
-                 onerror="this.onerror=null;this.src=generateLogoSvg('${nombreSeguro}','${p.imgColor}');this.className='contenida';">
+            <img src="${url}" alt="" loading="lazy" decoding="async"
+                 onerror="this.onerror=null;this.src=generateLogoSvg('${nombreSeguro}','${p.imgColor}');">
           </div>
           <div class="plat-nombre">${g.nombre}</div>
           <div class="plat-cta">Ver catálogo →</div>
@@ -3259,12 +3429,14 @@
           <div class="plan-item-pie">
             <div>
               <div class="plan-precio-lbl">Precio final</div>
-              <div class="plan-precio">${pl.bs}${pl.precioAntes ? `<span class="antes">${pl.precioAntes}</span>` : ''}</div>
+              <div class="plan-precio">${sinPrecio(pl) ? 'A consultar' : `${pl.bs}${pl.precioAntes ? `<span class="antes">${pl.precioAntes}</span>` : ''}`}</div>
             </div>
-            <button class="plan-comprar" ${agotado ? 'disabled' : ''}
-                    onclick="${agotado ? '' : `abrirCheckout(${pl.id})`}">
-              🛒 Comprar
-            </button>
+            ${sinPrecio(pl) && !agotado
+              ? `<a class="plan-comprar" href="${waConsulta(pl.name)}" target="_blank" rel="noopener">💬 Consultar</a>`
+              : `<button class="plan-comprar" ${agotado ? 'disabled' : ''}
+                         onclick="${agotado ? '' : `abrirCheckout(${pl.id})`}">
+                   🛒 Comprar
+                 </button>`}
           </div>
         </div>`;
       }).join('');
@@ -3286,14 +3458,17 @@
 
       document.getElementById('10').innerHTML = `
         <div style="--acento:${vivo}">
-          <div class="pl-cab">Servicios de ${g.nombre}</div>
+          <div class="pl-cab">
+            <span>Servicios de ${g.nombre}</span>
+            <button class="ck-cerrar" onclick="closeModal()" aria-label="Cerrar">✕</button>
+          </div>
 
           <div class="pl-hero" style="background-image:url('${url}')">
             <div class="pl-hero-txt">
               <span class="pl-badge">Suscripciones premium</span>
               <h3>${g.nombre}</h3>
               <p>Elegí el plan que mejor se adapte a lo que necesitás.<br>
-                 <b>Activación inmediata</b> y soporte incluido.</p>
+                 <b>Entrega de 5 a 30 minutos</b> y soporte incluido.</p>
             </div>
           </div>
 
@@ -3345,41 +3520,137 @@
       return '1 mes (30 días)';
     }
 
+    // Grupo (plataforma) al que pertenece un plan dentro de la vista actual.
+    const grupoDe = idPlan => PLATAFORMAS_VISIBLES.find(g => g.planes.some(p => p.id === idPlan));
+
+    // Producto al que todavía no le cargaron precio en el admin.
+    // No se puede cobrar, así que en vez de un botón de pago que no
+    // hace nada, se ofrece consultar por WhatsApp.
+    const sinPrecio = p => !(p.price > 0);
+
+    function waConsulta(nombre) {
+      const texto = `🦁 *TIAGO STORE BOLIVIA* 🦁\n\nHola, quiero consultar el precio y la disponibilidad de:\n\n🎯 *${nombre}*\n\nGracias.`;
+      return `https://wa.me/59157707335?text=${encodeURIComponent(texto)}`;
+    }
+
+    // ---------- Términos del servicio ----------
+    // El mismo bloque se usa en el checkout de un plan y en el carrito:
+    // el cliente confirma que sabe qué compra antes de habilitar el pago.
+    const TERMINOS = [
+      'Soy consciente de lo que estoy comprando: revisé el plan, el precio y la duración, y es exactamente el servicio que quiero.',
+      'Sé que es un producto digital y que la entrega llega por WhatsApp de 5 a 30 minutos después del pago.',
+      'Entiendo que, una vez entregados los datos de acceso, no corresponde devolución del dinero.',
+      'Me comprometo a no cambiar la contraseña, el correo ni los datos de la cuenta.',
+      'Si el servicio falla, aviso por WhatsApp y Tiago Store lo repone o lo soluciona.'
+    ];
+
+    function bloqueTerminos(id) {
+      return `
+        <div class="ck-caja ck-terminos-caja">
+          <label class="ck-terminos" for="${id}">
+            <input type="checkbox" id="${id}">
+            <span>Acepto los términos y condiciones.</span>
+          </label>
+          <button type="button" class="ck-ver-terminos" onclick="verTerminos(this)">Ver términos y condiciones</button>
+          <ul class="ck-lista-terminos" hidden>
+            ${TERMINOS.map(t => `<li>${t}</li>`).join('')}
+          </ul>
+        </div>`;
+    }
+
+    // Pliega y despliega el detalle que está justo debajo del botón.
+    function verTerminos(boton) {
+      const lista = boton.nextElementSibling;
+      lista.hidden = !lista.hidden;
+      boton.classList.toggle('abierto', !lista.hidden);
+    }
+
     function abrirCheckout(id) {
       const p = PRODUCTS.find(x => x.id === id);
       if (!p || p.soldOut) return;
 
+      const url = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
+      const vivo = acentoDe(p);
+      const nombreSeguro = p.name.replace(/'/g, "\\'");
+
       document.getElementById('10').innerHTML = `
-        <div class="ck-rubro">${rubroDe(p)}</div>
-        <h3 class="ck-titulo">${p.name}</h3>
-        <div class="ck-meta">
-          <span>🌎 Global</span>
-          <span>⏳ ${duracionDe(p)}</span>
-          <span>⚡ Entrega digital instantánea</span>
-        </div>
+        <div style="--acento:${vivo}">
+          <div class="ck-cab">
+            <h3>Comprar ${p.name}</h3>
+            <button class="ck-cerrar" onclick="closeModal()" aria-label="Cerrar">✕</button>
+          </div>
 
-        <div class="ck-total">
-          <span class="ck-total-lbl">Total a pagar</span>
-          <span class="ck-total-val">${p.bs}${p.precioAntes ? `<span class="antes">${p.precioAntes}</span>` : ''}</span>
-        </div>
+          <div class="ck-caja ck-resumen">
+            <img class="ck-logo" src="${url}" alt=""
+                 onerror="this.onerror=null;this.src=generateLogoSvg('${nombreSeguro}','${p.imgColor}');">
+            <div>
+              <div class="ck-rubro">${rubroDe(p)}</div>
+              <div class="ck-titulo">${p.name}</div>
+              <div class="ck-meta">
+                <span>📍 Global</span><i>|</i>
+                <span>⏳ ${duracionDe(p)}</span><i>|</i>
+                <span>⚡ Entrega de 5 a 30 minutos</span>
+              </div>
+            </div>
+          </div>
 
-        <label class="ck-terminos" for="ckTerminos">
-          <input type="checkbox" id="ckTerminos">
-          <span>Acepto los <a href="contacto.html" target="_blank" rel="noopener">términos y condiciones</a></span>
-        </label>
+          <div class="ck-caja ck-renovar">
+            <div class="ck-renovar-txt">
+              <b>¿Te recordamos renovar al vencer?</b>
+              <p>Te escribimos por WhatsApp unos días antes del vencimiento para
+                 que no pierdas el servicio. No se cobra nada automáticamente.</p>
+            </div>
+            <label class="ck-switch">
+              <input type="checkbox" id="ckRenovar">
+              <span class="ck-switch-pista"><span class="ck-switch-bola"></span></span>
+            </label>
+          </div>
 
-        <button class="ck-pagar" id="ckPagar" disabled onclick="payProductQR(${p.id})">
-          🛒 Confirmar y pagar
-        </button>
+          ${sinPrecio(p) ? '' : bloqueTerminos('ckTerminos')}
 
-        <button class="ck-volver" onclick="volverAPlanes(${p.id})">
-          ← Ver los otros planes
-        </button>`;
+          ${sinPrecio(p) ? `
+          <div class="ck-caja ck-pago">
+            <div class="ck-total-fila">
+              <span class="ck-total-lbl">Precio</span>
+              <span class="ck-total-val" style="font-size:1.5rem;">A consultar</span>
+            </div>
+            <a class="ck-pagar" href="${waConsulta(p.name)}" target="_blank" rel="noopener"
+               style="text-decoration:none; background:#25d366; box-shadow:none;">
+              💬 Consultar por WhatsApp
+            </a>
+            <p class="ck-aviso">Te pasamos el precio y la disponibilidad al momento.</p>
+          </div>` : `
+          <div class="ck-caja ck-pago">
+            <div class="ck-total-fila">
+              <span class="ck-total-lbl">Total a pagar</span>
+              <span class="ck-total-val">${p.bs}${p.precioAntes ? `<span class="antes">${p.precioAntes}</span>` : ''}</span>
+            </div>
+            <button class="ck-pagar" id="ckPagar" disabled>
+              🛒 Pagar y confirmar
+            </button>
+            <p class="ck-aviso">Te llevamos al QR de BancoSol para completar el pago.</p>
+          </div>`}
 
-      // El botón de pago se habilita solo al aceptar los términos
-      const check = document.getElementById('ckTerminos');
-      const boton = document.getElementById('ckPagar');
-      check.addEventListener('change', () => { boton.disabled = !check.checked; });
+          <button class="ck-volver" onclick="volverAPlanes(${p.id})">
+            ${grupoDe(p.id)?.planes.length > 1 ? '← Ver los otros planes' : '← Volver'}
+          </button>
+        </div>`;
+
+      // Sin aceptar los términos, el botón de pago queda bloqueado.
+      // Si el producto no tiene precio no hay pago ni términos: en su
+      // lugar quedó el enlace de consulta, así que no hay nada que atar.
+      const terminos = document.getElementById('ckTerminos');
+      const boton    = document.getElementById('ckPagar');
+      if (terminos && boton) {
+        terminos.addEventListener('change', () => { boton.disabled = !terminos.checked; });
+
+        // Al confirmar se genera el QR con el plan y la preferencia elegida
+        boton.addEventListener('click', () => {
+          if (!terminos.checked) return;
+          const recordar = document.getElementById('ckRenovar').checked;
+          pagarConQR(p.id, recordar);
+        });
+      }
 
       // El checkout es angosto: sacamos el ancho del panel de planes
       document.getElementById('9').classList.remove('ancho');
@@ -3388,6 +3659,22 @@
       document.getElementById('9').scrollTop = 0;
     }
 
+    // Genera el QR de pago para un plan.
+    // Igual que payProductQR(), pero pasando si el cliente pidió
+    // que le recordemos renovar, para que llegue con el pedido.
+    function pagarConQR(id, recordarRenovacion) {
+      const p = PRODUCTS.find(x => x.id === id);
+      if (!p || p.price <= 0) return;
+      const cartData = [{ name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p.name) }];
+      const params = new URLSearchParams({
+        cart: encodeURIComponent(JSON.stringify(cartData)),
+        total: p.price.toFixed(2),
+      });
+      if (recordarRenovacion) params.set('recordar', '1');
+      window.location.href = `pagar-qr.html?${params.toString()}`;
+    }
+
+
     // Vuelve del checkout al panel de planes de la misma plataforma.
     //
     // Busca el grupo que contiene ese plan en vez de rearmar la clave
@@ -3395,7 +3682,7 @@
     // Renovable (1 pantalla)" vive bajo la clave "Netflix Premium 4K",
     // así que reconstruirla no encontraba nada.
     function volverAPlanes(idPlan) {
-      const g = PLATAFORMAS_VISIBLES.find(x => x.planes.some(p => p.id === idPlan));
+      const g = grupoDe(idPlan);
       if (g) abrirPlataforma(g.clave);
       else   closeModal();
     }
@@ -3646,8 +3933,8 @@
           🛒 Agregar al Carrito
         </button>
 
-        ${p.price > 0 ? `<button onclick="payProductQR(${p.id})" class="modal-btn" style="background:linear-gradient(135deg, #ffd700, #ffb300); color:#000; width:100%; font-weight:800; margin-top:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
-          <span style="font-size:1.2rem;">QR</span> Pagar con QR — ${p.bs}
+        ${p.price > 0 ? `<button onclick="abrirCheckout(${p.id})" class="modal-btn" style="background:linear-gradient(135deg, #ffd700, #ffb300); color:#000; width:100%; font-weight:800; margin-top:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+          <span style="font-size:1.2rem;">QR</span> Comprar con QR — ${p.bs}
         </button>` : ''}
         `}
 
@@ -3688,7 +3975,12 @@
         return;
       }
 
-      let html = '<div style="max-height: 60vh; overflow-y: auto;">';
+      let html = `
+        <div class="ck-cab">
+          <h3>Tu carrito</h3>
+          <button class="ck-cerrar" onclick="closeModal()" aria-label="Cerrar">✕</button>
+        </div>
+        <div style="max-height: 60vh; overflow-y: auto;">`;
       let total = 0;
       cart.forEach((item, idx) => {
         const subtotal = item.price * item.qty;
@@ -3721,7 +4013,8 @@
             <svg class="btn-wa-icon" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             Confirmar Pedido
           </div>
-          <button onclick="payWithQR()" style="display:flex; align-items:center; justify-content:center; gap:0.6rem; width:100%; padding:0.85rem 1.5rem; background:linear-gradient(135deg, #ffd700, #ffb300); color:#000; border:none; border-radius:12px; font-weight:800; font-size:0.95rem; cursor:pointer; margin-bottom:0.5rem; transition:transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,215,0,0.4)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
+          ${bloqueTerminos('cartTerminos')}
+          <button id="cartPagarQR" disabled onclick="payWithQR()" style="display:flex; align-items:center; justify-content:center; gap:0.6rem; width:100%; padding:0.85rem 1.5rem; background:linear-gradient(135deg, #ffd700, #ffb300); color:#000; border:none; border-radius:12px; font-weight:800; font-size:0.95rem; cursor:pointer; margin-bottom:0.5rem; transition:transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,215,0,0.4)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
             <span style="font-size:1.3rem;">QR</span>
             Pagar con QR BancoSol — ${total.toFixed(2)} Bs
           </button>
@@ -3737,6 +4030,15 @@
       `;
 
       document.getElementById('10').innerHTML = html;
+
+      // Sin términos aceptados, el botón de pago queda bloqueado
+      const terminos = document.getElementById('cartTerminos');
+      terminos.addEventListener('change', () => {
+        document.getElementById('cartPagarQR').disabled = !terminos.checked;
+      });
+
+      // El panel de planes ensancha el modal: el carrito va en el ancho normal
+      document.getElementById('9').classList.remove('ancho');
       document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -3801,6 +4103,10 @@
     }
 
     function payWithQR() {
+      // Sin términos aceptados no se genera el QR
+      const terminos = document.getElementById('cartTerminos');
+      if (terminos && !terminos.checked) return;
+
       const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
       const cartData = cart.map(item => ({
         name: item.name.substring(0, 80),

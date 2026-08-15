@@ -626,73 +626,157 @@
       box-shadow: 0 1px 4px rgba(20,22,26,.12);
     }
 
-    .plat-body { padding: .7rem .8rem .5rem; flex: 1; }
-    .plat-desde {
-      font-size: .58rem;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      color: var(--tinta-suave);
-      font-weight: 700;
-    }
-    .plat-precio {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.45rem;
-      letter-spacing: .5px;
-      color: var(--oro);
-      line-height: 1.05;
-    }
+    /* Nombre de la plataforma, centrado bajo el logo */
     .plat-nombre {
+      padding: .75rem .7rem .9rem;
       font-weight: 700;
-      font-size: .82rem;
+      font-size: .85rem;
       color: var(--tinta);
       line-height: 1.3;
-      margin-top: .2rem;
+      text-align: center;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .plat-cta {
-      margin: 0 .8rem .8rem;
-      padding: .55rem;
-      border-radius: 9px;
-      background: var(--superficie-2);
-      color: var(--marca);
-      font-size: .74rem;
-      font-weight: 800;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      text-align: center;
-      transition: background .18s, color .18s;
-    }
-    .plat-card:hover .plat-cta { background: var(--marca); color: #fff; }
     .plat-card--agotada { opacity: .55; }
 
     /* ---------- Panel de planes ---------- */
-    .planes-head {
+    .planes-titulo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.65rem;
+      letter-spacing: 1px;
+      color: var(--tinta);
+      margin: 0 0 1rem;
+      padding-bottom: .8rem;
+      border-bottom: 1px solid var(--borde);
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    /* ---------- Checkout ---------- */
+    .ck-rubro {
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--marca);
+      margin-bottom: .3rem;
+    }
+    .ck-titulo {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--tinta);
+      margin: 0 0 .6rem;
+      line-height: 1.3;
+    }
+    .ck-meta {
       display: flex;
-      align-items: center;
-      gap: .85rem;
-      padding: 0 0 1rem;
+      flex-wrap: wrap;
+      gap: .35rem .85rem;
+      padding-bottom: 1rem;
       border-bottom: 1px solid var(--borde);
       margin-bottom: 1rem;
     }
-    .planes-head img {
-      width: 62px; height: 62px;
-      border-radius: 12px;
-      object-fit: cover;
+    .ck-meta span {
+      font-size: .74rem;
+      color: var(--tinta-suave);
+      white-space: nowrap;
+    }
+
+    .ck-total {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
       background: var(--superficie-2);
-      flex-shrink: 0;
+      border-radius: 12px;
+      padding: .9rem 1rem;
+      margin-bottom: 1rem;
     }
-    .planes-head h3 {
+    .ck-total-lbl {
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+    }
+    .ck-total-val {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.5rem;
-      letter-spacing: 1px;
-      color: var(--tinta);
-      margin: 0;
-      line-height: 1.1;
+      font-size: 1.8rem;
+      color: var(--oro);
+      line-height: 1;
+      letter-spacing: .5px;
     }
-    .planes-head p { margin: .15rem 0 0; font-size: .78rem; color: var(--tinta-suave); }
+    .ck-total-val .antes {
+      font-family: 'Outfit', sans-serif;
+      font-size: .75rem;
+      color: var(--tinta-suave);
+      text-decoration: line-through;
+      margin-left: .35rem;
+      letter-spacing: 0;
+    }
+
+    .ck-terminos {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      padding: .8rem .9rem;
+      border: 1px solid var(--borde);
+      border-radius: 10px;
+      margin-bottom: .8rem;
+      cursor: pointer;
+      font-size: .82rem;
+      color: var(--tinta-media);
+      user-select: none;
+      transition: border-color .15s, background .15s;
+    }
+    .ck-terminos:hover { border-color: var(--separador-2); }
+    .ck-terminos:has(input:checked) {
+      border-color: rgba(229,9,20,.35);
+      background: rgba(229,9,20,.03);
+    }
+    .ck-terminos input {
+      width: 18px; height: 18px;
+      accent-color: var(--marca);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: .05rem;
+    }
+    .ck-terminos a { color: var(--marca); }
+
+    .ck-pagar {
+      width: 100%;
+      padding: .9rem;
+      border: none;
+      border-radius: 11px;
+      background: var(--marca);
+      color: #fff;
+      font-family: inherit;
+      font-size: .95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: filter .15s;
+    }
+    .ck-pagar:hover:not(:disabled) { filter: brightness(1.12); }
+    .ck-pagar:disabled {
+      background: var(--separador);
+      color: var(--tinta-suave);
+      cursor: not-allowed;
+    }
+
+    .ck-volver {
+      width: 100%;
+      margin-top: .6rem;
+      padding: .6rem;
+      background: none;
+      border: none;
+      color: var(--tinta-suave);
+      font-family: inherit;
+      font-size: .8rem;
+      cursor: pointer;
+    }
+    .ck-volver:hover { color: var(--marca); }
 
     .plan-item {
       border: 1px solid var(--borde);
@@ -2797,21 +2881,16 @@
         const n = g.planes.length;
         const nombreSeguro = p.name.replace(/'/g, "\\'");
 
+        // Tarjeta limpia: solo el logo y el nombre de la plataforma.
+        // Los precios y los planes viven adentro del panel.
         return `
         <button type="button" class="plat-card${g.agotada ? ' plat-card--agotada' : ''}"
                 onclick="abrirPlataforma('${g.clave.replace(/'/g, "\\'")}')">
           <div class="plat-img">
-            ${g.descuento > 0 && !g.agotada ? `<span class="plat-badge">-${g.descuento}%</span>` : ''}
-            ${n > 1 ? `<span class="plat-planes">${n} planes</span>` : ''}
             <img src="${url}" alt="" loading="lazy" decoding="async" class="${contener ? 'contenida' : ''}"
                  onerror="this.onerror=null;this.src=generateLogoSvg('${nombreSeguro}','${p.imgColor}');this.className='contenida';">
           </div>
-          <div class="plat-body">
-            <div class="plat-desde">${g.agotada ? 'No disponible' : 'Desde'}</div>
-            <div class="plat-precio">${formatoBs(g.desde)}</div>
-            <div class="plat-nombre">${g.nombre}</div>
-          </div>
-          <div class="plat-cta">${g.agotada ? 'Ver detalles' : 'Ver planes →'}</div>
+          <div class="plat-nombre">${g.nombre}</div>
         </button>`;
       }).join('');
 
@@ -2849,29 +2928,105 @@
               <div class="plan-precio">${pl.bs}${pl.precioAntes ? `<span class="antes">${pl.precioAntes}</span>` : ''}</div>
             </div>
             <button class="plan-comprar" ${agotado ? 'disabled' : ''}
-                    onclick="${agotado ? '' : `addToCart(${pl.id})`}">
+                    onclick="${agotado ? '' : `abrirCheckout(${pl.id})`}">
               ${agotado ? '✖ Agotado' : '🛒 Comprar'}
             </button>
           </div>
         </div>`;
       }).join('');
 
+      // Solo el nombre de la plataforma como título, y debajo sus planes.
       document.getElementById('10').innerHTML = `
-        <div class="planes-head">
-          <img src="${url}" alt=""
-               onerror="this.onerror=null;this.src=generateLogoSvg('${nombreSeguro}','${p.imgColor}');">
-          <div>
-            <h3>${g.nombre}</h3>
-            <p>${g.planes.length} ${g.planes.length === 1 ? 'plan disponible' : 'planes disponibles'} · Activación inmediata</p>
-          </div>
-        </div>
-        ${planes}
-        <div style="text-align:center; padding:.75rem 0 .25rem; font-size:.75rem; color:var(--tinta-suave);">
-          ¿Dudas? Escribinos por WhatsApp antes de comprar.
-        </div>`;
+        <h3 class="planes-titulo">${g.nombre}</h3>
+        ${planes}`;
 
       document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
+    }
+
+    // ==========================================================
+    // CHECKOUT DE UN PLAN
+    // ==========================================================
+    // Se abre desde el botón "Comprar" de cada plan. Muestra el
+    // resumen, exige aceptar los términos y recién ahí habilita
+    // el botón que lleva al pago con QR.
+    // ==========================================================
+
+    // Rubro del encabezado. Para seguidores y combos no corresponde
+    // hablar de suscripción, así que se dice "Servicio".
+    const RUBRO = {
+      streaming: 'Suscripción Streaming',
+      musica:    'Suscripción Música',
+      ia:        'Suscripción IA & Tools',
+      vpn:       'Suscripción VPN',
+      combos:    'Servicio Combo',
+      seguidores:'Servicio Seguidores',
+      juegos:    'Recarga de Juegos'
+    };
+    const rubroDe = p => RUBRO[p.cat] || 'Servicio Digital';
+
+    // Duración leída del nombre del plan. Si el nombre no dice nada,
+    // usamos "1 mes (30 días)", que es lo más común del catálogo.
+    function duracionDe(p) {
+      const n = (p.name || '').toLowerCase();
+      const meses = n.match(/(\d+)\s*mes(?:es)?/);
+      if (meses) {
+        const k = Number(meses[1]);
+        return k === 1 ? '1 mes (30 días)' : `${k} meses (${k * 30} días)`;
+      }
+      const dias = n.match(/(\d+)\s*d[ií]as?/);
+      if (dias) return `${dias[1]} días`;
+      if (/\banual\b|1\s*a[ñn]o/.test(n)) return '1 año (365 días)';
+      if (/\bsemanal\b/.test(n))          return '7 días';
+      return '1 mes (30 días)';
+    }
+
+    function abrirCheckout(id) {
+      const p = PRODUCTS.find(x => x.id === id);
+      if (!p || p.soldOut) return;
+
+      document.getElementById('10').innerHTML = `
+        <div class="ck-rubro">${rubroDe(p)}</div>
+        <h3 class="ck-titulo">${p.name}</h3>
+        <div class="ck-meta">
+          <span>🌎 Global</span>
+          <span>⏳ ${duracionDe(p)}</span>
+          <span>⚡ Entrega digital instantánea</span>
+        </div>
+
+        <div class="ck-total">
+          <span class="ck-total-lbl">Total a pagar</span>
+          <span class="ck-total-val">${p.bs}${p.precioAntes ? `<span class="antes">${p.precioAntes}</span>` : ''}</span>
+        </div>
+
+        <label class="ck-terminos" for="ckTerminos">
+          <input type="checkbox" id="ckTerminos">
+          <span>Acepto los <a href="contacto.html" target="_blank" rel="noopener">términos y condiciones</a></span>
+        </label>
+
+        <button class="ck-pagar" id="ckPagar" disabled onclick="payProductQR(${p.id})">
+          🛒 Confirmar y pagar
+        </button>
+
+        <button class="ck-volver" onclick="volverAPlanes('${p.cat}||${plataformaDe(p.name).replace(/'/g, "\\'")}')">
+          ← Ver los otros planes
+        </button>`;
+
+      // El botón de pago se habilita solo al aceptar los términos
+      const check = document.getElementById('ckTerminos');
+      const boton = document.getElementById('ckPagar');
+      check.addEventListener('change', () => { boton.disabled = !check.checked; });
+
+      document.getElementById('8').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('9').scrollTop = 0;
+    }
+
+    // Vuelve del checkout al panel de planes de la misma plataforma
+    function volverAPlanes(clave) {
+      const g = PLATAFORMAS_VISIBLES.find(x => x.clave === clave);
+      if (g) abrirPlataforma(clave);
+      else   closeModal();
     }
 
 

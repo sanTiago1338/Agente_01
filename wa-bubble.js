@@ -16,7 +16,7 @@
    OJO: si un administrador usa "Restablecer enlace" dentro de WhatsApp,
    el enlace anterior deja de servir en el acto y hay que repetir esto. */
 (function () {
-  var GRUPO = 'https://chat.whatsapp.com/EcYW44UHMPaDncFarSqVac';
+  var GRUPO = 'https://chat.whatsapp.com/IeIoTUORughHVdRPwDahYl';
 
   var css = document.createElement('style');
   css.textContent = [

@@ -1,5 +1,20 @@
 /* Burbuja flotante para unirse al grupo de WhatsApp.
-   Se inyecta sola: basta con incluir este script en cualquier página. */
+   Se inyecta sola: basta con incluir este script en cualquier página.
+
+   ==========================================================
+   EL ENLACE DEL GRUPO SE CAMBIA AQUI ABAJO, Y SOLO AQUI.
+   ==========================================================
+   Como sacar uno nuevo, desde el celular:
+     WhatsApp -> abrir el grupo -> tocar el nombre del grupo
+     -> "Invitar por enlace" -> "Copiar enlace"
+
+   Pegalo en GRUPO. Con ese unico cambio queda arreglado el boton
+   flotante de todas las paginas y tambien el boton "Unirme al grupo"
+   de contacto.html, que este mismo script sincroniza a traves del
+   atributo data-wa-grupo.
+
+   OJO: si un administrador usa "Restablecer enlace" dentro de WhatsApp,
+   el enlace anterior deja de servir en el acto y hay que repetir esto. */
 (function () {
   var GRUPO = 'https://chat.whatsapp.com/EcYW44UHMPaDncFarSqVac';
 
@@ -28,6 +43,13 @@
   document.head.appendChild(css);
 
   function montar() {
+    /* Un solo enlace para todo el sitio: cualquier botón marcado con
+       data-wa-grupo (el de contacto.html, por ejemplo) pasa a apuntar a
+       GRUPO, así no queda una invitación vieja suelta por ahí cuando se
+       renueva. Esto no cambia nada de lo que se ve: solo el destino. */
+    var enlaces = document.querySelectorAll('[data-wa-grupo]');
+    for (var i = 0; i < enlaces.length; i++) enlaces[i].href = GRUPO;
+
     if (document.querySelector('.wa-bubble')) return;
 
     var a = document.createElement('a');

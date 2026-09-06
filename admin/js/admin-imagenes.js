@@ -8,7 +8,7 @@
 //   Firestore tiene un límite duro de 1 MB por documento.
 //   Una foto de celular pesa 3-5 MB. Sin comprimir, no entra.
 //
-// Flujo:  archivo → <canvas> → 256x256 → WebP 0.82 → ~10 KB
+// Flujo:  archivo → <canvas> → 768x768 → WebP 0.82 → ~30 KB
 //
 // Se engancha al editor de producto que crea admin-productos.js,
 // por eso este archivo se carga DESPUÉS de aquel.
@@ -17,10 +17,21 @@
 // -----------------------------------------------------------
 // Configuración
 // -----------------------------------------------------------
-const LADO_MAX     = 256;     // px — en la tienda se ve a ~150px
+// De dónde sale el 768. Medido en la tienda con la ventana en 800px:
+//   tarjeta de la grilla ..... 242x242
+//   hero del panel ........... 747x190   <- el más grande
+//   logo del plan / checkout .. 48 y 54
+// Antes esto estaba en 256 y el hero la estiraba 3 veces: por eso las
+// fotos se veían borrosas. Ademas los celulares tienen pantallas de 2x
+// y 3x, asi que una tarjeta de 170px necesita hasta 510px reales.
+const LADO_MAX     = 768;     // px — cubre el hero y las pantallas 3x
 const CALIDAD      = 0.82;
-const PESO_OBJETIVO = 90 * 1024;   // 90 KB — si se pasa, recomprime
-const PESO_MAXIMO   = 400 * 1024;  // 400 KB — tope duro (Firestore: 1 MB)
+const PESO_OBJETIVO = 150 * 1024;  // 150 KB — si se pasa, recomprime
+// Tope duro. Ojo: estos bytes son los de la imagen, pero se guarda en
+// base64, que ocupa un tercio más (400 KB -> ~533 KB en el documento).
+// El límite de Firestore es 1 MB por documento, contando el resto de
+// los campos, así que de acá no conviene subir.
+const PESO_MAXIMO   = 400 * 1024;
 
 const aviso = (txt, tipo) =>
   (window.avisoAdmin ? window.avisoAdmin(txt, tipo) : console.log(txt));

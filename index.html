@@ -3692,7 +3692,7 @@
     function pagarConQR(id, recordarRenovacion) {
       const p = PRODUCTS.find(x => x.id === id);
       if (!p || p.price <= 0) return;
-      const cartData = [{ name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p.name) }];
+      const cartData = [{ name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p) }];
       const params = new URLSearchParams({
         cart: encodeURIComponent(JSON.stringify(cartData)),
         total: p.price.toFixed(2),
@@ -4107,13 +4107,22 @@
       document.querySelector('.cat-tabs-wrap').scrollIntoView({ behavior: 'smooth' });
     }
 
-    function productFlags(name) {
-      const lower = (name || '').toLowerCase();
+    // Qué datos extra hay que pedirle al cliente en la pantalla de pago.
+    // Miramos nombre Y descripción, porque muchas veces el dato que decide
+    // ("a correo de cliente", "iPhone") solo está escrito en la descripción.
+    function productFlags(producto) {
+      const p = typeof producto === 'string' ? { name: producto } : (producto || {});
+      const texto = ((p.name || '') + ' ' + (p.desc || '')).toLowerCase();
       const flags = {};
-      if (lower.includes('a correo de cliente') || lower.includes('correo de cliente')) {
+      if (texto.includes('correo de cliente')) {
         flags.needsEmail = true;
       }
-      if (lower.includes('claude') && lower.includes('pro') && (lower.includes('completa') || lower.includes('cuenta completa'))) {
+      // Apple Music en iPhone: la activación va sobre el Apple ID del cliente,
+      // así que necesitamos su correo igual que en Canva.
+      if (texto.includes('apple music') && texto.includes('iphone')) {
+        flags.needsEmail = true;
+      }
+      if (texto.includes('claude') && texto.includes('pro') && texto.includes('completa')) {
         flags.needsEmail = true;
         flags.needsUsername = true;
       }
@@ -4123,7 +4132,7 @@
     function payProductQR(id) {
       const p = PRODUCTS.find(x => x.id === id);
       if (!p || p.price <= 0) return;
-      const cartData = [{ name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p.name) }];
+      const cartData = [{ name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p) }];
       const params = new URLSearchParams({
         cart: encodeURIComponent(JSON.stringify(cartData)),
         total: p.price.toFixed(2),
@@ -4141,7 +4150,7 @@
         name: item.name.substring(0, 80),
         price: item.price,
         qty: item.qty,
-        ...productFlags(item.name),
+        ...productFlags(item),
       }));
       const params = new URLSearchParams({
         cart: encodeURIComponent(JSON.stringify(cartData)),

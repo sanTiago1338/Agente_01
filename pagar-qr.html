@@ -553,7 +553,7 @@
         </div>
 
         <div class="pay-timer" id="timerSection" style="margin-bottom:0.5rem;">
-          Redirigiendo a WhatsApp en <span id="timerDisplay" style="color:var(--verde-wa);">60</span> seg...
+          Redirigiendo a WhatsApp en <span id="timerDisplay" style="color:var(--verde-wa);">5:00</span>
         </div>
       </div>
 
@@ -718,6 +718,17 @@
       window._waUrl = `https://wa.me/59157707335?text=${encodeURIComponent(whatsappMsg)}`;
     }
 
+    // Cuanto esperamos antes de mandar solo al cliente a WhatsApp.
+    // 5 minutos: tiempo de sobra para hacer la transferencia sin apuro.
+    const ESPERA_SEGUNDOS = 5 * 60;
+
+    // 300 -> "5:00",  95 -> "1:35",  8 -> "0:08"
+    function formatearEspera(segundos) {
+      const min = Math.floor(segundos / 60);
+      const seg = segundos % 60;
+      return min + ':' + String(seg).padStart(2, '0');
+    }
+
     function startCountdown() {
       const s = window._payState || {};
       if (s.needsEmail || s.needsUsername) {
@@ -725,11 +736,11 @@
         if (timer) timer.style.display = 'none';
         return;
       }
-      let segundos = 60;
-      document.getElementById('timerDisplay').textContent = segundos;
+      let segundos = ESPERA_SEGUNDOS;
+      document.getElementById('timerDisplay').textContent = formatearEspera(segundos);
       timerInterval = setInterval(() => {
         segundos--;
-        document.getElementById('timerDisplay').textContent = segundos;
+        document.getElementById('timerDisplay').textContent = formatearEspera(segundos);
         if (segundos <= 0) {
           clearInterval(timerInterval);
           window.location.href = window._waUrl || 'https://wa.me/59157707335';

@@ -838,6 +838,7 @@
     .plan-chip.ok   { background: rgba(18,140,126,.11); color: #0f7a6e; }
     .plan-chip.off  { background: rgba(229,9,20,.09);   color: var(--marca); }
     .plan-chip.zona { background: var(--superficie-2);  color: var(--tinta-suave); }
+    .plan-chip.correo { background: rgba(154,116,0,.12); color: var(--oro); }
 
     .plan-item-nombre {
       font-weight: 800;
@@ -1052,6 +1053,28 @@
       margin-bottom: .25rem;
     }
     .ck-renovar p {
+      margin: 0;
+      font-size: .74rem;
+      color: var(--tinta-suave);
+      line-height: 1.5;
+    }
+
+    /* Aviso de los datos que le vamos a pedir al cliente en el pago */
+    .ck-correo {
+      display: flex;
+      align-items: flex-start;
+      gap: .8rem;
+      border-color: rgba(154,116,0,.35);
+      background: rgba(245,197,24,.08);
+    }
+    .ck-correo-ico { font-size: 1.15rem; line-height: 1.25; }
+    .ck-correo b {
+      display: block;
+      font-size: .84rem;
+      color: var(--tinta);
+      margin-bottom: .25rem;
+    }
+    .ck-correo p {
       margin: 0;
       font-size: .74rem;
       color: var(--tinta-suave);
@@ -2492,7 +2515,7 @@
           <span class="hero-tag hero-tag--new">♻️ RENOVABLE</span>
           <div class="hero-title">SPOTIFY <span>RENOVABLE</span></div>
           <div class="hero-sub">A correo del cliente · Sin anuncios, descargas offline y calidad superior</div>
-          <a href="#" class="hero-cta" onclick="document.getElementById('2').value='Spotify Premium Renovable';filterProducts();return false;">Ver plan →</a>
+          <a href="#" class="hero-cta" onclick="document.getElementById('2').value='Spotify Premium';filterProducts();return false;">Ver plan →</a>
         </div>
       </div>
       <!-- Slide 5: Magis TV PRO -->
@@ -3345,6 +3368,28 @@
     // Plataformas de la vista actual, para que el panel las encuentre
     let PLATAFORMAS_VISIBLES = [];
 
+    // ---------- BÚSQUEDA POR INICIAL ----------
+    // Se escriben las primeras letras y salen solo las plataformas que
+    // empiezan así. Antes buscaba el texto en cualquier parte del nombre
+    // del plan, y "disney" traía también "DISNEY+ 7ESPN PREMIUM".
+
+    // Compara sin tildes ni mayúsculas, así "musica" encuentra "Música"
+    // y "pro z" encuentra "PRO Z TV". normalize('NFD') separa la letra de
+    // su tilde, y acá tiramos las tildes sueltas (bloque Unicode 0300-036F).
+    function sinTildes(txt) {
+      let limpio = '';
+      for (const c of String(txt || '').normalize('NFD')) {
+        const cod = c.codePointAt(0);
+        if (cod < 0x0300 || cod > 0x036F) limpio += c;
+      }
+      return limpio.toLowerCase().trim();
+    }
+
+    function empiezaCon(nombre, busqueda) {
+      const q = sinTildes(busqueda);
+      return q === '' || sinTildes(nombre).startsWith(q);
+    }
+
     function renderProducts() {
       // Todavía no llegó el catálogo desde Firestore.
       if (!catalogoCargado) { renderSkeletons(); return; }
@@ -3353,11 +3398,14 @@
         const catOk = currentCat === 'all' || p.cat === currentCat;
         // tiposDe() unifica las variantes ("1-device" = "1-dispositivo")
         const subOk = currentSub === 'all' || tiposDe(p).includes(currentSub);
-        const searchOk = currentSearch === '' || p.name.toLowerCase().includes(currentSearch.toLowerCase());
-        return catOk && subOk && searchOk;
+        return catOk && subOk;
       });
 
-      const grupos = agruparEnPlataformas(filtrados);
+      // La búsqueda se aplica a la plataforma ya armada, no a cada plan:
+      // el cliente escribe las primeras letras y salen solo las plataformas
+      // que empiezan así. Los planes de adentro no se tocan.
+      const grupos = agruparEnPlataformas(filtrados)
+        .filter(g => empiezaCon(g.nombre, currentSearch));
 
       const sort = document.getElementById('4').value;
       // "El más nuevo" venía sin implementar: era la opción por defecto
@@ -3447,6 +3495,7 @@
             <div class="plan-chips">
               <span class="plan-chip ${agotado ? 'off' : 'ok'}">${agotado ? '● Agotado' : '● Disponible'}</span>
               <span class="plan-chip zona">🌎 Global</span>
+              ${avisoDatos(pl).chip}
             </div>
           </div>
 
@@ -3632,6 +3681,8 @@
               <span class="ck-switch-pista"><span class="ck-switch-bola"></span></span>
             </label>
           </div>
+
+          ${sinPrecio(p) ? '' : avisoDatos(p).caja}
 
           ${sinPrecio(p) ? '' : bloqueTerminos('ckTerminos')}
 
@@ -4105,6 +4156,32 @@
 
     function showAllCats() {
       document.querySelector('.cat-tabs-wrap').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Aviso para que el cliente sepa ANTES de pagar que le vamos a pedir
+    // el correo, y no se sorprenda recién en la pantalla del QR.
+    // Sale de productFlags(), así que cualquier producto que pida datos lo
+    // muestra solo, sin tener que escribirlo a mano en la descripción.
+    function avisoDatos(producto) {
+      const f = productFlags(producto);
+      if (!f.needsEmail && !f.needsUsername) return { chip: '', caja: '' };
+
+      const titulo = f.needsUsername
+        ? 'Te pediremos tu correo y tu usuario al pagar'
+        : 'Te pediremos tu correo al pagar';
+
+      return {
+        chip: '<span class="plan-chip correo">📧 Pide tu correo</span>',
+        caja: `
+          <div class="ck-caja ck-correo">
+            <span class="ck-correo-ico">📧</span>
+            <div>
+              <b>${titulo}</b>
+              <p>Este servicio se activa sobre tu propia cuenta. Cuando toques
+                 pagar vas a ver el campo para escribirlo.</p>
+            </div>
+          </div>`
+      };
     }
 
     // Qué datos extra hay que pedirle al cliente en la pantalla de pago.

@@ -200,6 +200,24 @@
     const escapar = s => String(s || '').replace(/[&<>"]/g,
       c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+    // ---------- BÚSQUEDA POR INICIAL ----------
+    // La misma regla que la tienda: se escriben las primeras letras y salen
+    // solo las plataformas que empiezan así. Sin tildes ni mayúsculas, para
+    // que "musica" encuentre "Música...".
+    function sinTildes(txt) {
+      let limpio = '';
+      for (const c of String(txt || '').normalize('NFD')) {
+        const cod = c.codePointAt(0);
+        if (cod < 0x0300 || cod > 0x036F) limpio += c;
+      }
+      return limpio.toLowerCase().trim();
+    }
+
+    function empiezaCon(nombre, busqueda) {
+      const q = sinTildes(busqueda);
+      return q === '' || sinTildes(nombre).startsWith(q);
+    }
+
     let TODOS = [];
 
     function agrupar(productos) {
@@ -248,9 +266,9 @@
     }
 
     function render() {
-      const filtro = ($('buscarPlan').value || '').trim().toLowerCase();
+      const filtro = ($('buscarPlan').value || '').trim();
       const grupos = agrupar(seleccion(TODOS))
-        .filter(g => !filtro || g.plataforma.toLowerCase().includes(filtro));
+        .filter(g => empiezaCon(g.plataforma, filtro));
 
       if (grupos.length === 0) {
         $('tablasPrecios').innerHTML = `

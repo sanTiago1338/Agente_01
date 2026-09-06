@@ -11,22 +11,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+  /* La misma paleta clara de la tienda: blanco, grises fríos y el rojo de
+     marca. Los nombres viejos del panel oscuro (--negro, --panel, --texto…)
+     quedan abajo como alias, así las 900 líneas de CSS que ya los usan
+     siguen funcionando sin tocarlas. Igual que se hizo en index.html. */
   :root {
-    --negro:    #0a0a0a;
-    --panel:    #141414;
-    --panel-2:  #1c1c1c;
-    --panel-3:  #232323;
-    --borde:    #2a2a2a;
-    --borde-2:  #383838;
-    --rojo:     #e50914;
-    --dorado:   #ffd700;
-    --texto:    #f5f5f5;
-    --gris:     #9a9a9a;
-    --gris-dim: #6b6b6b;
-    --ok:       #22c55e;
-    --warn:     #f59e0b;
-    --error:    #ef4444;
-    --info:     #3b82f6;
+    /* Superficies */
+    --fondo:        #ffffff;   /* fondo de la página */
+    --superficie:   #fbfbfc;   /* tarjetas y paneles */
+    --superficie-2: #f4f5f7;   /* zonas elevadas: inputs, filas */
+    --superficie-3: #eceef1;   /* botones de icono, etiquetas */
+    --separador:    rgba(20,22,26,.09);
+    --separador-2:  #dfe0e5;
+
+    /* Texto */
+    --tinta:       #14161a;   /* títulos y datos fuertes */
+    --tinta-media: #3d424b;   /* cuerpo */
+    --tinta-suave: #767c88;   /* secundario */
+    --tinta-tenue: #9aa0ab;   /* pistas y placeholders */
+
+    /* Marca */
+    --marca:        #e50914;
+    --marca-oscura: #b8070f;
+    --oro:          #9a7400;   /* oro legible sobre blanco */
+
+    /* Estados — oscurecidos para que se lean sobre blanco */
+    --ok:       #15803d;
+    --warn:     #a16207;
+    --error:    #dc2626;
+    --info:     #1d4ed8;
+
+    --sombra:      0 1px 2px rgba(20,22,26,.05), 0 4px 14px rgba(20,22,26,.06);
+    --sombra-alta: 0 2px 6px rgba(20,22,26,.07), 0 12px 32px rgba(20,22,26,.10);
+
+    /* Alias históricos (venían del panel oscuro) */
+    --negro:    var(--fondo);
+    --panel:    var(--superficie);
+    --panel-2:  var(--superficie-2);
+    --panel-3:  var(--superficie-3);
+    --borde:    var(--separador);
+    --borde-2:  var(--separador-2);
+    --rojo:     var(--marca);
+    --rojo2:    var(--marca-oscura);
+    --dorado:   var(--oro);
+    --texto:    var(--tinta-media);
+    --gris:     var(--tinta-suave);
+    --gris-dim: var(--tinta-tenue);
   }
 
   * { box-sizing: border-box; }
@@ -34,11 +64,29 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background: var(--negro);
+    background: var(--fondo);
     color: var(--texto);
     font-family: 'Outfit', system-ui, -apple-system, sans-serif;
     font-size: 15px;
   }
+
+  /* ===== BURBUJAS DECORATIVAS =====
+     El mismo fondo de la tienda. Círculos difusos detrás del contenido,
+     puramente visuales: no interceptan clicks y se apagan en pantallas
+     chicas. Las burbujas animadas las agrega bg-burbujas.js al final. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(circle 220px at 12% 14%, rgba(229,9,20,.05),   transparent 70%),
+      radial-gradient(circle 170px at 88% 22%, rgba(245,197,24,.07), transparent 70%),
+      radial-gradient(circle 130px at 78% 68%, rgba(229,9,20,.035),  transparent 70%),
+      radial-gradient(circle 190px at 8%  76%, rgba(245,197,24,.05), transparent 70%);
+  }
+  @media (max-width: 600px) { body::before { display: none; } }
 
   /* ================= PANTALLA DE CARGA ================= */
   #verificando {
@@ -67,7 +115,7 @@
     position: sticky;
     top: 0;
     z-index: 30;
-    background: rgba(10,10,10,.93);
+    background: rgba(255,255,255,.86);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--borde);
   }
@@ -121,7 +169,7 @@
     align-items: center;
     gap: 6px;
   }
-  .btn:hover:not(:disabled) { filter: brightness(1.18); }
+  .btn:hover:not(:disabled) { filter: brightness(.95); }
   .btn:disabled { opacity: .45; cursor: not-allowed; }
   .btn-rojo   { background: var(--rojo); color: #fff; }
   .btn-fantasma { background: transparent; color: var(--gris); border-color: var(--borde-2); }
@@ -137,7 +185,7 @@
     line-height: 1;
     font-family: inherit;
   }
-  .btn-icono:hover { color: var(--texto); background: #2e2e2e; }
+  .btn-icono:hover { color: var(--tinta); background: #e2e5ea; }
   .btn-icono.peligro:hover { color: #fff; background: var(--error); border-color: var(--error); }
 
   /* ================= LAYOUT ================= */
@@ -209,7 +257,7 @@
   .metrica-n.warn   { color: var(--warn); }
   .metrica-n.dorado { color: var(--dorado); }
   .metrica-n.rojo   { color: var(--rojo); }
-  .metrica-n.info   { color: #7dabff; }
+  .metrica-n.info   { color: var(--info); }
   .metrica-l {
     font-size: 11.5px;
     color: var(--gris-dim);
@@ -246,7 +294,7 @@
     border-color: var(--rojo);
     box-shadow: 0 0 0 3px rgba(229,9,20,.13);
   }
-  .buscador input::placeholder { color: #555; }
+  .buscador input::placeholder { color: var(--gris-dim); }
   .buscador .lupa {
     position: absolute;
     left: 12px; top: 50%;
@@ -310,11 +358,11 @@
   }
   tbody td {
     padding: 11px 14px;
-    border-bottom: 1px solid #1e1e1e;
+    border-bottom: 1px solid var(--borde);
     vertical-align: middle;
   }
   tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: #191919; }
+  tbody tr:hover td { background: var(--superficie-2); }
   tbody tr.inactivo .celda-nombre,
   tbody tr.inactivo .celda-precio { opacity: .48; }
 
@@ -366,6 +414,31 @@
   .precio-btn:focus-visible { outline: 2px solid var(--rojo, #e50914); outline-offset: 1px; }
   .precio-lapiz { opacity: 0; font-size: 11px; margin-left: 5px; }
   .precio-btn:hover .precio-lapiz { opacity: .75; }
+  /* La descripción también es un botón: es el texto que más se retoca
+     y así se cambia sin abrir el formulario completo. */
+  .desc-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-top: 4px;
+    padding: 4px 6px;
+    background: none;
+    border: 1px dashed transparent;
+    border-radius: 7px;
+    color: var(--gris);
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.45;
+    cursor: pointer;
+  }
+  .desc-btn:hover { border-color: var(--rojo); background: rgba(229,9,20,.05); }
+  .desc-btn:focus-visible { outline: 2px solid var(--rojo); outline-offset: 1px; }
+  .desc-btn.vacia { color: var(--gris-dim); font-style: italic; }
+  .desc-lapiz { opacity: 0; font-size: 11px; margin-left: 4px; }
+  .desc-btn:hover .desc-lapiz { opacity: .75; }
+  /* El aviso de correo se ve de un vistazo en la tabla */
+  .desc-btn .pide-correo { color: var(--info); font-style: normal; }
+
   .celda-acciones { text-align: right; white-space: nowrap; }
   .celda-acciones .btn-icono + .btn-icono { margin-left: 5px; }
 
@@ -381,20 +454,20 @@
     white-space: nowrap;
   }
   .tag + .tag { margin-left: 4px; }
-  .tag-ok       { background: rgba(34,197,94,.13);  color: var(--ok); }
-  .tag-agotado  { background: rgba(239,68,68,.13);  color: var(--error); }
-  .tag-oferta   { background: rgba(229,9,20,.15);   color: #ff6b73; }
-  .tag-destacado{ background: rgba(255,215,0,.13);  color: var(--dorado); }
+  .tag-ok       { background: rgba(21,128,61,.11);  color: var(--ok); }
+  .tag-agotado  { background: rgba(220,38,38,.10);  color: var(--error); }
+  .tag-oferta   { background: rgba(229,9,20,.11);   color: var(--rojo2); }
+  .tag-destacado{ background: rgba(154,116,0,.12);  color: var(--dorado); }
   .tag-cat      { background: var(--panel-3);       color: var(--gris); text-transform: none; letter-spacing: 0; }
-  .tag-planes   { background: rgba(59,130,246,.14);  color: #7dabff; }
+  .tag-planes   { background: rgba(29,78,216,.10);  color: var(--info); }
 
   /* Botón 📋 encendido = el producto sale en planes.html */
   .btn-icono.activo {
-    background: rgba(59,130,246,.18);
-    border-color: rgba(59,130,246,.5);
-    color: #7dabff;
+    background: rgba(29,78,216,.10);
+    border-color: rgba(29,78,216,.35);
+    color: var(--info);
   }
-  .btn-icono.activo:hover { background: rgba(59,130,246,.3); color: #fff; }
+  .btn-icono.activo:hover { background: rgba(29,78,216,.18); color: var(--info); }
 
   /* ================= PAGINACIÓN ================= */
   .paginacion {
@@ -434,7 +507,7 @@
 
   .fila-esqueleto td { padding: 14px; }
   .esq {
-    background: linear-gradient(90deg, #1a1a1a 25%, #262626 50%, #1a1a1a 75%);
+    background: linear-gradient(90deg, #eef0f3 25%, #f8f9fa 50%, #eef0f3 75%);
     background-size: 200% 100%;
     animation: brillo 1.4s ease-in-out infinite;
     border-radius: 5px;
@@ -459,11 +532,11 @@
     font-size: 13.5px;
     background: var(--panel-3);
     border: 1px solid var(--borde-2);
-    box-shadow: 0 10px 30px rgba(0,0,0,.55);
+    box-shadow: var(--sombra-alta);
     animation: entrar .25s ease-out;
   }
-  .aviso.ok    { border-color: rgba(34,197,94,.5);  background: #12251a; }
-  .aviso.error { border-color: rgba(239,68,68,.5);  background: #251314; }
+  .aviso.ok    { border-color: rgba(21,128,61,.35);  background: #eaf7ef; color: #10502a; }
+  .aviso.error { border-color: rgba(220,38,38,.35);  background: #fdecec; color: #8f1616; }
   @keyframes entrar { from { opacity: 0; transform: translateY(10px); } }
 
   .oculto { display: none !important; }
@@ -679,10 +752,16 @@ function placeholderSvg(nombre = '?') {
   const letra = ([...String(nombre).trim()][0] || '?').toUpperCase();
   return 'data:image/svg+xml,' + encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="10" fill="#2a2a2a"/>
+      <rect width="64" height="64" rx="10" fill="#eceef1"/>
       <text x="32" y="33" font-family="Arial" font-size="26" font-weight="bold"
-            fill="#6b6b6b" text-anchor="middle" dominant-baseline="central">${letra}</text>
+            fill="#9aa0ab" text-anchor="middle" dominant-baseline="central">${letra}</text>
     </svg>`);
+}
+
+// La tabla muestra un resumen: la descripción entera puede ser muy larga.
+function recortarDesc(txt) {
+  const limpio = String(txt).replace(/\s+/g, ' ').trim();
+  return limpio.length > 90 ? limpio.slice(0, 90) + '…' : limpio;
 }
 
 function escapar(s = '') {
@@ -827,6 +906,15 @@ function fila(p) {
   const desc     = porcentajeDescuento(p);
 
   const enPlanes = p.mostrarEnPlanes === true;
+  // La descripción se edita desde la tabla, así que la fila la muestra.
+  // "pide correo" avisa que a este producto la tienda le va a pedir el
+  // correo al cliente en el pago. Es la misma regla que usa index.html
+  // en productFlags(): nombre + descripción, todo en minúsculas.
+  const textoDesc  = (p.descripcion || '').trim();
+  const textoPlano = (textoDesc + ' ' + (p.nombre || '')).toLowerCase();
+  const pideCorreo = textoPlano.includes('correo de cliente')
+                  || (textoPlano.includes('apple music') && textoPlano.includes('iphone'));
+
 
   const etiquetas = [
     agotado ? '<span class="tag tag-agotado">Agotado</span>'
@@ -845,6 +933,12 @@ function fila(p) {
       <td class="celda-nombre">
         <div class="nombre-txt">${escapar(p.nombre || '(sin nombre)')}</div>
         <div class="nombre-sub">${escapar(p.tipo || '')}</div>
+        <button class="desc-btn${textoDesc ? '' : ' vacia'}" data-accion="descripcion" data-id="${p.id}"
+                title="Clic para editar la descripción">
+          ${textoDesc ? escapar(recortarDesc(textoDesc)) : '+ Agregar descripción'}
+          ${pideCorreo ? '<span class="pide-correo">· 📧 pide correo</span>' : ''}
+          <span class="desc-lapiz">✏️</span>
+        </button>
       </td>
       <td class="celda-precio">
         <button class="precio-btn" data-accion="precio" data-id="${p.id}"
@@ -967,5 +1061,8 @@ document.querySelector('.vistas-in').addEventListener('click', e => {
 
 <!-- Administración de juegos de recarga: construye la vista 🎮 Juegos -->
 <script type="module" src="js/admin-juegos.js"></script>
+
+<!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
+<script src="../bg-burbujas.js" defer></script>
 </body>
 </html>

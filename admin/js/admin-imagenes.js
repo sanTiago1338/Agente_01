@@ -44,28 +44,28 @@ const FORMATO = (() => {
 const css = document.createElement('style');
 css.textContent = `
   .zvi-zona {
-    border: 1.5px dashed #383838;
+    border: 1.5px dashed var(--borde-2);
     border-radius: 10px;
     padding: 18px 14px;
     text-align: center;
     cursor: pointer;
-    background: #1a1a1a;
+    background: var(--superficie-2);
     transition: border-color .15s, background .15s;
     margin-bottom: 9px;
   }
-  .zvi-zona:hover   { border-color: #e50914; background: #1f1717; }
-  .zvi-zona.encima  { border-color: #e50914; background: #241313; }
+  .zvi-zona:hover   { border-color: var(--rojo); background: rgba(229,9,20,.05); }
+  .zvi-zona.encima  { border-color: var(--rojo); background: rgba(229,9,20,.09); }
   .zvi-zona .icono  { font-size: 24px; display: block; margin-bottom: 6px; }
-  .zvi-zona .titulo { font-size: 13.5px; color: #f5f5f5; font-weight: 600; }
-  .zvi-zona .sub    { font-size: 11.5px; color: #6b6b6b; margin-top: 3px; }
+  .zvi-zona .titulo { font-size: 13.5px; color: var(--tinta); font-weight: 600; }
+  .zvi-zona .sub    { font-size: 11.5px; color: var(--gris-dim); margin-top: 3px; }
 
   .zvi-ficha {
     display: none;
     align-items: center;
     gap: 12px;
     padding: 11px;
-    background: #16241a;
-    border: 1px solid rgba(34,197,94,.4);
+    background: #eaf7ef;
+    border: 1px solid rgba(21,128,61,.3);
     border-radius: 10px;
     margin-bottom: 9px;
   }
@@ -74,36 +74,36 @@ css.textContent = `
     width: 50px; height: 50px;
     border-radius: 8px;
     object-fit: cover;
-    background: #232323;
+    background: var(--panel-3);
     flex-shrink: 0;
   }
   .zvi-ficha .info   { flex: 1; min-width: 0; }
-  .zvi-ficha .t      { font-size: 13px; font-weight: 600; color: #a8ebc0; }
-  .zvi-ficha .d      { font-size: 11.5px; color: #6b8f76; margin-top: 2px; }
+  .zvi-ficha .t      { font-size: 13px; font-weight: 600; color: #10502a; }
+  .zvi-ficha .d      { font-size: 11.5px; color: #4f7a60; margin-top: 2px; }
   .zvi-ficha button  {
-    background: none; border: 1px solid #2f4a38;
-    color: #8fbfa0; border-radius: 7px;
+    background: none; border: 1px solid rgba(21,128,61,.35);
+    color: var(--ok); border-radius: 7px;
     padding: 7px 11px; cursor: pointer;
     font-size: 12.5px; font-family: inherit;
     white-space: nowrap;
   }
-  .zvi-ficha button:hover { background: #1d3324; color: #fff; }
+  .zvi-ficha button:hover { background: rgba(21,128,61,.12); color: #10502a; }
 
   .zvi-progreso {
     display: none;
     align-items: center; gap: 10px;
     padding: 12px;
-    background: #1c1c1c;
-    border: 1px solid #2a2a2a;
+    background: var(--panel-2);
+    border: 1px solid var(--borde);
     border-radius: 10px;
     margin-bottom: 9px;
-    font-size: 13px; color: #9a9a9a;
+    font-size: 13px; color: var(--gris);
   }
   .zvi-progreso.visible { display: flex; }
   .zvi-spin {
     width: 17px; height: 17px;
-    border: 2px solid #2a2a2a;
-    border-top-color: #e50914;
+    border: 2px solid var(--borde);
+    border-top-color: var(--rojo);
     border-radius: 50%;
     animation: zviGirar .7s linear infinite;
     flex-shrink: 0;
@@ -113,7 +113,7 @@ css.textContent = `
 
   .zvi-alternar {
     background: none; border: none;
-    color: #ffd700; font-size: 12px;
+    color: var(--dorado); font-size: 12px;
     cursor: pointer; padding: 3px 0;
     text-decoration: underline; text-underline-offset: 3px;
     font-family: inherit;

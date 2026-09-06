@@ -30,7 +30,7 @@ const estilos = document.createElement('style');
 estilos.textContent = `
   .zv-fondo {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,.72);
+    background: rgba(20,22,26,.42);
     backdrop-filter: blur(3px);
     z-index: 60;
     display: none;
@@ -42,10 +42,10 @@ estilos.textContent = `
   .zv-modal {
     max-width: 620px;
     margin: 0 auto;
-    background: #141414;
-    border: 1px solid #2a2a2a;
+    background: var(--panel);
+    border: 1px solid var(--borde);
     border-radius: 15px;
-    box-shadow: 0 26px 80px rgba(0,0,0,.7);
+    box-shadow: var(--sombra-alta);
     animation: zvEntrar .2s ease-out;
   }
   .zv-modal.chico { max-width: 430px; }
@@ -55,9 +55,9 @@ estilos.textContent = `
   .zv-cab {
     display: flex; align-items: center; gap: 12px;
     padding: 18px 22px;
-    border-bottom: 1px solid #2a2a2a;
+    border-bottom: 1px solid var(--borde);
     position: sticky; top: 0;
-    background: #141414;
+    background: var(--panel);
     border-radius: 15px 15px 0 0;
     z-index: 2;
   }
@@ -68,11 +68,11 @@ estilos.textContent = `
   .zv-cerrar {
     margin-left: auto;
     background: none; border: none;
-    color: #6b6b6b; font-size: 22px;
+    color: var(--gris-dim); font-size: 22px;
     cursor: pointer; line-height: 1;
     padding: 4px 8px; border-radius: 6px;
   }
-  .zv-cerrar:hover { color: #f5f5f5; background: #232323; }
+  .zv-cerrar:hover { color: var(--tinta); background: var(--panel-3); }
 
   .zv-cuerpo { padding: 20px 22px; }
 
@@ -82,9 +82,9 @@ estilos.textContent = `
 
   .zv-campo label {
     display: block; font-size: 12.5px; font-weight: 600;
-    color: #9a9a9a; margin-bottom: 6px;
+    color: var(--gris); margin-bottom: 6px;
   }
-  .zv-campo .ayuda { font-weight: 400; color: #6b6b6b; font-size: 11.5px; }
+  .zv-campo .ayuda { font-weight: 400; color: var(--gris-dim); font-size: 11.5px; }
 
   .zv-campo input[type=text],
   .zv-campo input[type=number],
@@ -93,19 +93,19 @@ estilos.textContent = `
   .zv-campo select {
     width: 100%;
     padding: 10px 12px;
-    background: #1c1c1c;
-    border: 1px solid #2a2a2a;
+    background: var(--panel-2);
+    border: 1px solid var(--borde);
     border-radius: 8px;
-    color: #f5f5f5;
+    color: var(--tinta);
     font-size: 14.5px;
     font-family: 'Outfit', system-ui, sans-serif;
   }
   .zv-campo textarea { resize: vertical; min-height: 74px; line-height: 1.45; }
   .zv-campo input:focus, .zv-campo textarea:focus, .zv-campo select:focus {
-    outline: none; border-color: #e50914;
+    outline: none; border-color: var(--rojo);
     box-shadow: 0 0 0 3px rgba(229,9,20,.13);
   }
-  .zv-campo.malo input, .zv-campo.malo textarea { border-color: #ef4444; }
+  .zv-campo.malo input, .zv-campo.malo textarea { border-color: var(--error); }
 
   /* Ficha del plan: las cuatro filas que ve el cliente en la tarjeta */
   .zv-ficha {
@@ -117,11 +117,11 @@ estilos.textContent = `
   .zv-ficha span {
     display: block;
     font-size: 11.5px;
-    color: #6b6b6b;
+    color: var(--gris-dim);
     margin-bottom: 4px;
   }
   .zv-error {
-    display: none; color: #ff8f8f; font-size: 12px; margin-top: 5px;
+    display: none; color: var(--error); font-size: 12px; margin-top: 5px;
   }
   .zv-campo.malo .zv-error { display: block; }
 
@@ -132,36 +132,61 @@ estilos.textContent = `
   .zv-sw {
     display: flex; align-items: center; gap: 8px;
     padding: 9px 13px;
-    background: #1c1c1c;
-    border: 1px solid #2a2a2a;
+    background: var(--panel-2);
+    border: 1px solid var(--borde);
     border-radius: 8px;
-    font-size: 13.5px; color: #9a9a9a;
+    font-size: 13.5px; color: var(--gris);
     cursor: pointer; user-select: none;
   }
-  .zv-sw:hover { border-color: #383838; }
-  .zv-sw input { width: 15px; height: 15px; accent-color: #e50914; cursor: pointer; }
-  .zv-sw.on { color: #f5f5f5; border-color: #444; background: #212121; }
+  .zv-sw:hover { border-color: var(--borde-2); }
+  .zv-sw input { width: 15px; height: 15px; accent-color: var(--rojo); cursor: pointer; }
+  .zv-sw.on { color: var(--tinta); border-color: rgba(229,9,20,.35); background: rgba(229,9,20,.06); }
+
+  /* Frases que se repiten en casi todas las descripciones. Un clic las
+     pega al final del texto, así no hay que escribirlas de nuevo ni
+     acordarse de la redacción exacta. */
+  .zv-frases {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 8px;
+  }
+  .zv-frase {
+    background: var(--panel-2);
+    border: 1px solid var(--borde);
+    border-radius: 20px;
+    padding: 5px 11px;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--texto);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .zv-frase:hover { border-color: var(--rojo); background: rgba(229,9,20,.06); }
+  .zv-frase.puesta { border-color: rgba(21,128,61,.4); background: rgba(21,128,61,.08); color: var(--ok); }
+  .zv-frases-lbl {
+    font-size: 11.5px; color: var(--gris-dim);
+    margin-top: 10px; margin-bottom: 2px;
+  }
 
   .zv-previa {
     display: flex; align-items: center; gap: 13px;
     padding: 11px;
-    background: #1c1c1c;
-    border: 1px solid #2a2a2a;
+    background: var(--panel-2);
+    border: 1px solid var(--borde);
     border-radius: 9px;
     margin-top: 9px;
   }
   .zv-previa img {
     width: 52px; height: 52px; border-radius: 9px;
-    object-fit: cover; background: #232323; flex-shrink: 0;
+    object-fit: cover; background: var(--panel-3); flex-shrink: 0;
   }
-  .zv-previa span { font-size: 12px; color: #6b6b6b; line-height: 1.45; word-break: break-all; }
+  .zv-previa span { font-size: 12px; color: var(--gris-dim); line-height: 1.45; word-break: break-all; }
 
   .zv-pie {
     display: flex; gap: 10px; justify-content: flex-end;
     padding: 16px 22px;
-    border-top: 1px solid #2a2a2a;
+    border-top: 1px solid var(--borde);
     position: sticky; bottom: 0;
-    background: #141414;
+    background: var(--panel);
     border-radius: 0 0 15px 15px;
     flex-wrap: wrap;
   }
@@ -170,21 +195,21 @@ estilos.textContent = `
     font-family: 'Outfit', system-ui, sans-serif;
     font-size: 14px; font-weight: 600; cursor: pointer;
   }
-  .zv-btn:hover:not(:disabled) { filter: brightness(1.16); }
+  .zv-btn:hover:not(:disabled) { filter: brightness(.95); }
   .zv-btn:disabled { opacity: .5; cursor: not-allowed; }
-  .zv-btn.rojo   { background: #e50914; color: #fff; }
-  .zv-btn.gris   { background: transparent; color: #9a9a9a; border-color: #383838; }
-  .zv-btn.gris:hover { color: #f5f5f5; background: #1c1c1c; }
-  .zv-btn.borrar { background: #ef4444; color: #fff; }
+  .zv-btn.rojo   { background: var(--rojo); color: #fff; }
+  .zv-btn.gris   { background: transparent; color: var(--gris); border-color: var(--borde-2); }
+  .zv-btn.gris:hover { color: var(--tinta); background: var(--panel-2); }
+  .zv-btn.borrar { background: var(--error); color: #fff; }
 
   .zv-confirmar { padding: 22px; text-align: center; }
   .zv-confirmar img {
     width: 66px; height: 66px; border-radius: 12px;
-    object-fit: cover; background: #232323; margin-bottom: 14px;
+    object-fit: cover; background: var(--panel-3); margin-bottom: 14px;
   }
   .zv-confirmar h3 { margin: 0 0 7px; font-size: 16.5px; }
-  .zv-confirmar p  { margin: 0; color: #9a9a9a; font-size: 13.5px; line-height: 1.55; }
-  .zv-confirmar .peligro { color: #ff8f8f; margin-top: 11px; font-size: 12.5px; }
+  .zv-confirmar p  { margin: 0; color: var(--gris); font-size: 13.5px; line-height: 1.55; }
+  .zv-confirmar .peligro { color: var(--error); margin-top: 11px; font-size: 12.5px; }
 `;
 document.head.appendChild(estilos);
 
@@ -251,6 +276,8 @@ contenedor.innerHTML = `
             <div class="zv-campo zv-ancho">
               <label for="fDescripcion">Descripción</label>
               <textarea id="fDescripcion" placeholder="1 pantalla Netflix 4K. Renovable mensualmente."></textarea>
+              <div class="zv-frases-lbl">Frases de siempre — tocá para agregarlas:</div>
+              <div class="zv-frases" data-frases="fDescripcion"></div>
             </div>
 
             <div class="zv-campo zv-ancho">
@@ -336,7 +363,7 @@ contenedor.innerHTML = `
 
       <form id="zvFormPrecio" novalidate>
         <div class="zv-cuerpo">
-          <p id="zvPrecioNombre" style="margin:0 0 16px; color:#9a9a9a; font-size:13.5px;"></p>
+          <p id="zvPrecioNombre" style="margin:0 0 16px; color:var(--gris); font-size:13.5px;"></p>
 
           <div class="zv-campo" id="cPrecioRapido" style="margin-bottom:14px;">
             <label for="fPrecioRapido">Precio normal (Bs.)</label>
@@ -356,6 +383,42 @@ contenedor.innerHTML = `
         <div class="zv-pie">
           <button type="button" class="zv-btn gris" data-cerrar>Cancelar</button>
           <button type="submit" class="zv-btn rojo" id="zvGuardarPrecio">Guardar precio</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Descripción rápida ===== -->
+  <!-- El texto que ve el cliente es lo segundo que más se retoca, y hasta
+       ahora obligaba a abrir el formulario entero. Este modal edita solo
+       la descripción, con las frases de siempre a un clic. -->
+  <div class="zv-fondo" id="zvFondoDesc">
+    <div class="zv-modal chico" role="dialog" aria-modal="true" aria-labelledby="zvDescTitulo">
+      <div class="zv-cab">
+        <h2 id="zvDescTitulo">Editar descripción</h2>
+        <button class="zv-cerrar" data-cerrar aria-label="Cerrar">✕</button>
+      </div>
+
+      <form id="zvFormDesc" novalidate>
+        <div class="zv-cuerpo">
+          <p id="zvDescNombre" style="margin:0 0 16px; color:var(--gris); font-size:13.5px;"></p>
+
+          <div class="zv-campo" id="cDescRapida">
+            <label for="fDescRapida">
+              Descripción <span class="ayuda">— es el texto que lee el cliente en la ficha</span>
+            </label>
+            <textarea id="fDescRapida" placeholder="1 mes Canva Pro a correo de cliente. 1 dispositivo."></textarea>
+            <div class="zv-frases-lbl">Frases de siempre — tocá para agregarlas:</div>
+            <div class="zv-frases" data-frases="fDescRapida"></div>
+          </div>
+
+          <p id="zvDescAviso" style="display:none; margin:14px 0 0; font-size:12.5px;
+             color:var(--info); line-height:1.5;"></p>
+        </div>
+
+        <div class="zv-pie">
+          <button type="button" class="zv-btn gris" data-cerrar>Cancelar</button>
+          <button type="submit" class="zv-btn rojo" id="zvGuardarDesc">Guardar descripción</button>
         </div>
       </form>
     </div>
@@ -386,6 +449,7 @@ const $ = id => document.getElementById(id);
 let editando = null;   // producto en edición, o null si es nuevo
 let borrando = null;
 let cambiandoPrecio = null;   // producto al que se le cambia solo el precio
+let cambiandoDesc   = null;   // producto al que se le cambia solo la descripción
 
 // ============================================================
 // 4. IMÁGENES
@@ -403,9 +467,9 @@ function logoPorDefecto(nombre = '?') {
   const letra = ([...String(nombre).trim()][0] || '?').toUpperCase();
   return 'data:image/svg+xml,' + encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-      <rect width="64" height="64" rx="10" fill="#2a2a2a"/>
+      <rect width="64" height="64" rx="10" fill="#eceef1"/>
       <text x="32" y="33" font-family="Arial" font-size="26" font-weight="bold"
-            fill="#6b6b6b" text-anchor="middle" dominant-baseline="central">${letra}</text>
+            fill="#9aa0ab" text-anchor="middle" dominant-baseline="central">${letra}</text>
     </svg>`);
 }
 
@@ -481,6 +545,7 @@ window.accionProducto = function (accion, producto) {
   if (accion === 'nuevo')   return abrirEditor(null);
   if (accion === 'editar')  return abrirEditor(producto);
   if (accion === 'precio')  return abrirPrecio(producto);
+  if (accion === 'descripcion') return abrirDescripcion(producto);
   if (accion === 'agotar')  return alternarDisponible(producto);
   if (accion === 'planes')  return alternarPlanes(producto);
   if (accion === 'borrar')  return pedirConfirmacionBorrado(producto);
@@ -544,6 +609,124 @@ $('zvFormPrecio').addEventListener('submit', async e => {
 });
 
 // ------------------------------------------------------------
+// Descripción rápida — clic en la descripción de la tabla
+// ------------------------------------------------------------
+// Frases que se repiten en casi todas las fichas. Tocar una la pega al
+// final del texto; tocarla de nuevo la saca. Así no hay que reescribirlas
+// ni acordarse de la redacción exacta (sobre todo la del correo, que es
+// la que hace que la tienda le pida el correo al cliente al pagar).
+const FRASES = [
+  'Te pediremos tu correo al pagar.',
+  'A correo de cliente.',
+  'Renovable mensualmente.',
+  '1 dispositivo.',
+  'Entrega de 5 a 30 minutos.',
+  'Garantía durante todo el plan.',
+  'No se puede cambiar la contraseña ni el correo de la cuenta.',
+];
+
+function pintarFrases() {
+  contenedor.querySelectorAll('[data-frases]').forEach(caja => {
+    const campo = $(caja.dataset.frases);
+    if (!campo) return;
+    const actual = (campo.value || '').toLowerCase();
+    caja.innerHTML = FRASES.map((f, i) =>
+      `<button type="button" class="zv-frase${actual.includes(f.toLowerCase()) ? ' puesta' : ''}" data-i="${i}">${f}</button>`
+    ).join('');
+  });
+}
+
+function agregarFrase(texto, frase) {
+  const base = (texto || '').trim();
+  return base ? base + ' ' + frase : frase;
+}
+
+function quitarFrase(texto, frase) {
+  const i = (texto || '').toLowerCase().indexOf(frase.toLowerCase());
+  if (i === -1) return texto;
+  return (texto.slice(0, i) + texto.slice(i + frase.length)).replace(/\s+/g, ' ').trim();
+}
+
+// La tienda decide con nombre + descripción si le pide el correo al cliente
+// (es la misma regla de productFlags() en index.html). Lo mostramos mientras
+// se escribe, para ver el efecto sin tener que ir a probarlo a la tienda.
+function avisarSiPideCorreo() {
+  const el = $('zvDescAviso');
+  if (!el || !cambiandoDesc) return;
+  const texto = (($('fDescRapida').value || '') + ' ' + (cambiandoDesc.nombre || '')).toLowerCase();
+  const pide = texto.includes('correo de cliente')
+            || (texto.includes('apple music') && texto.includes('iphone'));
+  el.textContent = pide
+    ? '📧 Con este texto, la tienda le va a pedir el correo al cliente en la pantalla de pago.'
+    : '';
+  el.style.display = pide ? 'block' : 'none';
+}
+
+// Un solo listener para los chips de las dos pantallas (editor y rápido)
+contenedor.addEventListener('click', e => {
+  const btn = e.target.closest('.zv-frase');
+  if (!btn) return;
+  const caja  = btn.closest('[data-frases]');
+  const campo = $(caja.dataset.frases);
+  if (!campo) return;
+
+  const frase = FRASES[Number(btn.dataset.i)];
+  campo.value = btn.classList.contains('puesta')
+    ? quitarFrase(campo.value, frase)
+    : agregarFrase(campo.value, frase);
+
+  pintarFrases();
+  avisarSiPideCorreo();
+  campo.focus();
+});
+
+// Escribir a mano también actualiza los chips y el aviso
+contenedor.addEventListener('input', e => {
+  if (e.target.id !== 'fDescRapida' && e.target.id !== 'fDescripcion') return;
+  pintarFrases();
+  avisarSiPideCorreo();
+});
+
+function abrirDescripcion(p) {
+  cambiandoDesc = p;
+  limpiarErrores();
+
+  $('zvDescNombre').textContent = p.nombre || '(sin nombre)';
+  $('fDescRapida').value = p.descripcion || '';
+  pintarFrases();
+  avisarSiPideCorreo();
+
+  abrir($('zvFondoDesc'));
+  setTimeout(() => $('fDescRapida').focus(), 60);
+}
+
+$('zvFormDesc').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!cambiandoDesc) return;
+
+  const p = cambiandoDesc;
+  const descripcion = $('fDescRapida').value.trim();
+
+  $('zvGuardarDesc').disabled = true;
+  $('zvGuardarDesc').textContent = 'Guardando…';
+
+  try {
+    await updateDoc(doc(db, 'productos', p.id), {
+      descripcion,
+      fechaActualizacion: serverTimestamp()
+    });
+    aviso(`✓ Descripción de "${recortar(p.nombre)}" actualizada`, 'ok');
+    cerrarTodo();
+  } catch (err) {
+    console.error(err);
+    aviso(`No se pudo guardar la descripción: ${err.message}`, 'error');
+  } finally {
+    $('zvGuardarDesc').disabled = false;
+    $('zvGuardarDesc').textContent = 'Guardar descripción';
+  }
+});
+
+// ------------------------------------------------------------
 // Mostrar / quitar de la página de Planes — un click, reversible
 // ------------------------------------------------------------
 async function alternarPlanes(p) {
@@ -594,6 +777,7 @@ function abrirEditor(p) {
 
   pintarSwitches();
   actualizarPrevia();
+  pintarFrases();
   abrir($('zvFondoEditor'));
   setTimeout(() => $('fNombre').focus(), 60);
 }

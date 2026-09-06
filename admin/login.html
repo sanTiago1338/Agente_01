@@ -11,18 +11,34 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
+  /* Misma paleta clara que la tienda y que el panel. Los nombres viejos
+     quedan como alias para no reescribir el CSS de abajo. */
   :root {
-    --negro:    #0a0a0a;
-    --panel:    #141414;
-    --panel-2:  #1c1c1c;
-    --borde:    #2a2a2a;
-    --rojo:     #e50914;
-    --dorado:   #ffd700;
-    --texto:    #f5f5f5;
-    --gris:     #9a9a9a;
-    --gris-dim: #6b6b6b;
-    --ok:       #22c55e;
-    --error:    #ef4444;
+    --fondo:       #ffffff;
+    --superficie:  #fbfbfc;
+    --superficie-2:#f4f5f7;
+    --separador:   rgba(20,22,26,.09);
+    --tinta:       #14161a;
+    --tinta-media: #3d424b;
+    --tinta-suave: #767c88;
+    --tinta-tenue: #9aa0ab;
+    --marca:       #e50914;
+    --oro:         #9a7400;
+
+    --sombra-alta: 0 2px 6px rgba(20,22,26,.07), 0 12px 32px rgba(20,22,26,.10);
+
+    /* Alias históricos */
+    --negro:    var(--fondo);
+    --panel:    var(--superficie);
+    --panel-2:  var(--superficie-2);
+    --borde:    var(--separador);
+    --rojo:     var(--marca);
+    --dorado:   var(--oro);
+    --texto:    var(--tinta-media);
+    --gris:     var(--tinta-suave);
+    --gris-dim: var(--tinta-tenue);
+    --ok:       #15803d;
+    --error:    #dc2626;
   }
 
   * { box-sizing: border-box; }
@@ -37,8 +53,8 @@
     place-items: center;
     padding: 24px 18px;
     background-image:
-      radial-gradient(900px 420px at 50% -120px, rgba(229,9,20,.13), transparent 65%),
-      radial-gradient(600px 300px at 85% 110%, rgba(255,215,0,.05), transparent 60%);
+      radial-gradient(900px 420px at 50% -120px, rgba(229,9,20,.06),  transparent 65%),
+      radial-gradient(600px 300px at 85% 110%, rgba(245,197,24,.08), transparent 60%);
   }
 
   .card {
@@ -48,7 +64,7 @@
     border: 1px solid var(--borde);
     border-radius: 16px;
     padding: 34px 30px 28px;
-    box-shadow: 0 24px 70px rgba(0,0,0,.6);
+    box-shadow: var(--sombra-alta);
   }
 
   /* ---------- Encabezado ---------- */
@@ -61,7 +77,7 @@
     line-height: 1;
   }
   .logo .zona { color: var(--rojo); }
-  .logo .vip  { color: var(--texto); }
+  .logo .vip  { color: var(--tinta); }
 
   .subtitulo {
     text-align: center;
@@ -99,7 +115,7 @@
     font-family: inherit;
     transition: border-color .15s;
   }
-  input::placeholder { color: #555; }
+  input::placeholder { color: var(--gris-dim); }
   input:focus {
     outline: none;
     border-color: var(--rojo);
@@ -123,7 +139,7 @@
     line-height: 1;
     border-radius: 6px;
   }
-  .ojo:hover  { color: var(--texto); }
+  .ojo:hover  { color: var(--tinta); }
   .ojo:focus-visible { outline: 2px solid var(--rojo); outline-offset: -2px; }
 
   /* ---------- Recordar ---------- */
@@ -161,7 +177,7 @@
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-  .link-btn:hover:not(:disabled) { filter: brightness(1.2); }
+  .link-btn:hover:not(:disabled) { filter: brightness(.9); }
   .link-btn:disabled { opacity: .45; cursor: not-allowed; }
 
   /* ---------- Botón ---------- */
@@ -179,7 +195,7 @@
     letter-spacing: .02em;
     transition: filter .15s;
   }
-  .btn-entrar:hover:not(:disabled) { filter: brightness(1.15); }
+  .btn-entrar:hover:not(:disabled) { filter: brightness(.95); }
   .btn-entrar:disabled { opacity: .5; cursor: not-allowed; }
 
   /* ---------- Mensajes ---------- */
@@ -193,14 +209,14 @@
   }
   .mensaje.visible { display: block; }
   .mensaje.error {
-    background: rgba(239,68,68,.09);
-    border: 1px solid rgba(239,68,68,.36);
-    color: #ffb4b4;
+    background: rgba(220,38,38,.08);
+    border: 1px solid rgba(220,38,38,.3);
+    color: #8f1616;
   }
   .mensaje.ok {
-    background: rgba(34,197,94,.09);
-    border: 1px solid rgba(34,197,94,.36);
-    color: #a8ebc0;
+    background: rgba(21,128,61,.08);
+    border: 1px solid rgba(21,128,61,.3);
+    color: #10502a;
   }
 
   /* ---------- Pie ---------- */
@@ -413,5 +429,8 @@ $('btnReset').addEventListener('click', async () => {
   }
 });
 </script>
+
+<!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
+<script src="../bg-burbujas.js" defer></script>
 </body>
 </html>

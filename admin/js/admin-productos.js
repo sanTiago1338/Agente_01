@@ -232,7 +232,7 @@ contenedor.innerHTML = `
 
             <div class="zv-campo zv-ancho" id="cNombre">
               <label for="fNombre">Nombre del producto</label>
-              <input type="text" id="fNombre" placeholder="Netflix Premium 4K (1 pantalla)" autocomplete="off">
+              <input type="text" id="fNombre" placeholder="Netflix Premium 4K" autocomplete="off">
               <div class="zv-error">Escribí un nombre.</div>
             </div>
 
@@ -264,6 +264,9 @@ contenedor.innerHTML = `
                 <label class="zv-sw" id="swPlanes" title="Aparece en la tabla de planes.html">
                   <input type="checkbox" id="fPlanes"> 📋 Mostrar en Planes
                 </label>
+                <label class="zv-sw" id="swCorreo" title="Escribe «A correo de cliente.» en la descripción — es lo que hace que la tienda le pida el correo al cliente al pagar">
+                  <input type="checkbox" id="fCorreo"> 📧 Pide correo
+                </label>
               </div>
             </div>
 
@@ -275,7 +278,7 @@ contenedor.innerHTML = `
 
             <div class="zv-campo zv-ancho">
               <label for="fDescripcion">Descripción</label>
-              <textarea id="fDescripcion" placeholder="1 pantalla Netflix 4K. Renovable mensualmente."></textarea>
+              <textarea id="fDescripcion" placeholder="Netflix Premium 4K. Renovable mensualmente."></textarea>
               <div class="zv-frases-lbl">Frases de siempre — tocá para agregarlas:</div>
               <div class="zv-frases" data-frases="fDescripcion"></div>
             </div>
@@ -331,7 +334,7 @@ contenedor.innerHTML = `
                 </div>
                 <div>
                   <span>📺 Acceso</span>
-                  <input type="text" id="fAcceso" placeholder="1 pantalla · Cuenta completa…" autocomplete="off">
+                  <input type="text" id="fAcceso" placeholder="Cuenta completa…" autocomplete="off">
                 </div>
                 <div>
                   <span>🔄 Suscripción</span>
@@ -507,13 +510,26 @@ function limpiarErrores() {
 
 function pintarSwitches() {
   [['swActivo','fActivo'], ['swDestacado','fDestacado'],
-   ['swOferta','fOferta'], ['swPlanes','fPlanes']]
+   ['swOferta','fOferta'], ['swPlanes','fPlanes'], ['swCorreo','fCorreo']]
     .forEach(([sw, chk]) => $(sw).classList.toggle('on', $(chk).checked));
   $('cOferta').style.display = $('fOferta').checked ? '' : 'none';
 }
 
 ['fActivo','fDestacado','fOferta','fPlanes'].forEach(id =>
   $(id).addEventListener('change', pintarSwitches));
+
+// "📧 Pide correo" es el único switch que además toca la descripción:
+// pone o saca la frase, que es lo que mira la tienda para pedir el correo.
+$('fCorreo').addEventListener('change', () => {
+  const campo = $('fDescripcion');
+  if ($('fCorreo').checked) {
+    if (!textoPideCorreo(campo.value)) campo.value = agregarFrase(campo.value, FRASE_CORREO);
+  } else {
+    campo.value = quitarCorreo(campo.value);
+  }
+  pintarSwitches();
+  pintarFrases();
+});
 
 // Previsualización de la imagen mientras escribís la URL
 $('fImagen').addEventListener('input', actualizarPrevia);
@@ -611,13 +627,52 @@ $('zvFormPrecio').addEventListener('submit', async e => {
 // ------------------------------------------------------------
 // Descripción rápida — clic en la descripción de la tabla
 // ------------------------------------------------------------
+// La frase que hace que la tienda le pida el correo al cliente. Es la única
+// que decide, así que vive en una constante y la usan el chip, el switch
+// "📧 Pide correo" y el aviso, para que no se escriban distinto entre sí.
+const FRASE_CORREO = 'A correo de cliente.';
+
+function textoPideCorreo(texto) {
+  return (texto || '').toLowerCase().includes('correo de cliente');
+}
+
+// Apagar el switch tiene que sacar la frase aunque esté escrita de otra
+// forma ("a correo de cliente", sin punto, en medio de una oración), porque
+// si queda cualquier resto la tienda sigue pidiendo el correo.
+function quitarCorreo(texto) {
+  const clave = 'correo de cliente';
+  let t = texto || '';
+  for (;;) {
+    const i = t.toLowerCase().indexOf(clave);
+    if (i === -1) break;
+    const antes = t.slice(0, i).toLowerCase();
+    let ini = i;
+    if (antes === 'a ' || antes.endsWith(' a '))  ini = i - 2;
+    if (antes === 'al ' || antes.endsWith(' al ')) ini = i - 3;
+    let fin = i + clave.length;
+    if (t[fin] === '.') fin++;
+    t = t.slice(0, ini) + t.slice(fin);
+  }
+  return t.replace(/\s+/g, ' ').replace(/ \./g, '.').trim();
+}
+
+// El switch no guarda un campo aparte: escribe o borra la frase en la
+// descripción. Así el texto que ve el cliente y lo que hace la tienda
+// son siempre lo mismo, y editar la descripción a mano sigue funcionando.
+// Solo mira el campo del editor: el modal rápido no tiene switch.
+function sincronizarSwitchCorreo(campo) {
+  if (!campo || campo.id !== 'fDescripcion') return;
+  $('fCorreo').checked = textoPideCorreo(campo.value);
+  pintarSwitches();
+}
+
 // Frases que se repiten en casi todas las fichas. Tocar una la pega al
 // final del texto; tocarla de nuevo la saca. Así no hay que reescribirlas
 // ni acordarse de la redacción exacta (sobre todo la del correo, que es
 // la que hace que la tienda le pida el correo al cliente al pagar).
 const FRASES = [
   'Te pediremos tu correo al pagar.',
-  'A correo de cliente.',
+  FRASE_CORREO,
   'Renovable mensualmente.',
   '1 dispositivo.',
   'Entrega de 5 a 30 minutos.',
@@ -654,8 +709,7 @@ function avisarSiPideCorreo() {
   const el = $('zvDescAviso');
   if (!el || !cambiandoDesc) return;
   const texto = (($('fDescRapida').value || '') + ' ' + (cambiandoDesc.nombre || '')).toLowerCase();
-  const pide = texto.includes('correo de cliente')
-            || (texto.includes('apple music') && texto.includes('iphone'));
+  const pide = texto.includes('correo de cliente');
   el.textContent = pide
     ? '📧 Con este texto, la tienda le va a pedir el correo al cliente en la pantalla de pago.'
     : '';
@@ -677,6 +731,7 @@ contenedor.addEventListener('click', e => {
 
   pintarFrases();
   avisarSiPideCorreo();
+  sincronizarSwitchCorreo(campo);
   campo.focus();
 });
 
@@ -685,6 +740,7 @@ contenedor.addEventListener('input', e => {
   if (e.target.id !== 'fDescRapida' && e.target.id !== 'fDescripcion') return;
   pintarFrases();
   avisarSiPideCorreo();
+  sincronizarSwitchCorreo(e.target);
 });
 
 function abrirDescripcion(p) {
@@ -774,6 +830,7 @@ function abrirEditor(p) {
   $('fDestacado').checked  = p?.destacado === true;
   $('fOferta').checked     = p?.oferta === true;
   $('fPlanes').checked     = p?.mostrarEnPlanes === true;
+  $('fCorreo').checked     = textoPideCorreo(p?.descripcion);
 
   pintarSwitches();
   actualizarPrevia();

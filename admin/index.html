@@ -912,8 +912,7 @@ function fila(p) {
   // en productFlags(): nombre + descripción, todo en minúsculas.
   const textoDesc  = (p.descripcion || '').trim();
   const textoPlano = (textoDesc + ' ' + (p.nombre || '')).toLowerCase();
-  const pideCorreo = textoPlano.includes('correo de cliente')
-                  || (textoPlano.includes('apple music') && textoPlano.includes('iphone'));
+  const pideCorreo = textoPlano.includes('correo de cliente');
 
 
   const etiquetas = [

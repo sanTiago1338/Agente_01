@@ -4185,23 +4185,15 @@
     }
 
     // Qué datos extra hay que pedirle al cliente en la pantalla de pago.
-    // Miramos nombre Y descripción, porque muchas veces el dato que decide
-    // ("a correo de cliente", "iPhone") solo está escrito en la descripción.
+    // Miramos nombre Y descripción, porque muchas veces la frase que decide
+    // ("a correo de cliente") solo está escrita en la descripción.
+    // Es la única regla: si no dice eso, la tienda no pide correo.
     function productFlags(producto) {
       const p = typeof producto === 'string' ? { name: producto } : (producto || {});
       const texto = ((p.name || '') + ' ' + (p.desc || '')).toLowerCase();
       const flags = {};
       if (texto.includes('correo de cliente')) {
         flags.needsEmail = true;
-      }
-      // Apple Music en iPhone: la activación va sobre el Apple ID del cliente,
-      // así que necesitamos su correo igual que en Canva.
-      if (texto.includes('apple music') && texto.includes('iphone')) {
-        flags.needsEmail = true;
-      }
-      if (texto.includes('claude') && texto.includes('pro') && texto.includes('completa')) {
-        flags.needsEmail = true;
-        flags.needsUsername = true;
       }
       return flags;
     }

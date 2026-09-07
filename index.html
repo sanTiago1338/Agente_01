@@ -12,7 +12,13 @@
        sin ese atributo la conexion adelantada no se reutiliza. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <!-- Ojo con los pesos: NO hay 800. Antes el CSS lo pedia en 28 lugares y,
+       como no se cargaba, el navegador caia al 900 igual. Ahora el CSS dice
+       900 directamente: se ve exactamente igual que siempre, pero queda
+       escrito lo que de verdad pasa. Si algun dia queres el 800 de verdad,
+       hay que agregarlo aca Y volver a poner los 900 en 800.
+       El 300 tampoco estaba en uso, asi que salio. -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;900&display=swap" rel="stylesheet">
   <style>
     /* ==========================================================
        PALETA CLARA
@@ -172,7 +178,7 @@
       width: 14px; height: 14px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-weight: 800;
+      font-weight: 900;
     }
 
     /* En pantallas chicas: marca y carrito en la primera fila,
@@ -515,7 +521,7 @@
       border: 1px solid rgba(20,22,26,0.120);
       color: #fff;
       font-size: 0.6rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: 0.5px;
       padding: 0.3rem 0.5rem;
       border-radius: 6px;
@@ -652,7 +658,7 @@
     /* Nombre de la plataforma, en su color de marca */
     .plat-nombre {
       padding: .7rem .7rem .45rem;
-      font-weight: 800;
+      font-weight: 900;
       font-size: .84rem;
       letter-spacing: .01em;
       color: var(--acento-txt);
@@ -678,7 +684,7 @@
       color: var(--acento-txt);
       background: transparent;
       font-size: .68rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .09em;
       text-transform: uppercase;
       text-align: center;
@@ -707,7 +713,7 @@
       align-items: center;
       gap: .5rem;
       font-size: .8rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .16em;
       text-transform: uppercase;
       color: var(--tinta-media);
@@ -760,7 +766,7 @@
       border: 1px solid rgba(255,255,255,.2);
       color: #fff;
       font-size: .6rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .13em;
       text-transform: uppercase;
       padding: .3rem .7rem;
@@ -835,7 +841,7 @@
       align-items: center;
       gap: .3rem;
       font-size: .6rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .05em;
       text-transform: uppercase;
       padding: .22rem .55rem;
@@ -848,7 +854,7 @@
     .plan-chip.correo { background: rgba(154,116,0,.12); color: var(--oro); }
 
     .plan-item-nombre {
-      font-weight: 800;
+      font-weight: 900;
       font-size: 1rem;
       color: var(--tinta);
       line-height: 1.3;
@@ -881,7 +887,7 @@
       letter-spacing: .13em;
       text-transform: uppercase;
       color: var(--tinta-suave);
-      font-weight: 800;
+      font-weight: 900;
     }
     .plan-precio {
       font-family: 'Bebas Neue', sans-serif;
@@ -907,7 +913,7 @@
       padding: .65rem 1.3rem;
       font-family: inherit;
       font-size: .8rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .06em;
       text-transform: uppercase;
       cursor: pointer;
@@ -982,7 +988,7 @@
       margin: 0;
       flex: 1;
       font-size: 1.05rem;
-      font-weight: 800;
+      font-weight: 900;
       color: var(--tinta);
       line-height: 1.3;
     }
@@ -1018,7 +1024,7 @@
     }
     .ck-rubro {
       font-size: .62rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .16em;
       text-transform: uppercase;
       color: var(--acento, var(--marca));
@@ -1026,7 +1032,7 @@
     }
     .ck-titulo {
       font-size: 1.05rem;
-      font-weight: 800;
+      font-weight: 900;
       color: var(--tinta);
       margin: 0 0 .45rem;
       line-height: 1.3;
@@ -1111,7 +1117,7 @@
       display: grid;
       place-items: center;
       font-size: .5rem;
-      font-weight: 800;
+      font-weight: 900;
       color: var(--tinta-suave);
     }
     .ck-switch-bola::after { content: 'NO'; }
@@ -1210,7 +1216,7 @@
     }
     .ck-total-lbl {
       font-size: .64rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .15em;
       text-transform: uppercase;
       color: var(--tinta-suave);
@@ -1240,7 +1246,7 @@
       color: #fff;
       font-family: inherit;
       font-size: .95rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .06em;
       text-transform: uppercase;
       cursor: pointer;
@@ -1302,7 +1308,7 @@
     }
     .plan-estado {
       font-size: .58rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .05em;
       text-transform: uppercase;
       padding: .18rem .45rem;
@@ -1363,7 +1369,7 @@
       padding: .6rem 1.15rem;
       font-family: inherit;
       font-size: .82rem;
-      font-weight: 800;
+      font-weight: 900;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -1522,7 +1528,7 @@
       background: linear-gradient(135deg, var(--dorado) 0%, #e6c200 100%);
       color: #000;
       font-size: 0.55rem;
-      font-weight: 800;
+      font-weight: 900;
       padding: 0.2rem 0.55rem;
       border-radius: 50px;
       letter-spacing: 0.5px;
@@ -1582,7 +1588,7 @@
       background: linear-gradient(135deg, var(--rojo) 0%, #ff1a26 100%);
       color: white;
       font-size: 0.55rem;
-      font-weight: 800;
+      font-weight: 900;
       padding: 0.2rem 0.55rem;
       border-radius: 50px;
       letter-spacing: 0.5px;
@@ -2041,7 +2047,7 @@
       width: 14px; height: 14px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-weight: 800;
+      font-weight: 900;
     }
 
     /* ===== MODAL OVERLAY (product detail) ===== */
@@ -2192,7 +2198,7 @@
       background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
       color: white;
       font-family: 'Outfit', sans-serif;
-      font-weight: 800;
+      font-weight: 900;
       font-size: 0.95rem;
       padding: 0.85rem 1.2rem;
       border-radius: 11px;
@@ -2323,7 +2329,7 @@
       backdrop-filter: blur(6px);
       color: #fff;
       font-size: 0.6rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: 1.5px;
       padding: 0.25rem 0.65rem;
       border-radius: 50px;
@@ -2364,7 +2370,7 @@
       background: #fff;
       color: var(--tinta);
       font-size: 0.7rem;
-      font-weight: 800;
+      font-weight: 900;
       padding: 0.45rem 0.85rem;
       border-radius: 50px;
       text-decoration: none;
@@ -2786,7 +2792,7 @@
       if (!grid) return;
       grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3.5rem 1rem;">
         <div style="font-size:2.5rem; margin-bottom:.75rem;">⚠️</div>
-        <div style="font-weight:800; color:#fff; margin-bottom:.4rem;">No se pudo cargar el catálogo</div>
+        <div style="font-weight:900; color:#fff; margin-bottom:.4rem;">No se pudo cargar el catálogo</div>
         <div style="font-size:.9rem; color:var(--gris-texto);">${mensaje}</div>
       </div>`;
     };
@@ -3461,7 +3467,7 @@
       if (total === 0) {
         grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3.5rem 1rem;">
           <div style="font-size:2.5rem; margin-bottom:.75rem;">🔍</div>
-          <div style="font-weight:800; color:var(--tinta); margin-bottom:.4rem;">Sin resultados</div>
+          <div style="font-weight:900; color:var(--tinta); margin-bottom:.4rem;">Sin resultados</div>
           <div style="font-size:.9rem; color:var(--tinta-suave);">
             ${currentSearch ? `No encontramos nada para «${currentSearch}»` : 'No hay productos en esta categoría'}
           </div>
@@ -4043,7 +4049,7 @@
           🛒 Agregar al Carrito
         </button>
 
-        ${p.price > 0 ? `<button onclick="abrirCheckout(${p.id})" class="modal-btn" style="background:linear-gradient(135deg, #ffd700, #ffb300); color:#000; width:100%; font-weight:800; margin-top:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+        ${p.price > 0 ? `<button onclick="abrirCheckout(${p.id})" class="modal-btn" style="background:linear-gradient(135deg, #ffd700, #ffb300); color:#000; width:100%; font-weight:900; margin-top:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
           <span style="font-size:1.2rem;">QR</span> Comprar con QR — ${p.bs}
         </button>` : ''}
         `}
@@ -4124,7 +4130,7 @@
             Confirmar Pedido
           </div>
           ${bloqueTerminos('cartTerminos')}
-          <button id="cartPagarQR" disabled onclick="payWithQR()" style="display:flex; align-items:center; justify-content:center; gap:0.6rem; width:100%; padding:0.85rem 1.5rem; background:linear-gradient(135deg, #ffd700, #ffb300); color:#000; border:none; border-radius:12px; font-weight:800; font-size:0.95rem; cursor:pointer; margin-bottom:0.5rem; transition:transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,215,0,0.4)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
+          <button id="cartPagarQR" disabled onclick="payWithQR()" style="display:flex; align-items:center; justify-content:center; gap:0.6rem; width:100%; padding:0.85rem 1.5rem; background:linear-gradient(135deg, #ffd700, #ffb300); color:#000; border:none; border-radius:12px; font-weight:900; font-size:0.95rem; cursor:pointer; margin-bottom:0.5rem; transition:transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 25px rgba(255,215,0,0.4)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
             <span style="font-size:1.3rem;">QR</span>
             Pagar con QR BancoSol — ${total.toFixed(2)} Bs
           </button>

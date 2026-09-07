@@ -1,62 +1,26 @@
 // ============================================================
-// TIAGO STORE · Configuración de Firebase
+// TIAGO STORE · Configuración de Firebase para el PANEL
 // ============================================================
-// Punto único de conexión con Firebase.
-// Todos los demás archivos JS importan desde acá.
+// La app y Firestore viven en firebase-base.js; acá solo se agrega
+// lo que necesita el panel de admin y NO la tienda del cliente:
 //
-// SDK: Firebase Modular v10 (via CDN, sin build step)
-// Docs: https://firebase.google.com/docs/web/setup
+//   auth     -> el login del panel        (firebase-auth.js,    147 KB)
+//   storage  -> la subida de imágenes     (firebase-storage.js,  45 KB)
+//
+// Importar la app desde firebase-base.js (y no volver a llamar a
+// initializeApp) es lo que garantiza que haya UNA sola instancia de
+// Firebase aunque el panel cargue los dos archivos.
+//
+// Uso:
+//   Panel:   import { db, auth, storage } from '../js/firebase-config.js';
+//   Tienda:  import { db } from './firebase-base.js';   <- NO desde acá,
+//            o el cliente se baja 192 KB de JS que no usa.
 // ============================================================
 
-// -----------------------------------------------------------
-// 1. Imports desde el CDN de Firebase
-// -----------------------------------------------------------
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import { getAuth }      from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import { getStorage }   from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
+import { getAuth }    from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-storage.js";
+import { app, db }    from './firebase-base.js';
 
-// -----------------------------------------------------------
-// 2. Configuración de TU proyecto Firebase
-// -----------------------------------------------------------
-//
-//   ⚠️ ACCIÓN REQUERIDA ⚠️
-//   Reemplazá los 6 valores de abajo con los de TU proyecto.
-//   Los sacás de: Firebase Console → Project settings (⚙️)
-//                 → Tus apps → Configuración SDK → Config
-//
-//   Es seguro tenerlos en el código: son públicos por diseño.
-//   La seguridad real está en las reglas de Firestore (que ya pusimos)
-//   y en Firebase Authentication.
-//
-const firebaseConfig = {
-  apiKey:            "AIzaSyDW0IhqEodu0DjNyUix2QciYLpqieUThyA",
-  authDomain:        "tiagostore-f09bd.firebaseapp.com",
-  projectId:         "tiagostore-f09bd",
-  storageBucket:     "tiagostore-f09bd.firebasestorage.app",
-  messagingSenderId: "1088551521240",
-  appId:             "1:1088551521240:web:dd63dbdb48357f871c80ad",
-  measurementId:     "G-6LTS64QJZJ"
-};
-
-// -----------------------------------------------------------
-// 3. Inicialización
-// -----------------------------------------------------------
-const app = initializeApp(firebaseConfig);
-
-// -----------------------------------------------------------
-// 4. Servicios exportados
-// -----------------------------------------------------------
-//    Uso desde otro archivo:
-//      import { db, auth, storage } from './firebase-config.js';
-//
-export const db      = getFirestore(app);   // Base de datos (productos, categorías)
+export { db };                              // Se reexporta por comodidad
 export const auth    = getAuth(app);        // Login del admin
 export const storage = getStorage(app);     // Subida de imágenes
-
-// -----------------------------------------------------------
-// 5. Log de confirmación (solo en desarrollo)
-// -----------------------------------------------------------
-console.log('%c🔥 Firebase conectado', 'color:#e50914;font-weight:bold', {
-  proyecto: firebaseConfig.projectId
-});

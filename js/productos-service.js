@@ -13,7 +13,10 @@
 //   No se oculta. Así funciona hoy tu tienda y así lo mantenemos.
 // ============================================================
 
-import { db } from './firebase-config.js';
+// Desde firebase-base.js y NO desde firebase-config.js: este archivo lo usa
+// la tienda pública, que no necesita login ni subida de imágenes. Traerlos
+// le costaba al cliente 192 KB de JavaScript que nunca se ejecuta.
+import { db } from './firebase-base.js';
 import {
   collection,
   onSnapshot

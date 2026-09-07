@@ -10,7 +10,9 @@
 // El CRUD del admin vive en: admin/js/admin-juegos.js
 // ============================================================
 
-import { db } from './firebase-config.js';
+// Desde firebase-base.js y NO desde firebase-config.js: este archivo lo usa
+// la página pública de juegos, que no necesita login ni subida de imágenes.
+import { db } from './firebase-base.js';
 import {
   collection,
   onSnapshot

@@ -302,15 +302,19 @@
 </main>
 
 <script type="module">
-import { auth } from '../js/firebase-config.js';
+// Todo sale del interruptor js/panel-auth.js, que decide si por detrás hay
+// Firebase o Supabase. Este archivo no se entera de cuál es: los nombres y
+// hasta los códigos de error ('auth/invalid-credential' y compañía) son los
+// mismos en las dos versiones, así que la tabla ERRORES de abajo sirve igual.
 import {
+  auth,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
   onAuthStateChanged,
   setPersistence,
   browserLocalPersistence,
   browserSessionPersistence
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+} from '../js/panel-auth.js';
 
 const $ = id => document.getElementById(id);
 const DESTINO = 'index.html';   // panel al que se entra tras loguearse

@@ -690,11 +690,11 @@
 <div id="avisos" aria-live="polite"></div>
 
 <script type="module">
-import { auth } from '../js/firebase-config.js';
+// El login sale del interruptor js/panel-auth.js (Firebase o Supabase,
+// según cuál esté descomentado allá). Este archivo no se entera de cuál es.
+import { auth, onAuthStateChanged, signOut, esAdmin } from '../js/panel-auth.js';
 import { subscribeProductos, precioFinal, formatBs, porcentajeDescuento }
   from '../js/productos-service.js';
-import { onAuthStateChanged, signOut }
-  from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 const $ = id => document.getElementById(id);
 const POR_PAGINA = 50;
@@ -706,12 +706,23 @@ let cargado = false;
 // ===========================================================
 // GUARD DE SESIÓN
 // ===========================================================
-onAuthStateChanged(auth, usuario => {
+onAuthStateChanged(auth, async usuario => {
   if (!usuario) { location.replace('login.html'); return; }
   $('usuarioEmail').textContent = usuario.email;
   $('verificando').remove();
   $('app').hidden = false;
   escucharCatalogo();
+
+  // Con Supabase, estar logueado no alcanza para escribir: hay que estar
+  // en la tabla "admins" (ver supabase/02-seguridad.sql). Las políticas RLS
+  // ya lo impiden del lado del servidor, así que este chequeo no es la
+  // seguridad — es el aviso. Sin él, un usuario fuera de la lista entraría,
+  // vería todo, tocaría "Guardar" y recibiría un error de Postgres sin
+  // entender por qué.
+  // Con Firebase esta función devuelve true siempre y no cambia nada.
+  if (await esAdmin() === false) {
+    aviso('Entraste, pero tu usuario no está en la lista de admins: vas a poder mirar, no guardar.', 'error');
+  }
 });
 
 $('btnSalir').addEventListener('click', async () => {

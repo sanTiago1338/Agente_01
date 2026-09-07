@@ -9,10 +9,11 @@
 //   accion: 'nuevo' | 'editar' | 'agotar' | 'borrar'
 // ============================================================
 
-import { db } from '../../js/firebase-config.js';
+// Todo sale del interruptor js/panel-datos.js, que decide si por detrás
+// hay Firestore o Supabase. Este archivo no se entera de cuál es.
 import {
-  collection, addDoc, doc, updateDoc, deleteDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  db, collection, addDoc, doc, updateDoc, deleteDoc, serverTimestamp
+} from '../../js/panel-datos.js';
 
 const productosRef = collection(db, 'productos');
 

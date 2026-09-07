@@ -8,10 +8,11 @@
 // array "paquetes". Editar un precio = actualizar ese array.
 // ============================================================
 
-import { db } from '../../js/firebase-config.js';
+// Todo sale del interruptor js/panel-datos.js, que decide si por detrás
+// hay Firestore o Supabase. Este archivo no se entera de cuál es.
 import {
-  collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  db, collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc, serverTimestamp
+} from '../../js/panel-datos.js';
 
 const juegosRef = collection(db, 'juegos');
 const aviso = (t, tipo) => (window.avisoAdmin ? window.avisoAdmin(t, tipo) : console.log(t));

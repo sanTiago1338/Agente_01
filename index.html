@@ -2490,7 +2490,7 @@
     <div class="hero-track" id="heroTrack">
       <!-- Slide 1: Free Fire -->
       <div class="hero-slide" style="--bg: linear-gradient(135deg,#4a0080 0%, #1a0033 60%, #0d0d0d 100%);">
-        <img src="Img/Free fire.jpg" alt="Free Fire" class="hero-slide-img">
+        <img src="Img/opt/Free fire.jpg" alt="Free Fire" class="hero-slide-img" fetchpriority="high">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">NEW</span>
           <div class="hero-title">DIAMANTES <span>FREE FIRE</span></div>
@@ -2500,7 +2500,7 @@
       </div>
       <!-- Slide 2: Paramount+ -->
       <div class="hero-slide" style="--bg: linear-gradient(135deg,#003087 0%, #001a4d 60%, #0d0d0d 100%);">
-        <img src="Img/Paramount+.png" alt="Paramount+" class="hero-slide-img" style="object-fit:contain;background:#001a4d;padding:1rem;">
+        <img data-src="Img/opt/Paramount+.jpg" alt="Paramount+" class="hero-slide-img" decoding="async" style="object-fit:contain;background:#001a4d;padding:1rem;">
         <div class="hero-slide-info">
           <span class="hero-tag">🥊 UFC INCLUIDO</span>
           <div class="hero-title">PARAMOUNT+ <span>PREMIUM</span></div>
@@ -2510,7 +2510,7 @@
       </div>
       <!-- Slide 3: Spotify Renovable -->
       <div class="hero-slide" style="--bg: linear-gradient(135deg,#1DB954 0%, #0a5d2a 60%, #0d0d0d 100%);">
-        <img src="Img/Spotyfi.jpg" alt="Spotify Renovable" class="hero-slide-img">
+        <img data-src="Img/opt/Spotyfi.jpg" alt="Spotify Renovable" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">♻️ RENOVABLE</span>
           <div class="hero-title">SPOTIFY <span>RENOVABLE</span></div>
@@ -2520,7 +2520,7 @@
       </div>
       <!-- Slide 5: Magis TV PRO -->
       <div class="hero-slide" style="--bg: linear-gradient(135deg,#1a0533 0%, #7b1fa2 50%, #0d0d0d 100%);">
-        <img src="Img/Magis%20TV.jpg" alt="Magis TV PRO" class="hero-slide-img">
+        <img data-src="Img/opt/Magis%20TV.jpg" alt="Magis TV PRO" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">🏆 LIGA BOLIVIANA</span>
           <div class="hero-title">MAGIS TV <span>PRO</span></div>
@@ -2530,7 +2530,7 @@
       </div>
       <!-- Slide: IPTV Smarters PRO -->
       <div class="hero-slide" style="--bg: linear-gradient(135deg,#003300 0%, #1a6600 60%, #0d0d0d 100%);">
-        <img src="Img/IPTV.jpg" alt="IPTV Smarters PRO" class="hero-slide-img">
+        <img data-src="Img/opt/IPTV.jpg" alt="IPTV Smarters PRO" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">🏆 LIGA BOLIVIANA</span>
           <div class="hero-title">IPTV <span>SMARTERS PRO</span></div>
@@ -2540,7 +2540,7 @@
       </div>
       <!-- Slide 4: IA -->
       <div class="hero-slide" style="--bg: linear-gradient(135deg,#7c3aed 0%, #2e1065 60%, #0d0d0d 100%);">
-        <img src="Img/Claude.jpg" alt="Claude IA" class="hero-slide-img">
+        <img data-src="Img/opt/Claude.jpg" alt="Claude IA" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag">🤖 NUEVO</span>
           <div class="hero-title">IA PREMIUM <span>CLAUDE & GEMINI</span></div>
@@ -3013,7 +3013,30 @@
       return url.includes('/s2/favicons') ? url.replace(/([?&]sz=)\d+/, '$1256') : url;
     }
 
+    // Redirige cualquier imagen de /Img a su versión liviana de /Img/opt.
+    // Los originales pesaban hasta 3,7 MB (PNG de 1152x2048) para mostrarse
+    // en un cuadrito de 265 px. Las de /Img/opt son JPEG de 900 px: hasta 96%
+    // más livianas y sin diferencia visible ni en un celular a 3x.
+    // Se hace acá, en el código, y no renombrando los archivos, porque las
+    // rutas viven en Firestore (campo "imagen" de cada producto): así no hay
+    // que migrar la base y los originales siguen sirviendo de respaldo.
+    // Las genera optimizar-imagenes.ps1.
+    function imgOptimizada(url) {
+      if (typeof url !== 'string') return url;
+      // Si ya apunta a la carpeta optimizada, no la volvemos a mapear
+      // (si no, una ruta cargada a mano desde el panel daría Img/opt/opt/…).
+      if (/^Img\/opt\//i.test(url)) return url;
+      const m = url.match(/^Img\/(.+)\.(png|jpe?g)$/i);
+      return m ? `Img/opt/${m[1]}.jpg` : url;
+    }
+
+    // Envoltura: todo lo que devuelva getImageUrlBase pasa por el redirector,
+    // sin importar por cuál de sus muchos `return` haya salido.
     function getImageUrl(productName, category, imgColor, urlGuardada) {
+      return imgOptimizada(getImageUrlBase(productName, category, imgColor, urlGuardada));
+    }
+
+    function getImageUrlBase(productName, category, imgColor, urlGuardada) {
       // 0) Si el producto tiene imagen guardada en Firestore (subida desde el
       //    panel de admin, o migrada del catálogo viejo), esa manda y corta acá.
       //    Esto es lo que permite cambiar la imagen de un producto sin tocar código.
@@ -4252,8 +4275,26 @@
         dotsWrap.appendChild(dot);
       }
 
+      // Carga diferida de las diapositivas.
+      // Solo la primera trae src en el HTML; las demás traen data-src y se
+      // piden recién cuando les toca salir. Antes el navegador bajaba las 6
+      // imágenes de una (1,6 MB) aunque el cliente solo viera la primera.
+      // No sirve loading="lazy": las diapositivas están una al lado de la
+      // otra dentro del overflow:hidden, así que Chrome las considera "casi
+      // visibles" y las baja igual.
+      function cargarSlide(i) {
+        const img = slides[i] && slides[i].querySelector('img[data-src]');
+        if (!img) return;
+        img.src = img.dataset.src;
+        img.removeAttribute('data-src');
+      }
+      // La actual y la siguiente: siempre hay 5 segundos de ventaja antes
+      // de que la diapositiva entre en pantalla, así nunca se ve vacía.
+      function precargar(i) { cargarSlide(i); cargarSlide((i + 1) % total); }
+
       function goTo(idx) {
         current = (idx + total) % total;
+        precargar(current);
         track.style.transform = `translateX(-${current * 100}%)`;
         Array.from(dotsWrap.children).forEach((d, i) => {
           d.classList.toggle('active', i === current);
@@ -4286,6 +4327,12 @@
         if (Math.abs(deltaX) > 40) goTo(current + (deltaX < 0 ? 1 : -1));
         else start();
       });
+
+      // La segunda diapositiva espera a que la página termine de cargar:
+      // así no le compite el ancho de banda ni al catálogo ni a la imagen
+      // que el cliente sí está mirando.
+      if (document.readyState === 'complete') precargar(0);
+      else window.addEventListener('load', () => precargar(0), { once: true });
 
       start();
     })();

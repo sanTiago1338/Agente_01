@@ -1048,7 +1048,7 @@
       <div class="hero-track" id="heroTrack">
         <!-- Free Fire -->
         <div class="hero-slide" style="--bg: linear-gradient(135deg,#ff4500 0%, #8b0000 60%, #1a0000 100%);">
-          <img src="Img/Free fire.jpg" alt="Free Fire" class="hero-slide-img">
+          <img src="Img/opt/Free fire.jpg" alt="Free Fire" class="hero-slide-img" fetchpriority="high">
           <div class="hero-content">
             <span class="hero-tag hero-tag--promo">🔥 PROMO</span>
             <div class="hero-title">DIAMANTES <span class="gold">FREE FIRE</span></div>
@@ -1058,7 +1058,7 @@
         </div>
         <!-- Mobile Legends -->
         <div class="hero-slide" style="--bg: linear-gradient(135deg,#0d47a1 0%, #1976d2 60%, #0a1f3d 100%);">
-          <img src="Img/Mobile Legends.png" alt="Mobile Legends" class="hero-slide-img">
+          <img data-src="Img/opt/Mobile Legends.jpg" alt="Mobile Legends" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">⚔️ MOBA</span>
             <div class="hero-title">DIAMANTES <span class="gold">ML</span></div>
@@ -1068,7 +1068,7 @@
         </div>
         <!-- Brawl Stars -->
         <div class="hero-slide" style="--bg: linear-gradient(135deg,#4a0080 0%, #9b00ff 60%, #1a0033 100%);">
-          <img src="Img/Brawl Stars.png" alt="Brawl Stars" class="hero-slide-img">
+          <img data-src="Img/opt/Brawl Stars.jpg" alt="Brawl Stars" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">💎 GEMAS</span>
             <div class="hero-title">GEMAS <span class="gold">BRAWL STARS</span></div>
@@ -1078,7 +1078,7 @@
         </div>
         <!-- Roblox -->
         <div class="hero-slide" style="--bg: linear-gradient(135deg,#e60023 0%, #8b0000 60%, #1a1a1a 100%);">
-          <img src="Img/Roblox.png" alt="Roblox" class="hero-slide-img">
+          <img data-src="Img/opt/Roblox.jpg" alt="Roblox" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">🎮 ROBUX</span>
             <div class="hero-title">ROBUX <span class="gold">ROBLOX</span></div>
@@ -1088,7 +1088,7 @@
         </div>
         <!-- PUBG Mobile -->
         <div class="hero-slide" style="--bg: linear-gradient(135deg,#665200 0%, #332900 60%, #0d0d0d 100%);">
-          <img src="Img/Pug Mobile.png" alt="PUBG Mobile" class="hero-slide-img">
+          <img data-src="Img/opt/Pug Mobile.jpg" alt="PUBG Mobile" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">🪙 UC</span>
             <div class="hero-title">UC <span class="gold">PUBG MOBILE</span></div>
@@ -1188,11 +1188,25 @@
         `<div style="font-size:.9rem;">${mensaje}</div></div>`;
     };
 
+    // Redirige cualquier imagen de /Img a su versión liviana de /Img/opt.
+    // Los logos de juegos eran PNG de hasta 3,7 MB para verse en 242 px.
+    // Se hace acá y no renombrando archivos porque la ruta de cada logo
+    // vive en Firestore. Las genera optimizar-imagenes.ps1.
+    function imgOptimizada(url) {
+      if (typeof url !== 'string') return url;
+      // Si ya apunta a la carpeta optimizada, no la volvemos a mapear
+      // (si no, una ruta cargada a mano desde el panel daría Img/opt/opt/…).
+      if (/^Img\/opt\//i.test(url)) return url;
+      const m = url.match(/^Img\/(.+)\.(png|jpe?g)$/i);
+      return m ? `Img/opt/${m[1]}.jpg` : url;
+    }
+
     function cardHtml(g) {
+      const logo = imgOptimizada(g.logo);
       const ph = `
         <div class="placeholder" style="background:linear-gradient(135deg,${g.c1},${g.c2})">
           ${g.logo
-            ? `<img class="game-logo${g.logo.startsWith('Img/') ? ' game-logo--fill' : ''}" src="${g.logo}" alt="${g.name}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo-fallback',textContent:'${g.name.replace(/'/g,"\\'").toUpperCase()}'}))">`
+            ? `<img class="game-logo${logo.startsWith('Img/') ? ' game-logo--fill' : ''}" src="${logo}" alt="${g.name}" loading="lazy" decoding="async" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'logo-fallback',textContent:'${g.name.replace(/'/g,"\\'").toUpperCase()}'}))">`
             : `<div class="logo-fallback">+</div>`}
         </div>`;
       const badges = [
@@ -1590,8 +1604,27 @@
         dotsWrap.appendChild(dot);
       }
 
+      // Carga diferida de las diapositivas.
+      // Solo la primera trae src en el HTML; las demás traen data-src y se
+      // piden recién cuando les toca salir. Antes el navegador bajaba las 5
+      // imágenes de una (7,1 MB) aunque el cliente solo viera la primera.
+      // No sirve loading="lazy": las diapositivas están una al lado de la
+      // otra dentro del overflow:hidden, así que Chrome las considera "casi
+      // visibles" y las baja igual.
+      function cargarSlide(i) {
+        const slide = track.children[i];
+        const img = slide && slide.querySelector('img[data-src]');
+        if (!img) return;
+        img.src = img.dataset.src;
+        img.removeAttribute('data-src');
+      }
+      // La actual y la siguiente: siempre hay 5 segundos de ventaja antes
+      // de que la diapositiva entre en pantalla, así nunca se ve vacía.
+      function precargar(i) { cargarSlide(i); cargarSlide((i + 1) % total); }
+
       function goTo(idx) {
         current = (idx + total) % total;
+        precargar(current);
         track.style.transform = `translateX(-${current * 100}%)`;
         Array.from(dotsWrap.children).forEach((d, i) => {
           d.classList.toggle('active', i === current);
@@ -1622,6 +1655,12 @@
         if (Math.abs(deltaX) > 40) goTo(current + (deltaX < 0 ? 1 : -1));
         else start();
       });
+
+      // La segunda diapositiva espera a que la página termine de cargar:
+      // así no le compite el ancho de banda ni a los juegos ni a la imagen
+      // que el cliente sí está mirando.
+      if (document.readyState === 'complete') precargar(0);
+      else window.addEventListener('load', () => precargar(0), { once: true });
 
       start();
     })();

@@ -4,7 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tiago Store | Tienda</title>
+  <!-- Los archivos .woff2 no vienen de googleapis sino de gstatic, asi que
+       hace falta el preconnect a los dos. Sin el segundo, el navegador
+       recien resuelve DNS + TLS de gstatic cuando ya leyo el CSS de abajo,
+       y eso son dos viajes de ida y vuelta perdidos en un celular.
+       crossorigin es obligatorio: las fuentes se piden en modo anonimo, y
+       sin ese atributo la conexion adelantada no se reutiliza. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
   <style>
     /* ==========================================================

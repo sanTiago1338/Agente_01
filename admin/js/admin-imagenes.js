@@ -8,7 +8,8 @@
 //   Firestore tiene un límite duro de 1 MB por documento.
 //   Una foto de celular pesa 3-5 MB. Sin comprimir, no entra.
 //
-// Flujo:  archivo → <canvas> → 768x768 → WebP 0.82 → ~30 KB
+// Flujo:  archivo → <canvas> achicado de a mitades → 1024x1024 máx
+//         → toque de nitidez → WebP (o JPEG/PNG) → ~80-250 KB
 //
 // Se engancha al editor de producto que crea admin-productos.js,
 // por eso este archivo se carga DESPUÉS de aquel.
@@ -17,37 +18,66 @@
 // -----------------------------------------------------------
 // Configuración
 // -----------------------------------------------------------
-// De dónde sale el 768. Medido en la tienda con la ventana en 800px:
-//   tarjeta de la grilla ..... 242x242
-//   hero del panel ........... 747x190   <- el más grande
-//   logo del plan / checkout .. 48 y 54
-// Antes esto estaba en 256 y el hero la estiraba 3 veces: por eso las
-// fotos se veían borrosas. Ademas los celulares tienen pantallas de 2x
-// y 3x, asi que una tarjeta de 170px necesita hasta 510px reales.
-const LADO_MAX     = 768;     // px — cubre el hero y las pantallas 3x
-const CALIDAD      = 0.82;
-const PESO_OBJETIVO = 150 * 1024;  // 150 KB — si se pasa, recomprime
+// De dónde sale el 1024. Medido en la tienda:
+//   tarjeta de la grilla en escritorio (4 columnas) ... hasta ~460px
+//   hero del panel de plataforma ...................... 747x190
+//   tarjeta en un celular de pantalla 3x .............. 177px = 531px reales
+//   tarjeta a todo el ancho en un celular 3x .......... 340px = 1020px reales
+// Con 768 (lo de antes) a las pantallas 3x les seguía faltando.
+const LADO_MAX = 1024;
+
+// Si el archivo se pasa de PESO_OBJETIVO se reintenta bajando la
+// CALIDAD antes que el TAMAÑO: una imagen grande con algo de
+// compresión se ve mucho mejor que una chica y perfecta.
+// Nunca se baja de LADO_MINIMO.
+const CALIDAD       = 0.86;
+const LADO_MINIMO   = 768;
+const PESO_OBJETIVO = 220 * 1024;  // 220 KB — si se pasa, reintenta
 // Tope duro. Ojo: estos bytes son los de la imagen, pero se guarda en
-// base64, que ocupa un tercio más (400 KB -> ~533 KB en el documento).
+// base64, que ocupa un tercio más (420 KB -> ~560 KB en el documento).
 // El límite de Firestore es 1 MB por documento, contando el resto de
 // los campos, así que de acá no conviene subir.
-const PESO_MAXIMO   = 400 * 1024;
+const PESO_MAXIMO   = 420 * 1024;
+
+// Cuánta nitidez se devuelve después de achicar (0 = nada).
+// 0.3 es suave: levanta los bordes sin dejar halos en los logos.
+const NITIDEZ = 0.3;
 
 const aviso = (txt, tipo) =>
   (window.avisoAdmin ? window.avisoAdmin(txt, tipo) : console.log(txt));
 
 // -----------------------------------------------------------
-// ¿El navegador exporta WebP?  (todos desde 2020)
-// WebP pesa menos que JPEG y respeta la transparencia,
-// que es lo que necesitan los logos con fondo transparente.
+// Formato de salida
 // -----------------------------------------------------------
-const FORMATO = (() => {
+// WebP pesa menos que JPEG y respeta la transparencia, que es lo que
+// necesitan los logos. Lo generan Chrome, Edge, Firefox y Android...
+// pero Safari (iPhone, iPad y Mac) NO sabe exportar WebP desde <canvas>.
+//
+// Lo que pasaba: desde Safari esto caía a PNG. PNG no tiene "calidad",
+// así que la única forma de bajar de peso era achicar la imagen, y
+// Apple Music, Podimo, Canva y Disney quedaron guardadas en 384x384
+// (por eso se veían borrosas). Ahora, sin WebP:
+//   - foto o imagen sin transparencia  -> JPEG (sí tiene calidad)
+//   - logo con transparencia de verdad -> PNG
+// -----------------------------------------------------------
+const SOPORTA_WEBP = (() => {
   const c = document.createElement('canvas');
   c.width = c.height = 1;
-  return c.toDataURL('image/webp').startsWith('data:image/webp')
-    ? { mime: 'image/webp', nombre: 'WebP' }
-    : { mime: 'image/png',  nombre: 'PNG'  };
+  return c.toDataURL('image/webp').startsWith('data:image/webp');
 })();
+
+function formatoPara(tieneAlfa) {
+  if (SOPORTA_WEBP) return { mime: 'image/webp', nombre: 'WebP', conCalidad: true  };
+  if (tieneAlfa)    return { mime: 'image/png',  nombre: 'PNG',  conCalidad: false };
+  return                   { mime: 'image/jpeg', nombre: 'JPEG', conCalidad: true  };
+}
+
+// "data:image/webp;base64,..." -> "WebP"
+function nombreDeMime(dataUri) {
+  const mime = dataUri.slice(5, dataUri.indexOf(';'));
+  return { 'image/webp': 'WebP', 'image/jpeg': 'JPEG', 'image/png': 'PNG',
+           'image/gif': 'GIF', 'image/svg+xml': 'SVG' }[mime] || mime;
+}
 
 // ============================================================
 // 1. ESTILOS
@@ -91,6 +121,7 @@ css.textContent = `
   .zvi-ficha .info   { flex: 1; min-width: 0; }
   .zvi-ficha .t      { font-size: 13px; font-weight: 600; color: #10502a; }
   .zvi-ficha .d      { font-size: 11.5px; color: #4f7a60; margin-top: 2px; }
+  .zvi-ficha .d b    { color: #9a3412; font-weight: 600; }
   .zvi-ficha button  {
     background: none; border: 1px solid rgba(21,128,61,.35);
     color: var(--ok); border-radius: 7px;
@@ -158,7 +189,7 @@ function montar(input) {
   zona.innerHTML = `
     <span class="icono">🖼️</span>
     <div class="titulo">Elegí una imagen o arrastrala acá</div>
-    <div class="sub">Se achica sola a ${LADO_MAX}×${LADO_MAX} · JPG, PNG, WebP o GIF</div>`;
+    <div class="sub">Se optimiza sola hasta ${LADO_MAX}×${LADO_MAX} · JPG, PNG, WebP o GIF · cuanto más grande la original, mejor</div>`;
 
   // --- Input de archivo oculto ---
   const archivo = document.createElement('input');
@@ -169,7 +200,7 @@ function montar(input) {
   // --- Indicador de progreso ---
   const progreso = document.createElement('div');
   progreso.className = 'zvi-progreso';
-  progreso.innerHTML = '<div class="zvi-spin"></div><span>Comprimiendo imagen…</span>';
+  progreso.innerHTML = '<div class="zvi-spin"></div><span>Optimizando imagen…</span>';
 
   // --- Ficha de imagen ya cargada ---
   const ficha = document.createElement('div');
@@ -213,9 +244,27 @@ function montar(input) {
 
     if (esData) {
       ficha.querySelector('img').src = valor;
-      const kb = Math.round(valor.length * 0.75 / 1024);   // base64 → bytes reales
-      ficha.querySelector('.d').textContent =
-        `${FORMATO.nombre} · ${LADO_MAX}px máx · ~${kb} KB · guardada en Firestore`;
+      const kb      = Math.round(valor.length * 0.75 / 1024);   // base64 → bytes reales
+      const formato = nombreDeMime(valor);
+      const detalle = ficha.querySelector('.d');
+      detalle.textContent = `${formato} · ~${kb} KB · guardada en Firestore`;
+
+      // Las medidas salen recién cuando el navegador la decodifica.
+      // Si es una imagen chica de antes, avisar: así se ven cuáles
+      // conviene volver a subir.
+      const sonda = new Image();
+      sonda.onload = () => {
+        if (input.value.trim() !== valor) return;   // ya cambió de producto
+        const lado = Math.max(sonda.naturalWidth, sonda.naturalHeight);
+        detalle.textContent =
+          `${formato} · ${sonda.naturalWidth}×${sonda.naturalHeight} · ~${kb} KB · guardada en Firestore`;
+        if (lado < LADO_MINIMO) {
+          const b = document.createElement('b');
+          b.textContent = ' · ⚠ chica: se ve borrosa en la tienda, volvé a subirla en buena calidad';
+          detalle.appendChild(b);
+        }
+      };
+      sonda.src = valor;
     }
   }
 
@@ -290,19 +339,24 @@ function montar(input) {
     zona.style.display = 'none';
 
     try {
-      const { dataUri, ancho, alto, bytes } = await comprimir(file);
+      const r = await comprimir(file);
 
-      if (bytes > PESO_MAXIMO) {
+      if (r.bytes > PESO_MAXIMO) {
         aviso('No se pudo comprimir lo suficiente. Probá con una imagen más simple.', 'error');
         return;
       }
 
-      input.value = dataUri;
+      input.value = r.dataUri;
       input.dispatchEvent(new Event('input'));   // actualiza la vista previa de C3
 
       const antes   = (file.size / 1024).toFixed(0);
-      const despues = (bytes / 1024).toFixed(0);
-      aviso(`✓ Imagen lista: ${antes} KB → ${despues} KB (${ancho}×${alto})`, 'ok');
+      const despues = (r.bytes / 1024).toFixed(0);
+      aviso(`✓ Imagen lista: ${r.original} → ${r.ancho}×${r.alto} · ${antes} KB → ${despues} KB (${r.formato})`, 'ok');
+      if (r.nota) aviso(r.nota, 'info');
+      if (Math.max(r.ancho, r.alto) < LADO_MINIMO) {
+        aviso(`La original era chica (${r.original}): en la tienda se va a ver borrosa. ` +
+              `Si podés, buscá una de al menos ${LADO_MAX} px.`, 'error');
+      }
     } catch (err) {
       console.error(err);
       aviso(`No se pudo procesar la imagen: ${err.message}`, 'error');
@@ -326,11 +380,10 @@ function montar(input) {
 // ============================================================
 /**
  * Achica y comprime una imagen usando <canvas>.
- * Si el resultado sigue pesando mucho, reintenta con menos
- * calidad y menos tamaño hasta entrar en PESO_OBJETIVO.
  *
  * @param {File} file
- * @returns {Promise<{dataUri:string, ancho:number, alto:number, bytes:number}>}
+ * @returns {Promise<{dataUri:string, ancho:number, alto:number, bytes:number,
+ *                    formato:string, original:string, nota?:string}>}
  */
 function comprimir(file) {
   return new Promise((resolve, reject) => {
@@ -343,39 +396,7 @@ function comprimir(file) {
       img.onerror = () => reject(new Error('El archivo no es una imagen válida'));
       img.onload = () => {
         try {
-          // Intento 1: tamaño y calidad normales.
-          // Si pesa de más, bajamos ambos y probamos otra vez.
-          const intentos = [
-            { lado: LADO_MAX,       calidad: CALIDAD },
-            { lado: LADO_MAX,       calidad: 0.65    },
-            { lado: LADO_MAX * 0.75, calidad: 0.6    },
-            { lado: LADO_MAX * 0.5,  calidad: 0.55   }
-          ];
-
-          let mejor = null;
-
-          for (const { lado, calidad } of intentos) {
-            const escala = Math.min(1, lado / Math.max(img.width, img.height));
-            const ancho  = Math.max(1, Math.round(img.width  * escala));
-            const alto   = Math.max(1, Math.round(img.height * escala));
-
-            const lienzo = document.createElement('canvas');
-            lienzo.width  = ancho;
-            lienzo.height = alto;
-
-            const ctx = lienzo.getContext('2d');
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(img, 0, 0, ancho, alto);
-
-            const dataUri = lienzo.toDataURL(FORMATO.mime, calidad);
-            const bytes   = Math.round(dataUri.length * 0.75);
-
-            mejor = { dataUri, ancho, alto, bytes };
-            if (bytes <= PESO_OBJETIVO) break;
-          }
-
-          resolve(mejor);
+          resolve(codificar(img, file));
         } catch (err) {
           reject(err);
         }
@@ -388,5 +409,181 @@ function comprimir(file) {
   });
 }
 
-console.log(`%c✓ Subida de imágenes lista (${FORMATO.nombre})`,
-            'color:#22c55e;font-weight:bold');
+/**
+ * Elige formato, achica y reintenta hasta entrar en el peso objetivo.
+ * Orden de los reintentos: primero baja la calidad, recién después el
+ * tamaño, y nunca por debajo de LADO_MINIMO.
+ */
+function codificar(img, file) {
+  if (!(img.width > 0 && img.height > 0)) {
+    throw new Error('la imagen no tiene medidas (¿es un SVG sin ancho y alto?)');
+  }
+  const original = `${img.width}×${img.height}`;
+
+  // ¿Tiene transparencia? Un JPEG nunca; el resto se mira píxel a píxel.
+  const tieneAlfa = file.type !== 'image/jpeg' && detectarAlfa(img);
+  const formato   = formatoPara(tieneAlfa);
+
+  // Cada tamaño se achica una sola vez, aunque se pruebe con varias calidades.
+  const lienzos = new Map();
+  const lienzoDe = lado => {
+    const { ancho, alto } = medidasPara(img, lado);
+    const clave = `${ancho}x${alto}`;
+    if (!lienzos.has(clave)) lienzos.set(clave, achicar(img, ancho, alto, !tieneAlfa));
+    return lienzos.get(clave);
+  };
+
+  const intentos = [
+    { lado: LADO_MAX,    calidad: CALIDAD },
+    { lado: LADO_MAX,    calidad: 0.78    },
+    { lado: LADO_MAX,    calidad: 0.70    },
+    { lado: 896,         calidad: 0.72    },
+    { lado: LADO_MINIMO, calidad: 0.70    }
+  ];
+
+  let mejor = null;
+  const probados = new Set();
+
+  for (const { lado, calidad } of intentos) {
+    const lienzo = lienzoDe(lado);
+    // PNG ignora la calidad y una imagen chica no se agranda:
+    // no repetir un intento que va a dar exactamente lo mismo.
+    const clave = `${lienzo.width}x${lienzo.height}` + (formato.conCalidad ? `@${calidad}` : '');
+    if (probados.has(clave)) continue;
+    probados.add(clave);
+
+    const dataUri = lienzo.toDataURL(formato.mime, calidad);
+    const bytes   = Math.round(dataUri.length * 0.75);
+
+    mejor = { dataUri, ancho: lienzo.width, alto: lienzo.height, bytes,
+              formato: formato.nombre, original };
+    if (bytes <= PESO_OBJETIVO) return mejor;
+  }
+
+  if (mejor.bytes <= PESO_MAXIMO || formato.conCalidad) return mejor;
+
+  // Último recurso: un PNG con transparencia que no entra ni a 768.
+  // Se aplana sobre blanco (el fondo de la tarjeta en la tienda, así
+  // que se ve igual) y se guarda en JPEG, que sí baja de peso.
+  const plano   = aplanar(lienzoDe(LADO_MAX));
+  const dataUri = plano.toDataURL('image/jpeg', 0.8);
+  return {
+    dataUri, ancho: plano.width, alto: plano.height,
+    bytes: Math.round(dataUri.length * 0.75),
+    formato: 'JPEG', original,
+    nota: 'La imagen tenía transparencia y pesaba mucho: se guardó con fondo blanco.'
+  };
+}
+
+// Medidas finales para un lado máximo. Nunca agranda.
+function medidasPara(img, lado) {
+  const escala = Math.min(1, lado / Math.max(img.width, img.height));
+  return {
+    ancho: Math.max(1, Math.round(img.width  * escala)),
+    alto:  Math.max(1, Math.round(img.height * escala))
+  };
+}
+
+function lienzoNuevo(ancho, alto) {
+  const c = document.createElement('canvas');
+  c.width  = ancho;
+  c.height = alto;
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  return c;
+}
+
+/**
+ * Achica de a mitades y termina con un paso fino.
+ *
+ * Achicar de golpe una foto de 4000 px a 1000 px tira píxeles enteros
+ * y deja la imagen áspera y a la vez borrosa (Safari y Firefox ni
+ * miran imageSmoothingQuality). Bajando de a mitades cada paso
+ * promedia bien a sus vecinos, que es lo que hace Photoshop.
+ *
+ * Después, toda imagen achicada queda un poco lavada: un toque de
+ * nitidez (solo en las que no tienen transparencia) la devuelve.
+ */
+function achicar(img, ancho, alto, afilar) {
+  let fuente = img;
+  let w = img.width, h = img.height;
+
+  while (w >= ancho * 2 && h >= alto * 2) {
+    w = Math.round(w / 2);
+    h = Math.round(h / 2);
+    const paso = lienzoNuevo(w, h);
+    paso.getContext('2d').drawImage(fuente, 0, 0, w, h);
+    fuente = paso;
+  }
+
+  const final = lienzoNuevo(ancho, alto);
+  final.getContext('2d').drawImage(fuente, 0, 0, ancho, alto);
+
+  const seAchico = ancho < img.width * 0.8;
+  if (afilar && seAchico && NITIDEZ > 0) darNitidez(final, NITIDEZ);
+
+  return final;
+}
+
+/**
+ * Máscara de enfoque suave: cada píxel se separa un poco del
+ * promedio de sus 4 vecinos. Solo toca el color, no la transparencia.
+ */
+function darNitidez(lienzo, cantidad) {
+  const ctx = lienzo.getContext('2d');
+  const w = lienzo.width, h = lienzo.height;
+  if (w < 3 || h < 3) return;
+
+  const origen  = ctx.getImageData(0, 0, w, h);
+  const destino = ctx.createImageData(w, h);
+  const a = origen.data, b = destino.data;
+  b.set(a);   // bordes y canal alfa quedan tal cual
+
+  const centro = 1 + 4 * cantidad;
+  const fila   = w * 4;
+
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const i = y * fila + x * 4;
+      for (let c = 0; c < 3; c++) {
+        const p = i + c;
+        // Uint8ClampedArray ya recorta a 0..255 y redondea
+        b[p] = centro * a[p]
+             - cantidad * (a[p - 4] + a[p + 4] + a[p - fila] + a[p + fila]);
+      }
+    }
+  }
+
+  ctx.putImageData(destino, 0, 0);
+}
+
+// ¿Algún píxel transparente? Se mira en una copia chica: alcanza y es
+// instantáneo.
+function detectarAlfa(img) {
+  const { ancho, alto } = medidasPara(img, 256);
+  const c = lienzoNuevo(ancho, alto);
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0, ancho, alto);
+  const d = ctx.getImageData(0, 0, ancho, alto).data;
+  for (let i = 3; i < d.length; i += 4) {
+    if (d[i] < 250) return true;
+  }
+  return false;
+}
+
+// Copia sobre fondo blanco (sin transparencia), para poder ir a JPEG.
+function aplanar(lienzo) {
+  const c = lienzoNuevo(lienzo.width, lienzo.height);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.drawImage(lienzo, 0, 0);
+  return c;
+}
+
+console.log(
+  SOPORTA_WEBP
+    ? '%c✓ Subida de imágenes lista (WebP)'
+    : '%c✓ Subida de imágenes lista (JPEG/PNG: este navegador no genera WebP)',
+  'color:#22c55e;font-weight:bold');

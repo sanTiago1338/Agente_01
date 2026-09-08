@@ -637,8 +637,10 @@
         <!-- El texto lo decide js: cambia segun haya stock o no. Ver la
              nota en la funcion pintar() sobre por que esto importa. -->
         <div style="font-size:0.85rem; color:var(--texto); line-height:1.6;" id="pedidoPromesa"></div>
+        <!-- El texto lo pone js: con stock decimos que estamos revisando,
+             sin stock eso se contradiria con "la entrega es por WhatsApp". -->
         <div style="font-size:0.74rem; color:var(--tinta-suave); margin-top:0.6rem;">
-          <span class="latido">●</span> Revisando cada pocos segundos…
+          <span class="latido">●</span> <span id="pedidoLatido">Revisando cada pocos segundos…</span>
         </div>
       </div>
 
@@ -960,16 +962,39 @@
           fuerte('Si ya pagaste, mandanos el comprobante por WhatsApp') +
           ' y te lo entregamos igual.'
         : hayEntregaAlInstante()
-          // CON stock: la cuenta esta comprada y esperando. Se promete que
-          // aparece aca, y no se lo echa a WhatsApp: el reloj se apaga.
+          // CON stock: la cuenta esta comprada y esperando, asi que se
+          // promete que aparece aca y no se lo echa a WhatsApp.
+          //
+          // Pero se le da la salida igual. Nosotros sabemos que la entrega
+          // depende de que vos confirmes el pago; el cliente no. Si se
+          // queda mirando una pantalla que no cambia y nadie le dijo que
+          // hacer, se pone nervioso. Con el plazo y el "escribinos" sabe
+          // cuando preocuparse y adonde ir.
           ? 'Apenas confirmemos tu pago, ' + fuerte('tu cuenta aparece aca sola') +
-            '. No cierres esta pagina.'
-          // SIN stock: hay que conseguirla. Se dice el tiempo real que
-          // tarda, porque un cliente que sabe cuanto esperar no se pone
-          // nervioso ni escribe tres veces preguntando.
-          : 'Apenas confirmemos tu pago te preparamos la cuenta. ' +
-            fuerte('Suele tardar entre 5 y 30 minutos') +
-            ' y te la mandamos por WhatsApp. Si se libera antes, te aparece aca.';
+            '. No cierres esta pagina.<br><br>' +
+            'Si no te aparece en 5 a 30 minutos, ' +
+            fuerte('mandanos un mensaje por WhatsApp con tu comprobante') + '.'
+          // SIN stock: se dice derecho. Prometer una entrega que no puede
+          // pasar es lo peor que se puede hacer aca, porque para cuando el
+          // cliente se da cuenta ya pago.
+          : fuerte('Por ahora no tenemos cuentas cargadas de este producto') +
+            '. La entrega es por WhatsApp: ' +
+            fuerte('mandanos tu pedido junto con tu comprobante') +
+            ' y te preparamos la cuenta.';
+
+      // La pagina sigue preguntando en los dos casos, pero lo que dice
+      // cambia. Sin stock no tiene sentido prometer que "estamos
+      // revisando": la entrega va por WhatsApp. Igual, si llegas a cargar
+      // una cuenta antes de confirmar el pago, aparece sola — y eso es lo
+      // que dice la version de abajo, sin prometer nada.
+      const latido = $('pedidoLatido');
+      if (latido) {
+        latido.textContent = vencido
+          ? 'Seguimos atentos a tu pedido'
+          : hayEntregaAlInstante()
+            ? 'Revisando cada pocos segundos…'
+            : 'Si conseguimos una antes, te aparece aca';
+      }
     }
 
     // ---- EL RELOJ QUE ECHA A WHATSAPP ----

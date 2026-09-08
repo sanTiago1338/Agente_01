@@ -852,6 +852,13 @@
     .plan-chip.off  { background: rgba(229,9,20,.09);   color: var(--marca); }
     .plan-chip.zona { background: var(--superficie-2);  color: var(--tinta-suave); }
     .plan-chip.correo { background: rgba(154,116,0,.12); color: var(--oro); }
+    /* Sale solo cuando hay una cuenta comprada esperando. Verde fuerte y
+       con relieve para que gane la mirada: es el argumento de venta más
+       fuerte que tenemos, "la tenés en el momento". */
+    .plan-chip.ya {
+      background: #128C7E; color: #fff;
+      box-shadow: 0 1px 3px rgba(18,140,126,.35);
+    }
 
     .plan-item-nombre {
       font-weight: 900;
@@ -3530,6 +3537,7 @@
                  onerror="this.onerror=null;this.src=generateLogoSvg('${pl.name.replace(/'/g, "\\'")}','${pl.imgColor}');">
             <div class="plan-chips">
               <span class="plan-chip ${agotado ? 'off' : 'ok'}">${agotado ? '● Agotado' : '● Disponible'}</span>
+              ${!agotado && pl.entregaInmediata ? '<span class="plan-chip ya">⚡ Entrega inmediata</span>' : ''}
               <span class="plan-chip zona">🌎 Global</span>
               ${avisoDatos(pl).chip}
             </div>
@@ -4370,6 +4378,7 @@
   <script type="module">
     import { subscribeProductos, precioFinal, formatBs, porcentajeDescuento }
       from './js/productos-service.js';
+    import { mapaDeStock } from './js/stock-tienda.js';
 
     // Los IDs de Firestore son texto ("kL9x2mPq"), pero la tienda usa números
     // en los onclick: openProduct(12). Para productos migrados usamos idLegacy;
@@ -4410,20 +4419,45 @@
         soldOut:     p.activo    === false,
         destacado:   p.destacado === true,
         oferta:      p.oferta    === true,
+        // Hay una cuenta comprada esperando: se entrega en el momento de
+        // pagar, sin que vos tengas que hacer nada.
+        entregaInmediata: (STOCK.get(p.id) || 0) > 0,
         // Para ordenar por "El más nuevo". Los productos migrados del
         // catálogo viejo no tienen fecha: quedan en 0, detrás.
         nuevo:       p.fechaCreacion?.seconds || 0
       };
     }
 
+    // ---------- STOCK ----------
+    // Qué productos tienen cuenta lista para entregar. Llega aparte del
+    // catálogo y suele tardar un poquito más, así que el catálogo se pinta
+    // apenas llega y se vuelve a pintar cuando aparece el stock. Es mejor
+    // mostrar los productos enseguida sin el cartel, que dejar la tienda en
+    // blanco esperando un dato que es un adorno.
+    let STOCK = new Map();
+    let ultimoCatalogo = null;
+
+    function aplicar(productos) {
+      ultimoCatalogo = productos;
+      window.__aplicarCatalogo(productos.map(aFormaTienda));
+    }
+
     subscribeProductos(
       productos => {
-        window.__aplicarCatalogo(productos.map(aFormaTienda));
+        aplicar(productos);
         console.log(`%c✓ Catálogo cargado: ${productos.length} productos`,
                     'color:#22c55e;font-weight:bold');
       },
       error => window.__errorCatalogo(error.message)
     );
+
+    mapaDeStock().then(mapa => {
+      if (mapa.size === 0) return;          // nada en stock: no hay nada que repintar
+      STOCK = mapa;
+      if (ultimoCatalogo) aplicar(ultimoCatalogo);
+      console.log(`%c⚡ Entrega inmediata en ${mapa.size} producto(s)`,
+                  'color:#128C7E;font-weight:bold');
+    });
   </script>
 
   <script src="wa-bubble.js" defer></script>

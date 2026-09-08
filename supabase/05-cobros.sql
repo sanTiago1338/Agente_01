@@ -464,6 +464,36 @@ $$;
 
 
 -- ============================================================
+-- 7b. QUÉ PRODUCTOS TIENEN ENTREGA INMEDIATA
+-- ============================================================
+-- hay_stock() contesta por UN producto. La tienda necesita saberlo de los
+-- 226 a la vez, para poner el cartelito "⚡ Entrega inmediata" en las
+-- tarjetas: llamar 226 veces sería absurdo.
+--
+-- Solo devuelve los que TIENEN alguna cuenta libre. Los que no, ni
+-- aparecen, así la respuesta es chica aunque el catálogo sea grande.
+--
+-- No devuelve nada de las credenciales: la tabla cuentas sigue cerrada a
+-- la clave anon, y esta función es security definer justamente para poder
+-- contar sin abrirla.
+create or replace function public.stock_disponible()
+returns table (producto_id uuid, libres integer)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select c.producto_id, count(*)::integer
+  from public.cuentas c
+  where c.estado = 'libre'
+  group by c.producto_id;
+$$;
+
+revoke execute on function public.stock_disponible() from public;
+grant  execute on function public.stock_disponible() to anon, authenticated;
+
+
+-- ============================================================
 -- 8. LIMPIAR PEDIDOS VENCIDOS
 -- ============================================================
 -- El que entra, arma un pedido y nunca paga, deja basura. Esto la barre.

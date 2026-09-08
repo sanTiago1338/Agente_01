@@ -225,19 +225,21 @@ const $ = id => document.getElementById(id);
 const escapar = s => String(s ?? '').replace(/[&<>"]/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-// "8 sept 2026, 02:32 p. m." — con hora y año.
+// "08-09-2026 02:32 PM" — el mismo formato que el cliente tiene en su
+// mensaje de WhatsApp y que el dueño ve en el panel. Si acá se escribiera
+// distinto, cruzar los tres sería adivinar.
 //
 // El año va aunque sea el actual, y la hora aunque sea de hoy: si el
-// cliente te escribe por un problema con una compra, este es el dato que
-// te va a pasar para que la encuentres. Tiene que valer solo, sin que
-// nadie tenga que deducir de qué día ni de qué año habla.
+// cliente escribe por un problema con una compra, este es el dato que te
+// va a pasar para que la encuentres.
 function fecha(iso) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleString('es-BO', {
-    day: 'numeric', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
+  const p = n => String(n).padStart(2, '0');
+  // Reloj de 12: después de las 12 viene la 1 PM, no las 13.
+  const h = d.getHours();
+  return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ` +
+         `${p(h % 12 || 12)}:${p(d.getMinutes())} ${h < 12 ? 'AM' : 'PM'}`;
 }
 
 // Los nombres repetidos se agrupan: comprar 2 Netflix muestra "2x Netflix"
@@ -277,7 +279,7 @@ function pintar() {
       <div class="compra-datos">
         <div class="compra-num">Pedido #${c.numero}</div>
         <div class="compra-prod">${escapar(resumirProductos(c.productos))}</div>
-        <div class="compra-fecha">${fecha(c.fecha)}</div>
+        <div class="compra-fecha">Fecha de orden: ${fecha(c.fecha)}</div>
         ${c.faltan > 0
           ? `<span class="compra-faltan">Falta ${c.faltan === 1 ? '1 cuenta' : c.faltan + ' cuentas'}</span>`
           : ''}

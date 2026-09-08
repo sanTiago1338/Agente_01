@@ -206,6 +206,12 @@
       background: var(--negro2);
       border-bottom: 1px solid var(--borde);
       padding: 0.65rem 1rem;
+      /* Cada bloque de la página es su propia capa (body > * lleva z-index:1),
+         así que sin esto el desplegable queda debajo del carrusel y los Tops,
+         que vienen después en el HTML. Se queda por debajo de la barra de
+         arriba (90) y de los modales. */
+      position: relative;
+      z-index: 70;
     }
 
     .search-input-wrap {
@@ -233,6 +239,118 @@
 
     .search-input-wrap input::placeholder { color: var(--gris-texto); }
     .search-icon { color: var(--gris-texto); font-size: 1rem; }
+
+    /* Desplegable de sugerencias y búsquedas recientes.
+       Cuelga de .search-box, que es el que tiene position:relative. */
+    .search-box { position: relative; }
+
+    .search-sug {
+      position: absolute;
+      top: calc(100% + 0.35rem);
+      left: 0;
+      right: 0;
+      background: var(--superficie);
+      border: 1px solid var(--gris2);
+      border-radius: 12px;
+      box-shadow: var(--sombra-alta);
+      overflow-y: auto;
+      max-height: min(60vh, 380px);
+      z-index: 60;
+      padding-bottom: 0.3rem;
+    }
+
+    .sug-titulo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.6rem 0.85rem 0.3rem;
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+    }
+
+    .sug-limpiar {
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--rojo);
+      cursor: pointer;
+    }
+
+    .sug-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.5rem 0.85rem;
+      background: none;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      color: var(--tinta);
+    }
+
+    .sug-item:hover,
+    .sug-item.marcada { background: var(--superficie-2); }
+
+    .sug-logo {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--superficie-2);
+      flex: none;
+    }
+
+    .sug-ico {
+      width: 30px; height: 30px;
+      display: grid;
+      place-items: center;
+      flex: none;
+      font-size: 0.9rem;
+      color: var(--tinta-suave);
+    }
+
+    .sug-txt { flex: 1; min-width: 0; }
+
+    .sug-nombre {
+      font-size: 0.86rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* La parte que el cliente ya escribió va en rojo */
+    .sug-nombre b { color: var(--rojo); }
+
+    .sug-meta {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--tinta-suave);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sug-precio {
+      flex: none;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--tinta);
+    }
+
+    .sug-vacio {
+      padding: 0.7rem 0.85rem 0.9rem;
+      font-size: 0.82rem;
+      color: var(--tinta-suave);
+    }
 
     /* ===== PROMO BANNER ===== */
     .promo-banner {
@@ -2499,9 +2617,14 @@
 
   <!-- SEARCH -->
   <div class="search-bar">
-    <div class="search-input-wrap">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="2" placeholder="Buscar plataforma, app o juego..." oninput="filterProducts()">
+    <div class="search-box">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="2" placeholder="Buscar plataforma, app o juego..."
+               autocomplete="off" oninput="filterProducts()"
+               onfocus="renderSugerencias()" onkeydown="teclaSugerencias(event)">
+      </div>
+      <div class="search-sug" id="sugerencias" hidden></div>
     </div>
   </div>
 
@@ -3433,17 +3556,35 @@
       return limpio.toLowerCase().trim();
     }
 
+    // Parte el nombre en palabras sueltas, ignorando "+", guiones y demás
+    // signos: "DISNEY+ / STAR" queda como ["disney", "star"].
+    function palabrasDe(txt) {
+      return sinTildes(txt).split(/[^a-z0-9]+/).filter(Boolean);
+    }
+
+    // Antes esto exigía que la plataforma EMPEZARA con lo escrito, así que
+    // "max" no encontraba "HBO Max" ni "prime" a "Amazon Prime Video": solo
+    // servía si el cliente adivinaba la primera palabra. Ahora cada palabra
+    // de la búsqueda tiene que ser el comienzo de alguna palabra del nombre,
+    // que sigue dejando fuera coincidencias sueltas en medio de una palabra.
     function empiezaCon(nombre, busqueda) {
-      const q = sinTildes(busqueda);
-      return q === '' || sinTildes(nombre).startsWith(q);
+      const buscadas = palabrasDe(busqueda);
+      if (buscadas.length === 0) return true;
+      const enNombre = palabrasDe(nombre);
+      return buscadas.every(q => enNombre.some(p => p.startsWith(q)));
     }
 
     function renderProducts() {
       // Todavía no llegó el catálogo desde Firestore.
       if (!catalogoCargado) { renderSkeletons(); return; }
 
+      // Buscar es buscar en toda la tienda: si el cliente escribió algo,
+      // la categoría se ignora. Antes solo miraba dentro de la pestaña
+      // abierta, así que estando en "Streaming" buscar un VPN no daba nada.
+      const buscando = palabrasDe(currentSearch).length > 0;
+
       const filtrados = PRODUCTS.filter(p => {
-        const catOk = currentCat === 'all' || p.cat === currentCat;
+        const catOk = buscando || currentCat === 'all' || p.cat === currentCat;
         // tiposDe() unifica las variantes ("1-device" = "1-dispositivo")
         const subOk = currentSub === 'all' || tiposDe(p).includes(currentSub);
         return catOk && subOk;
@@ -4009,6 +4150,14 @@
       currentCat = cat;
       currentSub = 'all';   // el subfiltro anterior puede no existir acá
       currentPage = 1;
+
+      // La búsqueda manda sobre la categoría, así que elegir una pestaña
+      // limpia lo escrito: si no, la pestaña quedaría marcada sin efecto.
+      const input = document.getElementById('2');
+      if (input) input.value = '';
+      currentSearch = '';
+      cerrarSugerencias();
+
       document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
       el.classList.add('active');
 
@@ -4029,11 +4178,46 @@
       renderProducts();
     }
 
+    // Suelta la categoría y vuelve a "TODOS", dejando las pestañas, el
+    // título y los subfiltros coherentes con lo que se está mostrando.
+    function volverATodo() {
+      currentCat = 'all';
+      currentSub = 'all';
+      document.querySelectorAll('.cat-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+
+      const titulo = document.getElementById('tituloCategoria');
+      const miga   = document.getElementById('migaCategoria');
+      if (titulo) titulo.textContent = nombreCat('all');
+      if (miga)   miga.textContent   = nombreCat('all');
+
+      renderSubfiltros();
+    }
+
     function filterProducts() {
       currentSearch = document.getElementById('2').value;
       currentPage = 1;
 
+      // Con algo escrito la búsqueda es de toda la tienda, así que la
+      // pestaña de categoría se suelta para que no diga una cosa y se vea otra.
+      if (palabrasDe(currentSearch).length) volverATodo();
+
       renderProducts();
+      renderSugerencias();
+    }
+
+    // Deja la tienda filtrada por un texto, como si el cliente lo hubiera
+    // escrito. Lo usan las tarjetas de "Tops", las recientes y el Enter.
+    function usarBusqueda(texto) {
+      const input = document.getElementById('2');
+      if (input) input.value = texto;
+      currentSearch = texto;
+      currentPage = 1;
+      volverATodo();
+      guardarReciente(texto);
+      cerrarSugerencias();
+      renderProducts();
+      const grid = document.getElementById('5');
+      if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     // Tops cards → filtran por el nombre del producto
@@ -4041,22 +4225,210 @@
       const card = e.target.closest('.tops-card');
       if (!card) return;
       e.preventDefault();
-      const term = card.getAttribute('data-search') || '';
+      usarBusqueda(card.getAttribute('data-search') || '');
+    });
+
+
+    // ==========================================================
+    //  BUSCADOR PREDICTIVO + BÚSQUEDAS RECIENTES
+    // ==========================================================
+    // Mientras el cliente escribe salen debajo del campo las plataformas
+    // que coinciden (de todo el catálogo, sin importar la pestaña) y las
+    // búsquedas que ya hizo antes que empiecen con esas mismas letras.
+
+    const LLAVE_RECIENTES = 'tiago-busquedas';
+    const TOPE_RECIENTES  = 8;    // lo que se guarda
+    const MAX_RECIENTES   = 4;    // lo que se muestra de una vez
+    const MAX_SUGERENCIAS = 7;
+
+    function leerRecientes() {
+      try {
+        const v = JSON.parse(localStorage.getItem(LLAVE_RECIENTES) || '[]');
+        return Array.isArray(v) ? v.filter(x => typeof x === 'string' && x.trim()) : [];
+      } catch {
+        // Incógnito o almacenamiento bloqueado: sin recientes, y ya.
+        return [];
+      }
+    }
+
+    function escribirRecientes(lista) {
+      try {
+        localStorage.setItem(LLAVE_RECIENTES, JSON.stringify(lista.slice(0, TOPE_RECIENTES)));
+      } catch { /* no es imprescindible */ }
+    }
+
+    function guardarReciente(texto) {
+      const txt = String(texto || '').trim();
+      if (txt.length < 2) return;
+      // Si ya la había buscado, sube al principio en vez de repetirse.
+      const lista = leerRecientes().filter(x => sinTildes(x) !== sinTildes(txt));
+      lista.unshift(txt);
+      escribirRecientes(lista);
+    }
+
+    function borrarRecientes() {
+      escribirRecientes([]);
+      renderSugerencias();
+    }
+
+    // Escapa el texto que va dentro del desplegable: los nombres salen del
+    // panel y no tienen por qué ser HTML válido.
+    function escaparHtml(txt) {
+      return String(txt == null ? '' : txt)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Pone en negrita el pedazo que el cliente ya escribió, palabra por
+    // palabra: buscando "max" en "HBO Max" se resalta solo "Max".
+    function resaltar(nombre, busqueda) {
+      const buscadas = palabrasDe(busqueda);
+      if (!buscadas.length) return escaparHtml(nombre);
+
+      return String(nombre || '').split(/(\s+)/).map(tramo => {
+        const q = buscadas.find(x => sinTildes(tramo).startsWith(x));
+        if (!q) return escaparHtml(tramo);
+        return '<b>' + escaparHtml(tramo.slice(0, q.length)) + '</b>' +
+               escaparHtml(tramo.slice(q.length));
+      }).join('');
+    }
+
+    let SUG_FILAS = [];    // qué hace cada fila dibujada, en orden
+    let sugMarcada = -1;   // fila resaltada con las flechas del teclado
+
+    function cerrarSugerencias() {
+      const caja = document.getElementById('sugerencias');
+      if (caja) caja.hidden = true;
+      sugMarcada = -1;
+    }
+
+    function renderSugerencias() {
+      const caja  = document.getElementById('sugerencias');
       const input = document.getElementById('2');
-      if (input) { input.value = term; }
-      currentSearch = term;
-      currentCat = 'all';
-      currentSub = 'all';
-      currentPage = 1;
-      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-      const allCat = document.querySelector('.cat-tab');
-      if (allCat) allCat.classList.add('active');
-      document.querySelectorAll('.sub-pill').forEach(t => t.classList.remove('active'));
-      const allSub = document.querySelector('.sub-pill');
-      if (allSub) allSub.classList.add('active');
-      renderProducts();
-      const grid = document.getElementById('5');
-      if (grid) grid.scrollIntoView({behavior:'smooth', block:'start'});
+      if (!caja || !input) return;
+
+      const texto = input.value;
+      const hayTexto = palabrasDe(texto).length > 0;
+
+      // Las recientes se filtran con la misma regla que el catálogo, así
+      // el cliente escribe una letra y le salen las suyas que empiezan así.
+      const recientes = leerRecientes()
+        .filter(r => empiezaCon(r, texto))
+        .slice(0, MAX_RECIENTES);
+
+      // Las plataformas salen de TODO el catálogo, no de la pestaña abierta.
+      const plataformas = hayTexto && catalogoCargado
+        ? agruparEnPlataformas(PRODUCTS)
+            .filter(g => empiezaCon(g.nombre, texto))
+            .sort((a, b) => a.nombre.localeCompare(b.nombre))
+            .slice(0, MAX_SUGERENCIAS)
+        : [];
+
+      SUG_FILAS = [];
+      sugMarcada = -1;
+      let html = '';
+
+      if (recientes.length) {
+        html += `<div class="sug-titulo">Búsquedas recientes
+                   <button type="button" class="sug-limpiar" data-limpiar="1">Borrar</button>
+                 </div>`;
+        recientes.forEach(r => {
+          const i = SUG_FILAS.length;
+          SUG_FILAS.push({ texto: r });
+          html += `<button type="button" class="sug-item" data-fila="${i}">
+                     <span class="sug-ico">🕘</span>
+                     <span class="sug-txt"><span class="sug-nombre">${resaltar(r, texto)}</span></span>
+                   </button>`;
+        });
+      }
+
+      if (plataformas.length) {
+        html += `<div class="sug-titulo">Plataformas</div>`;
+        plataformas.forEach(g => {
+          const i = SUG_FILAS.length;
+          SUG_FILAS.push({ texto: g.nombre, clave: g.clave });
+          const p = g.base;
+          const url = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
+          const logoAlt = escaparHtml(p.name).replace(/'/g, '&#39;');
+          html += `<button type="button" class="sug-item" data-fila="${i}">
+                     <img class="sug-logo" src="${url}" alt="" loading="lazy"
+                          onerror="this.onerror=null;this.src=generateLogoSvg('${logoAlt}','${p.imgColor}');">
+                     <span class="sug-txt">
+                       <span class="sug-nombre">${resaltar(g.nombre, texto)}</span>
+                       <span class="sug-meta">${escaparHtml(nombreCat(p.cat))} · ${g.planes.length} ${g.planes.length === 1 ? 'plan' : 'planes'}</span>
+                     </span>
+                     <span class="sug-precio">${g.agotada ? 'Agotado' : 'desde ' + formatoBs(g.desde)}</span>
+                   </button>`;
+        });
+      }
+
+      if (hayTexto && !plataformas.length) {
+        html += `<div class="sug-vacio">
+                   ${catalogoCargado ? `Ninguna plataforma con «${escaparHtml(texto.trim())}»` : 'Cargando catálogo…'}
+                 </div>`;
+      }
+
+      caja.innerHTML = html;
+      caja.hidden = html === '';
+    }
+
+    // Un solo listener para todo el desplegable: las filas se redibujan
+    // en cada tecla y no conviene colgarles handlers uno por uno.
+    document.addEventListener('click', function (e) {
+      const caja = document.getElementById('sugerencias');
+      if (!caja || caja.hidden) return;
+
+      if (e.target.closest('[data-limpiar]')) { borrarRecientes(); return; }
+
+      const fila = e.target.closest('.sug-item');
+      if (!fila || !caja.contains(fila)) return;
+
+      elegirSugerencia(Number(fila.getAttribute('data-fila')));
+    });
+
+    function elegirSugerencia(i) {
+      const dato = SUG_FILAS[i];
+      if (!dato) return;
+
+      usarBusqueda(dato.texto);
+      // Si es una plataforma concreta, se abre directo su panel de planes:
+      // ya quedó filtrada arriba, o sea que abrirPlataforma la encuentra.
+      if (dato.clave) abrirPlataforma(dato.clave);
+    }
+
+    // Flechas para recorrer, Enter para elegir, Escape para cerrar.
+    function teclaSugerencias(e) {
+      const caja = document.getElementById('sugerencias');
+
+      if (e.key === 'Escape') { cerrarSugerencias(); return; }
+
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (sugMarcada >= 0 && SUG_FILAS[sugMarcada]) elegirSugerencia(sugMarcada);
+        else usarBusqueda(e.target.value);
+        e.target.blur();
+        return;
+      }
+
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      if (!caja || caja.hidden || !SUG_FILAS.length) return;
+
+      e.preventDefault();
+      const paso = e.key === 'ArrowDown' ? 1 : -1;
+      sugMarcada = (sugMarcada + paso + SUG_FILAS.length + 1) % (SUG_FILAS.length + 1);
+      if (sugMarcada === SUG_FILAS.length) sugMarcada = -1;   // vuelta al campo
+
+      caja.querySelectorAll('.sug-item').forEach((el, i) => {
+        el.classList.toggle('marcada', i === sugMarcada);
+        if (i === sugMarcada) el.scrollIntoView({ block: 'nearest' });
+      });
+    }
+
+    // Tocar fuera del buscador cierra el desplegable.
+    document.addEventListener('pointerdown', function (e) {
+      if (!e.target.closest('.search-box')) cerrarSugerencias();
     });
 
     function sortProducts() {
@@ -4230,6 +4602,7 @@
     function goHome() {
       currentCat = 'all'; currentSub = 'all'; currentSearch = '';
       document.getElementById('2').value = '';
+      cerrarSugerencias();
       document.querySelectorAll('.cat-tab').forEach((t,i) => t.classList.toggle('active', i===0));
       document.querySelectorAll('.sub-pill').forEach((p,i) => p.classList.toggle('active', i===0));
       currentPage = 1;

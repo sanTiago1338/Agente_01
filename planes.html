@@ -213,9 +213,18 @@
       return limpio.toLowerCase().trim();
     }
 
+    // Mismo criterio que el buscador de la tienda: cada palabra escrita
+    // tiene que ser el comienzo de alguna palabra del nombre, así "max"
+    // encuentra "HBO Max" y no solo lo que empieza con "max".
+    function palabrasDe(txt) {
+      return sinTildes(txt).split(/[^a-z0-9]+/).filter(Boolean);
+    }
+
     function empiezaCon(nombre, busqueda) {
-      const q = sinTildes(busqueda);
-      return q === '' || sinTildes(nombre).startsWith(q);
+      const buscadas = palabrasDe(busqueda);
+      if (buscadas.length === 0) return true;
+      const enNombre = palabrasDe(nombre);
+      return buscadas.every(q => enNombre.some(p => p.startsWith(q)));
     }
 
     let TODOS = [];

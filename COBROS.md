@@ -200,3 +200,87 @@ podés copiar el mensaje listo para reenviárselo.
 **"El cliente dice que pagó y no aparece"** → mirá los logs de la Edge
 Function. Si el aviso llegó pero no se entendió, el JSON está ahí y se arregla
 en `leerAviso()`. Si no llegó, el problema es de la pasarela.
+
+---
+
+## Anotado para más adelante: "Mis compras" con link mágico
+
+**No está construido, y es a propósito.** Queda escrito acá para cuando
+haga falta, con el disparador que indica que llegó el momento.
+
+### Por qué no hay login para comprar
+
+Se evaluó pedirle usuario y contraseña a cada cliente, y se decidió que no.
+
+Obligar a registrarse antes de comprar es de las cosas que más ventas
+matan. Los clientes vienen de WhatsApp a comprar una cuenta de 30 a 120 Bs:
+pedirles email y contraseña agrega un paso donde hoy hay dos clics, y cada
+paso pierde gente. Además el soporte cae sobre vos — "no me llega el
+correo", "olvidé mi contraseña" — todo por WhatsApp.
+
+**Y no resolvería ningún problema de seguridad, porque no hay uno.**
+Cada cuenta ya es privada de su comprador. Verificado contra la base real,
+desde el navegador con la clave pública:
+
+```
+Ana con su token ve         → su cuenta, nada de Beto
+listar pedidos sin token    → 0 filas
+listar cuentas sin token    → 0 filas
+probar con el nº de pedido  → "token invalido"
+5 tokens al azar            → 0 aciertos
+```
+
+El token tiene 64 caracteres hexadecimales: 16⁶⁴ combinaciones.
+
+### Lo que sí falta, y no es seguridad
+
+Si el cliente pierde el link, no puede volver solo a su cuenta.
+
+Hoy eso se resuelve en diez segundos: el link está en el mensaje de
+WhatsApp que él mismo te mandó con el comprobante, y si igual lo perdió,
+el panel tiene **"Copiar para mandar"**, que arma el mensaje con sus
+credenciales listo para pegar.
+
+### El plan, cuando haga falta
+
+Cliente compra y recibe su cuenta, igual que ahora. Abajo aparece
+*"¿Querés poder volver a ver tus compras? Dejanos tu correo"*. Escribe el
+email, le llega un link, lo toca y entra a **Mis compras**. Sin contraseña:
+el link es la prueba de que ese correo es suyo. Todo **después** de pagar;
+el que no quiere ni se entera.
+
+Cuatro piezas:
+
+1. **Vincular el pedido al correo verificado.** `pedidos.cliente_email` ya
+   existe pero es texto libre sin verificar. Se vincula cuando el cliente
+   lo pide **desde su propia pantalla de entrega**, no con lo que escribió
+   al comprar — si no, alguien podría poner el correo de otro en el
+   checkout y sus pedidos le aparecerían a esa persona.
+2. **Una política nueva:** un usuario logueado ve los pedidos cuyo correo
+   verificado coincide con el suyo. Unas pocas líneas.
+3. **La página `mis-compras.html`.**
+4. **SMTP propio.**
+
+### Los dos obstáculos, que son los que deciden el momento
+
+**El correo es el verdadero costo.** Supabase manda correos gratis pero
+pocos por hora y desde un remitente genérico que cae en spam seguido. Hace
+falta SMTP propio (Resend, Brevo). Hay planes gratis suficientes, pero es
+una cuenta más, un dominio que verificar, y **si el correo no llega el
+cliente te escribe igual**: habrías agregado un paso que puede fallar para
+resolver algo que hoy se resuelve en diez segundos.
+
+**Hay que reabrir el registro.** Está apagado a propósito
+(*Allow new users to sign up*). El link mágico crea usuarios, así que
+habría que prenderlo. No es grave —la tabla `admins` es la que decide quién
+escribe, y alguien que se registre solo vería únicamente los pedidos que
+coincidan con su propio correo, o sea ninguno— pero es un cambio
+consciente.
+
+### El disparador
+
+**No es "sería lindo". Es que te escriban seguido pidiendo su cuenta de
+nuevo.** Llevá la cuenta de cuántas veces por semana te piden reenviar
+credenciales. Cuando sean varias, el link mágico se paga solo.
+
+Medio día de trabajo, más el trámite del SMTP.

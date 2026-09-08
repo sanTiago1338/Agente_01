@@ -23,6 +23,19 @@
 --   posible: ese QR no lleva monto ni referencia, y el banco no avisa a
 --   nadie. Hace falta un QR dinámico por pedido, que da una pasarela con
 --   API. Mientras tanto, la Capa 1 (confirmás vos) ya entrega sola.
+--
+-- ESTO ES SOLO PARA PLATAFORMAS, NO PARA JUEGOS
+--   Las dos tablas de acá apuntan a "productos" y nunca a "juegos", y es
+--   a propósito.
+--
+--   Una plataforma se entrega dando una cuenta: hay algo concreto —un
+--   usuario y una clave— que se puede tener guardado esperando comprador.
+--
+--   Una recarga de juego no. Ahí no se entrega nada: se le carga saldo a
+--   la cuenta del cliente usando SU ID de jugador, que recién se conoce
+--   cuando el cliente lo escribe. No hay stock posible de eso.
+--
+--   Por eso recarga-juegos.html sigue como está, con su flujo de WhatsApp.
 -- ============================================================
 
 

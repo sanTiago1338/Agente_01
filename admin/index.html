@@ -608,18 +608,23 @@
     </div>
   </header>
 
-  <!-- Cambiar entre Productos y Juegos -->
+  <!-- Cambiar de vista. El valor de data-vista tiene que coincidir con el
+       id del contenedor: data-vista="stock" -> <div id="vistaStock"> -->
   <nav class="vistas">
     <div class="vistas-in">
       <button class="vista-tab activa" data-vista="productos">🛒 Productos</button>
       <button class="vista-tab" data-vista="juegos">🎮 Juegos</button>
+      <button class="vista-tab" data-vista="ventas">💳 Ventas</button>
+      <button class="vista-tab" data-vista="stock">🔑 Stock</button>
     </div>
   </nav>
 
-  <!-- La sección de juegos la construye admin/js/admin-juegos.js -->
-  <div id="vistaJuegos" hidden></div>
+  <!-- Estas tres las construyen sus módulos al final del archivo -->
+  <div id="vistaJuegos" class="vista" hidden></div>
+  <div id="vistaVentas" class="vista" hidden></div>
+  <div id="vistaStock"  class="vista" hidden></div>
 
-  <main id="vistaProductos">
+  <main id="vistaProductos" class="vista">
     <!-- ===== Resumen ===== -->
     <section class="resumen" aria-label="Resumen del catálogo">
       <div class="metrica"><div class="metrica-n"          id="mTotal">–</div><div class="metrica-l">Productos</div></div>
@@ -1049,6 +1054,10 @@ window.catalogoAdmin = () => TODOS;
 // ===========================================================
 // CAMBIO ENTRE PRODUCTOS Y JUEGOS
 // ===========================================================
+// Antes esto era un booleano: "¿es juegos? sí o no". Con cuatro vistas
+// eso ya no da, así que ahora se esconden todas y se muestra la elegida.
+// Agregar una vista nueva es agregar el botón y su contenedor: acá no se
+// toca nada.
 document.querySelector('.vistas-in').addEventListener('click', e => {
   const btn = e.target.closest('[data-vista]');
   if (!btn) return;
@@ -1056,9 +1065,18 @@ document.querySelector('.vistas-in').addEventListener('click', e => {
   document.querySelectorAll('.vista-tab').forEach(t => t.classList.remove('activa'));
   btn.classList.add('activa');
 
-  const esJuegos = btn.dataset.vista === 'juegos';
-  $('vistaProductos').hidden = esJuegos;
-  $('vistaJuegos').hidden    = !esJuegos;
+  // productos -> vistaProductos
+  const idElegido = 'vista' + btn.dataset.vista.charAt(0).toUpperCase()
+                            + btn.dataset.vista.slice(1);
+
+  document.querySelectorAll('.vista').forEach(v => { v.hidden = v.id !== idElegido; });
+
+  // Para que un módulo pueda refrescar sus datos justo cuando lo abrís,
+  // en vez de estar consultando todo el tiempo en segundo plano.
+  document.dispatchEvent(new CustomEvent('vista-cambiada', {
+    detail: { vista: btn.dataset.vista }
+  }));
+
   window.scrollTo({ top: 0 });
 });
 </script>
@@ -1071,6 +1089,12 @@ document.querySelector('.vistas-in').addEventListener('click', e => {
 
 <!-- Administración de juegos de recarga: construye la vista 🎮 Juegos -->
 <script type="module" src="js/admin-juegos.js"></script>
+
+<!-- Ventas y stock: construyen las vistas 💳 Ventas y 🔑 Stock.
+     Son solo de Supabase (pedidos y cuentas no existen en Firestore),
+     así que no pasan por el interruptor js/panel-datos.js. -->
+<script type="module" src="js/admin-ventas.js"></script>
+<script type="module" src="js/admin-stock.js"></script>
 
 <!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
 <script src="../bg-burbujas.js" defer></script>

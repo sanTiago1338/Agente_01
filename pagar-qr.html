@@ -970,17 +970,15 @@
           // queda mirando una pantalla que no cambia y nadie le dijo que
           // hacer, se pone nervioso. Con el plazo y el "escribinos" sabe
           // cuando preocuparse y adonde ir.
-          ? 'Apenas confirmemos tu pago, ' + fuerte('tu cuenta aparece aca sola') +
-            '. No cierres esta pagina.<br><br>' +
-            'Si no te aparece en 5 a 30 minutos, ' +
-            fuerte('mandanos un mensaje por WhatsApp con tu comprobante') + '.'
+          ? fuerte('Tu cuenta se entrega aca') + '. Estamos verificando el pago.<br><br>' +
+            'Si no te aparece en 10 a 30 minutos, ' +
+            fuerte('envianos un mensaje al WhatsApp junto a tu comprobante') + '.'
           // SIN stock: se dice derecho. Prometer una entrega que no puede
           // pasar es lo peor que se puede hacer aca, porque para cuando el
           // cliente se da cuenta ya pago.
-          : fuerte('Por ahora no tenemos cuentas cargadas de este producto') +
-            '. La entrega es por WhatsApp: ' +
-            fuerte('mandanos tu pedido junto con tu comprobante') +
-            ' y te preparamos la cuenta.';
+          : fuerte('No hay cuentas subidas por el momento') +
+            '. Solo entregas por WhatsApp: ' +
+            fuerte('envia tu pedido junto a tu comprobante') + '.';
 
       // La pagina sigue preguntando en los dos casos, pero lo que dice
       // cambia. Sin stock no tiene sentido prometer que "estamos

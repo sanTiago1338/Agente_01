@@ -641,8 +641,11 @@ function fechaOrden(iso) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
   const p = n => String(n).padStart(2, '0');
+  // Reloj de 12: después de las 12 viene la 1 PM, no las 13.
+  // El 0 de la medianoche se dice "12 AM", que es como lo dice la gente.
+  const h = d.getHours();
   return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ` +
-         `${p(d.getHours())}:${p(d.getMinutes())} ${d.getHours() < 12 ? 'AM' : 'PM'}`;
+         `${p(h % 12 || 12)}:${p(d.getMinutes())} ${h < 12 ? 'AM' : 'PM'}`;
 }
 
 

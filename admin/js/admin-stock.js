@@ -316,7 +316,18 @@ async function cargarTodo() {
     // La imagen vuelve a viajar acá: desde que están en Storage es una URL
     // de unos 100 bytes. Cuando eran base64 sumaban 17 MB y esta misma
     // consulta se cortaba por tiempo.
-    sbAdmin.from('productos').select('id, nombre, imagen').order('orden'),
+    // Alfabético, no por "orden".
+    //
+    // "orden" es el que manda en la TIENDA: define qué producto va primero
+    // en la vidriera, y ahí tiene todo el sentido. Pero acá vos no estás
+    // vendiendo, estás buscando: tenés 226 productos y querés encontrar
+    // "Netflix" para cargarle cuentas. Buscar por orden comercial en una
+    // lista de 226 es imposible; alfabético es donde el ojo ya sabe mirar.
+    //
+    // El order() de Postgres ordena por bytes, así que "Ángel" caería
+    // después de "Zulu". Se reordena en JavaScript más abajo, con
+    // localeCompare, que sí entiende tildes y ñ.
+    sbAdmin.from('productos').select('id, nombre, imagen').order('nombre'),
     sbAdmin.from('cuentas').select('*').order('creada_en', { ascending: false })
   ]);
 
@@ -325,7 +336,12 @@ async function cargarTodo() {
   if (rProd.error)    { fallo(rProd.error);    return; }
   if (rCuentas.error) { fallo(rCuentas.error); return; }
 
-  PRODUCTOS = rProd.data;
+  // El orden alfabético de verdad lo hace acá localeCompare, no Postgres:
+  // con 'es' entiende que la Á va con la A y que la Ñ va después de la N,
+  // que es como lo busca una persona.
+  PRODUCTOS = rProd.data.sort((a, b) =>
+    (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base', numeric: true })
+  );
   CUENTAS   = rCuentas.data;
 
   llenarSelectorProductos();

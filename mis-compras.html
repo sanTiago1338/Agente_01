@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis compras - Tiago Store</title>
+
+<!--
+  ============================================================
+  TIAGO STORE · Historial de compras del cliente
+  ============================================================
+  La lista de lo que compró, guardada SOLO en su navegador.
+
+  No hay login ni cuenta de cliente, a propósito: pedir usuario y
+  contraseña antes de dejar comprar espanta ventas. El navegador ya es
+  una identidad suficiente — el que compró desde este teléfono es el que
+  vuelve a abrirlo.
+
+  Solo entran las compras ENTREGADAS. Un pedido que no se pagó no es una
+  compra, es un intento, y llenaría la lista de cosas que nunca compró.
+
+  Se guarda el token, no las credenciales: "Abrir mi cuenta" las vuelve a
+  pedir a la base. Así no quedan contraseñas de Netflix escritas en el
+  navegador, y si alguna vez cambiás una cuenta entregada, el cliente ve
+  la nueva y no una copia vieja.
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --fondo:        #ffffff;
+    --superficie:   #fbfbfc;
+    --superficie-2: #f4f5f7;
+    --separador:    #ececef;
+    --tinta:        #14161a;
+    --tinta-media:  #3d424b;
+    --tinta-suave:  #767c88;
+    --marca:        #e50914;
+    --oro:          #9a7400;
+    --ambar:        #f0a500;
+    --verde-wa:     #128C7E;
+    --sombra:       0 1px 2px rgba(20,22,26,.05), 0 4px 14px rgba(20,22,26,.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', system-ui, sans-serif;
+    background: var(--fondo);
+    color: var(--tinta-media);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--superficie);
+    border-bottom: 1px solid var(--separador);
+    padding: 1rem;
+    text-align: center;
+  }
+  header a.logo {
+    text-decoration: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    color: var(--marca);
+  }
+
+  .caja { max-width: 520px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+  h1 {
+    font-size: 1.35rem;
+    color: var(--tinta);
+    margin-bottom: 0.3rem;
+  }
+  .sub {
+    font-size: 0.85rem;
+    color: var(--tinta-suave);
+    line-height: 1.55;
+    margin-bottom: 1.4rem;
+  }
+
+  /* ---------- Una compra ---------- */
+  .compra {
+    background: var(--superficie);
+    border: 1px solid var(--separador);
+    border-radius: 14px;
+    padding: 0.95rem 1.05rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    box-shadow: var(--sombra);
+  }
+
+  .compra-datos { flex: 1; min-width: 0; }
+
+  .compra-num {
+    font-weight: 800;
+    color: var(--tinta);
+    font-size: 0.98rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .compra-prod {
+    font-size: 0.83rem;
+    color: var(--tinta-media);
+    margin-top: 0.2rem;
+    line-height: 1.45;
+  }
+  .compra-fecha {
+    font-size: 0.74rem;
+    color: var(--tinta-suave);
+    margin-top: 0.25rem;
+  }
+  .compra-faltan {
+    display: inline-block;
+    margin-top: 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #7c3d06;
+    background: rgba(240,165,0,0.14);
+    padding: 0.15rem 0.5rem;
+    border-radius: 99px;
+  }
+
+  .btn-abrir {
+    flex: none;
+    background: var(--verde-wa);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .btn-abrir:hover { filter: brightness(.94); }
+
+  /* ---------- Vacío ---------- */
+  .vacio {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--tinta-suave);
+  }
+  .vacio .emo { font-size: 2.6rem; margin-bottom: 0.7rem; }
+  .vacio h2 { font-size: 1.05rem; color: var(--tinta); margin-bottom: 0.4rem; }
+  .vacio p { font-size: 0.87rem; line-height: 1.6; }
+
+  .btn-tienda {
+    display: inline-block;
+    margin-top: 1.3rem;
+    background: var(--marca);
+    color: #fff;
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.92rem;
+  }
+
+  /* ---------- Pie ---------- */
+  .aviso {
+    margin-top: 1.6rem;
+    padding: 0.85rem 1rem;
+    background: var(--superficie-2);
+    border-radius: 10px;
+    font-size: 0.78rem;
+    color: var(--tinta-suave);
+    line-height: 1.6;
+  }
+  .acciones {
+    margin-top: 1.2rem;
+    display: flex;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .link-suave {
+    background: none;
+    border: none;
+    color: var(--tinta-suave);
+    font-size: 0.8rem;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .link-suave:hover { color: var(--marca); }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="index.html">TIAGO STORE</a>
+</header>
+
+<main class="caja">
+  <h1>Mis compras</h1>
+  <p class="sub" id="sub">Cargando…</p>
+
+  <div id="lista"></div>
+
+  <div class="acciones" id="acciones" hidden>
+    <a class="link-suave" href="index.html" style="text-decoration:underline;">Seguir comprando</a>
+    <button class="link-suave" id="btnVaciar">Borrar esta lista</button>
+  </div>
+
+  <div class="aviso" id="aviso" hidden>
+    Esta lista se guarda solo en este navegador. Si cambiás de celular o
+    borrás los datos de navegación, se pierde — pero tus cuentas siguen
+    siendo tuyas: escribinos por WhatsApp y te las reenviamos.
+  </div>
+</main>
+
+<script type="module">
+import { misCompras, olvidarTodo, linkDeCompra } from './js/historial.js';
+
+const $ = id => document.getElementById(id);
+const escapar = s => String(s ?? '').replace(/[&<>"]/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// "8 sept 2026" — sin hora: en una lista la hora es ruido, y el que quiera
+// el detalle lo tiene al abrir la compra.
+function fecha(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('es-BO', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// Los nombres repetidos se agrupan: comprar 2 Netflix muestra "2x Netflix"
+// y no dos líneas iguales, que parecería un error de la página.
+function resumirProductos(productos) {
+  const cuenta = new Map();
+  for (const p of productos || []) cuenta.set(p, (cuenta.get(p) || 0) + 1);
+  return [...cuenta.entries()]
+    .map(([nombre, n]) => (n > 1 ? `${n}x ${nombre}` : nombre))
+    .join(' · ');
+}
+
+function pintar() {
+  const compras = misCompras();
+
+  if (compras.length === 0) {
+    $('sub').textContent = '';
+    $('lista').innerHTML = `
+      <div class="vacio">
+        <div class="emo">🧾</div>
+        <h2>Todavía no hay compras acá</h2>
+        <p>Cuando compres una cuenta y te la entreguemos,<br>
+           te va a quedar guardada en esta lista.</p>
+        <a class="btn-tienda" href="index.html">Ir a la tienda</a>
+      </div>`;
+    $('acciones').hidden = true;
+    $('aviso').hidden = true;
+    return;
+  }
+
+  $('sub').textContent = compras.length === 1
+    ? 'Tu compra, guardada en este navegador.'
+    : `Tus ${compras.length} compras, guardadas en este navegador.`;
+
+  $('lista').innerHTML = compras.map(c => `
+    <div class="compra">
+      <div class="compra-datos">
+        <div class="compra-num">Pedido #${c.numero}</div>
+        <div class="compra-prod">${escapar(resumirProductos(c.productos))}</div>
+        <div class="compra-fecha">${fecha(c.fecha)}</div>
+        ${c.faltan > 0
+          ? `<span class="compra-faltan">Falta ${c.faltan === 1 ? '1 cuenta' : c.faltan + ' cuentas'}</span>`
+          : ''}
+      </div>
+      <a class="btn-abrir" href="${linkDeCompra(c.token)}">Abrir mi cuenta</a>
+    </div>`).join('');
+
+  $('acciones').hidden = false;
+  $('aviso').hidden = false;
+}
+
+$('btnVaciar').addEventListener('click', () => {
+  // Se pregunta porque no se puede deshacer desde acá. Las compras siguen
+  // existiendo del lado de la tienda; lo que se borra es este recuerdo.
+  if (!confirm('¿Borrar la lista de compras de este navegador?\n\nTus cuentas siguen siendo tuyas: si las necesitás, escribinos por WhatsApp.')) return;
+  olvidarTodo();
+  pintar();
+});
+
+pintar();
+</script>
+
+<script src="bg-burbujas.js" defer></script>
+</body>
+</html>

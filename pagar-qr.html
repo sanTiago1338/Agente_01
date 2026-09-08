@@ -680,7 +680,9 @@
              color:var(--texto);"></div>
 
         <div style="font-size:0.78rem; color:var(--tinta-suave); margin-top:0.8rem; line-height:1.55;">
-          Guardala ahora: esta pagina es la unica forma de volver a verla.
+          Esta compra queda guardada en
+          <a href="mis-compras.html" style="color:var(--verde-wa); font-weight:700;">Mis compras</a>,
+          en este mismo navegador. Desde ahi la volves a abrir cuando quieras.
         </div>
       </div>
 
@@ -902,12 +904,14 @@
     lineasEntregables, crearCompra, seguirPedido, mirarPedido, resumirCompra,
     tokenDeLaUrl, compraRecordada, huellaDeCarrito, credencialesComoTexto, hayStock
   } from './js/pedido-automatico.js';
+  import { guardarCompra } from './js/historial.js';
 
   const $ = id => document.getElementById(id);
   const escapar = s => String(s ?? '').replace(/[&<>"]/g,
     c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   let compraActual = null;
+  let tokenActual  = null;   // el de la compra que se esta mostrando
   let parar = null;
 
   // CUANTAS de las cuentas compradas se pueden entregar ya.
@@ -1048,6 +1052,12 @@
 
     if (!listo) return;
 
+    // Recien acá entra al historial: un pedido que no se entregó todavía
+    // no es una compra, es un intento. Se guarda en cada repintado porque
+    // es idempotente, y porque una compra a medias puede pasar de 1 cuenta
+    // a 2 sin dejar de ser la misma.
+    guardarCompra(tokenActual, compra);
+
     // ---- LLEGARON LAS CUENTAS ----
     const varias = r.entregadas.length > 1;
 
@@ -1147,6 +1157,7 @@
   // Arranque
   // -----------------------------------------------------------
   function engancharCompra(token, compra) {
+    tokenActual = token;
     window._pedidoLink   = location.origin + location.pathname + '#t=' + token;
     window._pedidoNumero = 'Pedido #' + compra.numero;
 

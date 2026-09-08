@@ -2740,10 +2740,15 @@
       <span class="nav-icon">🎮</span>
       Juegos
     </a>
-    <button class="nav-item" onclick="showAllCats()">
-      <span class="nav-icon">≡</span>
-      Categorías
-    </button>
+    <!-- Antes acá estaba "Categorías", que llevaba a showAllCats(). Las
+         categorías ya están arriba, en las pestañas del catálogo: repetirlas
+         en la barra de abajo gastaba uno de los cinco lugares que hay.
+         El historial no tenía dónde entrar y es lo que el cliente busca
+         cuando vuelve. -->
+    <a class="nav-item" href="mis-compras.html" style="text-decoration:none;">
+      <span class="nav-icon">🧾</span>
+      Historial
+    </a>
     <button class="nav-item" onclick="openCart()">
       <div class="nav-cart-wrap">
         <span class="nav-icon">🛒</span>

@@ -17,8 +17,19 @@
 --   la tienda — que es justo lo que queremos.
 -- ============================================================
 
--- La publicación supabase_realtime ya viene creada en todo proyecto nuevo.
--- Estas dos líneas le agregan nuestras tablas.
+-- La publicación supabase_realtime viene creada en todo proyecto nuevo.
+-- Igual la creamos si falta: si no existiera, las líneas de abajo fallarían
+-- con "publication does not exist", que es un error confuso de diagnosticar.
+do $$
+begin
+  if not exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
+    create publication supabase_realtime;
+    raise notice 'Faltaba la publicación supabase_realtime, la creé';
+  end if;
+end;
+$$;
+
+-- Ahora sí, agregarle nuestras tablas.
 -- El bloque do/exception es porque "add table" tira error si la tabla ya
 -- está adentro, y queremos poder correr este archivo dos veces sin drama.
 do $$

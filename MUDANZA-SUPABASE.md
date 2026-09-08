@@ -1,5 +1,21 @@
 # Mudanza de Firestore a Supabase
 
+> ## Dónde estás
+>
+> | Paso | Estado |
+> |---|---|
+> | 1 · Crear el proyecto | ✅ `Tiago Store` · región `sa-east-1` (São Paulo) |
+> | 2 · Crear las tablas | ✅ 3 tablas · 9 políticas · 2 en realtime |
+> | 3 · Tu usuario y darte de alta como admin | ⬜ **te toca a vos** |
+> | 4 · Pegar las credenciales | ✅ ya están en `js/supabase-base.js` |
+> | 5 · Copiar el catálogo | ⬜ |
+> | 6 · Probar en local | ⬜ |
+> | 7 · Publicar | ⬜ |
+> | 8 · Limpieza final | ⬜ |
+>
+> **La tienda sigue corriendo sobre Firestore.** Los cuatro interruptores no
+> se movieron y Supabase está vacío.
+
 Todo está preparado y **nada está encendido todavía**. La tienda sigue
 funcionando igual que ayer, contra Firestore. Este archivo es el paso a paso
 para cuando quieras hacer el cambio.
@@ -152,19 +168,48 @@ En Supabase agregá tu dominio real:
 (el equivalente de los "dominios autorizados" de Firebase; sin esto el
 "recuperar contraseña" no vuelve a tu sitio).
 
-### 8 · Un rato después
+### 8 · Limpieza final (un rato después)
 
 Dejá Firestore prendido unos días. No cuesta nada y es tu vuelta atrás.
 
-Cuando ya no lo mires más:
+**Ya borrado** (no esperaba a la mudanza — estaba muerto desde antes): el
+backend de Express + SQLite. `server.js`, `src/` entera, `admin.html` (el
+panel viejo de la raíz), `package.json` y `package-lock.json`. Nada lo
+llamaba: `pagar-qr.html` arma el QR con una imagen estática (`Img/Qr.jpg`) y
+no hay un solo `fetch` a `/api/` en la tienda.
+
+> Si alguna vez querés revivir el cobro automático por QR, está entero en el
+> historial: `git log --diff-filter=D -- server.js` te dice en qué commit se
+> fue, y `git checkout <commit>^ -- server.js src/` lo trae de vuelta.
+>
+> `node_modules/` quedó en el disco (está en `.gitignore`, git no lo ve).
+> Ya no sirve para nada: borrala a mano y recuperás bastante espacio.
+
+**Cuando Supabase esté confirmado, se puede borrar:**
+
+| Qué | Por qué |
+|---|---|
+| `js/firebase-base.js`, `js/firebase-config.js` | la conexión vieja |
+| `js/productos-service-firebase.js`, `js/juegos-service-firebase.js` | los servicios viejos |
+| `js/panel-datos-firebase.js`, `js/panel-auth-firebase.js` | el panel viejo |
+| `backup/migrar.html`, `migrar-juegos.html`, `marcar-planes.html`, `migrar-imagenes.html` | migradores a Firestore, ya cumplieron |
+| `backup/catalogo-original.js`, `backup/juegos-original.js` | las semillas del catálogo pre-Firestore |
+| `backup/migrar-a-supabase.html` | cuando la copia esté verificada |
+
+Y los cuatro interruptores dejan de tener sentido: `productos-service.js`,
+`juegos-service.js`, `panel-datos.js` y `panel-auth.js` pasan a exportar
+directo desde su versión de Supabase, sin la línea comentada.
+
+En la base, las columnas puente:
 
 ```sql
 alter table public.productos drop column firestore_id;
 alter table public.juegos    drop column firestore_id;
 ```
 
-Y se pueden borrar `js/*-firebase.js`, `js/firebase-*.js` y las herramientas
-viejas de `backup/`.
+**Y el proyecto de Firebase.** Recién cuando no vayas a volver: Firebase
+Console → Configuración del proyecto → Eliminar proyecto. Bajate antes una
+exportación de Firestore si querés quedarte con el respaldo.
 
 ---
 

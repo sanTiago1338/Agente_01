@@ -4,12 +4,12 @@
 # Levanta la tienda en http://localhost:8099 para verla como la
 # ve el cliente, sin tener que publicar en GitHub.
 #
-# Por que existe: esta maquina no tiene Node, asi que server.js
-# (el de Express, para el pago con QR) no corre. Y abrir el HTML
-# con doble clic tampoco sirve del todo: con file:// el navegador
-# bloquea los modulos, o sea que no carga el catalogo de Firestore.
-# Esto usa HttpListener, que ya viene con Windows: no hay nada
-# que instalar.
+# Por que existe: abrir el HTML con doble clic no sirve. Con file://
+# el navegador bloquea los modulos ES, o sea que no carga ni el
+# catalogo ni el panel. Hace falta servirlo por http.
+#
+# Esto usa HttpListener, que ya viene con Windows: no hay nada que
+# instalar, y esta maquina no tiene Node.
 #
 # Uso:
 #   powershell -File servidor.ps1

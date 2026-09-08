@@ -172,9 +172,13 @@ create index if not exists juegos_activos_idx
 --
 -- Acá lo hace la base: pase lo que pase, si la fila cambia, la fecha se
 -- actualiza sola. No hay forma de olvidarse.
+-- El "set search_path" de estas cuatro funciones no es decorativo: sin él,
+-- quien las llame podría anteponer un esquema propio y hacer que "productos"
+-- apunte a OTRA tabla. Fijándolo, siempre miran las de public.
 create or replace function public.tocar_fecha_actualizacion()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.fecha_actualizacion = now();
@@ -205,6 +209,7 @@ create or replace function public.siguiente_orden_producto()
 returns integer
 language sql
 stable
+set search_path = public
 as $$
   select coalesce(max(orden), 0) + 10 from public.productos;
 $$;
@@ -213,6 +218,7 @@ create or replace function public.siguiente_orden_juego()
 returns integer
 language sql
 stable
+set search_path = public
 as $$
   select coalesce(max(orden), 0) + 10 from public.juegos;
 $$;
@@ -221,6 +227,7 @@ create or replace function public.siguiente_id_legacy()
 returns integer
 language sql
 stable
+set search_path = public
 as $$
   select coalesce(max(id_legacy), 0) + 1 from public.productos;
 $$;

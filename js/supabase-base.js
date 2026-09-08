@@ -20,11 +20,8 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // ============================================================
 // CREDENCIALES
 // ============================================================
-// ⚠️ COMPLETAR ANTES DE USAR. Los dos valores salen de:
-//    Supabase → tu proyecto → Settings → API
-//
-//      SUPABASE_URL      = "Project URL"
-//      SUPABASE_ANON_KEY = "Project API keys" → anon / public
+// Proyecto: Tiago Store · región sa-east-1 (São Paulo)
+// Los dos valores salen de: Supabase → Settings → API
 //
 // Es seguro tener estos valores en el código: son públicos por diseño,
 // igual que lo era la config de Firebase. Lo que te protege son las
@@ -34,8 +31,20 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 //    políticas. Si aparece en un archivo del navegador, cualquiera puede
 //    vaciarte la base. Si alguna vez la pegás por error, entrá a
 //    Settings → API → Reset y generá una nueva.
-export const SUPABASE_URL      = "https://TU-PROYECTO.supabase.co";
-export const SUPABASE_ANON_KEY = "TU-CLAVE-ANON-AQUI";
+export const SUPABASE_URL = "https://doydkjztynjqecwdvoto.supabase.co";
+
+// Esta es la clave "anon" clásica (un JWT). Es la que entiende seguro la
+// versión de supabase-js que carga este archivo (2.45.4).
+//
+// Supabase ya ofrece un formato nuevo para lo mismo, la "publishable key":
+//
+//     sb_publishable_0ZMWdncgmXFhSRtcXYm9QQ_E2L1jn2Z
+//
+// Es la recomendada para proyectos nuevos —se puede rotar sola, sin tocar
+// las otras claves— pero necesita una versión más reciente del SDK. Cuando
+// subas el número de versión en el import de arriba, cambiá esta constante
+// por esa y probá la tienda: si el catálogo carga, quedate con la nueva.
+export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRveWRranp0eW5qcWVjd2R2b3RvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MTg3NDMsImV4cCI6MjEwNDM5NDc0M30.XN1eL-Vlk5lnGMwVKCMtEqxGCBOB2fS_2UytpGLGXdA";
 
 // ============================================================
 // EL CLIENTE

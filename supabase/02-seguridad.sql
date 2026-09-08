@@ -60,6 +60,19 @@ as $$
   select exists (select 1 from public.admins where id = auth.uid());
 $$;
 
+-- Toda función que vive en el esquema "public" la publica PostgREST como
+-- endpoint (/rest/v1/rpc/es_admin), y Postgres le da EXECUTE a PUBLIC por
+-- defecto. O sea: sin estas tres líneas queda abierta a cualquiera.
+--
+-- No sería grave —contesta "¿el que pregunta es admin?" sobre uno mismo, y
+-- sin sesión auth.uid() es null y siempre da false— pero la tienda pública
+-- no tiene por qué poder llamarla. El que la usa es el panel, ya logueado:
+-- la llama al entrar para avisarte si tu usuario quedó fuera de la lista,
+-- en vez de dejarte descubrirlo cuando falla el primer "Guardar".
+revoke execute on function public.es_admin() from public;
+revoke execute on function public.es_admin() from anon;
+grant  execute on function public.es_admin() to   authenticated;
+
 
 -- ============================================================
 -- 2. PRODUCTOS
@@ -125,6 +138,34 @@ create policy "solo admin borra juegos"
   on public.juegos for delete
   to authenticated
   using (public.es_admin());
+
+
+-- ============================================================
+-- 3b. SI ACTIVASTE "RLS AUTOMÁTICO" AL CREAR EL PROYECTO
+-- ============================================================
+-- Esa opción instala un event trigger ("ensure_rls") que enciende RLS solo
+-- en cada tabla nueva. Está buenísimo, pero deja su función en el esquema
+-- public, y por lo tanto expuesta como endpoint HTTP.
+--
+-- La dispara Postgres cuando corre un CREATE TABLE, no una llamada HTTP:
+-- los event triggers no pasan por el permiso EXECUTE. Quitarle el permiso
+-- la saca de la API sin apagar la protección — probado creando una tabla
+-- después de esto y verificando que igual nace con RLS encendido.
+--
+-- El "if exists" es porque si no activaste esa opción, la función no está.
+do $$
+begin
+  if exists (
+    select 1 from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.proname = 'rls_auto_enable'
+  ) then
+    revoke execute on function public.rls_auto_enable() from public;
+    revoke execute on function public.rls_auto_enable() from anon;
+    revoke execute on function public.rls_auto_enable() from authenticated;
+  end if;
+end;
+$$;
 
 
 -- ============================================================

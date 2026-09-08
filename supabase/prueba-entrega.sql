@@ -3,10 +3,24 @@
 -- ============================================================
 -- Para correr en Supabase → SQL Editor, UN BLOQUE POR VEZ.
 --
--- Crea un producto de prueba que no toca nada de lo tuyo: la tienda
--- pública sigue leyendo de Firestore, así que este producto no aparece en
--- ninguna página. Solo existe para que pagar-qr.html tenga contra qué
--- crear un pedido de verdad.
+-- Crea un producto de prueba para que pagar-qr.html tenga contra qué crear
+-- un pedido de verdad.
+--
+-- ⚠️ OJO, ESTO CAMBIÓ. Cuando se escribió este archivo la tienda todavía
+--    leía de Firestore y el producto de prueba no aparecía en ninguna
+--    página. Ahora la tienda lee de Supabase, así que este producto SÍ se
+--    va a ver en el catálogo mientras exista.
+--
+--    Y tiene que estar activo: crear_pedido() se niega a cobrar por algo
+--    agotado, así que no se puede esconder marcándolo inactivo sin romper
+--    la prueba misma.
+--
+--    O sea: mientras dure la prueba vas a tener un producto llamado
+--    "PRUEBA entrega automatica (borrar)" a 1 Bs en tu tienda publicada.
+--    Va último de la lista (orden 999999), pero se ve.
+--
+--    CORRÉ EL BLOQUE DE LIMPIEZA DEL FINAL APENAS TERMINES.
+--    Si podés, hacelo en un horario de poco tráfico.
 --
 -- El id es fijo a propósito (a0000000-...-c0de): así el link de prueba se
 -- puede armar sin tener que copiar nada de acá.

@@ -634,10 +634,9 @@
         <div style="font-size:0.95rem; font-weight:700; color:#ffd700; margin-bottom:0.35rem;">
           Pedido <span id="pedidoNumero"></span>
         </div>
-        <div style="font-size:0.82rem; color:#bbb; line-height:1.55;">
-          Apenas confirmemos tu pago, <strong style="color:#fff;">tu cuenta aparece
-          aca sola</strong>. No cierres esta pagina.
-        </div>
+        <!-- El texto lo decide js: cambia segun haya stock o no. Ver la
+             nota en la funcion pintar() sobre por que esto importa. -->
+        <div style="font-size:0.82rem; color:#bbb; line-height:1.55;" id="pedidoPromesa"></div>
         <div style="font-size:0.72rem; color:#777; margin-top:0.6rem;">
           <span class="latido">●</span> Revisando cada pocos segundos…
         </div>
@@ -885,7 +884,7 @@
   <script type="module">
   import {
     itemEntregable, crearPedido, seguirPedido, mirarPedido,
-    tokenDeLaUrl, pedidoRecordado, credencialesComoTexto
+    tokenDeLaUrl, pedidoRecordado, credencialesComoTexto, hayStock
   } from './js/pedido-automatico.js';
 
   const $ = id => document.getElementById(id);
@@ -894,6 +893,11 @@
 
   let pedidoActual = null;
   let parar = null;
+
+  // Cuantas cuentas libres hay de este producto, para no prometer una
+  // entrega instantanea que no se puede cumplir. null = no se pudo saber,
+  // y en ese caso se prefiere la version optimista de siempre.
+  let conStock = null;
 
   // -----------------------------------------------------------
   // Pintar segun el estado
@@ -911,6 +915,25 @@
     $('pedidoSinStock').style.display  = sinStock  ? 'block' : 'none';
 
     $('pedidoNumero').textContent = '#' + pedido.numero;
+
+    // ---- LA PROMESA TIENE QUE SER VERDAD ----
+    // Antes esto decia SIEMPRE "tu cuenta aparece aca sola". Pero eso solo
+    // pasa si hay una cuenta libre esperando: si no hay stock, el cliente
+    // paga creyendo que la recibe en el momento y recien despues se entera
+    // de que no. Prometer y no cumplir es peor que no prometer, porque para
+    // cuando se descubre ya pago.
+    //
+    // hayStock se consulta al crear el pedido. Si dio 0, se avisa de una,
+    // ANTES de que pague. Igual se sigue preguntando: si cargas stock antes
+    // de confirmar, la entrega automatica funciona y esta pantalla pasa
+    // sola a mostrar la cuenta.
+    if (esperando) {
+      $('pedidoPromesa').innerHTML = conStock === 0
+        ? 'Apenas confirmemos tu pago <strong style="color:#fff;">te mandamos la ' +
+          'cuenta por WhatsApp</strong>, hoy mismo. Si se libera antes, te aparece aca.'
+        : 'Apenas confirmemos tu pago, <strong style="color:#fff;">tu cuenta aparece ' +
+          'aca sola</strong>. No cierres esta pagina.';
+    }
 
     // Con el pago ya confirmado, el contador de "te mandamos a WhatsApp
     // en 5:00" no tiene sentido. Y peor: al llegar a cero saca al cliente
@@ -986,6 +1009,18 @@
     if (typeof buildWhatsappUrl === 'function') buildWhatsappUrl();
     pintar(pedido);
     parar = seguirPedido(token, pintar);
+
+    // Al RETOMAR un pedido no pasamos por el camino que consulta el stock,
+    // asi que se pregunta aca y se repinta cuando llega. Se pinta primero y
+    // se corrige despues a proposito: es preferible que la pantalla aparezca
+    // al instante y ajuste una frase, a dejarla en blanco esperando.
+    if (conStock === null && pedido.producto_id) {
+      hayStock(pedido.producto_id).then(n => {
+        if (n === null) return;
+        conStock = n;
+        if (pedidoActual) pintar(pedidoActual);
+      });
+    }
   }
 
   // Cuando la pagina se abre SIN carrito (por el link del pedido, o a
@@ -1050,6 +1085,10 @@
     // -------------------------------------------------------
     // Solo si el carrito sirve: un producto, una unidad, con su id real.
     if (!item) return;          // carrito multiple, juego, o sin migrar
+
+    // Se pregunta ANTES de pintar, para que el cartel diga la verdad desde
+    // el primer segundo y no despues de que el cliente ya pago.
+    conStock = await hayStock(item.fid);
 
     const pedido = await crearPedido(item, {
       nombre:   ($('customerUsername') || {}).value || '',

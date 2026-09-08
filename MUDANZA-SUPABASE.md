@@ -358,14 +358,20 @@ ese producto está en el mismo archivo. Así se probó el 7/9/2026.
 
 ---
 
-## Fase 2 (opcional): las imágenes
+## Fase 2 (recomendada antes de publicar): las imágenes
 
 Hoy cada imagen viaja **adentro** del producto, como texto base64. Eso venía
-del límite de 1 MB por documento de Firestore.
+del límite de 1 MB por documento de Firestore. Entre todas pesan **17 MB**.
 
-Con 226 productos son varios MB que cada cliente descarga **antes de ver la
-primera tarjeta**, y que el navegador no puede cachear por separado ni cargar
-de a poco — porque no son archivos, son texto adentro del JSON.
+El 7/9/2026 eso hizo que el panel no cargara: un `select *` de 17 MB se
+pasaba del tiempo límite de Supabase (8 segundos) y la lista quedaba vacía
+con un error 500. Se resolvió cambiando cómo se lee el catálogo, en
+`js/productos-service-supabase.js`: primero todo menos la imagen, que llega
+en un segundo, y después las imágenes aparte, en tandas de 10. La tienda y
+el panel se ven enseguida y las fotos van apareciendo. Pero los 17 MB
+siguen viajando: con una conexión lenta las últimas fotos tardan minutos, y
+el navegador no puede cachearlas por separado ni cargarlas de a poco, porque
+no son archivos, son texto adentro del JSON.
 
 `supabase/04-storage.sql` deja todo listo para pasarlas a archivos de verdad.
 Después de eso, `imagen` pasa a ser una URL normal, el catálogo pesa unos

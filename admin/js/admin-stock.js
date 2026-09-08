@@ -34,7 +34,7 @@ const escapar = s => String(s ?? '').replace(/[&<>"]/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 // Lo que se lee de la base en cada refresco
-let PRODUCTOS = [];   // [{ id, nombre, imagen }]
+let PRODUCTOS = [];   // [{ id, nombre }]  (sin imagen: pesa demasiado, ver cargar())
 let CUENTAS   = [];   // [{ id, producto_id, estado, ... }]
 let abierto   = null; // qué producto está desplegado en la lista
 
@@ -313,7 +313,9 @@ async function cargarTodo() {
   $('stRefrescar').disabled = true;
 
   const [rProd, rCuentas] = await Promise.all([
-    sbAdmin.from('productos').select('id, nombre, imagen').order('orden'),
+    // Sin la columna imagen a propósito: entre todas pesan 17 MB y la
+    // consulta se cortaba por tiempo. Acá alcanza con el nombre.
+    sbAdmin.from('productos').select('id, nombre').order('orden'),
     sbAdmin.from('cuentas').select('*').order('creada_en', { ascending: false })
   ]);
 
@@ -413,11 +415,16 @@ function listar() {
     const dadas  = suyas.filter(c => c.estado === 'entregada').length;
     const desplegado = abierto === p.id;
 
+    // La inicial del nombre como miniatura, igual que en la tabla de
+    // productos: las imágenes ya no se traen en esta vista (ver arriba).
+    const letra   = ([...String(p.nombre || '').trim()][0] || '?').toUpperCase();
+    const inicial = 'data:image/svg+xml,' + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="#eceef1"/><text x="32" y="33" font-family="Arial" font-size="26" font-weight="bold" fill="#9aa0ab" text-anchor="middle" dominant-baseline="central">${letra}</text></svg>`);
+
     return `
       <div class="st-prod ${desplegado ? 'abierto' : ''}" data-prod="${p.id}">
         <div class="st-cab">
-          <img src="${escapar(urlImagen(p.imagen))}" alt="" loading="lazy"
-               onerror="this.style.visibility='hidden'">
+          <img src="${inicial}" alt="">
           <span class="st-nombre">${escapar(p.nombre)}</span>
           <span class="st-pill ${libres > 0 ? 'libre' : 'cero'}">${libres} libre${libres === 1 ? '' : 's'}</span>
           ${dadas ? `<span class="st-pill dadas">${dadas} entregada${dadas === 1 ? '' : 's'}</span>` : ''}

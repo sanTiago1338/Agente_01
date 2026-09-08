@@ -10,7 +10,7 @@
 > | 3 · Tu usuario y darte de alta como admin | ✅ 7/9/2026 · `santosvargas266@gmail.com`, confirmado y en `admins` · falta apagar el registro (3c) |
 > | 4 · Pegar las credenciales | ✅ ya están en `js/supabase-base.js` |
 > | 5 · Copiar el catálogo | ✅ 7/9/2026 · 226 productos y 27 juegos, comparados campo por campo contra Firestore |
-> | 6 · Probar en local | 🟡 tienda, planes, recargas y una compra real: ✅ · el panel (entrar, editar, realtime) espera al paso 3 |
+> | 6 · Probar en local | 🟡 tienda, planes, recargas y una compra real: ✅ · el panel por dentro (entrar, editar, realtime) todavía no: **ojo, la prueba va en localhost, no en la tienda publicada, que sigue en Firestore** |
 > | 7 · Publicar | ⬜ |
 > | 8 · Limpieza final | ⬜ |
 >

@@ -142,6 +142,18 @@ create table if not exists public.pedidos (
   metodo_pago       text not null default 'qr',
   -- Lo que devuelve la pasarela, o el número de comprobante que copiaste.
   referencia_pago   text,
+
+  -- El id del QR que devuelve la pasarela al crearlo. No confundir:
+  --   qr_externo       el id del QR, ANTES de que paguen
+  --   referencia_pago  el nº de transacción, DESPUÉS de que pagaron
+  --
+  -- Hace falta en los dos caminos posibles. Si la pasarela avisa por
+  -- webhook, sirve para cruzar con el extracto del banco. Si NO avisa y
+  -- hay que preguntarle, es imprescindible: sin el id de ellos no se puede
+  -- consultar "¿este QR ya se pagó?". Y esa posibilidad es real: la página
+  -- del BCP lista "Generación QR" y "Consulta Pagos QR", pero no se ve un
+  -- módulo de notificación.
+  qr_externo        text,
   -- 'panel:tu@email.com' o 'webhook:pagofacil'. Sirve para auditar después
   -- quién dio por bueno cada pago.
   confirmado_por    text,
@@ -656,3 +668,131 @@ end;
 $$;
 
 alter table public.pedidos replica identity full;
+
+
+-- ============================================================
+-- 11. PARA CUANDO HAYA PASARELA
+-- ============================================================
+-- Lo usa la Edge Function supabase/functions/webhook-pago. Nada de esto lo
+-- puede llamar la tienda ni el panel: es solo para service_role.
+
+create index if not exists pedidos_qr_externo_idx
+  on public.pedidos (qr_externo)
+  where qr_externo is not null;
+
+
+-- ------------------------------------------------------------
+-- Anotar el QR en el pedido, apenas la pasarela lo devuelve
+-- ------------------------------------------------------------
+create or replace function public.registrar_qr(
+  p_numero bigint,
+  p_qr_id  text
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.pedidos p
+  set qr_externo = p_qr_id
+  where p.numero = p_numero
+    and p.estado = 'esperando_pago';   -- no se le cambia el QR a algo ya pagado
+
+  return found;
+end;
+$$;
+
+
+-- ------------------------------------------------------------
+-- Qué pedidos hay que ir a preguntar
+-- ------------------------------------------------------------
+-- Solo sirve en el camino "la pasarela no avisa". Se limita a 24 horas
+-- porque un pedido más viejo ya venció, y preguntar por él es gastar
+-- llamadas al pedo.
+create or replace function public.pedidos_por_cobrar()
+returns table (numero bigint, qr_externo text, precio numeric)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select p.numero, p.qr_externo, p.precio
+  from public.pedidos p
+  where p.estado = 'esperando_pago'
+    and p.qr_externo is not null
+    and p.creado_en > now() - interval '24 hours'
+  order by p.creado_en;
+$$;
+
+
+-- ------------------------------------------------------------
+-- Confirmar un pago que avisa la pasarela
+-- ------------------------------------------------------------
+-- confirmar_pago() pide el uuid interno, y un webhook no lo tiene: lo que
+-- le mandamos a la pasarela como referencia es el NÚMERO corto (#1043),
+-- porque es lo que entra en el campo de referencia de un QR.
+--
+-- Además VERIFICA EL MONTO, y eso es lo más importante de acá. Un webhook
+-- es un POST que llega de afuera; aunque esté firmado, el día que la firma
+-- falle o se filtre el secreto, lo único que separa "me pagaron 120 Bs" de
+-- "alguien dijo que me pagaron" es comparar contra lo que el pedido cuesta.
+--
+--   pagaron de menos -> NO se entrega, y queda el motivo escrito
+--   pagaron de más   -> SÍ se entrega; el cliente cumplió, la diferencia
+--                       se la devolvés vos
+create or replace function public.confirmar_pago_webhook(
+  p_numero     bigint,
+  p_monto      numeric,
+  p_referencia text default null,
+  p_origen     text default 'webhook'
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_pedido public.pedidos%rowtype;
+  v_res    record;
+begin
+  select * into v_pedido from public.pedidos p where p.numero = p_numero;
+
+  if not found then
+    -- No se revela nada más: si alguien prueba números al azar, que no
+    -- pueda deducir cuáles existen por la forma de la respuesta.
+    return jsonb_build_object('ok', false, 'motivo', 'pedido_no_encontrado');
+  end if;
+
+  if p_monto is not null and p_monto < v_pedido.precio then
+    update public.pedidos p set
+      referencia_pago = coalesce(p_referencia, p.referencia_pago),
+      confirmado_por  = p_origen || ' (MONTO INSUFICIENTE: ' || p_monto || ' de ' || v_pedido.precio || ')'
+    where p.id = v_pedido.id;
+
+    return jsonb_build_object(
+      'ok', false, 'motivo', 'monto_insuficiente',
+      'esperado', v_pedido.precio, 'recibido', p_monto);
+  end if;
+
+  -- Se entrega por la MISMA puerta que usa el botón del panel.
+  select * into v_res
+  from public.confirmar_pago(v_pedido.id, p_referencia, p_origen);
+
+  return jsonb_build_object(
+    'ok',        true,
+    'estado',    v_res.estado,
+    'entregada', v_res.entregada,
+    'mensaje',   v_res.mensaje,
+    'numero',    v_pedido.numero);
+end;
+$$;
+
+
+revoke execute on function public.registrar_qr(bigint, text)                          from public, anon, authenticated;
+revoke execute on function public.pedidos_por_cobrar()                                from public, anon, authenticated;
+revoke execute on function public.confirmar_pago_webhook(bigint, numeric, text, text) from public, anon, authenticated;
+
+grant  execute on function public.registrar_qr(bigint, text)                          to service_role;
+grant  execute on function public.pedidos_por_cobrar()                                to service_role;
+grant  execute on function public.confirmar_pago_webhook(bigint, numeric, text, text) to service_role;

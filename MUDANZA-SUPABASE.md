@@ -12,7 +12,7 @@
 > | 5 · Copiar el catálogo | ✅ 7/9/2026 · 226 productos y 27 juegos, comparados campo por campo contra Firestore |
 > | 6 · Probar en local | ✅ 7/9/2026 · tienda, planes, recargas, una compra real, y el panel: entrar, editar un precio y verlo cambiar solo en la tienda |
 > | 7 · Publicar | ✅ 7/9/2026 · `main` en GitHub · **falta apagar el registro y poner la Site URL**, ver abajo |
-> | 8 · Limpieza final | ⬜ · dejá Firestore prendido unos días |
+> | 8 · Limpieza final | ✅ 7/9/2026 · el código de Firebase se fue · **el proyecto de Firebase sigue vivo a propósito**, como respaldo |
 > | Fase 2 · Imágenes a Storage | ✅ 7/9/2026 · 59 fotos movidas · el catálogo pasó de **17 MB a 215 KB** |
 >
 > **La tienda publicada ya corre sobre Supabase** desde el 7/9/2026.
@@ -218,31 +218,40 @@ no hay un solo `fetch` a `/api/` en la tienda.
 > `node_modules/` quedó en el disco (está en `.gitignore`, git no lo ve).
 > Ya no sirve para nada: borrala a mano y recuperás bastante espacio.
 
-**Cuando Supabase esté confirmado, se puede borrar:**
+**Hecho el 7/9/2026, apenas confirmada la tienda publicada.** Se borraron los
+seis archivos de Firebase (`firebase-base`, `firebase-config`, los dos
+servicios, y los dos del panel), los cuatro migradores a Firestore de
+`backup/`, el migrador a Supabase y las semillas del catálogo viejo. En la
+base se sacó la columna `firestore_id` de `productos` y `juegos`.
 
-| Qué | Por qué |
+Los cuatro interruptores dejaron de serlo: `productos-service.js`,
+`juegos-service.js`, `panel-datos.js` y `panel-auth.js` ahora reexportan
+directo. Se quedan como archivos porque las páginas importan desde ahí.
+
+También se borró `node_modules/` del disco: eran las dependencias del backend
+de Express que ya no existe, 50 MB que no usaba nadie.
+
+> **La vuelta atrás ahora es git, no un comentario.** Todo lo borrado sigue
+> entero en el historial:
+>
+> ```bash
+> git log --diff-filter=D -- js/productos-service-firebase.js
+> git checkout <commit>^ -- js/ backup/
+> ```
+
+**Lo que NO se tocó, y por qué:**
+
+| Qué | Por qué se queda |
 |---|---|
-| `js/firebase-base.js`, `js/firebase-config.js` | la conexión vieja |
-| `js/productos-service-firebase.js`, `js/juegos-service-firebase.js` | los servicios viejos |
-| `js/panel-datos-firebase.js`, `js/panel-auth-firebase.js` | el panel viejo |
-| `backup/migrar.html`, `migrar-juegos.html`, `marcar-planes.html`, `migrar-imagenes.html` | migradores a Firestore, ya cumplieron |
-| `backup/catalogo-original.js`, `backup/juegos-original.js` | las semillas del catálogo pre-Firestore |
-| `backup/migrar-a-supabase.html` | cuando la copia esté verificada |
-
-Y los cuatro interruptores dejan de tener sentido: `productos-service.js`,
-`juegos-service.js`, `panel-datos.js` y `panel-auth.js` pasan a exportar
-directo desde su versión de Supabase, sin la línea comentada.
-
-En la base, las columnas puente:
-
-```sql
-alter table public.productos drop column firestore_id;
-alter table public.juegos    drop column firestore_id;
-```
+| `data/tienda.db` y sus archivos | Es la base SQLite del backend viejo, y **tiene tablas `pagos` y `clientes`**. Puede tener registros reales que no están en ningún otro lado: no está en git, así que borrarla no se deshace. Miralo antes de decidir. |
+| `data/qr-banco.png`, `qr-banco-data.json` | El QR de tu cuenta y su contenido cifrado. |
+| `respaldo_imagenes` en la base | Los 17 MB de fotos originales. Es la vuelta atrás de la Fase 2, sobre todo si borrás Firebase. |
+| Los comentarios que nombran a Firebase | No son dependencias: explican por qué cada cosa es como es. |
 
 **Y el proyecto de Firebase.** Recién cuando no vayas a volver: Firebase
 Console → Configuración del proyecto → Eliminar proyecto. Bajate antes una
-exportación de Firestore si querés quedarte con el respaldo.
+exportación de Firestore si querés quedarte con el respaldo. Mientras
+Firestore siga vivo, tenés los datos de la tienda por duplicado.
 
 ---
 
@@ -250,8 +259,23 @@ exportación de Firestore si querés quedarte con el respaldo.
 
 ### "Volvé todo como estaba"
 
-Comentá la línea de Supabase y descomentá la de Firebase en los cuatro
-interruptores. Nada más. Firestore nunca se tocó.
+Hasta el 7/9/2026 alcanzaba con mover un comentario en los cuatro
+interruptores. Ahora que el código de Firebase se borró, la vuelta atrás es
+traerlo del historial:
+
+```bash
+git log --diff-filter=D -- js/productos-service-firebase.js
+git checkout <commit>^ -- js/firebase-base.js js/firebase-config.js \
+  js/productos-service-firebase.js js/juegos-service-firebase.js \
+  js/panel-datos-firebase.js js/panel-auth-firebase.js
+```
+
+Y en los cuatro archivos (`productos-service.js`, `juegos-service.js`,
+`panel-datos.js`, `panel-auth.js`) cambiar la línea del `export *` para que
+apunte a la versión de Firebase.
+
+**Firestore nunca se tocó** y sigue con los datos del día de la mudanza: la
+copia leyó, no movió.
 
 ### "No se pudo guardar: tu usuario no tiene permiso"
 

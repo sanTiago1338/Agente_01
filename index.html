@@ -3689,6 +3689,23 @@
       const p = PRODUCTS.find(x => x.id === id);
       if (!p || p.soldOut) return;
 
+      // Tocar "Comprar" ya lo guarda en el carrito.
+      //
+      // Antes abrir el checkout no guardaba nada: si el cliente volvía
+      // atrás a mirar otra cosa, lo que había elegido se perdía y tenía
+      // que buscarlo de nuevo. Ahora queda ahí, y si sigue eligiendo se
+      // le van sumando y paga todo junto desde el carrito.
+      //
+      // Se agrega solo si NO estaba: abrir el mismo producto tres veces
+      // no puede dejarle cantidad 3. Por eso no se usa addToCart(), que
+      // suma de a uno y además muestra un cartelito que acá sería ruido:
+      // el cliente ya está viendo abrirse el checkout.
+      if (p.price > 0 && !cart.find(item => item.id === id)) {
+        cart.push({ ...p, qty: 1 });
+        updateCartCount();
+        guardarCarrito();
+      }
+
       const url = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
       const vivo = acentoDe(p);
       const nombreSeguro = p.name.replace(/'/g, "\\'");
@@ -3787,6 +3804,19 @@
     function pagarConQR(id, recordarRenovacion) {
       const p = PRODUCTS.find(x => x.id === id);
       if (!p || p.price <= 0) return;
+
+      // Se va a pagar SOLO este producto, así que sale del carrito.
+      //
+      // Si no, pasa esto: el cliente toca Comprar (se guarda), paga ese
+      // producto, y más tarde entra al carrito y lo ve ahí todavía. O lo
+      // paga dos veces, o te escribe preguntando si se cobró bien. Las dos
+      // son peores que hacerle volver a agregarlo si abandonó el pago.
+      const i = cart.findIndex(item => item.id === id);
+      if (i !== -1) {
+        cart.splice(i, 1);
+        updateCartCount();
+        guardarCarrito();
+      }
       // fid = el id real del producto en la base. Va para que la página de
       // pago pueda crear un pedido de verdad y entregar la cuenta sola.
       // Si el producto todavía no está migrado, viaja igual y la página de

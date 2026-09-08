@@ -3779,7 +3779,11 @@
     function pagarConQR(id, recordarRenovacion) {
       const p = PRODUCTS.find(x => x.id === id);
       if (!p || p.price <= 0) return;
-      const cartData = [{ name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p) }];
+      // fid = el id real del producto en la base. Va para que la página de
+      // pago pueda crear un pedido de verdad y entregar la cuenta sola.
+      // Si el producto todavía no está migrado, viaja igual y la página de
+      // pago lo ignora: sigue con el camino de WhatsApp de siempre.
+      const cartData = [{ fid: p.fid, name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p) }];
       const params = new URLSearchParams({
         cart: encodeURIComponent(JSON.stringify(cartData)),
         total: p.price.toFixed(2),
@@ -4237,7 +4241,11 @@
     function payProductQR(id) {
       const p = PRODUCTS.find(x => x.id === id);
       if (!p || p.price <= 0) return;
-      const cartData = [{ name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p) }];
+      // fid = el id real del producto en la base. Va para que la página de
+      // pago pueda crear un pedido de verdad y entregar la cuenta sola.
+      // Si el producto todavía no está migrado, viaja igual y la página de
+      // pago lo ignora: sigue con el camino de WhatsApp de siempre.
+      const cartData = [{ fid: p.fid, name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p) }];
       const params = new URLSearchParams({
         cart: encodeURIComponent(JSON.stringify(cartData)),
         total: p.price.toFixed(2),
@@ -4252,6 +4260,7 @@
 
       const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
       const cartData = cart.map(item => ({
+        fid: item.fid,
         name: item.name.substring(0, 80),
         price: item.price,
         qty: item.qty,

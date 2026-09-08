@@ -7,7 +7,7 @@
 > | 1 · Crear el proyecto | ✅ `Tiago Store` · región `sa-east-1` (São Paulo) |
 > | 2 · Crear las tablas | ✅ 5 tablas · 15 políticas · 3 en realtime · 11 funciones |
 > | 2b · Cobro con entrega automática | ✅ base, panel y página de pago · probado de punta a punta el 7/9/2026 · **prendido desde el paso 5** |
-> | 3 · Tu usuario y darte de alta como admin | ⬜ **te toca a vos** · el alta en `admins` sale sola apenas exista el usuario |
+> | 3 · Tu usuario y darte de alta como admin | ✅ 7/9/2026 · `santosvargas266@gmail.com`, confirmado y en `admins` · falta apagar el registro (3c) |
 > | 4 · Pegar las credenciales | ✅ ya están en `js/supabase-base.js` |
 > | 5 · Copiar el catálogo | ✅ 7/9/2026 · 226 productos y 27 juegos, comparados campo por campo contra Firestore |
 > | 6 · Probar en local | 🟡 tienda, planes, recargas y una compra real: ✅ · el panel (entrar, editar, realtime) espera al paso 3 |

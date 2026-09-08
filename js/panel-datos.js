@@ -1,20 +1,20 @@
 // ============================================================
-// TIAGO STORE · Datos del panel — EL INTERRUPTOR
+// TIAGO STORE · Datos del panel
 // ============================================================
 // De acá salen db, collection, doc, addDoc, updateDoc, deleteDoc,
 // onSnapshot y serverTimestamp para todo el CRUD del panel.
 //
-// Cambiar de base = mover el comentario de una línea a la otra.
+// Los nombres son los de Firestore aunque por detrás haya Supabase: el
+// panel son 1.600 líneas de interfaz de las que solo 13 hablan con la base,
+// así que se tradujo la base y no la interfaz. La traducción vive en
+// js/supabase-compat.js, y ahí está explicado en detalle.
 //
-// ⚠️ ESTE INTERRUPTOR Y EL DE js/panel-auth.js VAN JUNTOS.
-//    Si los datos apuntan a Supabase y el login a Firebase, el panel entra
-//    con un usuario de Firebase y después escribe con un cliente de
-//    Supabase que no tiene sesión: RLS lo rebota y todo tira "sin permiso".
-//    Se cambian los dos o ninguno.
+// Es un puente, no un destino: las llamadas se pueden ir pasando a Supabase
+// nativo de a una, sin apuro, y las dos formas conviven sin problema.
+//
+// Fue un interruptor entre Firestore y Supabase hasta el 7/9/2026. Para
+// recuperar la versión de Firestore:
+//   git log --diff-filter=D -- js/panel-datos-firebase.js
 // ============================================================
 
-// --- FIRESTORE (lo de antes) ---------------------------------
-// export * from './panel-datos-firebase.js';
-
-// --- SUPABASE (desde el 7/9/2026) ----------------------------
 export * from './supabase-compat.js';

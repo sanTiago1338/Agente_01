@@ -194,8 +194,13 @@ function aFila(obj, campos) {
 // ============================================================
 // 5. LISTAS, POR SI HACEN FALTA AFUERA
 // ============================================================
-// Las usa backup/migrar-a-supabase.html para avisar si en Firestore hay
-// campos que esta tabla no conoce (y que si no, se perderían en silencio).
+// Los nombres que conoce la traducción, como lista simple. Hoy no los usa
+// nadie: los pedía la herramienta que copió el catálogo desde Firestore,
+// que se borró cuando la mudanza terminó.
+//
+// Se dejan porque son la respuesta a "¿qué campos entiende el mapeo?", que
+// es justo lo que hay que mirar al agregar una columna nueva, y porque
+// cuestan una línea cada una.
 export const PROPIEDADES_PRODUCTO = CAMPOS_PRODUCTO.map(([, prop]) => prop);
 export const PROPIEDADES_JUEGO    = CAMPOS_JUEGO.map(([, prop]) => prop);
 export { CAMPOS_AUTOMATICOS };

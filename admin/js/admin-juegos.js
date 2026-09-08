@@ -363,7 +363,7 @@ function listar() {
         <h3>${JUEGOS.length ? 'Sin resultados' : 'Todavía no hay juegos'}</h3>
         <p>${JUEGOS.length
               ? 'Probá con otro nombre'
-              : 'Corré <code>backup/migrar-juegos.html</code> para subir los 27 juegos.'}</p>
+              : 'Tocá <strong>+ Nuevo juego</strong> para crear el primero.'}</p>
       </div>`;
     return;
   }

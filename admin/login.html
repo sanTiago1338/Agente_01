@@ -331,12 +331,12 @@ const ERRORES = {
   'auth/too-many-requests':   'Demasiados intentos fallidos. Esperá unos minutos y probá de nuevo.',
   'auth/network-request-failed': 'Sin conexión. Revisá tu internet.',
   'auth/missing-password':    'Escribí tu contraseña.',
-  // Pasa cuando el sitio corre en un dominio que Firebase no tiene autorizado.
-  // Se arregla en: Firebase Console → Authentication → Settings →
-  // Dominios autorizados → Agregar dominio.
+  // Supabase no rechaza el login por dominio, pero sí necesita el dominio
+  // en Authentication → URL Configuration para que el correo de "recuperar
+  // contraseña" vuelva acá. Se deja el mensaje por si alguna vez aparece.
   'auth/unauthorized-domain':
-    'Este dominio no está autorizado en Firebase. Entrá a Authentication → Settings → Dominios autorizados y agregá ' +
-    location.hostname + '.'
+    'Este dominio no está configurado en Supabase. Entrá a Authentication → ' +
+    'URL Configuration y agregá ' + location.origin + '.'
 };
 
 function mostrar(texto, tipo = 'error') {

@@ -1,40 +1,47 @@
-RESPALDO DEL CATÁLOGO — ZONA VIP
-=================================
-Creado: 13 de agosto de 2026
+HERRAMIENTAS SUELTAS — TIAGO STORE
+==================================
+Al día: 7 de septiembre de 2026
 
 QUÉ HAY ACÁ
 -----------
-catalogo-original.js
-    Los 204 productos tal como estaban ANTES de pasar a Firestore.
-    Es la única copia fuera de la base de datos: index.html ya no
-    tiene los productos escritos en el código.
+migrar-imagenes-supabase.html
+    Pasa a Supabase Storage las fotos que estén guardadas DENTRO del
+    producto, como texto base64, y deja en el producto una URL.
 
-migrar.html
-    Herramienta para volver a subir ese catálogo a Firestore.
+    Se corrió una vez, el 7/9/2026, y movió 59 fotos: el catálogo pasó
+    de 17 MB a 215 KB.
 
+    Sigue acá porque el panel guarda las imágenes nuevas pegadas otra
+    vez. Unas pocas no molestan. Si se juntan muchas y la tienda empieza
+    a tardar, se vuelve a correr: se puede correr las veces que quieras y
+    solo toca las que están pegadas.
 
-CUÁNDO USAR ESTO
-----------------
-Solo en una emergencia. Por ejemplo:
+    Para saber si hace falta:
+        select count(*) filter (where imagen like 'data:image/p%'
+                                   or imagen like 'data:image/w%') as pegadas,
+               pg_size_pretty(sum(length(imagen))::bigint) as peso
+        from public.productos;
 
-  - Borraste productos por error desde el panel y querés volver
-    al catálogo original.
-  - La colección "productos" de Firestore se dañó o se vació.
-
-OJO: migrar.html BORRA TODO lo que haya en la colección "productos"
-antes de subir el respaldo. Si desde la migración creaste productos
-nuevos o cambiaste precios, esos cambios SE PIERDEN.
-
-
-CÓMO USARLO
+CÓMO USARLA
 -----------
-1. Levantá el servidor local:      npm start
-2. Abrí:   http://localhost:3000/backup/migrar.html
-3. Iniciá sesión con tu cuenta de admin
-4. Escribí MIGRAR y confirmá
+1. Levantá el servidor local:   powershell -File servidor.ps1
+2. Abrí:  http://localhost:8099/backup/migrar-imagenes-supabase.html
+3. Entrá con tu cuenta de admin, tocá Contar y después Empezar.
+
+Guarda el original antes de pisar nada y solo cambia el producto cuando
+la URL nueva ya contesta bien. Si se corta, seguís después.
 
 
-NO BORRES ESTA CARPETA
-----------------------
-No la carga ninguna página de la tienda ni del panel: no afecta
-la velocidad ni el funcionamiento. Ocupa 178 KB. Dejala como está.
+LO QUE HABÍA ANTES Y YA NO
+--------------------------
+Esta carpeta tenía el catálogo original en JavaScript y las herramientas
+para subirlo a Firestore (migrar.html, migrar-juegos.html,
+marcar-planes.html, migrar-imagenes.html) más la que copió todo a
+Supabase (migrar-a-supabase.html).
+
+Se borraron el 7/9/2026, cuando la mudanza terminó: el catálogo vive en
+Supabase, Firestore quedó como respaldo, y todo eso sigue entero en el
+historial de git si alguna vez hiciera falta.
+
+    git log --diff-filter=D -- backup/
+    git checkout <commit>^ -- backup/catalogo-original.js

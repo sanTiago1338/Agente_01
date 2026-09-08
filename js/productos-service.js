@@ -1,36 +1,20 @@
 // ============================================================
-// TIAGO STORE · Servicio de Productos — EL INTERRUPTOR
+// TIAGO STORE · Servicio de Productos
 // ============================================================
-// Este archivo no tiene lógica. Solo decide de dónde salen los productos.
+// De acá salen los productos para index.html, planes.html y el panel.
+// Este archivo no tiene lógica: solo reexporta la implementación.
 //
-//   index.html y planes.html importan SIEMPRE desde acá, así que cambiar
-//   de base es mover el comentario de una línea a la otra. Nada más.
+// Exporta: subscribeProductos · precioFinal · formatBs · porcentajeDescuento
 //
-// POR QUÉ ASÍ Y NO CON UN if
-//   Un if obligaría a importar las dos versiones, y cada cliente se bajaría
-//   el SDK de Firebase Y el de Supabase para usar uno solo. Con "export *"
-//   el navegador descarga únicamente la línea que está activa.
+// POR QUÉ EXISTE SI NO HACE NADA
+//   Hasta el 7/9/2026 era un interruptor: tenía dos líneas, una de Firestore
+//   y otra de Supabase, y se cambiaba de base moviendo un comentario. La
+//   mudanza terminó y la de Firestore se borró, pero el archivo se queda:
+//   las tres páginas importan desde acá, así que sigue siendo el único lugar
+//   donde tocar si algún día la implementación cambia de nombre o de lugar.
 //
-// ⚠️ ESTE ARCHIVO LO USAN TRES PÁGINAS, NO DOS
-//    index.html · planes.html · y TAMBIÉN admin/index.html, que saca de acá
-//    la lista de productos del panel.
-//
-//    O sea: este interruptor va junto con js/panel-datos.js. Si el panel
-//    escribe en Supabase pero lee de Firestore, guardás un precio, no lo
-//    ves cambiar, lo guardás otra vez… y la lista nunca se actualiza porque
-//    la estás leyendo de la base equivocada.
-//
-//    Los cuatro interruptores se mueven de una sola vez:
-//      js/productos-service.js · js/juegos-service.js
-//      js/panel-datos.js       · js/panel-auth.js
-//
-// PARA VOLVER ATRÁS
-//   Comentás la de Supabase, descomentás la de Firebase, guardás. Listo.
-//   La base vieja de Firestore sigue intacta: la mudanza copia, no mueve.
+//   Si hace falta volver a Firestore, está entero en el historial:
+//     git log --diff-filter=D -- js/productos-service-firebase.js
 // ============================================================
 
-// --- FIRESTORE (lo de antes) ---------------------------------
-// export * from './productos-service-firebase.js';
-
-// --- SUPABASE (desde el 7/9/2026) ----------------------------
 export * from './productos-service-supabase.js';

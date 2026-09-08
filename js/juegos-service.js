@@ -1,16 +1,15 @@
 // ============================================================
-// TIAGO STORE · Servicio de Juegos — EL INTERRUPTOR
+// TIAGO STORE · Servicio de Juegos
 // ============================================================
-// Igual que js/productos-service.js: acá solo se elige la base.
-// recarga-juegos.html importa siempre desde este archivo.
+// De acá salen los juegos y sus paquetes para recarga-juegos.html.
+// Igual que js/productos-service.js: solo reexporta.
 //
-// Los dos interruptores son independientes a propósito: podés pasar los
-// juegos a Supabase, mirar unos días que ande todo, y recién ahí mover el
-// catálogo de productos. Si algo sale mal, el que rompe es uno solo.
+// Fue un interruptor entre Firestore y Supabase hasta el 7/9/2026. La
+// mudanza terminó y la versión de Firestore se borró; el archivo se queda
+// porque recarga-juegos.html importa desde acá.
+//
+// Para recuperar la de Firestore:
+//   git log --diff-filter=D -- js/juegos-service-firebase.js
 // ============================================================
 
-// --- FIRESTORE (lo de antes) ---------------------------------
-// export * from './juegos-service-firebase.js';
-
-// --- SUPABASE (desde el 7/9/2026) ----------------------------
 export * from './juegos-service-supabase.js';

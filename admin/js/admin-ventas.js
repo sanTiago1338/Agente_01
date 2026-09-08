@@ -47,6 +47,26 @@ let confirmando = null;
 // faltaba era el botón.
 const CONFIRMABLES = ['esperando_pago', 'pagado', 'sin_stock', 'vencido'];
 
+// Cuántas cuentas libres hay de cada producto. Se llena en cada carga.
+let STOCK = new Map();
+
+/**
+ * ¿Tiene sentido ofrecer el botón "Confirmar pago" en este pedido?
+ *
+ * No alcanza con que el estado lo permita: tiene que HABER una cuenta
+ * para entregar. Confirmar un pedido sin stock no entrega nada — lo deja
+ * en sin_stock y te obliga a resolverlo por WhatsApp igual. O sea que el
+ * botón te hacía dar una vuelta para terminar en el mismo lugar.
+ *
+ * Con esto, los pedidos de productos sin cuentas cargadas muestran
+ * directamente "Entrega por WhatsApp", que es lo que realmente va a pasar.
+ * Y si más tarde cargás stock de ese producto, el botón aparece solo.
+ */
+function sePuedeConfirmar(p) {
+  if (!CONFIRMABLES.includes(p.estado)) return false;
+  return (STOCK.get(p.producto_id) || 0) > 0;
+}
+
 // El orden importa: es el orden en que te tenés que ocupar de las cosas.
 const ESTADOS = {
   sin_stock:      { txt: 'Sin stock',    color: '#dc2626', bg: 'rgba(220,38,38,.10)' },
@@ -118,6 +138,14 @@ css.textContent = `
   .vt-badge {
     font-size: 11.5px; font-weight: 700; padding: 4px 10px;
     border-radius: 99px; letter-spacing: .03em; white-space: nowrap;
+  }
+
+  /* Ocupa el lugar del botón cuando no hay stock. Se ve apagado a
+     propósito: no es una acción, es un aviso de que ese pedido se resuelve
+     en otro lado. */
+  .vt-wa-only {
+    font-size: 12.5px; font-weight: 600; color: var(--gris);
+    white-space: nowrap; padding: 4px 2px;
   }
 
   /* Credenciales entregadas, por si hay que reenviarlas a mano */
@@ -249,10 +277,24 @@ async function cargarTodo() {
 
   // Los últimos 200 alcanzan: esta pantalla es para trabajar el día, no
   // para hacer contabilidad del año.
-  const { data, error } = await sbAdmin
-    .from('pedidos').select('*')
-    .order('creado_en', { ascending: false })
-    .limit(200);
+  //
+  // El stock viene junto porque de él depende si se muestra el botón de
+  // confirmar. Van las dos consultas a la vez, no una después de la otra.
+  const [rPedidos, rStock] = await Promise.all([
+    sbAdmin.from('pedidos').select('*')
+      .order('creado_en', { ascending: false })
+      .limit(200),
+    sbAdmin.rpc('stock_disponible')
+  ]);
+
+  const { data, error } = rPedidos;
+
+  // Si falla el stock no se corta nada: se queda el mapa vacío y ningún
+  // pedido muestra el botón. Es el lado seguro — peor sería ofrecerte
+  // confirmar algo que no se puede entregar.
+  STOCK = rStock.error
+    ? new Map()
+    : new Map((rStock.data || []).map(f => [f.producto_id, f.libres]));
 
   $('vtRefrescar').disabled = false;
 
@@ -362,7 +404,13 @@ function pintarPedido(p) {
     <div class="vt-pedido ${clase}">
       <div class="vt-num-caja">
         <div class="vt-num">#${p.numero}</div>
-        <div class="vt-fecha">${cuandoFue(p.creado_en)}</div>
+        <!-- Entregado: la fecha y hora exactas, con año. "hace 3 h" sirve
+             para trabajar el día, pero cuando un cliente reclama dentro de
+             un mes lo que necesitás es el dato completo para cruzarlo con
+             el extracto del banco. -->
+        <div class="vt-fecha">${p.entregado_en
+          ? fechaCompleta(p.entregado_en)
+          : cuandoFue(p.creado_en)}</div>
       </div>
 
       <div class="vt-medio">
@@ -378,13 +426,18 @@ function pintarPedido(p) {
       <div class="vt-der">
         <span class="vt-precio">${Number(p.precio).toFixed(2)} Bs</span>
         <span class="vt-badge" style="color:${e.color};background:${e.bg}">${e.txt}</span>
-        ${CONFIRMABLES.includes(p.estado)
+        ${sePuedeConfirmar(p)
           ? `<button class="btn btn-primario" data-confirmar="${p.id}">
                ${p.estado === 'sin_stock' ? 'Reintentar'
                  : p.estado === 'vencido' ? 'Pagó tarde: entregar'
                  : 'Confirmar pago'}
              </button>`
-          : ''}
+          : CONFIRMABLES.includes(p.estado)
+            // Sin cuentas cargadas no hay nada que entregar, así que no se
+            // ofrece un botón que solo daría una vuelta para terminar en
+            // WhatsApp igual. Se dice de una qué hay que hacer.
+            ? `<span class="vt-wa-only">Entrega por WhatsApp</span>`
+            : ''}
       </div>
 
       ${cred ? `
@@ -414,6 +467,23 @@ function cuandoFue(iso) {
   const h = Math.floor(min / 60);
   if (h < 24)     return `hace ${h} h`;
   return new Date(iso).toLocaleDateString('es-BO', { day: 'numeric', month: 'short' });
+}
+
+// Fecha, hora y AÑO de la entrega: "8 sep 2026, 14:32".
+//
+// Para trabajar el día alcanza con "hace 3 h", pero cuando un cliente
+// reclama dentro de un mes —"pagué y no me llegó"— lo que necesitás es el
+// momento exacto para cruzarlo con el extracto del banco. Por eso el año
+// va aunque sea el actual: la captura que le mandes tiene que valer sola,
+// sin que nadie tenga que adivinar de qué año habla.
+function fechaCompleta(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleString('es-BO', {
+    day: 'numeric', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
 }
 
 

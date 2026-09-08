@@ -549,21 +549,21 @@ function pintarPedido(p, esPrimeroDelGrupo = true) {
     <div class="vt-pedido ${clase}">
       <div class="vt-num-caja">
         <div class="vt-num">#${p.numero}</div>
-        <!-- Entregado: la fecha y hora exactas, con año. "hace 3 h" sirve
-             para trabajar el día, pero cuando un cliente reclama dentro de
-             un mes lo que necesitás es el dato completo para cruzarlo con
-             el extracto del banco. -->
-        <div class="vt-fecha">${p.entregado_en
-          ? fechaCompleta(p.entregado_en)
-          : cuandoFue(p.creado_en)}</div>
+        <!-- Solo qué tan reciente es. La fecha exacta, y la de la entrega,
+             van completas abajo junto al producto: acá repetidas ocupaban
+             dos renglones para decir lo mismo. -->
+        <div class="vt-fecha">${cuandoFue(p.creado_en)}</div>
       </div>
 
       <div class="vt-medio">
         <div class="vt-prod">${escapar(p.producto_nombre)}</div>
         <!-- La misma fecha, con el mismo formato, que le queda al cliente
              en el mensaje de WhatsApp. Es lo que se cruza cuando escribe
-             "hice una orden anoche" y hay que encontrarla. -->
-        <div class="vt-orden">Fecha de orden: ${fechaOrden(p.creado_en)}</div>
+             "hice una orden anoche" y hay que encontrarla.
+             Ya entregado, al lado va el momento exacto de la entrega: es
+             la respuesta a "yo pagué y no me llegó nada". -->
+        <div class="vt-orden">Fecha de orden: ${fechaOrden(p.creado_en)}${
+          p.entregado_en ? ` · Entregado: ${fechaOrden(p.entregado_en)}` : ''}</div>
         <div class="vt-cliente">
           ${escapar(p.cliente_nombre || 'Sin nombre')}
           ${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">📲 ${escapar(p.cliente_whatsapp)}</a>` : ''}
@@ -644,23 +644,6 @@ function fechaOrden(iso) {
   const p = n => String(n).padStart(2, '0');
   return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ` +
          `${p(d.getHours())}:${p(d.getMinutes())} ${d.getHours() < 12 ? 'AM' : 'PM'}`;
-}
-
-// Fecha, hora y AÑO de la entrega: "8 sep 2026, 14:32".
-//
-// Para trabajar el día alcanza con "hace 3 h", pero cuando un cliente
-// reclama dentro de un mes —"pagué y no me llegó"— lo que necesitás es el
-// momento exacto para cruzarlo con el extracto del banco. Por eso el año
-// va aunque sea el actual: la captura que le mandes tiene que valer sola,
-// sin que nadie tenga que adivinar de qué año habla.
-function fechaCompleta(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleString('es-BO', {
-    day: 'numeric', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
 }
 
 

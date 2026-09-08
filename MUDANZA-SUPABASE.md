@@ -5,7 +5,8 @@
 > | Paso | Estado |
 > |---|---|
 > | 1 · Crear el proyecto | ✅ `Tiago Store` · región `sa-east-1` (São Paulo) |
-> | 2 · Crear las tablas | ✅ 3 tablas · 9 políticas · 2 en realtime |
+> | 2 · Crear las tablas | ✅ 5 tablas · 15 políticas · 3 en realtime · 11 funciones |
+> | 2b · Cobro con entrega automática | ✅ base, panel y página de pago · probado de punta a punta el 7/9/2026 · **se prende solo en el paso 5** |
 > | 3 · Tu usuario y darte de alta como admin | ⬜ **te toca a vos** |
 > | 4 · Pegar las credenciales | ✅ ya están en `js/supabase-base.js` |
 > | 5 · Copiar el catálogo | ⬜ |
@@ -14,7 +15,7 @@
 > | 8 · Limpieza final | ⬜ |
 >
 > **La tienda sigue corriendo sobre Firestore.** Los cuatro interruptores no
-> se movieron y Supabase está vacío.
+> se movieron y Supabase tiene las tablas pero ningún producto todavía.
 
 Todo está preparado y **nada está encendido todavía**. La tienda sigue
 funcionando igual que ayer, contra Firestore. Este archivo es el paso a paso
@@ -75,10 +76,11 @@ Supabase → **SQL Editor** → New query. Pegá y corré, **en este orden**:
 1. `supabase/01-esquema.sql` — las tablas
 2. `supabase/02-seguridad.sql` — quién puede leer y escribir
 3. `supabase/03-realtime.sql` — que la tienda se actualice sola
+4. `supabase/05-cobros.sql` — pedidos, stock de cuentas y la entrega automática
 
 (`04-storage.sql` es para más adelante, ver el final de este archivo.)
 
-Los tres se pueden correr dos veces sin romper nada.
+Los cuatro se pueden correr dos veces sin romper nada.
 
 ### 3 · Crear tu usuario y darte de alta como admin
 
@@ -156,6 +158,11 @@ Antes de tocar los interruptores, probá en tu máquina:
    - `recarga-juegos.html`: ¿están los juegos y sus paquetes?
    - `admin/`: ¿entrás? ¿podés editar un precio? **¿se actualiza sola la
      tienda abierta en otra pestaña?** (eso prueba que Realtime quedó bien)
+   - el cobro: en `admin/` → 🔑 Stock cargale una cuenta de prueba a un
+     producto barato. Compralo desde la tienda con "Pagar con QR": la página
+     de pago tiene que decir "Pedido #N" en vez de "Ref: ZV-...". En
+     💰 Ventas tocá **Confirmar pago**: la cuenta aparece sola en la página
+     de pago, sin recargar.
 3. Si algo falla, volvé los interruptores a Firebase y arreglalo con calma.
    **Nadie se enteró de nada.**
 
@@ -232,7 +239,7 @@ Realtime no quedó encendido. Corré `supabase/03-realtime.sql` y comprobá:
 select tablename from pg_publication_tables where pubname = 'supabase_realtime';
 ```
 
-Tienen que salir `productos` y `juegos`.
+Tienen que salir `productos`, `juegos` y `pedidos`.
 
 ### El correo de "recuperar contraseña" no llega
 
@@ -244,8 +251,8 @@ genérico que suele caer en spam. Para producción:
 
 ## Lo que cambió y lo que no
 
-**No cambió nada de:** `index.html`, `planes.html`, `recarga-juegos.html`, ni
-los modales, formularios, validaciones o el compresor de imágenes del panel.
+**No cambió nada de:** `planes.html`, `recarga-juegos.html`, ni los modales,
+formularios, validaciones o el compresor de imágenes del panel.
 
 **Cambió:**
 
@@ -253,12 +260,15 @@ los modales, formularios, validaciones o el compresor de imágenes del panel.
 |---|---|
 | `js/productos-service.js`, `js/juegos-service.js` | pasaron a ser interruptores; su código está ahora en `*-firebase.js` |
 | `admin/js/admin-productos.js`, `admin-juegos.js` | dos líneas de `import` |
-| `admin/index.html`, `admin/login.html` | las líneas de `import`, y un aviso si no sos admin |
+| `admin/index.html`, `admin/login.html` | las líneas de `import`, un aviso si no sos admin, y las vistas 💰 Ventas y 🔑 Stock |
 | `admin/cambiar-clave.html` | **nuevo** — Firebase alojaba esta pantalla, Supabase no |
+| `index.html` | tres líneas: el carrito lleva el id real del producto (`fid`) para que la página de pago pueda crear el pedido |
+| `pagar-qr.html` | un módulo aparte al final, el de la entrega automática; el resto de la página está igual |
 
 **Nuevo:** `supabase/*.sql`, `js/supabase-*.js`, `js/mapeo.js`,
-`js/panel-datos*.js`, `js/panel-auth*.js`,
-`backup/migrar-a-supabase.html`.
+`js/panel-datos*.js`, `js/panel-auth*.js`, `js/pedido-automatico.js`,
+`admin/js/admin-ventas.js`, `admin-stock.js`, `admin-permiso.js`,
+`backup/migrar-a-supabase.html`, `supabase/prueba-entrega.sql`.
 
 ---
 
@@ -294,6 +304,49 @@ await sbAdmin.from('productos').update({ precio: 99 }).eq('id', id);
 
 El puente y las llamadas nativas conviven sin problema, así que se puede ir
 haciendo de a poco.
+
+---
+
+## El cobro con entrega automática
+
+Ya está construido y probado, pero **se prende solo en el paso 5**: la página
+de pago crea el pedido con el id real del producto, y hoy ese id es de
+Firestore. Mientras el catálogo no viva en Supabase, todo esto queda quieto y
+el cliente ve el QR y el WhatsApp de siempre.
+
+**Cómo funciona cuando está prendido**
+
+1. El cliente toca "Pagar con QR". La página crea un pedido en Supabase y se
+   queda preguntando cada 4 segundos si ya lo confirmaron.
+2. Paga con el QR y te manda el comprobante por WhatsApp, como siempre. En
+   ese mensaje va el link de su pedido (`pagar-qr.html#t=...`): es su única
+   llave a la cuenta, y en su chat no se pierde nunca.
+3. Vos entrás a `admin/` → 💰 Ventas y tocás **Confirmar pago**.
+4. La cuenta le aparece sola en la página, sin recargar. Si no había stock,
+   ve "recibimos tu pago, te la mandamos por WhatsApp" y el pedido queda en
+   *sin stock* para que lo atiendas a mano: cargás una cuenta en 🔑 Stock y
+   tocás **Reintentar**.
+
+El precio lo lee la base, nunca el navegador. Las credenciales salen solo por
+`ver_mi_pedido(token)` y solo con el pedido entregado. Todo está en
+`supabase/05-cobros.sql`, comentado línea por línea.
+
+**Probarlo sin mover los interruptores:** `supabase/prueba-entrega.sql`
+tiene cuatro bloques para el SQL Editor. Crean un producto de prueba con una
+cuenta, confirman el pago y limpian. El link para abrir la página de pago con
+ese producto está en el mismo archivo. Así se probó el 7/9/2026.
+
+**Lo que todavía no hace**
+
+- Un pedido es un producto, una unidad. Un carrito con varios artículos sigue
+  por WhatsApp.
+- Las recargas de juegos no entran, a propósito: no se entrega una cuenta, se
+  carga saldo al ID del jugador. Siguen con su flujo.
+- Nadie llama a `vencer_pedidos()` todavía. Los pedidos que nunca se pagan
+  quedan en *esperando pago* hasta que la corras desde el SQL Editor
+  (`select public.vencer_pedidos();`) o la programes con pg_cron.
+- La confirmación la das vos. Un webhook de pasarela entraría por la misma
+  `confirmar_pago()`, sin tocar nada más.
 
 ---
 

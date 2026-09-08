@@ -12,6 +12,16 @@
 -- puede armar sin tener que copiar nada de acá.
 --
 -- Cuando termines, corré el BLOQUE 4 y no queda rastro.
+--
+-- DESPUÉS DEL BLOQUE 1, con el servidor local corriendo
+-- (powershell -File servidor.ps1), abrí esto y vas a ver el pedido
+-- crearse solo, con su número en vez de la referencia al azar:
+--
+--   http://localhost:8099/pagar-qr.html?cart=%255B%257B%2522fid%2522%253A%2522a0000000-0000-4000-8000-00000000c0de%2522%252C%2522name%2522%253A%2522PRUEBA%2520entrega%2520automatica%2520%28borrar%29%2522%252C%2522price%2522%253A1%252C%2522qty%2522%253A1%257D%255D&total=1.00
+--
+-- Después del BLOQUE 3, la cuenta aparece en esa misma página sin
+-- recargar. Con el link pelado (pagar-qr.html#t=...), el que queda en
+-- WhatsApp, se vuelve a ver.
 -- ============================================================
 
 

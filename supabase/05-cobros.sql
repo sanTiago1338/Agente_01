@@ -515,6 +515,48 @@ grant execute on function public.vencer_pedidos()                 to authenticat
 
 
 -- ============================================================
+-- 8b. QUE LOS VENCIDOS SE VENZAN SOLOS
+-- ============================================================
+-- vencer_pedidos() no sirve de nada si no la llama nadie, y durante un
+-- tiempo no la llamó nadie. Cada visitante que arma un pedido y después no
+-- paga dejaba una fila en 'esperando_pago' para siempre, y esa fila sale
+-- en "Para atender", que es la vista con la que abre el panel. Con el
+-- tiempo esa pantalla se llena de gente que nunca iba a pagar y deja de
+-- servir para lo único que sirve: ver qué falta hacer hoy.
+--
+-- pg_cron corre dentro de la misma base: no hay servidor ni servicio
+-- externo que mantener.
+--
+-- No borra nada: los deja en 'vencido'. Siguen ahí para poder mirar
+-- cuántos se caen antes de pagar, que es un número que conviene conocer.
+-- Solo dejan de pedir atención.
+create extension if not exists pg_cron;
+
+-- unschedule tira error si el trabajo no existe, de ahí el bloque: así
+-- este archivo se puede correr dos veces sin romperse.
+do $$
+begin
+  perform cron.unschedule('vencer-pedidos');
+exception
+  when others then null;
+end;
+$$;
+
+-- Cada 15 minutos alcanza: un pedido que venció hace 10 minutos no le
+-- molesta a nadie, y menos frecuencia es menos ruido en los logs.
+select cron.schedule(
+  'vencer-pedidos',
+  '*/15 * * * *',
+  $cron$ select public.vencer_pedidos(); $cron$
+);
+
+-- Para comprobar que quedó:
+--   select jobname, schedule, active from cron.job;
+-- Para ver si corrió bien:
+--   select * from cron.job_run_details order by start_time desc limit 5;
+
+
+-- ============================================================
 -- 9b. EL REVISOR DE SUPABASE VA A QUEJARSE. ESTÁ BIEN.
 -- ============================================================
 -- Después de correr esto, Advisors → Security va a marcar unas cuantas

@@ -794,12 +794,21 @@
         if (s.needsUsername) lines.push(`🧾 *Usuario / Nombre:* ${username.trim() || '(pendiente)'}`);
         customerBlock = lines.join('\n');
       }
-      // El link del pedido va DENTRO del mensaje de WhatsApp a proposito.
-      // Ese link es la unica llave del cliente a su cuenta: si cierra la
-      // pestana y se le borra el navegador, lo unico que le queda es su
-      // propio chat. Ahi no se pierde nunca.
+      // El link del pedido va DENTRO del mensaje a proposito: es la unica
+      // llave del cliente a su cuenta, y si cierra la pestana y se le
+      // borra el navegador, lo unico que le queda es su propio chat.
+      //
+      // Pero va SIN prometer nada. Antes decia "ahi te va a aparecer la
+      // cuenta apenas confirmemos el pago", y eso solo es cierto cuando hay
+      // stock: en los productos sin cuentas cargadas la entrega es
+      // justamente por este chat, asi que el mensaje prometia lo contrario
+      // de lo que iba a pasar. Y encima quedaba escrito en la conversacion,
+      // que es donde el cliente lo va a releer si se impacienta.
+      //
+      // Ahora es solo una referencia. Lo que va a pasar se lo dice la
+      // pagina, que si sabe si hay stock.
       const linkPedido = window._pedidoLink
-        ? `\n━━━━━━━━━━━━━━━━━━\n🔗 *Tu pedido:* ${window._pedidoLink}\n_Ahi te va a aparecer la cuenta apenas confirmemos el pago._`
+        ? `\n🔗 *Seguimiento:* ${window._pedidoLink}`
         : '';
       const whatsappMsg = `🦁 *TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${window._pedidoNumero || s.ref}\n💰 *Monto:* ${s.total.toFixed(2)} Bs\n🛒 *Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
       window._waUrl = `https://wa.me/59157707335?text=${encodeURIComponent(whatsappMsg)}`;

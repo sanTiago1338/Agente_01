@@ -906,7 +906,15 @@
     pedidoActual = pedido;
     $('cajaPedido').style.display = 'block';
 
-    const esperando = pedido.estado === 'esperando_pago' || pedido.estado === 'pagado';
+    // "vencido" va con los que esperan y no en un estado propio, porque
+    // para el cliente es lo mismo: su pedido sigue en pie y si paga se lo
+    // entregamos. Vencer es una etiqueta interna nuestra, para que el
+    // panel no se llene de pedidos que nadie va a pagar.
+    //
+    // Antes vencido no entraba en ninguno de los tres, y el cliente veia
+    // una caja con borde y nada adentro.
+    const vencido   = pedido.estado === 'vencido';
+    const esperando = pedido.estado === 'esperando_pago' || pedido.estado === 'pagado' || vencido;
     const listo     = pedido.estado === 'entregado';
     const sinStock  = pedido.estado === 'sin_stock';
 
@@ -928,11 +936,15 @@
     // de confirmar, la entrega automatica funciona y esta pantalla pasa
     // sola a mostrar la cuenta.
     if (esperando) {
-      $('pedidoPromesa').innerHTML = conStock === 0
-        ? 'Apenas confirmemos tu pago <strong style="color:#fff;">te mandamos la ' +
-          'cuenta por WhatsApp</strong>, hoy mismo. Si se libera antes, te aparece aca.'
-        : 'Apenas confirmemos tu pago, <strong style="color:#fff;">tu cuenta aparece ' +
-          'aca sola</strong>. No cierres esta pagina.';
+      $('pedidoPromesa').innerHTML = vencido
+        ? 'Paso bastante tiempo desde que armaste este pedido. ' +
+          '<strong style="color:#fff;">Si ya pagaste, mandanos el comprobante ' +
+          'por WhatsApp</strong> y te lo entregamos igual.'
+        : conStock === 0
+          ? 'Apenas confirmemos tu pago <strong style="color:#fff;">te mandamos la ' +
+            'cuenta por WhatsApp</strong>, hoy mismo. Si se libera antes, te aparece aca.'
+          : 'Apenas confirmemos tu pago, <strong style="color:#fff;">tu cuenta aparece ' +
+            'aca sola</strong>. No cierres esta pagina.';
     }
 
     // Con el pago ya confirmado, el contador de "te mandamos a WhatsApp

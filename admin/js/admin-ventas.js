@@ -33,6 +33,20 @@ let CREDS     = {};        // pedido_id -> credenciales entregadas
 let filtro    = 'atencion';
 let confirmando = null;
 
+// En qué estados tiene sentido tocar "Confirmar".
+//
+// "vencido" está en la lista, y es el que menos se espera. Vencer es solo
+// una etiqueta de orden: saca el pedido de la lista de pendientes para que
+// esa pantalla no se llene de gente que nunca iba a pagar. NO significa
+// que la plata no pueda llegar.
+//
+// De hecho llega seguido: alguien mira la tienda de noche, se va a dormir
+// y transfiere a la mañana. Si el botón no estuviera, ese cliente pagó y
+// vos no tendrías forma de entregarle desde el panel. La base siempre lo
+// permitió —confirmar_pago() solo rechaza entregados y cancelados—; lo que
+// faltaba era el botón.
+const CONFIRMABLES = ['esperando_pago', 'pagado', 'sin_stock', 'vencido'];
+
 // El orden importa: es el orden en que te tenés que ocupar de las cosas.
 const ESTADOS = {
   sin_stock:      { txt: 'Sin stock',    color: '#dc2626', bg: 'rgba(220,38,38,.10)' },
@@ -364,9 +378,11 @@ function pintarPedido(p) {
       <div class="vt-der">
         <span class="vt-precio">${Number(p.precio).toFixed(2)} Bs</span>
         <span class="vt-badge" style="color:${e.color};background:${e.bg}">${e.txt}</span>
-        ${(p.estado === 'esperando_pago' || p.estado === 'pagado' || p.estado === 'sin_stock')
+        ${CONFIRMABLES.includes(p.estado)
           ? `<button class="btn btn-primario" data-confirmar="${p.id}">
-               ${p.estado === 'sin_stock' ? 'Reintentar' : 'Confirmar pago'}
+               ${p.estado === 'sin_stock' ? 'Reintentar'
+                 : p.estado === 'vencido' ? 'Pagó tarde: entregar'
+                 : 'Confirmar pago'}
              </button>`
           : ''}
       </div>

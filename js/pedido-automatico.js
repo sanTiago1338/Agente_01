@@ -157,7 +157,14 @@ export function seguirPedido(token, onCambio) {
         }
 
         // Estos son finales: no hay nada más que esperar.
-        if (['entregado', 'vencido', 'cancelado'].includes(data.estado)) {
+        //
+        // "vencido" NO está en la lista, aunque suene a final. Vencer es
+        // una etiqueta interna para que el panel no se llene de pedidos
+        // abandonados; la plata puede llegar igual y confirmar_pago()
+        // acepta un pedido vencido sin problema. Si dejáramos de preguntar,
+        // el cliente que pagó tarde no vería nunca su cuenta aparecer.
+        // De todos modos se corta solo a las 3 horas (RENDIRSE_A_LAS).
+        if (['entregado', 'cancelado'].includes(data.estado)) {
           // Un pedido entregado se SIGUE recordando, a propósito. Si el
           // cliente cierra la pestaña sin copiar la cuenta y vuelve a
           // entrar, este recuerdo es lo que se la devuelve. Se limpia solo

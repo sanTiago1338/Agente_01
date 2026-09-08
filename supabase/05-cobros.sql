@@ -150,7 +150,15 @@ create table if not exists public.pedidos (
   entregado_en      timestamptz,
 
   -- Si no paga antes de esto, el pedido se marca vencido.
-  vence_en          timestamptz not null default (now() + interval '2 hours'),
+  -- 24 horas, no 2. Alguien mira la tienda a las 11 de la noche, se va a
+  -- dormir y transfiere a la mañana siguiente: con 2 horas ese pedido ya
+  -- figuraba vencido cuando el cliente pagaba.
+  --
+  -- Y "vencido" es SOLO una etiqueta de orden: saca el pedido de la lista
+  -- de pendientes para que esa pantalla no se llene de gente que nunca iba
+  -- a pagar. No bloquea nada — confirmar_pago() acepta un pedido vencido,
+  -- porque la plata puede llegar cuando sea y hay que poder entregarle.
+  vence_en          timestamptz not null default (now() + interval '24 hours'),
   creado_en         timestamptz not null default now()
 );
 

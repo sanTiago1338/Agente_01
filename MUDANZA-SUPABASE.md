@@ -11,13 +11,12 @@
 > | 4 · Pegar las credenciales | ✅ ya están en `js/supabase-base.js` |
 > | 5 · Copiar el catálogo | ✅ 7/9/2026 · 226 productos y 27 juegos, comparados campo por campo contra Firestore |
 > | 6 · Probar en local | ✅ 7/9/2026 · tienda, planes, recargas, una compra real, y el panel: entrar, editar un precio y verlo cambiar solo en la tienda |
-> | 7 · Publicar | ⬜ **lo que sigue** |
-> | 8 · Limpieza final | ⬜ |
+> | 7 · Publicar | ✅ 7/9/2026 · `main` en GitHub · **falta apagar el registro y poner la Site URL**, ver abajo |
+> | 8 · Limpieza final | ⬜ · dejá Firestore prendido unos días |
 > | Fase 2 · Imágenes a Storage | ✅ 7/9/2026 · 59 fotos movidas · el catálogo pasó de **17 MB a 215 KB** |
 >
-> **Los cuatro interruptores ya apuntan a Supabase**, en la rama
-> `mudanza-supabase`. Publicado todavía no. Firestore sigue intacto como
-> vuelta atrás.
+> **La tienda publicada ya corre sobre Supabase** desde el 7/9/2026.
+> Firestore sigue intacto y con los datos al día: es la vuelta atrás.
 
 Todo está preparado y **nada está encendido todavía**. La tienda sigue
 funcionando igual que ayer, contra Firestore. Este archivo es el paso a paso
@@ -177,12 +176,30 @@ Antes de tocar los interruptores, probá en tu máquina:
 
 ### 7 · Publicar
 
-Cuando ande todo en local, `git commit` y `git push`.
+Cuando ande todo en local, `git commit` y `git push` a `main`. GitHub tarda
+uno o dos minutos en reconstruir el sitio: si entrás enseguida vas a ver
+todavía la versión vieja.
 
-En Supabase agregá tu dominio real:
-**Authentication → URL Configuration → Site URL y Redirect URLs**
-(el equivalente de los "dominios autorizados" de Firebase; sin esto el
-"recuperar contraseña" no vuelve a tu sitio).
+**Hecho el 7/9/2026.** Se comprobó antes de empujar que `.env` no está
+versionado, que `.env.example` solo tiene valores de ejemplo, y que la única
+clave del código es la `anon` (la que dice `"role":"anon"` adentro), que es
+pública por diseño.
+
+Quedan dos cosas en el panel de Supabase, y las dos son de seguridad:
+
+- **Authentication → Sign In / Providers → Email →
+  "Allow new users to sign up" APAGADO.** Sin esto, cualquiera que encuentre
+  la pantalla de login puede crearse una cuenta. No podría escribir nada
+  (para eso hay que estar en la tabla `admins`), pero no hay razón para
+  dejarlo abierto.
+- **Authentication → URL Configuration → Site URL y Redirect URLs** con tu
+  dominio real. Es el equivalente de los "dominios autorizados" de Firebase:
+  sin esto el correo de "recuperar contraseña" no vuelve a tu sitio.
+
+**Qué mirar en la tienda publicada,** una vez que GitHub reconstruyó:
+que estén los 226 productos con sus fotos, que `planes.html` arme la tabla,
+que los juegos aparezcan en `recarga-juegos.html`, y que puedas entrar a
+`/admin/`. Si algo falla, la vuelta atrás son los cuatro interruptores.
 
 ### 8 · Limpieza final (un rato después)
 

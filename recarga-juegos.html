@@ -707,7 +707,9 @@
       font-family: inherit;
       letter-spacing: 0.3px;
     }
-    .pkg-tab:hover:not(.active) { color: #fff; background: rgba(20,22,26,0.036); }
+    /* El hover pinta un gris clarito de fondo: con color:#fff la pestaña
+       se borraba justo al pasarle el mouse por encima. */
+    .pkg-tab:hover:not(.active) { color: var(--tinta); background: rgba(20,22,26,0.036); }
     .pkg-tab.active {
       background: linear-gradient(135deg, #ec40c0, #b026d4);
       color: #fff;
@@ -817,8 +819,27 @@
     }
     .pkg-card.selected .pkg-card-price {
       background: linear-gradient(135deg, #ffd700, #ff9500);
-      color: #f4eefb;
+      /* Tinta oscura sobre el dorado. Antes era #f4eefb, casi blanco:
+         el precio del paquete elegido era lo más difícil de leer de toda
+         la pantalla, justo lo que el cliente está por pagar. */
+      color: var(--tinta);
       box-shadow: 0 4px 14px rgba(255,215,0,0.55), inset 0 1px 0 rgba(20,22,26,0.120);
+    }
+
+    /* ---- LA TARJETA ELEGIDA SE ACLARA, Y SU TEXTO TIENE QUE OSCURECERSE ----
+       Sin seleccionar, .pkg-card tiene un fondo violeta oscuro y el texto
+       blanco se lee bien. Pero .pkg-card.selected lo cambia por un lavanda
+       casi blanco (#f1e7fa) y nadie oscureció el texto: al tocar un
+       paquete, su nombre desaparecía. Se borraba justo lo que acababas
+       de elegir. */
+    .pkg-card.selected .pkg-card-top {
+      color: var(--tinta);
+      text-shadow: none;      /* la sombra era para levantarlo del fondo oscuro */
+    }
+    .pkg-card.selected .pkg-card-icon {
+      /* El celeste #5dd5ff sobre lavanda claro casi no se ve. */
+      color: #b026d4;
+      filter: none;
     }
 
     /* Método de pago */
@@ -860,7 +881,9 @@
       gap: 0.45rem;
       cursor: pointer;
       transition: all 0.2s;
-      color: #fff;
+      /* Igual que .id-input: el fondo de este botón es claro (#f0e8f8),
+         así que el nombre del método de pago iba en blanco invisible. */
+      color: var(--tinta);
       font-size: 0.8rem;
       font-weight: 600;
     }
@@ -929,7 +952,10 @@
       border: 1.5px solid rgba(236,64,192,0.35);
       border-radius: 50px;
       padding: 0.7rem 1rem;
-      color: #fff;
+      /* Tinta oscura, no blanco. El fondo de este campo es lavanda claro:
+         con color:#fff el cliente escribia su ID del juego y NO VEIA lo
+         que estaba escribiendo. Quedo de cuando la pagina era oscura. */
+      color: var(--tinta);
       font-family: 'Outfit', sans-serif;
       font-size: 0.9rem;
       font-weight: 600;

@@ -6,16 +6,17 @@
 > |---|---|
 > | 1 · Crear el proyecto | ✅ `Tiago Store` · región `sa-east-1` (São Paulo) |
 > | 2 · Crear las tablas | ✅ 5 tablas · 15 políticas · 3 en realtime · 11 funciones |
-> | 2b · Cobro con entrega automática | ✅ base, panel y página de pago · probado de punta a punta el 7/9/2026 · **se prende solo en el paso 5** |
-> | 3 · Tu usuario y darte de alta como admin | ⬜ **te toca a vos** |
+> | 2b · Cobro con entrega automática | ✅ base, panel y página de pago · probado de punta a punta el 7/9/2026 · **prendido desde el paso 5** |
+> | 3 · Tu usuario y darte de alta como admin | ⬜ **te toca a vos** · el alta en `admins` sale sola apenas exista el usuario |
 > | 4 · Pegar las credenciales | ✅ ya están en `js/supabase-base.js` |
-> | 5 · Copiar el catálogo | ⬜ |
-> | 6 · Probar en local | ⬜ |
+> | 5 · Copiar el catálogo | ✅ 7/9/2026 · 226 productos y 27 juegos, comparados campo por campo contra Firestore |
+> | 6 · Probar en local | 🟡 tienda, planes, recargas y una compra real: ✅ · el panel (entrar, editar, realtime) espera al paso 3 |
 > | 7 · Publicar | ⬜ |
 > | 8 · Limpieza final | ⬜ |
 >
-> **La tienda sigue corriendo sobre Firestore.** Los cuatro interruptores no
-> se movieron y Supabase tiene las tablas pero ningún producto todavía.
+> **Los cuatro interruptores ya apuntan a Supabase**, en la rama
+> `mudanza-supabase`. Publicado todavía no. Firestore sigue intacto como
+> vuelta atrás.
 
 Todo está preparado y **nada está encendido todavía**. La tienda sigue
 funcionando igual que ayer, contra Firestore. Este archivo es el paso a paso
@@ -146,6 +147,13 @@ documento como clave, así que la segunda corrida actualiza en vez de duplicar.
 Si se corta a la mitad, volvés a entrar y le das de nuevo.
 
 **Verificá que los números coincidan** antes de seguir.
+
+> **Cómo se hizo el 7/9/2026:** sin la herramienta. Postgres trajo las dos
+> colecciones directo de la API REST de Firestore (extensión `http`, ya
+> quitada), las mapeó con las mismas reglas que la herramienta y se comparó
+> fila por fila: 226 productos y 27 juegos, cero diferencias. La herramienta
+> sigue sirviendo si algún día hay que volver a sincronizar: como usa
+> `firestore_id` como clave, actualiza en vez de duplicar.
 
 ### 6 · Probar sin que lo vea nadie
 

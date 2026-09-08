@@ -8,8 +8,8 @@
 // ⚠️ SE CAMBIA JUNTO CON js/panel-datos.js. Ver la nota de aquel archivo.
 // ============================================================
 
-// --- FIREBASE (lo de siempre) --------------------------------
-export * from './panel-auth-firebase.js';
+// --- FIREBASE (lo de antes) ----------------------------------
+// export * from './panel-auth-firebase.js';
 
-// --- SUPABASE (lo nuevo) -------------------------------------
-// export * from './supabase-auth.js';
+// --- SUPABASE (desde el 7/9/2026) ----------------------------
+export * from './supabase-auth.js';

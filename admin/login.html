@@ -362,7 +362,7 @@ onAuthStateChanged(auth, usuario => {
   if (usuario) {
     location.replace(DESTINO);
   } else {
-    $('verificando').remove();
+    $('verificando')?.remove();
     $('tarjeta').hidden = false;
     $('email').focus();
   }

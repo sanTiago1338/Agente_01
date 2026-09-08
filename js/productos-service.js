@@ -29,8 +29,8 @@
 //   La base vieja de Firestore sigue intacta: la mudanza copia, no mueve.
 // ============================================================
 
-// --- FIRESTORE (lo de siempre) -------------------------------
-export * from './productos-service-firebase.js';
+// --- FIRESTORE (lo de antes) ---------------------------------
+// export * from './productos-service-firebase.js';
 
-// --- SUPABASE (lo nuevo) -------------------------------------
-// export * from './productos-service-supabase.js';
+// --- SUPABASE (desde el 7/9/2026) ----------------------------
+export * from './productos-service-supabase.js';

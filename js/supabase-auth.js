@@ -151,10 +151,12 @@ export async function sendPasswordResetEmail(_auth, email) {
 export function onAuthStateChanged(_auth, callback) {
   let cortado    = false;
   let yaAvisamos = false;
+  let ultimoId   = null;     // id del último usuario avisado (null = nadie)
 
   const avisar = usuario => {
     if (cortado) return;
     yaAvisamos = true;
+    ultimoId   = usuario?.id ?? null;
     callback(usuario ? aUsuario(usuario) : null);
   };
 
@@ -168,11 +170,25 @@ export function onAuthStateChanged(_auth, callback) {
 
   // 2. Los avisos siguientes: entrar, salir, token renovado.
   const { data: sub } = sbAdmin.auth.onAuthStateChange((evento, sesion) => {
+    const usuario = sesion?.user ?? null;
+
+    // INITIAL_SESSION es la respuesta al arranque: la misma que ya dio
+    // getSession() arriba. Sin este filtro el callback corría dos veces
+    // seguidas al cargar, y login.html reventaba al borrar por segunda vez
+    // el cartel de "Verificando…".
+    if (evento === 'INITIAL_SESSION' && yaAvisamos) return;
+
     // TOKEN_REFRESHED salta solo cada hora, cuando se renueva el token.
     // El usuario es el mismo de antes; si lo dejáramos pasar, el panel se
     // volvería a dibujar entero cada hora sin ningún motivo.
     if (evento === 'TOKEN_REFRESHED' && yaAvisamos) return;
-    avisar(sesion?.user ?? null);
+
+    // supabase-js vuelve a mandar SIGNED_IN cada vez que la pestaña
+    // recupera el foco. Firebase no hacía eso. Si es el mismo usuario que
+    // ya avisamos, no hay nada nuevo que contar.
+    if (yaAvisamos && (usuario?.id ?? null) === ultimoId) return;
+
+    avisar(usuario);
   });
 
   return function unsubscribe() {

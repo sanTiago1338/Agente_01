@@ -13,8 +13,8 @@
 //    Se cambian los dos o ninguno.
 // ============================================================
 
-// --- FIRESTORE (lo de siempre) -------------------------------
-export * from './panel-datos-firebase.js';
+// --- FIRESTORE (lo de antes) ---------------------------------
+// export * from './panel-datos-firebase.js';
 
-// --- SUPABASE (lo nuevo) -------------------------------------
-// export * from './supabase-compat.js';
+// --- SUPABASE (desde el 7/9/2026) ----------------------------
+export * from './supabase-compat.js';

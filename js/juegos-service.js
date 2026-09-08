@@ -9,8 +9,8 @@
 // catálogo de productos. Si algo sale mal, el que rompe es uno solo.
 // ============================================================
 
-// --- FIRESTORE (lo de siempre) -------------------------------
-export * from './juegos-service-firebase.js';
+// --- FIRESTORE (lo de antes) ---------------------------------
+// export * from './juegos-service-firebase.js';
 
-// --- SUPABASE (lo nuevo) -------------------------------------
-// export * from './juegos-service-supabase.js';
+// --- SUPABASE (desde el 7/9/2026) ----------------------------
+export * from './juegos-service-supabase.js';

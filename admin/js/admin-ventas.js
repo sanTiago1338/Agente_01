@@ -557,13 +557,12 @@ function pintarPedido(p, esPrimeroDelGrupo = true) {
 
       <div class="vt-medio">
         <div class="vt-prod">${escapar(p.producto_nombre)}</div>
-        <!-- La misma fecha, con el mismo formato, que le queda al cliente
-             en el mensaje de WhatsApp. Es lo que se cruza cuando escribe
-             "hice una orden anoche" y hay que encontrarla.
-             Ya entregado, al lado va el momento exacto de la entrega: es
-             la respuesta a "yo pagué y no me llegó nada". -->
-        <div class="vt-orden">Fecha de orden: ${fechaOrden(p.creado_en)}${
-          p.entregado_en ? ` · Entregado: ${fechaOrden(p.entregado_en)}` : ''}</div>
+        <!-- Una sola fecha, con el mismo formato que le queda al cliente en
+             su mensaje de WhatsApp. Entregado, manda el momento de la
+             entrega: es el dato que se busca cuando alguien reclama. Y
+             mientras no lo esté, la de cuando armó el pedido, que es lo
+             único que pasó hasta ahora. -->
+        <div class="vt-orden">Fecha de orden: ${fechaOrden(p.entregado_en || p.creado_en)}</div>
         <div class="vt-cliente">
           ${escapar(p.cliente_nombre || 'Sin nombre')}
           ${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">📲 ${escapar(p.cliente_whatsapp)}</a>` : ''}

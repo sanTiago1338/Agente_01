@@ -629,41 +629,44 @@
 
       <!-- Esperando que confirmen el pago -->
       <div id="pedidoEsperando" style="
-           background:rgba(255,215,0,0.06); border:1px solid rgba(255,215,0,0.25);
+           background:rgba(240,165,0,0.07); border:1px solid rgba(240,165,0,0.32);
            border-radius:12px; padding:1rem; text-align:center;">
-        <div style="font-size:0.95rem; font-weight:700; color:#ffd700; margin-bottom:0.35rem;">
+        <div style="font-size:0.95rem; font-weight:800; color:var(--oro); margin-bottom:0.35rem;">
           Pedido <span id="pedidoNumero"></span>
         </div>
         <!-- El texto lo decide js: cambia segun haya stock o no. Ver la
              nota en la funcion pintar() sobre por que esto importa. -->
-        <div style="font-size:0.82rem; color:#bbb; line-height:1.55;" id="pedidoPromesa"></div>
-        <div style="font-size:0.72rem; color:#777; margin-top:0.6rem;">
+        <div style="font-size:0.85rem; color:var(--texto); line-height:1.6;" id="pedidoPromesa"></div>
+        <div style="font-size:0.74rem; color:var(--tinta-suave); margin-top:0.6rem;">
           <span class="latido">●</span> Revisando cada pocos segundos…
         </div>
       </div>
 
       <!-- Entregado: aca estan las credenciales -->
       <div id="pedidoEntregado" style="display:none;
-           background:rgba(18,140,126,0.10); border:1px solid rgba(18,140,126,0.45);
+           background:rgba(18,140,126,0.08); border:1px solid rgba(18,140,126,0.45);
            border-radius:12px; padding:1.1rem;">
-        <div style="font-size:1.05rem; font-weight:800; color:#25D366; margin-bottom:0.2rem;">
+        <div style="font-size:1.05rem; font-weight:800; color:var(--verde-wa); margin-bottom:0.2rem;">
           Listo, ya es tuya
         </div>
-        <div style="font-size:0.8rem; color:#aaa; margin-bottom:0.9rem;" id="pedidoProducto"></div>
+        <div style="font-size:0.82rem; color:var(--tinta-suave); margin-bottom:0.9rem;" id="pedidoProducto"></div>
 
+        <!-- Las credenciales SI van sobre fondo oscuro, a proposito: es lo
+             unico que el cliente tiene que leer sin equivocarse, y el
+             contraste fuerte las separa de todo lo demas. -->
         <div id="pedidoCreds" style="
-             background:#0a0a0a; border:1px solid rgba(255,255,255,0.12);
+             background:#14161a; color:#e8eaed;
              border-radius:9px; padding:0.85rem; font-size:0.9rem; line-height:2;"></div>
 
         <button id="pedidoCopiar" style="
                 width:100%; margin-top:0.8rem; padding:0.8rem;
-                background:#25D366; color:#062e19; border:none; border-radius:9px;
+                background:var(--verde-wa); color:#fff; border:none; border-radius:9px;
                 font-size:0.95rem; font-weight:800; font-family:'Outfit',sans-serif;
                 cursor:pointer;">
           Copiar los datos
         </button>
 
-        <div style="font-size:0.75rem; color:#888; margin-top:0.8rem; line-height:1.55;">
+        <div style="font-size:0.78rem; color:var(--tinta-suave); margin-top:0.8rem; line-height:1.55;">
           Guardala ahora. Este link es la unica forma de volver a verla, y
           tambien te lo dejamos en el chat de WhatsApp.
         </div>
@@ -671,12 +674,12 @@
 
       <!-- Pago confirmado pero sin stock -->
       <div id="pedidoSinStock" style="display:none;
-           background:rgba(229,9,20,0.08); border:1px solid rgba(229,9,20,0.35);
+           background:rgba(229,9,20,0.06); border:1px solid rgba(229,9,20,0.35);
            border-radius:12px; padding:1rem;">
-        <div style="font-size:0.95rem; font-weight:700; color:#e50914; margin-bottom:0.35rem;">
+        <div style="font-size:0.95rem; font-weight:800; color:var(--marca); margin-bottom:0.35rem;">
           Recibimos tu pago
         </div>
-        <div style="font-size:0.82rem; color:#bbb; line-height:1.55;">
+        <div style="font-size:0.85rem; color:var(--texto); line-height:1.6;">
           Justo se nos agoto este producto. Te la mandamos por WhatsApp apenas
           la tengamos, hoy mismo. Tu plata esta registrada.
         </div>
@@ -899,6 +902,18 @@
   // y en ese caso se prefiere la version optimista de siempre.
   let conStock = null;
 
+  // ¿Este pedido se entrega solo, en el momento?
+  //
+  // De esto dependen DOS cosas, y por eso vive en una funcion sola:
+  //   · que le prometemos al cliente mientras espera
+  //   · si lo mandamos a WhatsApp a los 5 minutos o lo dejamos esperando
+  //
+  // Cuando NO se pudo consultar el stock (null) se asume que si hay. Es
+  // el lado seguro: si nos equivocamos, el cliente se queda mirando una
+  // pagina que igual le va a mostrar la cuenta cuando la confirmes. Al
+  // reves lo mandariamos a WhatsApp cuando no hacia falta.
+  const hayEntregaAlInstante = () => conStock !== 0;
+
   // -----------------------------------------------------------
   // Pintar segun el estado
   // -----------------------------------------------------------
@@ -936,15 +951,39 @@
     // de confirmar, la entrega automatica funciona y esta pantalla pasa
     // sola a mostrar la cuenta.
     if (esperando) {
+      // El destacado va en var(--tinta), no en blanco. La pagina tiene
+      // fondo claro: el #fff que habia antes era texto invisible.
+      const fuerte = (t) => `<strong style="color:var(--tinta);">${t}</strong>`;
+
       $('pedidoPromesa').innerHTML = vencido
         ? 'Paso bastante tiempo desde que armaste este pedido. ' +
-          '<strong style="color:#fff;">Si ya pagaste, mandanos el comprobante ' +
-          'por WhatsApp</strong> y te lo entregamos igual.'
-        : conStock === 0
-          ? 'Apenas confirmemos tu pago <strong style="color:#fff;">te mandamos la ' +
-            'cuenta por WhatsApp</strong>, hoy mismo. Si se libera antes, te aparece aca.'
-          : 'Apenas confirmemos tu pago, <strong style="color:#fff;">tu cuenta aparece ' +
-            'aca sola</strong>. No cierres esta pagina.';
+          fuerte('Si ya pagaste, mandanos el comprobante por WhatsApp') +
+          ' y te lo entregamos igual.'
+        : hayEntregaAlInstante()
+          // CON stock: la cuenta esta comprada y esperando. Se promete que
+          // aparece aca, y no se lo echa a WhatsApp: el reloj se apaga.
+          ? 'Apenas confirmemos tu pago, ' + fuerte('tu cuenta aparece aca sola') +
+            '. No cierres esta pagina.'
+          // SIN stock: hay que conseguirla. Se dice el tiempo real que
+          // tarda, porque un cliente que sabe cuanto esperar no se pone
+          // nervioso ni escribe tres veces preguntando.
+          : 'Apenas confirmemos tu pago te preparamos la cuenta. ' +
+            fuerte('Suele tardar entre 5 y 30 minutos') +
+            ' y te la mandamos por WhatsApp. Si se libera antes, te aparece aca.';
+    }
+
+    // ---- EL RELOJ QUE ECHA A WHATSAPP ----
+    // A los 5 minutos la pagina manda sola al cliente a WhatsApp. Eso
+    // esta bien cuando la cuenta hay que prepararla: alla se sigue la
+    // conversacion y no lo dejamos mirando una pantalla que no cambia.
+    //
+    // Pero cuando HAY stock, su cuenta va a aparecer en esta misma
+    // pantalla. Echarlo seria sacarlo justo del lugar donde le llega lo
+    // que compro. Asi que con stock el reloj se apaga y se queda.
+    if (esperando && hayEntregaAlInstante()) {
+      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
+      const t = $('timerSection');
+      if (t) t.style.display = 'none';
     }
 
     // Con el pago ya confirmado, el contador de "te mandamos a WhatsApp

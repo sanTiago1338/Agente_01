@@ -589,7 +589,7 @@
         animation: pulse-wa 2s ease-in-out infinite;
       ">YA PAGUE - ENVIAR COMPROBANTE</a>
 
-      <p style="text-align:center;font-size:0.75rem;color:#666;margin-bottom:1.25rem;">
+      <p id="ayudaYaPague" style="text-align:center;font-size:0.75rem;color:var(--tinta-suave);margin-bottom:1.25rem;">
         Si ya pagaste, toca el boton o espera la redireccion automatica
       </p>
 
@@ -1048,6 +1048,7 @@
     if (listo || sinStock) {
       apagarReloj();
       avisarArriba(listo, r);
+      esconderLoDePagar();
     }
 
     if (!listo) return;
@@ -1118,6 +1119,22 @@
     document.title = r.entregadas.length > 1
       ? 'Tus cuentas estan listas - Tiago Store'
       : 'Tu cuenta esta lista - Tiago Store';
+  }
+
+  // Con el pago ya resuelto, todo lo de PAGAR sobra y encima confunde.
+  //
+  // El cliente acaba de recibir su cuenta y arriba le seguia quedando el
+  // QR y el boton verde "Ya pague - enviar comprobante". Eso invita a
+  // pagar otra vez, o al menos a dudar de si el pago se registro bien.
+  // Con la cuenta entregada, lo unico que tiene que ver es la cuenta.
+  //
+  // El resumen del pedido y "Volver a la tienda" se quedan: uno es su
+  // comprobante de que compro y el otro es por donde sigue.
+  function esconderLoDePagar() {
+    ['qrCard', 'btnYaPague', 'ayudaYaPague', 'customerDataBox'].forEach(id => {
+      const el = $(id);
+      if (el) el.style.display = 'none';
+    });
   }
 
   function apagarReloj() {

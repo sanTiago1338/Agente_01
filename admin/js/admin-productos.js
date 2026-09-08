@@ -902,12 +902,6 @@ $('zvForm').addEventListener('submit', async e => {
     fechaActualizacion: serverTimestamp()
   };
 
-  // Las imágenes llegan aparte, unos segundos después de la lista (ver
-  // productos-service-supabase.js). Si este producto todavía no la tenía
-  // cuando se abrió el editor y el campo quedó vacío, NO se manda: mandar
-  // "" borraría la imagen real. Si escribiste algo en el campo, eso sí va.
-  if (editando && editando.imagen === undefined && !datos.imagen) delete datos.imagen;
-
   $('zvGuardar').disabled = true;
   $('zvGuardar').textContent = 'Guardando…';
 

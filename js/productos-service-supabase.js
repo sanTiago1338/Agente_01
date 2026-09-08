@@ -66,48 +66,34 @@ export function subscribeProductos(onCambio, onError) {
   };
 
   // -----------------------------------------------------------
-  // Carga completa, EN DOS TIEMPOS
+  // Carga completa
   // -----------------------------------------------------------
   // Se llama al principio y otra vez cada vez que el websocket se
   // reconecta: mientras estuvo caído pudimos perdernos avisos, y la
   // única forma honesta de saber cómo quedó todo es volver a preguntar.
   //
-  //   1. Todo MENOS la imagen. Son unos 200 KB para los 226 productos:
-  //      llega en menos de un segundo y la tienda pinta las tarjetas
-  //      enseguida, con el logo que genera a partir del color y el nombre.
-  //   2. Las imágenes aparte, y se van pegando a cada producto:
-  //      a) primero las que son una ruta a un archivo ("Img/Netflix.jpg"),
-  //         que son 130 y pesan casi nada: esas tarjetas tienen foto al
-  //         segundo;
-  //      b) después las base64, de a 10 y en el orden en que aparecen en
-  //         la tienda, redibujando en cada tanda. Con una conexión lenta
-  //         las de arriba se ven primero y las de abajo van llegando.
+  // Una sola consulta con todo. Son ~215 KB para los 226 productos y
+  // llega en menos de un segundo.
   //
-  // POR QUÉ ASÍ Y NO UN "SELECT *"
-  //   Las imágenes van como base64 dentro de la fila y entre todas pesan
-  //   17 MB. Un solo SELECT * tardaba tanto en serializarse que Supabase
-  //   lo cortaba por tiempo (3 s para la tienda, 8 s para el panel) y la
-  //   lista quedaba VACÍA con un error 500. Partido en tandas chicas cada
-  //   consulta entra sobrada en el límite, y encima la tienda se ve antes.
-  //   Cuando las imágenes pasen a Storage (Fase 2 del manual), la fila
-  //   vuelve a pesar poco y esto se puede volver a simplificar.
-  const COLUMNAS_SIN_IMAGEN =
-    'id,nombre,categoria,descripcion,etiqueta,estrellas,tipo,precio,precio_oferta,oferta,' +
-    'imagen_fill,imagen_color,imagen_texto,entrega,soporte,acceso,suscripcion,' +
-    'activo,destacado,mostrar_en_planes,orden,id_legacy,fecha_creacion,fecha_actualizacion';
-  // 10 por tanda: con la conexión lenta que se midió (unos 65 KB/s hacia
-  // São Paulo) una tanda de 20 tardaba más de 10 segundos en verse.
-  const TANDA = 10;
-
+  // ESTO ESTUVO PARTIDO EN DOS, Y CONVIENE SABER POR QUÉ
+  //   Hasta el 7/9/2026 las fotos viajaban como base64 DENTRO de la fila y
+  //   entre todas pesaban 17 MB. Un SELECT * tardaba tanto en serializarse
+  //   que Supabase lo cortaba por tiempo y la lista quedaba vacía con un
+  //   error 500. Hubo que traer primero todo menos la imagen y después las
+  //   imágenes en tandas.
+  //
+  //   Con las fotos en Storage la fila volvió a pesar poco y eso ya no
+  //   hace falta. Si alguna vez el catálogo vuelve a tardar, lo primero
+  //   que hay que mirar es si alguien volvió a guardar imágenes pegadas:
+  //     select pg_size_pretty(sum(length(imagen))::bigint) from productos;
   async function cargarTodo() {
     const miGeneracion = ++generacion;
     tocadosDurante = new Set();
 
     const { data, error } = await sb
       .from(TABLA)
-      .select(COLUMNAS_SIN_IMAGEN)
-      .order('orden', { ascending: true })
-      .order('id',    { ascending: true });   // desempate estable, ver cargarImagenes
+      .select('*')
+      .order('orden', { ascending: true });
 
     // Arrancó otra carga después de esta, o ya nos dieron de baja:
     // esta respuesta llegó vieja y no sirve.
@@ -125,78 +111,10 @@ export function subscribeProductos(onCambio, onError) {
       if (!tocados.has(id)) cache.delete(id);
     }
     for (const fila of data) {
-      // Sin la columna imagen, filaAProducto deja p.imagen en undefined.
-      //   undefined = "todavía no llegó"   ·   '' = "no tiene imagen"
-      // El panel usa esa diferencia para no pisar una imagen real al guardar.
       if (!tocados.has(fila.id)) cache.set(fila.id, filaAProducto(fila));
     }
 
     emitir();
-    cargarImagenes(miGeneracion);
-  }
-
-  // Pega imágenes en la cache. Solo si el producto sigue SIN imagen
-  // (undefined): si mientras tanto llegó un cambio por realtime, ese ya
-  // trae la fila entera con su imagen nueva, y la de la tanda sería más
-  // vieja. No se toca.
-  function pegarImagenes(filas) {
-    for (const fila of filas) {
-      const p = cache.get(fila.id);
-      if (p && p.imagen === undefined) p.imagen = fila.imagen ?? '';
-    }
-  }
-
-  async function cargarImagenes(miGeneracion) {
-    const vigente = () => !cortado && miGeneracion === generacion;
-
-    // a) Las rutas a archivos y las vacías: texto cortito, entran todas en
-    //    una consulta minúscula.
-    {
-      const { data, error } = await sb
-        .from(TABLA)
-        .select('id,imagen')
-        .not('imagen', 'like', 'data:%');
-
-      if (!vigente()) return;
-      if (error) {
-        console.warn('⚠️ No llegaron las rutas de imagen:', error.message);
-      } else {
-        pegarImagenes(data);
-        emitir();
-      }
-    }
-
-    // b) Las base64, de a TANDA, en el orden de la tienda.
-    //
-    // El orden es "orden, id" y no solo "orden": hay muchos productos con
-    // el mismo orden, y Postgres no garantiza que los empates salgan igual
-    // en dos consultas distintas. Sin el desempate, paginar podía repetir
-    // un producto en una tanda y saltearse otro.
-    for (let desde = 0; ; desde += TANDA) {
-      if (!vigente()) return;
-
-      const { data, error } = await sb
-        .from(TABLA)
-        .select('id,imagen')
-        .like('imagen', 'data:%')
-        .order('orden', { ascending: true })
-        .order('id',    { ascending: true })
-        .range(desde, desde + TANDA - 1);
-
-      if (!vigente()) return;
-
-      if (error) {
-        // Una tanda que falla no tumba nada: los productos que faltan se
-        // quedan con el logo generado hasta la próxima carga.
-        console.warn('⚠️ No llegó una tanda de imágenes:', error.message);
-        return;
-      }
-
-      pegarImagenes(data);
-      emitir();
-
-      if (data.length < TANDA) return;   // era la última
-    }
   }
 
   // -----------------------------------------------------------

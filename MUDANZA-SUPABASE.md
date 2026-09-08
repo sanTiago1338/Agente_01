@@ -11,9 +11,9 @@
 > | 4 · Pegar las credenciales | ✅ ya están en `js/supabase-base.js` |
 > | 5 · Copiar el catálogo | ✅ 7/9/2026 · 226 productos y 27 juegos, comparados campo por campo contra Firestore |
 > | 6 · Probar en local | ✅ 7/9/2026 · tienda, planes, recargas, una compra real, y el panel: entrar, editar un precio y verlo cambiar solo en la tienda |
-> | 7 · Publicar | ⬜ · antes conviene la Fase 2 (las imágenes) |
+> | 7 · Publicar | ⬜ **lo que sigue** |
 > | 8 · Limpieza final | ⬜ |
-> | Fase 2 · Imágenes a Storage | 🟡 bucket, políticas y respaldo creados · **falta correr la herramienta**, ver el final de este archivo |
+> | Fase 2 · Imágenes a Storage | ✅ 7/9/2026 · 59 fotos movidas · el catálogo pasó de **17 MB a 215 KB** |
 >
 > **Los cuatro interruptores ya apuntan a Supabase**, en la rama
 > `mudanza-supabase`. Publicado todavía no. Firestore sigue intacto como
@@ -374,34 +374,46 @@ siguen viajando: con una conexión lenta las últimas fotos tardan minutos, y
 el navegador no puede cachearlas por separado ni cargarlas de a poco, porque
 no son archivos, son texto adentro del JSON.
 
-**Ya está preparado todo lo de la base** (7/9/2026): el bucket `imagenes`, sus
-cuatro políticas (ver es público, subir y borrar solo admin) y la tabla
-`respaldo_imagenes`, donde se guarda el base64 original antes de pisarlo.
+### ✅ Hecho el 7/9/2026
 
-**Falta correr la herramienta**, y esa la tenés que correr vos porque pide tu
-contraseña de admin:
+Se movieron las **59 fotos** que estaban pegadas, con
+`backup/migrar-imagenes-supabase.html`. Medido antes y después:
 
-```bash
-powershell -File servidor.ps1
+| | Antes | Después |
+|---|---|---|
+| Columna `imagen` de los 226 productos | 17 MB | 60 KB |
+| Respuesta del catálogo entero | se cortaba por tiempo | 215 KB en 0,84 s |
+
+Cada foto es ahora un archivo en el bucket `imagenes`, servido con
+`Cache-Control: public, max-age=31536000`: el navegador la baja una sola vez
+y no la vuelve a pedir en un año.
+
+Los 37 logos SVG que genera el panel **no se movieron**, a propósito: pesan
+1,3 KB cada uno y hacerlos archivos no ahorra nada.
+
+El base64 original de cada una quedó guardado en `respaldo_imagenes`, con la
+URL nueva al lado. Cuando lleves unos días y las fotos se vean bien en la
+tienda publicada:
+
+```sql
+drop table public.respaldo_imagenes;
 ```
 
-Y abrí <http://localhost:8099/backup/migrar-imagenes-supabase.html>.
+**Lo que se simplificó gracias a esto:** `js/productos-service-supabase.js`
+volvió a ser una sola consulta. Había quedado partido en dos tiempos —lista
+primero, imágenes después en tandas— solo para esquivar el peso, y con las
+fotos afuera eso ya no hacía falta. La vista 🔑 Stock del panel también volvió
+a mostrar las miniaturas.
 
-Son tres pasos: entrás, tocás **Contar** para ver cuántas quedan (unas 59), y
-**Empezar**. Va de a una, y en este orden a propósito:
-
-1. guarda el base64 en `respaldo_imagenes`
-2. sube el archivo al bucket
-3. comprueba que la URL nueva conteste bien
-4. recién ahí cambia el producto
-
-Si se corta a la mitad —se cierra la pestaña, se cae internet— ningún producto
-queda sin foto: el que todavía no se movió sigue con su base64. Al volver a
-entrar sigue donde quedó.
-
-Después de eso, `imagen` pasa a ser una URL normal, el catálogo pesa unos
-pocos KB, cada foto se cachea sola y el `loading="lazy"` que ya tienen las
-tarjetas por fin sirve. Ahí también se puede simplificar la carga en dos
-tiempos de `js/productos-service-supabase.js`, que existe solo por este peso.
-
-Cuando esté confirmado y las fotos se vean bien: `drop table public.respaldo_imagenes;`
+> **Si algún día el catálogo vuelve a tardar**, lo primero que hay que mirar es
+> si volvieron a guardarse imágenes pegadas:
+>
+> ```sql
+> select count(*) filter (where imagen like 'data:image/p%' or imagen like 'data:image/w%') as pegadas,
+>        pg_size_pretty(sum(length(imagen))::bigint) as peso
+> from public.productos;
+> ```
+>
+> El panel guarda las imágenes nuevas como base64. Unas pocas no molestan; si
+> se juntan muchas, volvé a correr la herramienta: se puede correr las veces
+> que quieras y solo toca las que están pegadas.

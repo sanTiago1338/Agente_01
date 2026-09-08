@@ -313,9 +313,10 @@ async function cargarTodo() {
   $('stRefrescar').disabled = true;
 
   const [rProd, rCuentas] = await Promise.all([
-    // Sin la columna imagen a propósito: entre todas pesan 17 MB y la
-    // consulta se cortaba por tiempo. Acá alcanza con el nombre.
-    sbAdmin.from('productos').select('id, nombre').order('orden'),
+    // La imagen vuelve a viajar acá: desde que están en Storage es una URL
+    // de unos 100 bytes. Cuando eran base64 sumaban 17 MB y esta misma
+    // consulta se cortaba por tiempo.
+    sbAdmin.from('productos').select('id, nombre, imagen').order('orden'),
     sbAdmin.from('cuentas').select('*').order('creada_en', { ascending: false })
   ]);
 
@@ -415,8 +416,8 @@ function listar() {
     const dadas  = suyas.filter(c => c.estado === 'entregada').length;
     const desplegado = abierto === p.id;
 
-    // La inicial del nombre como miniatura, igual que en la tabla de
-    // productos: las imágenes ya no se traen en esta vista (ver arriba).
+    // Si la foto no carga se muestra la inicial del nombre, igual que en la
+    // tabla de productos, en vez de un cuadrito roto.
     const letra   = ([...String(p.nombre || '').trim()][0] || '?').toUpperCase();
     const inicial = 'data:image/svg+xml,' + encodeURIComponent(
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="#eceef1"/><text x="32" y="33" font-family="Arial" font-size="26" font-weight="bold" fill="#9aa0ab" text-anchor="middle" dominant-baseline="central">${letra}</text></svg>`);
@@ -424,7 +425,8 @@ function listar() {
     return `
       <div class="st-prod ${desplegado ? 'abierto' : ''}" data-prod="${p.id}">
         <div class="st-cab">
-          <img src="${inicial}" alt="">
+          <img src="${escapar(urlImagen(p.imagen) || inicial)}" alt="" loading="lazy"
+               onerror="this.onerror=null;this.src='${inicial}'">
           <span class="st-nombre">${escapar(p.nombre)}</span>
           <span class="st-pill ${libres > 0 ? 'libre' : 'cero'}">${libres} libre${libres === 1 ? '' : 's'}</span>
           ${dadas ? `<span class="st-pill dadas">${dadas} entregada${dadas === 1 ? '' : 's'}</span>` : ''}

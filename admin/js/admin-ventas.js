@@ -64,7 +64,39 @@ let STOCK = new Map();
  */
 function sePuedeConfirmar(p) {
   if (!CONFIRMABLES.includes(p.estado)) return false;
+
+  // En una compra de varios productos, el botón confirma la compra ENTERA
+  // y entrega lo que pueda. Así que alcanza con que UNA de sus líneas
+  // tenga stock: negarte el botón porque falta una sería dejarte sin
+  // entregar las otras dos.
+  if (p.grupo) {
+    return PEDIDOS.some(o =>
+      o.grupo === p.grupo &&
+      CONFIRMABLES.includes(o.estado) &&
+      (STOCK.get(o.producto_id) || 0) > 0);
+  }
+
   return (STOCK.get(p.producto_id) || 0) > 0;
+}
+
+/**
+ * El primer pedido de cada compra agrupada.
+ *
+ * Una compra de 3 productos son 3 filas en la tabla, pero UNA sola venta:
+ * se pagó con una transferencia y se confirma con un botón. Mostrar tres
+ * botones haría pensar que son tres pagos distintos.
+ *
+ * Así que el botón va solo en la primera fila del grupo, y las demás
+ * quedan marcadas como parte de la misma compra.
+ */
+function primerosDeGrupo(lista) {
+  const vistos = new Set();
+  const primeros = new Set();
+  for (const p of lista) {
+    if (!p.grupo) { primeros.add(p.id); continue; }
+    if (!vistos.has(p.grupo)) { vistos.add(p.grupo); primeros.add(p.id); }
+  }
+  return primeros;
 }
 
 // El orden importa: es el orden en que te tenés que ocupar de las cosas.
@@ -388,10 +420,11 @@ function listar() {
     return;
   }
 
-  $('vtLista').innerHTML = lista.map(pintarPedido).join('');
+  const primeros = primerosDeGrupo(lista);
+  $('vtLista').innerHTML = lista.map(p => pintarPedido(p, primeros.has(p.id))).join('');
 }
 
-function pintarPedido(p) {
+function pintarPedido(p, esPrimeroDelGrupo = true) {
   const e = ESTADOS[p.estado] || ESTADOS.cancelado;
   const cred = CREDS[p.id];
 
@@ -426,13 +459,18 @@ function pintarPedido(p) {
       <div class="vt-der">
         <span class="vt-precio">${Number(p.precio).toFixed(2)} Bs</span>
         <span class="vt-badge" style="color:${e.color};background:${e.bg}">${e.txt}</span>
-        ${sePuedeConfirmar(p)
+        ${(esPrimeroDelGrupo && sePuedeConfirmar(p))
           ? `<button class="btn btn-primario" data-confirmar="${p.id}">
                ${p.estado === 'sin_stock' ? 'Reintentar'
                  : p.estado === 'vencido' ? 'Pagó tarde: entregar'
+                 : p.grupo               ? 'Confirmar compra'
                  : 'Confirmar pago'}
              </button>`
-          : CONFIRMABLES.includes(p.estado)
+          : (!esPrimeroDelGrupo)
+            // Parte de una compra que ya tiene su botón más arriba. Se dice
+            // para que no parezca un pedido olvidado sin acción.
+            ? `<span class="vt-wa-only">↑ misma compra</span>`
+            : CONFIRMABLES.includes(p.estado)
             // Sin cuentas cargadas no hay nada que entregar, así que no se
             // ofrece un botón que solo daría una vuelta para terminar en
             // WhatsApp igual. Se dice de una qué hay que hacer.
@@ -570,13 +608,18 @@ $('vtConfirmar').addEventListener('click', async () => {
   btn.disabled = true;
   btn.textContent = 'Confirmando…';
 
-  // LA PUERTA ÚNICA. Esta misma función va a llamar el webhook de la
-  // pasarela cuando la tengas: marca pagado y entrega en un solo paso.
-  const { data, error } = await sbAdmin.rpc('confirmar_pago', {
-    p_pedido_id:  p.id,
-    p_referencia: $('vtRef').value.trim() || null,
-    p_quien:      'panel:' + ($('usuarioEmail')?.textContent || 'admin')
-  });
+  const referencia = $('vtRef').value.trim() || null;
+  const quien      = 'panel:' + ($('usuarioEmail')?.textContent || 'admin');
+
+  // Si el pedido es parte de una compra de varios productos, se confirma
+  // la compra ENTERA. Se pagó con una sola transferencia, así que confirmar
+  // de a uno sería hacerte tocar el botón tres veces por un solo pago —y
+  // peor: entre toque y toque el cliente vería media compra entregada.
+  const { data, error } = p.grupo
+    ? await sbAdmin.rpc('confirmar_compra', {
+        p_grupo: p.grupo, p_referencia: referencia, p_quien: quien })
+    : await sbAdmin.rpc('confirmar_pago', {
+        p_pedido_id: p.id, p_referencia: referencia, p_quien: quien });
 
   btn.disabled = false;
   btn.textContent = 'Confirmar y entregar';
@@ -587,15 +630,26 @@ $('vtConfirmar').addEventListener('click', async () => {
     return;
   }
 
-  // confirmar_pago devuelve una fila: { estado, entregada, mensaje }
-  const r = Array.isArray(data) ? data[0] : data;
-
-  if (r.entregada) {
-    aviso(`✓ Pedido #${p.numero} entregado`, 'ok');
-  } else if (r.estado === 'sin_stock') {
-    aviso(`Pago registrado, pero no hay stock de "${p.producto_nombre}". Cargá cuentas y reintentá.`, 'error');
+  if (p.grupo) {
+    // confirmar_compra devuelve { entregados, sin_stock, sin_cambio }
+    const r = data || {};
+    if (r.sin_stock > 0 && r.entregados > 0) {
+      aviso(`✓ ${r.entregados} entregada(s), ${r.sin_stock} sin stock. Cargá cuentas y reintentá.`, 'error');
+    } else if (r.sin_stock > 0) {
+      aviso(`Pago registrado, pero no había stock. Cargá cuentas y reintentá.`, 'error');
+    } else {
+      aviso(`✓ Compra entregada: ${r.entregados} cuenta(s)`, 'ok');
+    }
   } else {
-    aviso(r.mensaje, 'ok');
+    // confirmar_pago devuelve una fila: { estado, entregada, mensaje }
+    const r = Array.isArray(data) ? data[0] : data;
+    if (r.entregada) {
+      aviso(`✓ Pedido #${p.numero} entregado`, 'ok');
+    } else if (r.estado === 'sin_stock') {
+      aviso(`Pago registrado, pero no hay stock de "${p.producto_nombre}". Cargá cuentas y reintentá.`, 'error');
+    } else {
+      aviso(r.mensaje, 'ok');
+    }
   }
 
   cerrar();

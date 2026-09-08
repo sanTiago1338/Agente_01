@@ -796,3 +796,49 @@ revoke execute on function public.confirmar_pago_webhook(bigint, numeric, text, 
 grant  execute on function public.registrar_qr(bigint, text)                          to service_role;
 grant  execute on function public.pedidos_por_cobrar()                                to service_role;
 grant  execute on function public.confirmar_pago_webhook(bigint, numeric, text, text) to service_role;
+
+
+-- ============================================================
+-- 12. COMPRAR VARIOS PRODUCTOS DE UNA VEZ
+-- ============================================================
+-- Un carrito con dos o mas productos no creaba ningun pedido: se iba por
+-- el flujo viejo de WhatsApp, sin numero, sin seguimiento y sin entrega
+-- automatica, aunque hubiera stock de todo. Y desde que "Comprar" guarda
+-- en el carrito eso pasa mucho mas seguido.
+--
+-- SE MODELA COMO UN PEDIDO POR CADA CUENTA A ENTREGAR
+--   2 pantallas de Netflix + 1 Disney = TRES pedidos con el mismo "grupo".
+--
+--   La alternativa era un pedido con cantidad 3, pero eso obligaba a tocar
+--   confirmar_pago(), que es el codigo mas delicado y mas probado que hay
+--   aca: el que reserva la cuenta sin vendersela a dos personas.
+--
+--   Asi confirmar_pago() NO SE TOCA. Y el caso feo sale gratis: si compra
+--   3 y hay 2, se entregan 2 y el tercero queda en sin_stock. Con cantidad
+--   habria que decidir si se entrega parcial, y programar esa decision.
+--
+-- EL SECRETO DEL GRUPO
+--   No se inventa uno nuevo: el token de cualquiera de sus pedidos abre el
+--   grupo entero. Es igual de secreto y es del mismo comprador, y asi los
+--   links que los clientes ya tienen siguen funcionando.
+-- ============================================================
+
+alter table public.pedidos add column if not exists grupo uuid;
+
+create index if not exists pedidos_grupo_idx
+  on public.pedidos (grupo)
+  where grupo is not null;
+
+-- Las tres funciones (crear_compra, ver_mi_compra y confirmar_compra) se
+-- aplicaron con la migracion 13_compras_de_varios_productos. Se listan sus
+-- permisos aca para tener el cuadro completo:
+--
+--   crear_compra      anon        arma la compra. El precio sale de la
+--                                 base, nunca del cliente. Topes: 20
+--                                 lineas y cantidad 10 por linea, para que
+--                                 nadie cree 99999 filas de un saque.
+--   ver_mi_compra     anon        lo que ve el cliente. Sirve para los dos
+--                                 casos: compra suelta devuelve una linea,
+--                                 compra agrupada devuelve todas.
+--   confirmar_compra  authenticated  el boton del panel. Entrega lo que
+--                                 puede y nunca falla entera por una linea.

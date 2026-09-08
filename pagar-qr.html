@@ -648,7 +648,8 @@
       <div id="pedidoEntregado" style="display:none;
            background:rgba(18,140,126,0.08); border:1px solid rgba(18,140,126,0.45);
            border-radius:12px; padding:1.1rem;">
-        <div style="font-size:1.05rem; font-weight:800; color:var(--verde-wa); margin-bottom:0.2rem;">
+        <!-- Singular o plural segun cuantas cuentas llegaron: lo pone js -->
+        <div id="pedidoTitulo" style="font-size:1.05rem; font-weight:800; color:var(--verde-wa); margin-bottom:0.2rem;">
           Listo, ya es tuya
         </div>
         <div style="font-size:0.82rem; color:var(--tinta-suave); margin-bottom:0.9rem;" id="pedidoProducto"></div>
@@ -668,9 +669,18 @@
           Copiar los datos
         </button>
 
+        <!-- Solo cuando la compra quedo a medias: se entregaron algunas y
+             de otras no habia stock. Va JUNTO a las que si llegaron, para
+             que el cliente no tenga que contar cuantas recibio y darse
+             cuenta solo de que falta una. -->
+        <div id="pedidoFaltan" style="display:none;
+             margin-top:0.9rem; padding:0.7rem 0.85rem;
+             background:rgba(240,165,0,0.09); border:1px solid rgba(240,165,0,0.32);
+             border-radius:9px; font-size:0.8rem; line-height:1.55;
+             color:var(--texto);"></div>
+
         <div style="font-size:0.78rem; color:var(--tinta-suave); margin-top:0.8rem; line-height:1.55;">
-          Guardala ahora. Este link es la unica forma de volver a verla, y
-          tambien te lo dejamos en el chat de WhatsApp.
+          Guardala ahora: esta pagina es la unica forma de volver a verla.
         </div>
       </div>
 
@@ -794,22 +804,14 @@
         if (s.needsUsername) lines.push(`🧾 *Usuario / Nombre:* ${username.trim() || '(pendiente)'}`);
         customerBlock = lines.join('\n');
       }
-      // El link del pedido va DENTRO del mensaje a proposito: es la unica
-      // llave del cliente a su cuenta, y si cierra la pestana y se le
-      // borra el navegador, lo unico que le queda es su propio chat.
+      // El mensaje lleva SOLO el pedido y el comprobante. Nada de links ni
+      // de promesas de entrega: decision del duenio.
       //
-      // Pero va SIN prometer nada. Antes decia "ahi te va a aparecer la
-      // cuenta apenas confirmemos el pago", y eso solo es cierto cuando hay
-      // stock: en los productos sin cuentas cargadas la entrega es
-      // justamente por este chat, asi que el mensaje prometia lo contrario
-      // de lo que iba a pasar. Y encima quedaba escrito en la conversacion,
-      // que es donde el cliente lo va a releer si se impacienta.
-      //
-      // Ahora es solo una referencia. Lo que va a pasar se lo dice la
-      // pagina, que si sabe si hay stock.
-      const linkPedido = window._pedidoLink
-        ? `\n🔗 *Seguimiento:* ${window._pedidoLink}`
-        : '';
+      // Consecuencia a tener presente: el cliente que pierda la pestana y
+      // el navegador se queda sin forma de volver solo a su cuenta, porque
+      // el link ya no le queda en el chat. Se resuelve desde el panel, con
+      // "Copiar para mandar", que arma el mensaje con sus credenciales.
+      const linkPedido = '';
       const whatsappMsg = `🦁 *TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${window._pedidoNumero || s.ref}\n💰 *Monto:* ${s.total.toFixed(2)} Bs\n🛒 *Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
       window._waUrl = `https://wa.me/59157707335?text=${encodeURIComponent(whatsappMsg)}`;
     }
@@ -897,104 +899,130 @@
        ========================================================== -->
   <script type="module">
   import {
-    itemEntregable, crearPedido, seguirPedido, mirarPedido,
-    tokenDeLaUrl, pedidoRecordado, credencialesComoTexto, hayStock
+    lineasEntregables, crearCompra, seguirPedido, mirarPedido, resumirCompra,
+    tokenDeLaUrl, compraRecordada, huellaDeCarrito, credencialesComoTexto, hayStock
   } from './js/pedido-automatico.js';
 
   const $ = id => document.getElementById(id);
   const escapar = s => String(s ?? '').replace(/[&<>"]/g,
     c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  let pedidoActual = null;
+  let compraActual = null;
   let parar = null;
 
-  // Cuantas cuentas libres hay de este producto, para no prometer una
-  // entrega instantanea que no se puede cumplir. null = no se pudo saber,
-  // y en ese caso se prefiere la version optimista de siempre.
-  let conStock = null;
-
-  // ¿Este pedido se entrega solo, en el momento?
+  // CUANTAS de las cuentas compradas se pueden entregar ya.
   //
-  // De esto dependen DOS cosas, y por eso vive en una funcion sola:
-  //   · que le prometemos al cliente mientras espera
+  //   null            todavia no se pudo averiguar
+  //   {de: 3, hay: 2} compro 3 cuentas y hay stock para 2
+  //
+  // No alcanza con un si/no. La primera version guardaba el MINIMO de los
+  // stocks, y con eso una compra de 2 Netflix (que si habia) mas 1 de otro
+  // producto sin stock daba minimo 0, y le decia al cliente "no hay cuentas
+  // subidas por el momento" cuando en realidad 2 de las 3 le iban a llegar
+  // al instante. Demasiado pesimista, y encima falso.
+  let cobertura = null;
+
+  // ¿Va a recibir ALGO en esta pagina?
+  //
+  // De esto dependen dos cosas, y por eso vive en una funcion sola:
+  //   · que le prometemos mientras espera
   //   · si lo mandamos a WhatsApp a los 5 minutos o lo dejamos esperando
   //
-  // Cuando NO se pudo consultar el stock (null) se asume que si hay. Es
-  // el lado seguro: si nos equivocamos, el cliente se queda mirando una
-  // pagina que igual le va a mostrar la cuenta cuando la confirmes. Al
-  // reves lo mandariamos a WhatsApp cuando no hacia falta.
-  const hayEntregaAlInstante = () => conStock !== 0;
+  // Con que UNA de sus cuentas se entregue aca ya no hay que echarlo: se
+  // estaria yendo justo del lugar donde le llega parte de lo que compro.
+  //
+  // Sin dato (null) se asume que si. Es el lado seguro: si nos
+  // equivocamos, se queda mirando una pagina que igual le va a mostrar la
+  // cuenta cuando la confirmes; al reves lo mandariamos a WhatsApp sin
+  // necesidad.
+  const hayEntregaAlInstante = () => !cobertura || cobertura.hay > 0;
+
+  // Todas, algunas o ninguna
+  const coberturaCompleta = () => !cobertura || cobertura.hay >= cobertura.de;
+
+  /**
+   * Cuantas de las cuentas del carrito tienen stock ahora mismo.
+   * Agrupa por producto: si el mismo aparece en dos lineas, el stock no se
+   * cuenta dos veces.
+   */
+  async function calcularCobertura(lineas) {
+    const porProducto = new Map();
+    for (const l of lineas) {
+      porProducto.set(l.producto_id, (porProducto.get(l.producto_id) || 0) + l.cantidad);
+    }
+
+    const ids = [...porProducto.keys()];
+    const stocks = await Promise.all(ids.map(hayStock));
+
+    let de = 0, hay = 0;
+    ids.forEach((id, i) => {
+      const pedidas = porProducto.get(id);
+      de += pedidas;
+      // Si no se pudo consultar ese producto, se asume que hay: es el lado
+      // optimista, igual que arriba.
+      hay += stocks[i] === null ? pedidas : Math.min(pedidas, stocks[i]);
+    });
+
+    return { de, hay };
+  }
 
   // -----------------------------------------------------------
   // Pintar segun el estado
   // -----------------------------------------------------------
-  function pintar(pedido) {
-    pedidoActual = pedido;
+  function pintar(compra, resumen) {
+    compraActual = compra;
+    const r = resumen || resumirCompra(compra);
+
     $('cajaPedido').style.display = 'block';
 
     // "vencido" va con los que esperan y no en un estado propio, porque
     // para el cliente es lo mismo: su pedido sigue en pie y si paga se lo
-    // entregamos. Vencer es una etiqueta interna nuestra, para que el
-    // panel no se llene de pedidos que nadie va a pagar.
-    //
-    // Antes vencido no entraba en ninguno de los tres, y el cliente veia
-    // una caja con borde y nada adentro.
-    const vencido   = pedido.estado === 'vencido';
-    const esperando = pedido.estado === 'esperando_pago' || pedido.estado === 'pagado' || vencido;
-    const listo     = pedido.estado === 'entregado';
-    const sinStock  = pedido.estado === 'sin_stock';
+    // entregamos. Vencer es una etiqueta interna nuestra, para que el panel
+    // no se llene de pedidos que nadie va a pagar.
+    const vencido   = r.estado === 'vencido';
+    const esperando = r.estado === 'esperando_pago' || vencido;
+    // "parcial" cuenta como entregado: hay cuentas para mostrar, y las que
+    // faltan se avisan dentro del mismo bloque.
+    const listo     = r.estado === 'entregado' || r.estado === 'parcial';
+    const sinStock  = r.estado === 'sin_stock';
 
     $('pedidoEsperando').style.display = esperando ? 'block' : 'none';
     $('pedidoEntregado').style.display = listo     ? 'block' : 'none';
     $('pedidoSinStock').style.display  = sinStock  ? 'block' : 'none';
 
-    $('pedidoNumero').textContent = '#' + pedido.numero;
+    $('pedidoNumero').textContent = '#' + r.numero;
 
     // ---- LA PROMESA TIENE QUE SER VERDAD ----
-    // Antes esto decia SIEMPRE "tu cuenta aparece aca sola". Pero eso solo
-    // pasa si hay una cuenta libre esperando: si no hay stock, el cliente
-    // paga creyendo que la recibe en el momento y recien despues se entera
-    // de que no. Prometer y no cumplir es peor que no prometer, porque para
-    // cuando se descubre ya pago.
-    //
-    // hayStock se consulta al crear el pedido. Si dio 0, se avisa de una,
-    // ANTES de que pague. Igual se sigue preguntando: si cargas stock antes
-    // de confirmar, la entrega automatica funciona y esta pantalla pasa
-    // sola a mostrar la cuenta.
+    // Si no hay stock, el cliente paga creyendo que la recibe en el momento
+    // y recien despues se entera de que no. Prometer y no cumplir es peor
+    // que no prometer, porque para cuando se descubre ya pago.
     if (esperando) {
-      // El destacado va en var(--tinta), no en blanco. La pagina tiene
-      // fondo claro: el #fff que habia antes era texto invisible.
+      // El destacado va en var(--tinta), no en blanco: la pagina tiene
+      // fondo claro y el #fff que habia antes era texto invisible.
       const fuerte = (t) => `<strong style="color:var(--tinta);">${t}</strong>`;
 
       $('pedidoPromesa').innerHTML = vencido
         ? 'Paso bastante tiempo desde que armaste este pedido. ' +
           fuerte('Si ya pagaste, mandanos el comprobante por WhatsApp') +
           ' y te lo entregamos igual.'
-        : hayEntregaAlInstante()
-          // CON stock: la cuenta esta comprada y esperando, asi que se
-          // promete que aparece aca y no se lo echa a WhatsApp.
-          //
-          // Pero se le da la salida igual. Nosotros sabemos que la entrega
-          // depende de que vos confirmes el pago; el cliente no. Si se
-          // queda mirando una pantalla que no cambia y nadie le dijo que
-          // hacer, se pone nervioso. Con el plazo y el "escribinos" sabe
-          // cuando preocuparse y adonde ir.
-          ? fuerte('Tu cuenta se entrega aca') +
-            '. Estamos verificando el pago, no cierres esta pagina.<br><br>' +
-            'Si no te aparece en 10 a 30 minutos, ' +
-            fuerte('envianos un mensaje al WhatsApp junto a tu comprobante') + '.'
-          // SIN stock: se dice derecho. Prometer una entrega que no puede
-          // pasar es lo peor que se puede hacer aca, porque para cuando el
-          // cliente se da cuenta ya pago.
-          : fuerte('No hay cuentas subidas por el momento') +
+        : !hayEntregaAlInstante()
+          // Ninguna tiene stock: se dice derecho.
+          ? fuerte('No hay cuentas subidas por el momento') +
             '. Solo entregas por WhatsApp: ' +
-            fuerte('envia tu pedido junto a tu comprobante') + '.';
+            fuerte('envia tu pedido junto a tu comprobante') + '.'
+          : coberturaCompleta()
+            ? fuerte(r.lineas.length > 1 ? 'Tus cuentas se entregan aca' : 'Tu cuenta se entrega aca') +
+              '. Estamos verificando el pago, no cierres esta pagina.<br><br>' +
+              'Si no te aparece en 10 a 30 minutos, ' +
+              fuerte('envianos un mensaje al WhatsApp junto a tu comprobante') + '.'
+            // A MEDIAS: algunas si y otras no. Decir "no hay cuentas" seria
+            // falso, y decir "se entregan aca" tambien. Se dice el numero,
+            // que es lo unico cierto.
+            : fuerte(`${cobertura.hay} de tus ${cobertura.de} cuentas se entregan aca`) +
+              ', apenas verifiquemos el pago. ' +
+              fuerte(`${cobertura.de - cobertura.hay > 1 ? 'Las otras' : 'La otra'} te ${cobertura.de - cobertura.hay > 1 ? 'las' : 'la'} mandamos por WhatsApp`) +
+              ' hoy mismo.';
 
-      // La pagina sigue preguntando en los dos casos, pero lo que dice
-      // cambia. Sin stock no tiene sentido prometer que "estamos
-      // revisando": la entrega va por WhatsApp. Igual, si llegas a cargar
-      // una cuenta antes de confirmar el pago, aparece sola — y eso es lo
-      // que dice la version de abajo, sin prometer nada.
       const latido = $('pedidoLatido');
       if (latido) {
         latido.textContent = vencido
@@ -1006,67 +1034,106 @@
     }
 
     // ---- EL RELOJ QUE ECHA A WHATSAPP ----
-    // A los 5 minutos la pagina manda sola al cliente a WhatsApp. Eso
-    // esta bien cuando la cuenta hay que prepararla: alla se sigue la
+    // A los 5 minutos la pagina manda sola al cliente a WhatsApp. Eso esta
+    // bien cuando la cuenta hay que prepararla: alla se sigue la
     // conversacion y no lo dejamos mirando una pantalla que no cambia.
     //
-    // Pero cuando HAY stock, su cuenta va a aparecer en esta misma
-    // pantalla. Echarlo seria sacarlo justo del lugar donde le llega lo
-    // que compro. Asi que con stock el reloj se apaga y se queda.
-    if (esperando && hayEntregaAlInstante()) {
-      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
-      const t = $('timerSection');
-      if (t) t.style.display = 'none';
-    }
-
-    // Con el pago ya confirmado, el contador de "te mandamos a WhatsApp
-    // en 5:00" no tiene sentido. Y peor: al llegar a cero saca al cliente
-    // de la pagina, justo cuando esta copiando su cuenta. Se apaga.
-    // (timerInterval vive en el script de arriba; es global.)
+    // Pero cuando HAY stock su cuenta va a aparecer en esta misma pantalla,
+    // y echarlo seria sacarlo justo del lugar donde le llega lo que compro.
+    if (esperando && hayEntregaAlInstante()) apagarReloj();
     if (listo || sinStock) {
-      if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
-      const t = $('timerSection');
-      if (t) t.style.display = 'none';
-
-      // La barra de arriba ("Esperando pago...") tambien se entera. Si no,
-      // dice una cosa arriba y otra abajo en la misma pantalla.
-      const barra = $('statusBar');
-      if (barra) { barra.classList.remove('pendiente', 'expirado'); barra.classList.add('pagado'); }
-      const texto = $('statusText');
-      if (texto) texto.textContent = listo
-        ? 'Pago confirmado. Tu cuenta esta abajo'
-        : 'Pago recibido. Te la mandamos por WhatsApp';
+      apagarReloj();
+      avisarArriba(listo, r);
     }
 
     if (!listo) return;
 
-    // ---- Llego la cuenta ----
-    $('pedidoProducto').textContent = pedido.producto || '';
+    // ---- LLEGARON LAS CUENTAS ----
+    const varias = r.entregadas.length > 1;
 
-    const c = pedido.credenciales || {};
+    const titulo = $('pedidoTitulo');
+    if (titulo) titulo.textContent = varias ? 'Listo, ya son tuyas' : 'Listo, ya es tuya';
+
+    $('pedidoProducto').textContent = varias
+      ? `${r.entregadas.length} cuentas`
+      : (r.entregadas[0] && r.entregadas[0].producto) || '';
+
     const fila = (etiqueta, valor) => valor
-      ? `<div><span style="color:#888;">${etiqueta}:</span>
+      ? `<div><span style="color:#9aa0ab;">${etiqueta}:</span>
            <strong style="color:#fff; font-family:ui-monospace,Consolas,monospace;
                           user-select:all;">${escapar(valor)}</strong></div>`
       : '';
 
-    $('pedidoCreds').innerHTML =
-      fila('Usuario', c.usuario) +
-      fila('Clave',   c.clave)   +
-      fila('Perfil',  c.perfil)  +
-      fila('PIN',     c.pin)     +
-      (c.notas ? `<div style="color:#ffd700; font-size:0.82rem; line-height:1.5;
-                              margin-top:0.5rem;">${escapar(c.notas)}</div>` : '');
+    // Con varias cuentas, cada una lleva el nombre de su producto arriba:
+    // si no, el cliente no sabe cual es cual y nos escribe preguntando.
+    const bloque = (l, i) => {
+      const c = l.credenciales || {};
+      const titulo = r.entregadas.length > 1
+        ? `<div style="color:#25D366; font-weight:800; font-size:0.82rem;
+                       margin:${i ? '0.9rem' : '0'} 0 0.35rem;
+                       ${i ? 'border-top:1px solid rgba(255,255,255,0.12); padding-top:0.9rem;' : ''}">
+             ${escapar(l.producto)}
+           </div>`
+        : '';
+      return titulo +
+        fila('Usuario', c.usuario) +
+        fila('Clave',   c.clave)   +
+        fila('Perfil',  c.perfil)  +
+        fila('PIN',     c.pin)     +
+        (c.notas ? `<div style="color:#ffd700; font-size:0.82rem; line-height:1.5;
+                                margin-top:0.4rem;">${escapar(c.notas)}</div>` : '');
+    };
 
-    // El navegador la resalta en la pestana aunque el cliente este en otra app
-    document.title = 'Tu cuenta esta lista - Tiago Store';
+    $('pedidoCreds').innerHTML = r.entregadas.map(bloque).join('');
+
+    // Si la compra quedo a medias, se avisa DONDE se ve: junto a lo que si
+    // llego. Que el cliente cuente cuantas recibio para darse cuenta de que
+    // falta una seria hacerle el trabajo a el.
+    const faltan = $('pedidoFaltan');
+    if (faltan) {
+      if (r.faltan > 0) {
+        const nombres = r.lineas.filter(l => l.estado !== 'entregado')
+                                .map(l => l.producto);
+        faltan.innerHTML =
+          `Nos falta prepararte ${r.faltan === 1 ? 'una cuenta' : r.faltan + ' cuentas'}: ` +
+          `<strong>${escapar([...new Set(nombres)].join(', '))}</strong>. ` +
+          `Te ${r.faltan === 1 ? 'la' : 'las'} mandamos por WhatsApp hoy mismo.`;
+        faltan.style.display = 'block';
+      } else {
+        faltan.style.display = 'none';
+      }
+    }
+
+    // El navegador lo resalta en la pestana aunque el cliente este en otra app
+    document.title = r.entregadas.length > 1
+      ? 'Tus cuentas estan listas - Tiago Store'
+      : 'Tu cuenta esta lista - Tiago Store';
+  }
+
+  function apagarReloj() {
+    // timerInterval vive en el script de arriba; es global.
+    if (typeof timerInterval !== 'undefined' && timerInterval) clearInterval(timerInterval);
+    const t = $('timerSection');
+    if (t) t.style.display = 'none';
+  }
+
+  // La barra de arriba ("Esperando pago...") tambien se entera. Si no, dice
+  // una cosa arriba y otra abajo en la misma pantalla.
+  function avisarArriba(listo, r) {
+    const barra = $('statusBar');
+    if (barra) { barra.classList.remove('pendiente', 'expirado'); barra.classList.add('pagado'); }
+    const texto = $('statusText');
+    if (texto) texto.textContent = listo
+      ? (r.entregadas.length > 1 ? 'Pago confirmado. Tus cuentas estan abajo'
+                                 : 'Pago confirmado. Tu cuenta esta abajo')
+      : 'Pago recibido. Te contactamos por WhatsApp';
   }
 
   $('pedidoCopiar').addEventListener('click', async () => {
-    if (!pedidoActual) return;
+    if (!compraActual) return;
     const btn = $('pedidoCopiar');
     try {
-      await navigator.clipboard.writeText(credencialesComoTexto(pedidoActual));
+      await navigator.clipboard.writeText(credencialesComoTexto(compraActual));
       btn.textContent = 'Copiado';
       setTimeout(() => { btn.textContent = 'Copiar los datos'; }, 1600);
     } catch {
@@ -1079,117 +1146,118 @@
   // -----------------------------------------------------------
   // Arranque
   // -----------------------------------------------------------
-  function engancharPedido(token, pedido) {
+  function engancharCompra(token, compra) {
     window._pedidoLink   = location.origin + location.pathname + '#t=' + token;
-    window._pedidoNumero = 'Pedido #' + pedido.numero;
+    window._pedidoNumero = 'Pedido #' + compra.numero;
 
-    // La pagina genera una referencia al azar (ZV-XXXX) para el caso en
-    // que no haya pedido en la base. Cuando SI lo hay, mostrar las dos
-    // confunde: el cliente te escribe "ZV-1G0Z3AUV" y en el panel vos ves
-    // "#7". Gana el numero de pedido, que es el que existe de los dos lados.
+    // La pagina genera una referencia al azar (ZV-XXXX) para el caso en que
+    // no haya pedido en la base. Cuando SI lo hay, mostrar las dos confunde:
+    // el cliente te escribe "ZV-1G0Z3AUV" y en el panel vos ves "#7". Gana
+    // el numero de pedido, que es el que existe de los dos lados.
     const ref = $('payRef');
-    if (ref) ref.textContent = 'Pedido #' + pedido.numero;
+    if (ref) ref.textContent = 'Pedido #' + compra.numero;
 
     if (typeof buildWhatsappUrl === 'function') buildWhatsappUrl();
-    pintar(pedido);
+    pintar(compra);
     parar = seguirPedido(token, pintar);
 
-    // Al RETOMAR un pedido no pasamos por el camino que consulta el stock,
+    // Al RETOMAR una compra no pasamos por el camino que consulta el stock,
     // asi que se pregunta aca y se repinta cuando llega. Se pinta primero y
     // se corrige despues a proposito: es preferible que la pantalla aparezca
     // al instante y ajuste una frase, a dejarla en blanco esperando.
-    if (conStock === null && pedido.producto_id) {
-      hayStock(pedido.producto_id).then(n => {
-        if (n === null) return;
-        conStock = n;
-        if (pedidoActual) pintar(pedidoActual);
-      });
+    if (cobertura === null) {
+      // Solo las que siguen esperando: las ya entregadas no cuentan para
+      // saber que le falta recibir.
+      const pendientes = (compra.lineas || [])
+        .filter(l => l.estado === 'esperando_pago' && l.producto_id)
+        .map(l => ({ producto_id: l.producto_id, cantidad: 1 }));
+
+      if (pendientes.length) {
+        calcularCobertura(pendientes).then(c => {
+          cobertura = c;
+          if (compraActual) pintar(compraActual);
+        });
+      }
     }
   }
 
   // Cuando la pagina se abre SIN carrito (por el link del pedido, o a
   // secas), la pantalla de arriba no dibujo nada. Se arma con lo que dice
-  // el pedido: mismo QR y mismo boton de WhatsApp de siempre, por si
-  // todavia no pago.
-  function dibujarDesdePedido(pedido) {
+  // la compra: mismo QR y mismo boton de WhatsApp de siempre.
+  function dibujarDesdeCompra(compra) {
     const err = $('errorScreen');
     if (err) err.classList.remove('show');
-    const precio = Number(pedido.precio) || 0;
-    renderPayment([{ name: pedido.producto, price: precio, qty: 1 }], precio, 'Pedido #' + pedido.numero);
+    const items = (compra.lineas || []).map(l => ({
+      name: l.producto, price: Number(l.precio) || 0, qty: 1
+    }));
+    renderPayment(items, Number(compra.total) || 0, 'Pedido #' + compra.numero);
   }
 
   (async function arrancar() {
-    const s    = window._payState;
-    const item = (s && s.items) ? itemEntregable(s.items) : null;
+    const s      = window._payState;
+    const lineas = (s && s.items) ? lineasEntregables(s.items) : null;
 
     // -------------------------------------------------------
-    // 1. Vino por SU link (#t=...), el que le quedo en WhatsApp.
+    // 1. Vino por SU link (#t=...)
     // -------------------------------------------------------
-    // Es una orden explicita: quiere ver ESE pedido. Manda sobre todo lo
+    // Es una orden explicita: quiere ver ESA compra. Manda sobre todo lo
     // demas, incluso si la URL tambien trae un carrito.
     const deLaUrl = tokenDeLaUrl();
     if (deLaUrl) {
-      const pedido = await mirarPedido(deLaUrl);
-
-      if (pedido) {
-        if (!s) dibujarDesdePedido(pedido);
-        engancharPedido(deLaUrl, pedido);
+      const compra = await mirarPedido(deLaUrl);
+      if (compra) {
+        if (!s) dibujarDesdeCompra(compra);
+        engancharCompra(deLaUrl, compra);
         return;
       }
-
-      // El token no existe y no hay carrito que mostrar: recien aca se avisa.
       if (!s) { showError('No encontramos ese pedido. Revisa que el link este completo.'); return; }
     }
 
     // -------------------------------------------------------
-    // 2. Hay un pedido guardado de antes en este navegador.
+    // 2. Hay una compra guardada de antes en este navegador
     // -------------------------------------------------------
     // OJO: no se retoma a ciegas. Al principio si, y el resultado era que
-    // comprabas Netflix, volvias a la tienda, comprabas Disney, y la
-    // pagina de Disney te mostraba la cuenta de Netflix.
+    // comprabas Netflix, volvias a la tienda, comprabas Disney, y la pagina
+    // de Disney te mostraba la cuenta de Netflix.
     //
-    // Solo se retoma si es del MISMO producto que se esta comprando ahora
-    // (asi recargar la pagina no crea un pedido duplicado), o si no hay
-    // carrito ninguno (entro a pagar-qr.html a secas, buscando su pedido).
-    // El producto se compara con el fid que se guardo junto al token.
-    const recordado = pedidoRecordado();
-    if (recordado && (!item || recordado.fid === item.fid)) {
-      const pedido = await mirarPedido(recordado.token);
-      const sirve = pedido && !['vencido', 'cancelado'].includes(pedido.estado);
-
-      if (sirve) {
-        if (!s) dibujarDesdePedido(pedido);
-        engancharPedido(recordado.token, pedido);
+    // Solo se retoma si el carrito de ahora es el MISMO que el guardado
+    // (asi recargar la pagina no crea una compra duplicada), o si no hay
+    // carrito ninguno. Se comparan por la huella: mismos productos y
+    // mismas cantidades, sin importar el orden.
+    const recordada = compraRecordada();
+    if (recordada && (!lineas || recordada.huella === huellaDeCarrito(lineas))) {
+      const compra = await mirarPedido(recordada.token);
+      const r = compra && resumirCompra(compra);
+      if (compra && r && !['cancelado', 'vacio'].includes(r.estado)) {
+        if (!s) dibujarDesdeCompra(compra);
+        engancharCompra(recordada.token, compra);
         return;
       }
     }
 
     // -------------------------------------------------------
-    // 3. Pedido nuevo.
+    // 3. Compra nueva
     // -------------------------------------------------------
-    // Solo si el carrito sirve: un producto, una unidad, con su id real.
-    if (!item) return;          // carrito multiple, juego, o sin migrar
+    if (!lineas) return;   // hay un juego mezclado, o algo sin migrar
 
     // Se pregunta ANTES de pintar, para que el cartel diga la verdad desde
     // el primer segundo y no despues de que el cliente ya pago.
-    conStock = await hayStock(item.fid);
+    cobertura = await calcularCobertura(lineas);
 
-    const pedido = await crearPedido(item, {
+    const compra = await crearCompra(lineas, {
       nombre:   ($('customerUsername') || {}).value || '',
       email:    ($('customerEmail')    || {}).value || '',
       whatsapp: ''
     });
-    if (!pedido) return;        // Supabase no contesto: sigue el flujo viejo
+    if (!compra) return;   // Supabase no contesto: sigue el flujo viejo
 
-    // Mismo camino que al retomar uno existente: una sola funcion que
-    // arma el link, corrige la referencia, rehace el mensaje de WhatsApp
-    // y arranca las consultas. Antes esto estaba duplicado aca, y la
-    // referencia en pantalla se quedaba con el codigo al azar.
-    engancharPedido(pedido.token, {
-      numero:   pedido.numero,
-      producto: pedido.producto,
-      estado:   'esperando_pago'
-    });
+    // Se vuelve a preguntar por la compra recien creada en vez de armarla a
+    // mano: asi la pantalla se dibuja con la misma forma que en todos los
+    // demas caminos, y no hay dos maneras de construir lo mismo.
+    const completa = await mirarPedido(compra.token);
+    if (!completa) return;
+
+    engancharCompra(compra.token, completa);
   })();
 
   window.addEventListener('beforeunload', () => { if (parar) parar(); });

@@ -19,11 +19,13 @@
 //   su botón de WhatsApp. Por eso cada función devuelve null en vez de
 //   tirar error: el que llama decide seguir sin esto.
 //
-// LO QUE TODAVÍA NO HACE
-//   Un pedido = un producto, una unidad. Un carrito con dos productos
-//   distintos, o con cantidad 2, sigue por el camino de WhatsApp de
-//   siempre. Es el caso menos común y agregarlo sin necesitarlo todavía
-//   habría complicado la entrega, que es la parte que no puede fallar.
+// COMPRAS DE VARIOS PRODUCTOS
+//   Un carrito con varios productos, o con cantidad 2, también se entrega
+//   solo. La base arma un pedido por CADA cuenta a entregar, todos atados
+//   a un mismo grupo (ver crear_compra en supabase/05-cobros.sql).
+//
+//   Si de un producto no hay stock, se entrega lo que sí hay y se avisa
+//   por lo que falta. Media compra entregada es mejor que ninguna.
 // ============================================================
 
 import { sb } from './supabase-base.js';
@@ -45,32 +47,44 @@ const LLAVE = 'tiago-pedido-en-curso';
 // ============================================================
 // 1. ¿SE PUEDE ENTREGAR SOLO?
 // ============================================================
+// Un uuid tiene 36 caracteres con guiones. Los ids de Firestore eran más
+// cortos y sin guiones: esto distingue un producto de la base de cualquier
+// otra cosa que venga en el carrito, como los juegos, que no tienen
+// entrega automática. Una recarga no se entrega dando una cuenta: se le
+// carga saldo al ID de jugador del cliente.
+const esIdDeProducto = fid => typeof fid === 'string' && /^[0-9a-f-]{36}$/i.test(fid);
+
 /**
- * Un carrito sirve para entrega automática solo si es exactamente un
- * producto, una unidad, y trae el id real del producto en la base.
+ * Las líneas del carrito que se pueden pedir a la base.
  *
- * El "fid" lo pone la tienda al armar el carrito. Si falta, es que el
- * producto todavía no está migrado a Supabase, o que el carrito viene de
- * la página de recargas de juegos — que no tiene entrega automática, y
- * está bien: una recarga no se entrega dando una cuenta, se le carga
- * saldo al ID de jugador del cliente.
+ * Antes esto exigía UN producto y UNA unidad, y cualquier otro carrito se
+ * iba por el flujo viejo de WhatsApp: sin número, sin seguimiento y sin
+ * entrega automática, aunque hubiera stock de todo.
+ *
+ * Ahora se aceptan varios productos y varias unidades. La base arma un
+ * pedido por cada cuenta a entregar, todos atados a un mismo grupo.
+ *
+ * Se exige que TODAS las líneas sirvan. Si una no —un juego mezclado, por
+ * ejemplo— se devuelve null y la compra entera sigue por WhatsApp. Es a
+ * propósito: media compra automática y media a mano sería peor que
+ * cualquiera de las dos enteras, para el cliente y para vos.
  *
  * @param {Array} items el carrito
- * @returns {Object|null} el item si sirve, null si no
+ * @returns {Array|null} [{producto_id, cantidad}] o null
  */
-export function itemEntregable(items) {
-  if (!Array.isArray(items) || items.length !== 1) return null;
+export function lineasEntregables(items) {
+  if (!Array.isArray(items) || items.length === 0) return null;
+  if (items.length > 20) return null;          // el mismo tope que la base
 
-  const item = items[0];
-  if (!item || !item.fid) return null;
-  if ((item.qty ?? 1) !== 1)  return null;
-
-  // Un uuid tiene 36 caracteres con guiones. Los ids de Firestore son más
-  // cortos y sin guiones: si todavía no migraste, esto lo detecta y sigue
-  // por el camino de siempre en vez de fallar contra Supabase.
-  if (!/^[0-9a-f-]{36}$/i.test(item.fid)) return null;
-
-  return item;
+  const lineas = [];
+  for (const item of items) {
+    if (!item || !esIdDeProducto(item.fid)) return null;
+    lineas.push({
+      producto_id: item.fid,
+      cantidad: Math.max(1, Math.min(10, Number(item.qty) || 1))
+    });
+  }
+  return lineas;
 }
 
 
@@ -82,33 +96,51 @@ export function itemEntregable(items) {
  * @param {Object} cliente  { nombre, whatsapp, email }
  * @returns {Promise<Object|null>} { token, numero, precio, producto } o null
  */
-export async function crearPedido(item, cliente = {}) {
+export async function crearCompra(lineas, cliente = {}) {
   try {
-    const { data, error } = await sb.rpc('crear_pedido', {
-      p_producto_id: item.fid,
-      p_nombre:      (cliente.nombre   || '').slice(0, 80),
-      p_whatsapp:    (cliente.whatsapp || '').slice(0, 30),
-      p_email:       (cliente.email    || '').slice(0, 120)
+    const { data, error } = await sb.rpc('crear_compra', {
+      p_items:    lineas,
+      p_nombre:   (cliente.nombre   || '').slice(0, 80),
+      p_whatsapp: (cliente.whatsapp || '').slice(0, 30),
+      p_email:    (cliente.email    || '').slice(0, 120)
     });
 
     if (error) {
-      // Errores esperables: el producto no existe todavía en Supabase, o
-      // está marcado como agotado. No es un fallo del sitio: es que este
-      // producto va por el camino manual.
-      console.warn('Pedido automático no disponible:', error.message);
+      // Errores esperables: un producto que todavía no está en la base, o
+      // marcado como agotado. No es un fallo del sitio: es que esa compra
+      // va por el camino manual.
+      console.warn('Compra automática no disponible:', error.message);
       return null;
     }
 
-    const pedido = Array.isArray(data) ? data[0] : data;
-    if (!pedido || !pedido.token) return null;
+    const compra = Array.isArray(data) ? data[0] : data;
+    if (!compra || !compra.token) return null;
 
-    recordar(pedido.token, item.fid);
-    return pedido;
+    // Se recuerda con la huella del carrito, no con un producto: así al
+    // volver se sabe si el carrito de ahora es el mismo de antes.
+    recordar(compra.token, huellaDeCarrito(lineas));
+    return compra;
 
   } catch (e) {
-    console.warn('No se pudo crear el pedido:', e.message);
+    console.warn('No se pudo crear la compra:', e.message);
     return null;
   }
+}
+
+/**
+ * Una huella corta del carrito, para poder comparar dos carritos.
+ *
+ * Antes se guardaba el id del único producto, y con eso alcanzaba para
+ * saber si el pedido recordado era el que se está comprando ahora. Con
+ * varios productos hace falta comparar el conjunto: mismos productos y
+ * mismas cantidades. Se ordena para que el orden en que los agregó al
+ * carrito no cambie la huella.
+ */
+export function huellaDeCarrito(lineas) {
+  return (lineas || [])
+    .map(l => `${l.producto_id}x${l.cantidad}`)
+    .sort()
+    .join('|');
 }
 
 
@@ -132,6 +164,51 @@ export async function crearPedido(item, cliente = {}) {
  * @param {Function} onCambio recibe (pedido) cada vez que cambia el estado
  * @returns {Function} llamala para dejar de preguntar
  */
+/**
+ * El estado de la compra ENTERA, sacado de sus líneas.
+ *
+ * Una compra de varios productos puede quedar a medias: se entregan dos y
+ * el tercero se quedó sin stock. Eso no es un error —la base lo hace a
+ * propósito, entregar lo que se pueda es mejor que no entregar nada— pero
+ * la pantalla necesita un solo estado para saber qué mostrar.
+ *
+ *   entregado   todas entregadas
+ *   parcial     algunas sí, otras no. La pantalla muestra las que llegaron
+ *               y avisa por las que faltan
+ *   sin_stock   se pagó y no había ninguna
+ *   esperando   todavía falta confirmar el pago (manda sobre las demás:
+ *               mientras haya una esperando, la compra está en curso)
+ *   vencido     nadie pagó y pasó el tiempo
+ */
+export function resumirCompra(compra) {
+  const lineas = (compra && compra.lineas) || [];
+  if (lineas.length === 0) return { estado: 'vacio', lineas: [], entregadas: [] };
+
+  const cuenta = e => lineas.filter(l => l.estado === e).length;
+
+  const entregadas = lineas.filter(l => l.estado === 'entregado');
+  const esperando  = cuenta('esperando_pago') + cuenta('pagado');
+  const sinStock   = cuenta('sin_stock');
+  const vencidas   = cuenta('vencido');
+
+  let estado;
+  if (esperando > 0)                          estado = 'esperando_pago';
+  else if (entregadas.length === lineas.length) estado = 'entregado';
+  else if (entregadas.length > 0)               estado = 'parcial';
+  else if (sinStock > 0)                        estado = 'sin_stock';
+  else if (vencidas === lineas.length)          estado = 'vencido';
+  else                                          estado = 'cancelado';
+
+  return {
+    estado,
+    lineas,
+    entregadas,
+    faltan: lineas.length - entregadas.length,
+    numero: compra.numero,
+    total:  compra.total
+  };
+}
+
 export function seguirPedido(token, onCambio) {
   let cortado  = false;
   let anterior = null;
@@ -146,15 +223,26 @@ export function seguirPedido(token, onCambio) {
     if (document.hidden) { programar(); return; }
 
     try {
-      const { data, error } = await sb.rpc('ver_mi_pedido', { p_token: token });
+      const { data, error } = await sb.rpc('ver_mi_compra', { p_token: token });
 
       if (!error && data && !data.error) {
+        // El estado sale del resumen de las líneas, no del pedido: una
+        // compra de varios productos no tiene un estado propio.
+        const resumen = resumirCompra(data);
+
         // Solo se avisa cuando el estado CAMBIA. Si no, el que escucha
         // estaría redibujando la pantalla cada 4 segundos para nada.
-        if (data.estado !== anterior) {
-          anterior = data.estado;
-          onCambio(data);
+        //
+        // Se compara también cuántas van entregadas: en una compra de tres,
+        // pasar de una entregada a dos no cambia el estado ("parcial" en
+        // los dos casos) pero sí cambia lo que hay que mostrar.
+        const firma = `${resumen.estado}:${resumen.entregadas.length}`;
+        if (firma !== anterior) {
+          anterior = firma;
+          onCambio(data, resumen);
         }
+
+        data.estado = resumen.estado;   // para los cortes de abajo
 
         // Estos son finales: no hay nada más que esperar.
         //
@@ -209,7 +297,7 @@ export function seguirPedido(token, onCambio) {
  */
 export async function mirarPedido(token) {
   try {
-    const { data, error } = await sb.rpc('ver_mi_pedido', { p_token: token });
+    const { data, error } = await sb.rpc('ver_mi_compra', { p_token: token });
     if (error || !data || data.error) return null;
     return data;
   } catch {
@@ -232,14 +320,13 @@ export async function mirarPedido(token) {
 // El de WhatsApp es el más importante: queda en su chat para siempre, y
 // es el único que sobrevive a que formatee el celular.
 
-// Junto con el token se guarda DE QUÉ PRODUCTO era. Es lo que permite, al
-// arrancar, decidir si el pedido guardado es el de esta compra o el de otra
-// sin tener que preguntarle nada a la base primero. (ver_mi_pedido también
-// devuelve el producto_id, pero recién después de una consulta; esto
-// resuelve antes, y sigue sirviendo aunque esa consulta falle.)
-function recordar(token, productoId) {
+// Junto con el token se guarda la HUELLA DEL CARRITO: qué productos y en
+// qué cantidades. Es lo que permite, al arrancar, decidir si la compra
+// guardada es la de este carrito o la de otro, sin preguntarle nada a la
+// base primero — y sigue sirviendo aunque esa consulta falle.
+function recordar(token, huella) {
   try {
-    localStorage.setItem(LLAVE, JSON.stringify({ token, fid: productoId, cuando: Date.now() }));
+    localStorage.setItem(LLAVE, JSON.stringify({ token, huella, cuando: Date.now() }));
   } catch { /* modo incógnito: queda el de la URL */ }
 
   // replaceState y no push: que el botón "atrás" del navegador siga
@@ -263,21 +350,21 @@ export function tokenDeLaUrl() {
 }
 
 /**
- * El último pedido que hizo este navegador, como { token, fid }.
+ * La última compra que hizo este navegador, como { token, huella }.
  *
- * ⚠️ ESTE NO SE USA A CIEGAS, Y ES IMPORTANTE.
- *   Al principio la página retomaba este pedido siempre que existiera. El
- *   resultado: comprabas Netflix, volvías a la tienda, comprabas Disney…
- *   y la página de Disney te mostraba la cuenta de Netflix. El pedido
- *   guardado no tiene por qué ser el que estás comprando ahora.
+ * ⚠️ ESTA NO SE USA A CIEGAS, Y ES IMPORTANTE.
+ *   Al principio la página retomaba la compra guardada siempre que
+ *   existiera. El resultado: comprabas Netflix, volvías a la tienda,
+ *   comprabas Disney… y la página de Disney te mostraba la cuenta de
+ *   Netflix. Lo guardado no tiene por qué ser lo que estás comprando ahora.
  *
- *   Por eso viene con el fid del producto: el que llama lo compara con lo
- *   que se está comprando antes de retomarlo. Ver el arranque en
- *   pagar-qr.html.
+ *   Por eso viene con la huella del carrito: el que llama la compara con
+ *   huellaDeCarrito() de lo que se está comprando, antes de retomarla.
+ *   Ver el arranque en pagar-qr.html.
  *
- * @returns {{token: string, fid: string|null}|null}
+ * @returns {{token: string, huella: string|null}|null}
  */
-export function pedidoRecordado() {
+export function compraRecordada() {
   try {
     const guardado = JSON.parse(localStorage.getItem(LLAVE) || 'null');
     if (!guardado || !guardado.token) return null;
@@ -326,16 +413,28 @@ export async function hayStock(productoId) {
  * @param {Object} pedido lo que devolvió ver_mi_pedido
  * @returns {string}
  */
-export function credencialesComoTexto(pedido) {
-  const c = pedido.credenciales || {};
-  return [
-    `TIAGO STORE · Pedido #${pedido.numero}`,
-    pedido.producto,
-    ``,
-    c.usuario ? `Usuario: ${c.usuario}` : '',
-    c.clave   ? `Clave: ${c.clave}`     : '',
-    c.perfil  ? `Perfil: ${c.perfil}`   : '',
-    c.pin     ? `PIN: ${c.pin}`         : '',
-    c.notas   ? `\n${c.notas}`          : ''
-  ].filter(l => l !== '').join('\n');
+export function credencialesComoTexto(compra) {
+  const entregadas = ((compra && compra.lineas) || [])
+    .filter(l => l.estado === 'entregado' && l.credenciales);
+
+  if (entregadas.length === 0) return '';
+
+  const bloque = l => {
+    const c = l.credenciales || {};
+    return [
+      l.producto,
+      c.usuario ? `Usuario: ${c.usuario}` : '',
+      c.clave   ? `Clave: ${c.clave}`     : '',
+      c.perfil  ? `Perfil: ${c.perfil}`   : '',
+      c.pin     ? `PIN: ${c.pin}`         : '',
+      c.notas   ? c.notas                 : ''
+    ].filter(Boolean).join('\n');
+  };
+
+  // Con una sola cuenta no se numera: "1)" para un solo item queda raro.
+  const cuerpo = entregadas.length === 1
+    ? bloque(entregadas[0])
+    : entregadas.map((l, i) => `${i + 1}) ${bloque(l)}`).join('\n\n');
+
+  return `TIAGO STORE · Pedido #${compra.numero}\n\n${cuerpo}`;
 }

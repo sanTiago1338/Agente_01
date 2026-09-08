@@ -73,6 +73,26 @@ revoke execute on function public.es_admin() from public;
 revoke execute on function public.es_admin() from anon;
 grant  execute on function public.es_admin() to   authenticated;
 
+-- ------------------------------------------------------------
+-- rls_auto_enable() — la instaló Supabase, no nosotros
+-- ------------------------------------------------------------
+-- Viene con la opción "Activar RLS automático" al crear el proyecto. Es la
+-- función del event trigger "ensure_rls", que enciende RLS sola en cada
+-- tabla nueva. La dispara Postgres al correr un CREATE TABLE, no una
+-- llamada HTTP: los event triggers no pasan por el permiso EXECUTE. Así que
+-- quitarle el permiso la saca de /rest/v1/rpc/ sin apagar la protección.
+-- (El revisor de seguridad de Supabase la marcaba como expuesta.)
+--
+-- Si el proyecto se creó sin esa opción, la función no existe y esto no
+-- hace nada.
+do $$
+begin
+  if to_regprocedure('public.rls_auto_enable()') is not null then
+    execute 'revoke execute on function public.rls_auto_enable() from public, anon, authenticated';
+  end if;
+end;
+$$;
+
 
 -- ============================================================
 -- 2. PRODUCTOS

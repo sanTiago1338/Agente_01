@@ -226,9 +226,10 @@ export async function mirarPedido(token) {
 // es el único que sobrevive a que formatee el celular.
 
 // Junto con el token se guarda DE QUÉ PRODUCTO era. Es lo que permite, al
-// arrancar, decidir si el pedido guardado es el de esta compra o el de otra.
-// (ver_mi_pedido no devuelve el producto_id a propósito: lo mínimo posible
-// sale de la base hacia el navegador, y esto se resuelve igual de este lado.)
+// arrancar, decidir si el pedido guardado es el de esta compra o el de otra
+// sin tener que preguntarle nada a la base primero. (ver_mi_pedido también
+// devuelve el producto_id, pero recién después de una consulta; esto
+// resuelve antes, y sigue sirviendo aunque esa consulta falle.)
 function recordar(token, productoId) {
   try {
     localStorage.setItem(LLAVE, JSON.stringify({ token, fid: productoId, cuando: Date.now() }));

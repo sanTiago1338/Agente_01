@@ -428,6 +428,9 @@ begin
   return jsonb_build_object(
     'numero',      v_pedido.numero,
     'producto',    v_pedido.producto_nombre,
+    -- El id del producto va para que la página de pago pueda saber si el
+    -- pedido que tiene guardado es de ESTA compra o de otra anterior.
+    'producto_id', v_pedido.producto_id,
     'precio',      v_pedido.precio,
     'moneda',      v_pedido.moneda,
     'estado',      v_pedido.estado,

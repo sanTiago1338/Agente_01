@@ -840,5 +840,13 @@ create index if not exists pedidos_grupo_idx
 --   ver_mi_compra     anon        lo que ve el cliente. Sirve para los dos
 --                                 casos: compra suelta devuelve una linea,
 --                                 compra agrupada devuelve todas.
+--                                 Devuelve tambien creado_en (migracion
+--                                 ver_mi_compra_devuelve_creado_en): es la
+--                                 "Fecha de orden" del mensaje de WhatsApp,
+--                                 y tiene que salir de la base para que sea
+--                                 la misma que se ve en el panel. El reloj
+--                                 del telefono del cliente no sirve: si esta
+--                                 mal, lo que te manda no coincide con lo
+--                                 que ves en Ventas.
 --   confirmar_compra  authenticated  el boton del panel. Entrega lo que
 --                                 puede y nunca falla entera por una linea.

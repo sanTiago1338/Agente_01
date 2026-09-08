@@ -791,6 +791,20 @@
       startCountdown();
     }
 
+    // "07-09-2026 18:52 PM"
+    //
+    // La fecha sale de la base (creado_en), no del reloj del telefono: es
+    // la misma que el duenio ve en Ventas, asi los dos hablan del mismo
+    // momento cuando hay que cruzar un pago. Si todavia no hay pedido en la
+    // base, se usa la hora de ahora, que es cuando se esta armando.
+    function fechaOrden(iso) {
+      const d = iso ? new Date(iso) : new Date();
+      if (Number.isNaN(d.getTime())) return '';
+      const p = n => String(n).padStart(2, '0');
+      return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ` +
+             `${p(d.getHours())}:${p(d.getMinutes())} ${d.getHours() < 12 ? 'AM' : 'PM'}`;
+    }
+
     function buildWhatsappUrl() {
       const s = window._payState;
       if (!s) return;
@@ -814,7 +828,7 @@
       // el link ya no le queda en el chat. Se resuelve desde el panel, con
       // "Copiar para mandar", que arma el mensaje con sus credenciales.
       const linkPedido = '';
-      const whatsappMsg = `🦁 *TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${window._pedidoNumero || s.ref}\n💰 *Monto:* ${s.total.toFixed(2)} Bs\n🛒 *Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
+      const whatsappMsg = `🦁 *TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${window._pedidoNumero || s.ref}\n📅 *Fecha de orden:* ${fechaOrden(window._pedidoCreado)}\n💰 *Monto:* ${s.total.toFixed(2)} Bs\n🛒 *Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
       window._waUrl = `https://wa.me/59157707335?text=${encodeURIComponent(whatsappMsg)}`;
     }
 
@@ -973,6 +987,18 @@
   // -----------------------------------------------------------
   // Pintar segun el estado
   // -----------------------------------------------------------
+  // ¿Esta linea tiene credenciales guardadas?
+  //
+  // Un pedido que se cierra desde el panel con "Listo" se entrego por
+  // WhatsApp: quedo entregado, pero no hay ninguna cuenta guardada del
+  // lado nuestro. Sin preguntar esto, al cliente le aparecia el recuadro
+  // negro de las credenciales completamente vacio y un boton "Copiar los
+  // datos" que no copiaba nada.
+  function conDatos(l) {
+    const c = (l && l.credenciales) || {};
+    return !!(c.usuario || c.clave || c.perfil || c.pin || c.notas);
+  }
+
   function pintar(compra, resumen) {
     compraActual = compra;
     const r = resumen || resumirCompra(compra);
@@ -1086,6 +1112,16 @@
              ${escapar(l.producto)}
            </div>`
         : '';
+      // Entregada a mano: los datos se los pasamos por el chat, no hay
+      // nada que mostrar acá. Se dice, en vez de dejar el hueco.
+      if (!conDatos(l)) {
+        return titulo +
+          `<div style="line-height:1.55; font-size:0.88rem;">
+             Esta cuenta te la entregamos <strong style="color:#25D366;">por WhatsApp</strong>.
+             Si todavía no te llegó, escribinos y te la reenviamos.
+           </div>`;
+      }
+
       return titulo +
         fila('Usuario', c.usuario) +
         fila('Clave',   c.clave)   +
@@ -1096,6 +1132,10 @@
     };
 
     $('pedidoCreds').innerHTML = r.entregadas.map(bloque).join('');
+
+    // Sin datos en pantalla no hay nada que copiar: el botón sobra y
+    // encima haría dudar de si copió algo.
+    $('pedidoCopiar').style.display = r.entregadas.some(conDatos) ? '' : 'none';
 
     // Si la compra quedo a medias, se avisa DONDE se ve: junto a lo que si
     // llego. Que el cliente cuente cuantas recibio para darse cuenta de que
@@ -1151,8 +1191,12 @@
     if (barra) { barra.classList.remove('pendiente', 'expirado'); barra.classList.add('pagado'); }
     const texto = $('statusText');
     if (texto) texto.textContent = listo
-      ? (r.entregadas.length > 1 ? 'Pago confirmado. Tus cuentas estan abajo'
-                                 : 'Pago confirmado. Tu cuenta esta abajo')
+      ? (!r.entregadas.some(conDatos)
+           // Entregado a mano: mandarlo a mirar abajo seria mandarlo a un
+           // recuadro que no tiene su cuenta.
+           ? 'Pago confirmado. Te lo entregamos por WhatsApp'
+           : r.entregadas.length > 1 ? 'Pago confirmado. Tus cuentas estan abajo'
+                                     : 'Pago confirmado. Tu cuenta esta abajo')
       : 'Pago recibido. Te contactamos por WhatsApp';
   }
 
@@ -1177,6 +1221,9 @@
     tokenActual = token;
     window._pedidoLink   = location.origin + location.pathname + '#t=' + token;
     window._pedidoNumero = 'Pedido #' + compra.numero;
+    // La fecha con la que se armo la compra, para el mensaje de WhatsApp.
+    // Viene de la base, que es la misma que se ve en el panel.
+    window._pedidoCreado = compra.creado_en || null;
 
     // La pagina genera una referencia al azar (ZV-XXXX) para el caso en que
     // no haya pedido en la base. Cuando SI lo hay, mostrar las dos confunde:

@@ -126,6 +126,12 @@ css.textContent = `
   }
   .vt-filtro:hover { border-color: var(--rojo); color: var(--rojo); }
   .vt-filtro.activo { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+  .vt-fecha-sel {
+    background: var(--panel-2); border: 1px solid var(--borde);
+    color: var(--texto); border-radius: 99px;
+    padding: 6px 13px; font-size: 13.5px; font-family: inherit;
+  }
+  .vt-fecha-sel:focus { outline: none; border-color: var(--rojo); }
   .vt-filtro .n {
     display: inline-block; margin-left: 6px;
     font-variant-numeric: tabular-nums; opacity: .75;
@@ -158,6 +164,10 @@ css.textContent = `
     font-weight: 600; color: var(--tinta); font-size: 14.5px;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
+  .vt-orden {
+    font-size: 12px; color: var(--gris-dim); margin-top: 3px;
+    font-variant-numeric: tabular-nums;
+  }
   .vt-cliente { font-size: 12.5px; color: var(--gris); margin-top: 3px; }
   .vt-cliente a { color: var(--gris); text-decoration: none; border-bottom: 1px dotted var(--borde); }
   .vt-cliente a:hover { color: #15803d; }
@@ -179,6 +189,19 @@ css.textContent = `
     font-size: 12.5px; font-weight: 600; color: var(--gris);
     white-space: nowrap; padding: 4px 2px;
   }
+
+  /* "Listo" y "✕" para los pedidos que se entregan por WhatsApp.
+     Van chicos y apagados a propósito: el botón importante de esta
+     pantalla es "Confirmar pago", estos son el cierre a mano. */
+  .vt-mini {
+    background: none; border: 1px solid var(--borde); color: var(--gris);
+    border-radius: 8px; padding: 5px 11px;
+    font-size: 12.5px; font-weight: 700; font-family: inherit;
+    cursor: pointer; white-space: nowrap;
+  }
+  .vt-mini:hover { border-color: #15803d; color: #15803d; }
+  .vt-mini.no { padding: 5px 9px; }
+  .vt-mini.no:hover { border-color: var(--rojo); color: var(--rojo); }
 
   /* Credenciales entregadas, por si hay que reenviarlas a mano */
   .vt-cred {
@@ -258,6 +281,10 @@ $('vistaVentas').innerHTML = `
       <button class="vt-filtro activo" data-filtro="atencion">⚠️ Para atender <span class="n" id="nAtencion"></span></button>
       <button class="vt-filtro" data-filtro="entregado">✓ Entregados <span class="n" id="nEntregado"></span></button>
       <button class="vt-filtro" data-filtro="todos">Todos <span class="n" id="nTodos"></span></button>
+      <!-- "El cliente dice que hizo una orden el lunes": con esto se busca
+           por el día que él te dice, sin scrollear la lista entera. -->
+      <button class="vt-filtro" data-filtro="fecha">📅 Por fecha <span class="n" id="nFecha"></span></button>
+      <input type="date" id="vtFecha" class="vt-fecha-sel" style="display:none;">
       <button class="btn btn-fantasma" id="vtRefrescar" style="margin-left:auto;">↻ Actualizar</button>
     </div>
 
@@ -285,6 +312,19 @@ $('vistaVentas').innerHTML = `
       <div class="vt-pie">
         <button class="btn btn-fantasma" id="vtCancelar">Cancelar</button>
         <button class="btn btn-primario" id="vtConfirmar">Confirmar y entregar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Modal: cerrar a mano (Listo / ✕) ===== -->
+  <div class="vt-fondo" id="vtFondoMano">
+    <div class="vt-modal" role="alertdialog" aria-modal="true">
+      <h3 id="vtManoTitulo"></h3>
+      <p class="sub" id="vtManoSub"></p>
+      <div class="vt-alerta ojo" id="vtManoAviso"></div>
+      <div class="vt-pie">
+        <button class="btn btn-fantasma" id="vtManoVolver">Volver</button>
+        <button class="btn btn-primario" id="vtManoOk"></button>
       </div>
     </div>
   </div>
@@ -346,6 +386,14 @@ async function cargarTodo() {
   PEDIDOS = data;
   await cargarCredenciales();
   metricas();
+
+  // Mirando por fecha, los últimos 200 pueden no llegar a ese día: se
+  // vuelven a traer los suyos, y cargarDia() termina pintando la lista.
+  if (filtro === 'fecha' && $('vtFecha').value) {
+    await cargarDia($('vtFecha').value);
+    return;
+  }
+
   listar();
 }
 
@@ -397,7 +445,64 @@ function pedidosDelFiltro() {
       p.estado === 'sin_stock' || p.estado === 'pagado' || p.estado === 'esperando_pago');
   }
   if (filtro === 'entregado') return PEDIDOS.filter(p => p.estado === 'entregado');
+  if (filtro === 'fecha') {
+    const dia = $('vtFecha').value;
+    return dia ? PEDIDOS.filter(p => diaLocal(p.creado_en) === dia) : [];
+  }
   return PEDIDOS;
+}
+
+// El día de un timestamp, en TU hora y con el formato del <input type=date>.
+// La base guarda en UTC: a las 21:00 de Bolivia allá ya es el día siguiente,
+// así que comparar los textos crudos traería los pedidos del día equivocado.
+function diaLocal(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/**
+ * Los pedidos de un día, traídos de la base.
+ *
+ * La pantalla trabaja con los últimos 200 pedidos, que alcanzan para el
+ * día a día pero se quedan cortos apenas se busca hacia atrás: sin esto,
+ * elegir una fecha de hace dos meses mostraría "no hubo pedidos" cuando en
+ * realidad los hubo y no estaban cargados.
+ *
+ * Los que faltan se SUMAN a la lista de siempre, no la reemplazan: así los
+ * botones, las credenciales y las compras agrupadas siguen encontrando su
+ * pedido donde lo buscan.
+ */
+async function cargarDia(dia) {
+  if (!dia) { listar(); return; }
+
+  const desde = new Date(`${dia}T00:00:00`);
+  if (Number.isNaN(desde.getTime())) { listar(); return; }
+  const hasta = new Date(desde.getTime() + 24 * 60 * 60 * 1000);
+
+  const { data, error } = await sbAdmin.from('pedidos').select('*')
+    .gte('creado_en', desde.toISOString())
+    .lt('creado_en',  hasta.toISOString())
+    .order('creado_en', { ascending: false });
+
+  if (error) {
+    console.error(error);
+    aviso(`No se pudieron leer los pedidos de ese día: ${error.message}`, 'error');
+    return;
+  }
+
+  const conocidos = new Set(PEDIDOS.map(p => p.id));
+  const nuevos    = (data || []).filter(p => !conocidos.has(p.id));
+
+  if (nuevos.length) {
+    PEDIDOS = [...PEDIDOS, ...nuevos]
+      .sort((a, b) => new Date(b.creado_en) - new Date(a.creado_en));
+    await cargarCredenciales();
+  }
+
+  listar();
 }
 
 function listar() {
@@ -408,13 +513,20 @@ function listar() {
 
   const lista = pedidosDelFiltro();
 
+  $('nFecha').textContent = filtro === 'fecha' ? (lista.length || '') : '';
+
   if (lista.length === 0) {
+    const dia = $('vtFecha').value;
     $('vtLista').innerHTML = `
       <div class="vt-vacio">
-        <div class="emo">${filtro === 'atencion' ? '✅' : '🧾'}</div>
-        <h3>${filtro === 'atencion' ? 'No hay nada pendiente' : 'Todavía no hay pedidos'}</h3>
+        <div class="emo">${filtro === 'atencion' ? '✅' : filtro === 'fecha' ? '📅' : '🧾'}</div>
+        <h3>${filtro === 'atencion' ? 'No hay nada pendiente'
+             : filtro === 'fecha'   ? `No hubo pedidos el ${dia ? fechaOrden(`${dia}T00:00:00`).split(' ')[0] : 'ese día'}`
+             : 'Todavía no hay pedidos'}</h3>
         <p>${filtro === 'atencion'
              ? 'Todos los pedidos están resueltos.'
+             : filtro === 'fecha'
+             ? 'Probá con otro día, o mirá "Todos".'
              : 'Van a aparecer acá solos, apenas alguien compre.'}</p>
       </div>`;
     return;
@@ -448,6 +560,10 @@ function pintarPedido(p, esPrimeroDelGrupo = true) {
 
       <div class="vt-medio">
         <div class="vt-prod">${escapar(p.producto_nombre)}</div>
+        <!-- La misma fecha, con el mismo formato, que le queda al cliente
+             en el mensaje de WhatsApp. Es lo que se cruza cuando escribe
+             "hice una orden anoche" y hay que encontrarla. -->
+        <div class="vt-orden">Fecha de orden: ${fechaOrden(p.creado_en)}</div>
         <div class="vt-cliente">
           ${escapar(p.cliente_nombre || 'Sin nombre')}
           ${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">📲 ${escapar(p.cliente_whatsapp)}</a>` : ''}
@@ -473,8 +589,19 @@ function pintarPedido(p, esPrimeroDelGrupo = true) {
             : CONFIRMABLES.includes(p.estado)
             // Sin cuentas cargadas no hay nada que entregar, así que no se
             // ofrece un botón que solo daría una vuelta para terminar en
-            // WhatsApp igual. Se dice de una qué hay que hacer.
-            ? `<span class="vt-wa-only">Entrega por WhatsApp</span>`
+            // WhatsApp igual. Se dice de una qué hay que hacer, y van los
+            // dos botones para cerrar la fila cuando ya lo hiciste: si no,
+            // el pedido se queda en "Esperando" para siempre, tapando la
+            // lista de lo que de verdad falta.
+            ? `<span class="vt-wa-only">Entrega por WhatsApp</span>
+               <button class="vt-mini" data-listo="${p.id}"
+                       title="Ya se lo entregaste por WhatsApp">Listo</button>
+               <button class="vt-mini no" data-cancelar="${p.id}"
+                       title="Cancelar este pedido">✕</button>`
+            // Ya cerrado a mano: se dice cómo se entregó, porque este no
+            // tiene credenciales que mostrar abajo.
+            : entregadoAMano(p)
+            ? `<span class="vt-wa-only">✓ Entregado por WhatsApp</span>`
             : ''}
       </div>
 
@@ -507,6 +634,18 @@ function cuandoFue(iso) {
   return new Date(iso).toLocaleDateString('es-BO', { day: 'numeric', month: 'short' });
 }
 
+// "07-09-2026 18:52 PM" — el mismo formato, al pie de la letra, que el
+// cliente tiene en su mensaje de WhatsApp. Si acá se viera de otra forma,
+// cruzar los dos sería adivinar.
+function fechaOrden(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const p = n => String(n).padStart(2, '0');
+  return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ` +
+         `${p(d.getHours())}:${p(d.getMinutes())} ${d.getHours() < 12 ? 'AM' : 'PM'}`;
+}
+
 // Fecha, hora y AÑO de la entrega: "8 sep 2026, 14:32".
 //
 // Para trabajar el día alcanza con "hace 3 h", pero cuando un cliente
@@ -534,7 +673,23 @@ document.querySelector('.vt-barra').addEventListener('click', e => {
   document.querySelectorAll('.vt-filtro').forEach(f => f.classList.remove('activo'));
   btn.classList.add('activo');
   filtro = btn.dataset.filtro;
+
+  // El selector de día solo se ve cuando se está mirando por fecha; el
+  // resto del tiempo sería un control que no hace nada.
+  $('vtFecha').style.display = filtro === 'fecha' ? '' : 'none';
+
+  if (filtro === 'fecha') {
+    if (!$('vtFecha').value) $('vtFecha').value = diaLocal(new Date().toISOString());
+    cargarDia($('vtFecha').value);
+    return;
+  }
+
   listar();
+});
+
+$('vtFecha').addEventListener('change', () => {
+  filtro = 'fecha';
+  cargarDia($('vtFecha').value);
 });
 
 $('vtRefrescar').addEventListener('click', cargarTodo);
@@ -545,6 +700,12 @@ $('vtLista').addEventListener('click', async e => {
 
   const copiar = e.target.closest('[data-copiar]');
   if (copiar) { await copiarParaMandar(copiar.dataset.copiar); return; }
+
+  const listo = e.target.closest('[data-listo]');
+  if (listo) { abrirCierreAMano(listo.dataset.listo, 'entregar'); return; }
+
+  const cancelar = e.target.closest('[data-cancelar]');
+  if (cancelar) { abrirCierreAMano(cancelar.dataset.cancelar, 'cancelar'); return; }
 });
 
 // Deja el mensaje listo para pegar en WhatsApp, con el formato que ya usás.
@@ -653,6 +814,122 @@ $('vtConfirmar').addEventListener('click', async () => {
   }
 
   cerrar();
+  await cargarTodo();
+});
+
+
+// ============================================================
+// 7b. CERRAR A MANO: "Listo" y "✕"
+// ============================================================
+// Los pedidos sin cuentas cargadas se entregan por WhatsApp, y de eso el
+// panel no se entera nunca: la fila se quedaba en "Esperando" para siempre
+// aunque el cliente ya tuviera su cuenta. Con el tiempo la lista de "Para
+// atender" se llenaba de cosas ya resueltas y dejaba de servir.
+//
+// "Listo" lo da por entregado y "✕" lo da de baja. Ninguno de los dos toca
+// el stock: no hay cuenta que entregar, la entrega la hiciste vos.
+
+// Queda escrito en confirmado_por, que es el campo de auditoría: así la
+// fila puede decir "Entregado por WhatsApp" en vez de un "Entregado" seco,
+// y dentro de un mes se sabe cuál entregó el sistema y cuál entregaste vos.
+const MARCA_MANO = 'panel-wa:';
+
+function entregadoAMano(p) {
+  return p.estado === 'entregado' &&
+         String(p.confirmado_por || '').startsWith(MARCA_MANO);
+}
+
+// Las filas que se cierran juntas. Una compra de 3 productos son 3 filas
+// pero UNA venta: se entregó de una sola vez por WhatsApp, así que un
+// toque las cierra a todas. Las ya entregadas no se tocan.
+function filasDeLaCompra(p) {
+  if (!p.grupo) return [p];
+  const hermanas = PEDIDOS.filter(o => o.grupo === p.grupo && CONFIRMABLES.includes(o.estado));
+  return hermanas.length ? hermanas : [p];
+}
+
+let cerrandoAMano = null;   // { pedido, accion }
+
+function abrirCierreAMano(pedidoId, accion) {
+  const p = PEDIDOS.find(x => x.id === pedidoId);
+  if (!p) return;
+
+  const filas = filasDeLaCompra(p);
+  const cuantas = filas.length > 1 ? ` · <strong>${filas.length} productos</strong> de la misma compra` : '';
+
+  cerrandoAMano = { pedido: p, accion };
+
+  $('vtManoTitulo').textContent = accion === 'entregar'
+    ? '¿Ya se lo entregaste?'
+    : '¿Cancelar este pedido?';
+
+  $('vtManoSub').innerHTML =
+    `Pedido <strong>#${p.numero}</strong> · ${escapar(p.producto_nombre)}${cuantas}<br>` +
+    `<strong>${Number(p.precio).toFixed(2)} Bs</strong> de ${escapar(p.cliente_nombre || 'cliente sin nombre')}`;
+
+  $('vtManoAviso').innerHTML = accion === 'entregar'
+    ? 'Se marca como <strong>entregado por WhatsApp</strong> y suma a lo vendido hoy. ' +
+      'Tocalo solo si ya le pasaste la cuenta.'
+    : 'El pedido queda <strong>cancelado</strong> y desaparece de lo pendiente. ' +
+      'Después no vas a poder confirmarlo desde acá.';
+
+  $('vtManoOk').textContent = accion === 'entregar' ? 'Sí, ya lo entregué' : 'Sí, cancelar';
+  $('vtFondoMano').classList.add('abierto');
+  $('vtManoOk').focus();
+}
+
+function cerrarMano() { $('vtFondoMano').classList.remove('abierto'); cerrandoAMano = null; }
+
+$('vtManoVolver').addEventListener('click', cerrarMano);
+$('vtFondoMano').addEventListener('click', e => { if (e.target === $('vtFondoMano')) cerrarMano(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && $('vtFondoMano').classList.contains('abierto')) cerrarMano();
+});
+
+$('vtManoOk').addEventListener('click', async () => {
+  if (!cerrandoAMano) return;
+  const { pedido, accion } = cerrandoAMano;
+  const btn   = $('vtManoOk');
+  const texto = btn.textContent;
+  const ids   = filasDeLaCompra(pedido).map(o => o.id);
+
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+
+  let error;
+  if (accion === 'entregar') {
+    const ahora = new Date().toISOString();
+    ({ error } = await sbAdmin.from('pedidos').update({
+      estado:         'entregado',
+      entregado_en:   ahora,
+      confirmado_por: MARCA_MANO + ($('usuarioEmail')?.textContent || 'admin')
+    }).in('id', ids));
+
+    // La plata entró, aunque nunca hayas tocado "Confirmar pago". Solo se
+    // completa si estaba vacío: si ya tenía fecha, esa es la buena.
+    if (!error) {
+      await sbAdmin.from('pedidos')
+        .update({ pagado_en: ahora }).in('id', ids).is('pagado_en', null);
+    }
+  } else {
+    ({ error } = await sbAdmin.from('pedidos')
+      .update({ estado: 'cancelado' }).in('id', ids));
+  }
+
+  btn.disabled = false;
+  btn.textContent = texto;
+
+  if (error) {
+    console.error(error);
+    aviso(`No se pudo guardar: ${error.message}`, 'error');
+    return;
+  }
+
+  aviso(accion === 'entregar'
+    ? `✓ Pedido #${pedido.numero} entregado por WhatsApp`
+    : `Pedido #${pedido.numero} cancelado`, 'ok');
+
+  cerrarMano();
   await cargarTodo();
 });
 

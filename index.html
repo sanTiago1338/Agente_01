@@ -4359,7 +4359,11 @@
                        <span class="sug-nombre">${resaltar(g.nombre, texto)}</span>
                        <span class="sug-meta">${escaparHtml(nombreCat(p.cat))} · ${g.planes.length} ${g.planes.length === 1 ? 'plan' : 'planes'}</span>
                      </span>
-                     <span class="sug-precio">${g.agotada ? 'Agotado' : 'desde ' + formatoBs(g.desde)}</span>
+                     <span class="sug-precio">${g.agotada ? 'Agotado'
+                       : g.desde > 0 ? 'desde ' + formatoBs(g.desde)
+                       // Sin precio cargado no se puede decir "desde 0Bs":
+                       // el panel de la plataforma ya dice "A consultar".
+                       : 'A consultar'}</span>
                    </button>`;
         });
       }

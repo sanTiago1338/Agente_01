@@ -227,9 +227,40 @@
     color: var(--texto);
     border-bottom-color: var(--rojo);
   }
+  /* En celular la cabecera deja de estar pegada arriba y las pestañas
+     pasan a estar pegadas ellas, en top: 0.
+
+     POR QUÉ. La cabecera envuelve en dos renglones (logo arriba, botones
+     abajo) y mide 116 px, pero las pestañas estaban clavadas en top: 53px,
+     un número escrito a mano que solo servía para la cabecera de una
+     línea. Al scrollear quedaban montadas sobre ella.
+
+     Se podría recalcular ese número, pero en una pantalla chica lo que
+     conviene es lo otro: que el logo y los botones se vayan al scrollear
+     —no los necesitás mientras trabajás— y que quede fija la única barra
+     que sí se usa todo el tiempo, la de las cuatro pestañas. */
   @media (max-width: 820px) {
-    .vistas-in { padding: 0 15px; }
-    .vistas { top: 53px; }
+    header { position: static; }
+    .vistas { top: 0; }
+
+    /* Cuatro pestañas repartidas en el ancho: entran siempre, y cada una
+       queda lo bastante grande para tocarla con el dedo. */
+    .vistas-in { padding: 0 6px; gap: 2px; }
+    .vista-tab {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 12px 4px;
+      font-size: 12.5px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+
+  /* En los teléfonos más angostos (360 px y menos) "🛒 Productos" no
+     entraba y quedaba en "🛒 Produ…". Un punto menos de letra y menos aire
+     a los costados alcanzan para que las cuatro se lean enteras. */
+  @media (max-width: 360px) {
+    .vista-tab { font-size: 11.5px; padding: 12px 2px; }
   }
 
   /* ================= TARJETAS DE RESUMEN ================= */
@@ -543,9 +574,43 @@
 
   /* ================= CELULAR: tabla -> tarjetas ================= */
   @media (max-width: 820px) {
-    .header-in { padding: 11px 15px; }
+    .header-in { padding: 11px 15px; gap: 10px; }
     main { padding: 18px 14px 70px; }
     .usuario { display: none; }
+
+    /* La cabecera entra en un solo renglón: logo a la izquierda y los dos
+       botones a la derecha, más chicos. Antes envolvía y ocupaba 116 px
+       de una pantalla de 812. */
+    .logo { font-size: 21px; }
+    .logo .adm { font-size: 10px; letter-spacing: .16em; }
+    .header-derecha { gap: 7px; }
+    .header-derecha .btn { padding: 7px 11px; font-size: 12.5px; }
+
+    /* Las cuatro vistas usan esta misma tira de números, pero Productos
+       tiene seis y las otras tres tienen cuatro. Con un número fijo de
+       columnas alguna quedaba con un hueco al costado: cuatro en tres
+       columnas son 3 + 1.
+
+       Así, los cuatro van de a dos y los seis de a tres, y ninguna fila
+       queda coja. Si el navegador no entiende :has(), quedan todas de a
+       dos, que es correcto igual. */
+    .resumen { grid-template-columns: repeat(2, 1fr); }
+    .resumen:has(> .metrica:nth-child(5)) { grid-template-columns: repeat(3, 1fr); }
+    .metrica { padding: 11px 10px; }
+    .metrica-n { font-size: 21px; }
+    .metrica-l { font-size: 10px; margin-top: 3px; letter-spacing: 0; }
+
+    /* Los tres filtros de a dos por renglón y el botón entero abajo. Antes
+       cada uno medía distinto (173, 216, 171) y quedaban desparejos. */
+    .herramientas { gap: 8px; }
+    .buscador { flex: 1 1 100%; }
+    .herramientas select { flex: 1 1 calc(50% - 4px); min-width: 0; }
+    .herramientas #btnNuevo { flex: 1 1 100%; justify-content: center; padding: 11px; }
+
+    /* En modo tarjeta la tabla ya no necesita desplazarse de costado, pero
+       el contenedor seguía en overflow-x:auto y dibujaba una barra gris
+       debajo de las tarjetas que no llevaba a ningún lado. */
+    .tabla-scroll { overflow-x: visible; }
 
     thead { display: none; }
     table, tbody, tr, td { display: block; width: 100%; }

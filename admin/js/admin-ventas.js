@@ -257,9 +257,27 @@ css.textContent = `
   }
   .vt-alerta.ojo { background: rgba(180,83,9,.09); border: 1px solid rgba(180,83,9,.28); color: #7c3d06; }
 
+  /* ---------- Celular ----------
+     La fila deja de ser una grilla de tres columnas y pasa a ser una sola,
+     en tres renglones: número, producto y cliente, y abajo plata y botones.
+
+     ANTES ERA "1fr auto" Y ESO ROMPÍA LA FILA. La columna "auto" son el
+     precio, el estado y los botones, todos con white-space: nowrap: entre
+     los cinco pedían 408 px. Como "auto" se sirve primero y "1fr" se queda
+     con el resto, al 1fr no le quedaba nada — medido: 0 px. El nombre del
+     producto, la fecha y el cliente quedaban en una columna de ancho cero,
+     partidos en una letra por renglón. */
   @media (max-width: 680px) {
-    .vt-pedido { grid-template-columns: 1fr auto; }
-    .vt-num-caja { grid-column: 1 / -1; display: flex; gap: 10px; align-items: baseline; }
+    .vt-pedido { grid-template-columns: 1fr; gap: 10px; padding: 14px; }
+    .vt-num-caja { display: flex; gap: 10px; align-items: baseline; }
+
+    /* El nombre puede ocupar dos renglones. Es lo que identifica el
+       pedido: cortarlo con puntos suspensivos no ayuda a nadie. */
+    .vt-prod { white-space: normal; overflow: visible; }
+
+    /* Y que la plata y los botones envuelvan en vez de empujar. */
+    .vt-der { flex-wrap: wrap; gap: 9px 12px; }
+    .vt-cred { margin-top: 0; }
   }
 `;
 document.head.appendChild(css);

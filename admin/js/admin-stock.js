@@ -75,6 +75,11 @@ css.textContent = `
   .st-nombre { flex: 1; min-width: 0; font-weight: 600; color: var(--tinta);
                overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+  /* Las pastillas y el botón viajan juntos. En una pantalla ancha se ven
+     igual que cuando eran hermanos sueltos; en uno angosto se bajan de
+     renglón los tres de una vez, en vez de robarle el ancho al nombre. */
+  .st-acciones { display: flex; align-items: center; gap: 10px; flex: none; }
+
   .st-pill {
     font-size: 12px; font-weight: 700;
     padding: 3px 9px; border-radius: 99px;
@@ -200,6 +205,15 @@ css.textContent = `
   @media (max-width: 640px) {
     .st-cuenta { padding-left: 16px; flex-wrap: wrap; }
     .st-fila2  { grid-template-columns: 1fr; }
+
+    /* El nombre del producto se lleva el primer renglón entero y puede
+       ocupar dos líneas; las pastillas y el botón bajan al segundo.
+       Antes competían por el mismo renglón y al nombre le quedaban 76 px:
+       "Claude I…" — o directamente nada cuando había dos pastillas. */
+    .st-cab { flex-wrap: wrap; gap: 9px 12px; padding: 12px 14px; }
+    .st-nombre { white-space: normal; overflow: visible; line-height: 1.3; }
+    .st-flecha { order: 2; margin-left: auto; }
+    .st-acciones { order: 3; flex: 1 1 100%; padding-left: 50px; }
   }
 `;
 document.head.appendChild(css);
@@ -444,9 +458,11 @@ function listar() {
           <img src="${escapar(urlImagen(p.imagen) || inicial)}" alt="" loading="lazy"
                onerror="this.onerror=null;this.src='${inicial}'">
           <span class="st-nombre">${escapar(p.nombre)}</span>
-          <span class="st-pill ${libres > 0 ? 'libre' : 'cero'}">${libres} libre${libres === 1 ? '' : 's'}</span>
-          ${dadas ? `<span class="st-pill dadas">${dadas} entregada${dadas === 1 ? '' : 's'}</span>` : ''}
-          <button class="st-mini" data-cargar="${p.id}">+ Cargar</button>
+          <span class="st-acciones">
+            <span class="st-pill ${libres > 0 ? 'libre' : 'cero'}">${libres} libre${libres === 1 ? '' : 's'}</span>
+            ${dadas ? `<span class="st-pill dadas">${dadas} entregada${dadas === 1 ? '' : 's'}</span>` : ''}
+            <button class="st-mini" data-cargar="${p.id}">+ Cargar</button>
+          </span>
           <span class="st-flecha">▸</span>
         </div>
         ${desplegado ? filasDeCuentas(suyas) : ''}

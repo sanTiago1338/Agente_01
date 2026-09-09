@@ -630,12 +630,17 @@ function pintarPedido(p, esPrimeroDelGrupo = true) {
         <span class="vt-precio">${Number(p.precio).toFixed(2)} Bs</span>
         <span class="vt-badge" style="color:${e.color};background:${e.bg}">${e.txt}</span>
         ${(esPrimeroDelGrupo && sePuedeConfirmar(p))
+          // Con stock hay dos caminos y los dos tienen que estar a mano:
+          // confirmar, o rechazar. Sin la ✕, el que nunca pagó se quedaba
+          // en "Para atender" hasta que venciera solo.
           ? `<button class="btn btn-primario" data-confirmar="${p.id}">
                ${p.estado === 'sin_stock' ? 'Reintentar'
                  : p.estado === 'vencido' ? 'Pagó tarde: entregar'
                  : p.grupo               ? 'Confirmar compra'
                  : 'Confirmar pago'}
-             </button>`
+             </button>
+             <button class="vt-mini no" data-cancelar="${p.id}"
+                     title="Rechazar este pedido">✕</button>`
           : (!esPrimeroDelGrupo)
             // Parte de una compra que ya tiene su botón más arriba. Se dice
             // para que no parezca un pedido olvidado sin acción.
@@ -651,7 +656,7 @@ function pintarPedido(p, esPrimeroDelGrupo = true) {
                <button class="vt-mini" data-listo="${p.id}"
                        title="Ya se lo entregaste por WhatsApp">Listo</button>
                <button class="vt-mini no" data-cancelar="${p.id}"
-                       title="Cancelar este pedido">✕</button>`
+                       title="Rechazar este pedido">✕</button>`
             // Ya cerrado a mano: se dice cómo se entregó, porque este no
             // tiene credenciales que mostrar abajo.
             : entregadoAMano(p)
@@ -924,7 +929,7 @@ function abrirCierreAMano(pedidoId, accion) {
 
   $('vtManoTitulo').textContent = accion === 'entregar'
     ? '¿Ya se lo entregaste?'
-    : '¿Cancelar este pedido?';
+    : '¿Rechazar este pedido?';
 
   $('vtManoSub').innerHTML =
     `Pedido <strong>#${p.numero}</strong> · ${escapar(p.producto_nombre)}${cuantas}<br>` +
@@ -933,8 +938,8 @@ function abrirCierreAMano(pedidoId, accion) {
   $('vtManoAviso').innerHTML = accion === 'entregar'
     ? 'Se marca como <strong>entregado por WhatsApp</strong> y suma a lo vendido hoy. ' +
       'Tocalo solo si ya le pasaste la cuenta.'
-    : 'El pedido queda <strong>cancelado</strong> y desaparece de lo pendiente. ' +
-      'Después no vas a poder confirmarlo desde acá.';
+    : 'El pedido queda <strong>rechazado</strong> y desaparece de lo pendiente. ' +
+      'No se entrega nada y después no vas a poder confirmarlo desde acá.';
 
   // Los datos de la cuenta solo tienen sentido al entregar, y solo en una
   // compra de un producto: con tres, un solo usuario y clave no alcanza —
@@ -949,7 +954,7 @@ function abrirCierreAMano(pedidoId, accion) {
       'aunque borre el chat de WhatsApp. Si lo dejás vacío, solo se marca entregado.';
   }
 
-  $('vtManoOk').textContent = accion === 'entregar' ? 'Sí, ya lo entregué' : 'Sí, cancelar';
+  $('vtManoOk').textContent = accion === 'entregar' ? 'Sí, ya lo entregué' : 'Sí, rechazar';
   $('vtFondoMano').classList.add('abierto');
   $('vtManoOk').focus();
 }
@@ -1039,7 +1044,7 @@ $('vtManoOk').addEventListener('click', async () => {
   }
 
   aviso(accion !== 'entregar'
-    ? `Pedido #${pedido.numero} cancelado`
+    ? `Pedido #${pedido.numero} rechazado`
     : cred
       ? `✓ Pedido #${pedido.numero} entregado. El cliente ya ve su cuenta en la página`
       : `✓ Pedido #${pedido.numero} entregado por WhatsApp`, 'ok');

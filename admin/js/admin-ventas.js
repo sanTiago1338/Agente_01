@@ -332,11 +332,15 @@ $('vistaVentas').innerHTML = `
         Al confirmar, la cuenta se entrega sola y no se puede deshacer.
       </div>
 
-      <label for="vtRef">Número de comprobante <span style="font-weight:400;">(opcional)</span></label>
-      <input type="text" id="vtRef" placeholder="Ej: 00123456" autocomplete="off">
+      <!-- El nombre y no el número de comprobante: en la transferencia lo
+           que ves es quién te pagó, y ese es el dato con el que después
+           encontrás la venta. El número había que copiarlo a mano de una
+           captura, y no le decía nada a nadie. -->
+      <label for="vtCliente">Nombre del cliente <span style="font-weight:400;">(opcional)</span></label>
+      <input type="text" id="vtCliente" placeholder="Ej: María Pérez" autocomplete="off">
       <p class="vt-nota">
-        Sirve para cruzarlo después con el extracto del banco si alguna vez
-        hay una discusión sobre un pago.
+        El nombre que te figura en la transferencia. Queda guardado en el
+        pedido, así después sabés de quién fue esta venta.
       </p>
 
       <div class="vt-pie">
@@ -784,9 +788,9 @@ function abrirConfirmacion(pedidoId) {
   $('vtSub').innerHTML =
     `Pedido <strong>#${p.numero}</strong> · ${escapar(p.producto_nombre)}<br>` +
     `<strong>${Number(p.precio).toFixed(2)} Bs</strong> de ${escapar(p.cliente_nombre || 'cliente sin nombre')}`;
-  $('vtRef').value = p.referencia_pago || '';
+  $('vtCliente').value = p.cliente_nombre || '';
   $('vtFondo').classList.add('abierto');
-  $('vtRef').focus();
+  $('vtCliente').focus();
 }
 
 function cerrar() { $('vtFondo').classList.remove('abierto'); confirmando = null; }
@@ -805,18 +809,41 @@ $('vtConfirmar').addEventListener('click', async () => {
   btn.disabled = true;
   btn.textContent = 'Confirmando…';
 
-  const referencia = $('vtRef').value.trim() || null;
-  const quien      = 'panel:' + ($('usuarioEmail')?.textContent || 'admin');
+  const nombre = $('vtCliente').value.trim();
+  const quien  = 'panel:' + ($('usuarioEmail')?.textContent || 'admin');
+
+  // El nombre se guarda en el pedido ANTES de confirmar: si se guardara
+  // después y algo fallara, la cuenta ya estaría entregada y la venta
+  // quedaría sin dueño. En una compra de varios va a todas sus líneas,
+  // que son una sola venta.
+  if (nombre) {
+    const ids = p.grupo
+      ? PEDIDOS.filter(o => o.grupo === p.grupo).map(o => o.id)
+      : [p.id];
+    const { error: errNombre } = await sbAdmin.from('pedidos')
+      .update({ cliente_nombre: nombre }).in('id', ids);
+
+    if (errNombre) {
+      console.error(errNombre);
+      aviso(`No se pudo guardar el nombre: ${errNombre.message}`, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Confirmar y entregar';
+      return;
+    }
+  }
 
   // Si el pedido es parte de una compra de varios productos, se confirma
   // la compra ENTERA. Se pagó con una sola transferencia, así que confirmar
   // de a uno sería hacerte tocar el botón tres veces por un solo pago —y
   // peor: entre toque y toque el cliente vería media compra entregada.
+  //
+  // p_referencia va en null: el número de comprobante ya no se pide. Si
+  // alguno viejo lo tenía, la función lo conserva (usa coalesce).
   const { data, error } = p.grupo
     ? await sbAdmin.rpc('confirmar_compra', {
-        p_grupo: p.grupo, p_referencia: referencia, p_quien: quien })
+        p_grupo: p.grupo, p_referencia: null, p_quien: quien })
     : await sbAdmin.rpc('confirmar_pago', {
-        p_pedido_id: p.id, p_referencia: referencia, p_quien: quien });
+        p_pedido_id: p.id, p_referencia: null, p_quien: quien });
 
   btn.disabled = false;
   btn.textContent = 'Confirmar y entregar';

@@ -3360,9 +3360,15 @@
     const MARCAS_UNIFICADAS = ['Tidal', 'Deezer', 'Gemini', 'Nextory', 'Duolingo']
       .map(marca => [marca, new RegExp(`\\b${marca}\\b`, 'i')]);
 
-    function plataformaDe(nombre) {
-      const marca = MARCAS_UNIFICADAS.find(([, busca]) => busca.test(String(nombre || '')));
-      if (marca) return marca[0];
+    function plataformaDe(nombre, categoria) {
+      // En COMBOS el nombre completo es el producto. "PRIME VIDEO + TIDAL"
+      // no es un plan de Tidal: unificarlo por marca hacía que la tarjeta
+      // dijera solo "Tidal" y le escondiera al cliente la mitad de lo que
+      // estaba comprando. Lo mismo con "DUOLINGO SUPER + Audiomack".
+      if (categoria !== 'combos') {
+        const marca = MARCAS_UNIFICADAS.find(([, busca]) => busca.test(String(nombre || '')));
+        if (marca) return marca[0];
+      }
 
       let n = String(nombre || '')
         .replace(/\([^)]*\)/g, ' ')   // "(cuenta asignada)", "(1 pantalla)"
@@ -3509,7 +3515,7 @@
     function agruparEnPlataformas(lista) {
       let mapa = new Map();
       lista.forEach(p => {
-        const clave = p.cat + '||' + plataformaDe(p.name);
+        const clave = p.cat + '||' + plataformaDe(p.name, p.cat);
         if (!mapa.has(clave)) mapa.set(clave, []);
         mapa.get(clave).push(p);
       });

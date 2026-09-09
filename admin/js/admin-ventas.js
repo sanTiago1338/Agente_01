@@ -32,6 +32,9 @@ let PEDIDOS   = [];
 let CREDS     = {};        // pedido_id -> credenciales entregadas
 let filtro    = 'atencion';
 let confirmando = null;
+// Si los pedidos ya se leyeron alguna vez. Lo mira el aviso en vivo: sin
+// datos cargados no hay nada que refrescar, alcanza con avisar.
+let yaCargado = false;
 
 // En qué estados tiene sentido tocar "Confirmar".
 //
@@ -309,6 +312,9 @@ $('vistaVentas').innerHTML = `
            por el día que él te dice, sin scrollear la lista entera. -->
       <button class="vt-filtro" data-filtro="fecha">📅 Por fecha <span class="n" id="nFecha"></span></button>
       <input type="date" id="vtFecha" class="vt-fecha-sel" style="display:none;">
+      <!-- Solo aparece si el navegador todavía no tiene permiso: pedirlo
+           hace falta que salga de un toque tuyo, no se puede solo. -->
+      <button class="vt-filtro" id="vtAvisos" hidden style="margin-left:auto;">🔔 Activar avisos</button>
       <button class="btn btn-fantasma" id="vtRefrescar" style="margin-left:auto;">↻ Actualizar</button>
     </div>
 
@@ -423,6 +429,7 @@ async function cargarTodo() {
   }
 
   PEDIDOS = data;
+  yaCargado = true;
   await cargarCredenciales();
   metricas();
 
@@ -545,8 +552,13 @@ async function cargarDia(dia) {
 }
 
 function listar() {
-  $('nAtencion').textContent  = PEDIDOS.filter(p =>
-    ['sin_stock','pagado','esperando_pago'].includes(p.estado)).length || '';
+  const pendientes = PEDIDOS.filter(p =>
+    ['sin_stock','pagado','esperando_pago'].includes(p.estado)).length;
+
+  // En la pestaña se lee "(2) Panel Tiago Store" sin tener que entrar
+  actualizarTitulo(pendientes);
+
+  $('nAtencion').textContent  = pendientes || '';
   $('nEntregado').textContent = PEDIDOS.filter(p => p.estado === 'entregado').length || '';
   $('nTodos').textContent     = PEDIDOS.length || '';
 
@@ -1023,23 +1035,126 @@ function escuchar() {
   canal = sbAdmin
     .channel('pedidos-panel')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, payload => {
-      if (payload.eventType === 'INSERT') {
-        aviso(`🛒 Pedido nuevo: ${payload.new.producto_nombre}`, 'ok');
-      }
-      cargarTodo();
+      if (payload.eventType === 'INSERT') avisarPedidoNuevo(payload.new);
+      // Si todavía no abriste Ventas no hay nada que refrescar: el aviso
+      // ya salió, y los datos se cargan cuando entres.
+      if (yaCargado) cargarTodo();
     })
     .subscribe();
 }
 
 
 // ============================================================
+// 8b. QUE TE ENTERES, ESTÉS DONDE ESTÉS
+// ============================================================
+// Sin pasarela de pago, un pedido no se entrega solo: alguien lo tiene que
+// aprobar. Y hasta ahora el panel te lo decía con un cartelito de 3
+// segundos, que solo servía si justo estabas mirando la pantalla de Ventas.
+//
+// Ahora el pedido nuevo suena, sale como notificación del sistema —esa que
+// aparece aunque el panel esté en otra pestaña— y deja el número de
+// pendientes en el título, que se ve en la pestaña sin entrar.
+//
+// OJO CON LO QUE ESTO NO ES: nada de esto llega con el panel cerrado. Para
+// que te avise con todo apagado hace falta un servicio aparte (Telegram,
+// un correo, o push de verdad). Esto cubre "lo tengo abierto en el
+// celular o en otra pestaña", que es donde se perdían los avisos.
+
+// Un bip corto, hecho en el momento: no hay archivo de sonido que cargar.
+function sonarCampana() {
+  try {
+    const Audio = window.AudioContext || window.webkitAudioContext;
+    if (!Audio) return;
+    const ctx = new Audio();
+    const nota = (frecuencia, desde, hasta) => {
+      const osc = ctx.createOscillator();
+      const vol = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = frecuencia;
+      vol.gain.setValueAtTime(0.0001, ctx.currentTime + desde);
+      vol.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + desde + 0.02);
+      vol.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + hasta);
+      osc.connect(vol).connect(ctx.destination);
+      osc.start(ctx.currentTime + desde);
+      osc.stop(ctx.currentTime + hasta);
+    };
+    nota(880, 0, 0.18);      // dos tonos, como una campanita
+    nota(1170, 0.16, 0.38);
+    setTimeout(() => ctx.close(), 800);
+  } catch { /* el navegador puede no dejar sonar todavía: no es grave */ }
+}
+
+function avisarPedidoNuevo(p) {
+  const plata = `${Number(p.precio || 0).toFixed(2)} Bs`;
+  aviso(`🛒 Pedido nuevo #${p.numero}: ${p.producto_nombre} · ${plata}`, 'ok');
+  sonarCampana();
+
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  try {
+    const n = new Notification(`🛒 Pedido nuevo #${p.numero}`, {
+      body: `${p.producto_nombre} · ${plata}\nEsperando que lo apruebes`,
+      // Con el tag, dos avisos del mismo pedido no se apilan
+      tag: 'pedido-' + p.id
+    });
+    n.onclick = () => { window.focus(); n.close(); };
+  } catch { /* algunos navegadores la niegan en segundo plano */ }
+}
+
+// El botón solo se muestra mientras haga falta: pedir el permiso tiene que
+// salir de un toque tuyo, el navegador no deja hacerlo solo.
+function pintarBotonAvisos() {
+  const btn = $('vtAvisos');
+  if (!btn) return;
+  const estado = ('Notification' in window) ? Notification.permission : 'no-hay';
+
+  btn.hidden = estado !== 'default';
+  if (estado === 'denied') {
+    // Bloqueado a mano: el navegador ya no vuelve a preguntar, hay que ir
+    // a los permisos del sitio. Se dice una vez, en la consola.
+    console.warn('Los avisos del sistema están bloqueados para este sitio. ' +
+                 'Se activan desde el candado de la barra de direcciones.');
+  }
+}
+
+$('vtAvisos').addEventListener('click', async () => {
+  try {
+    await Notification.requestPermission();
+    pintarBotonAvisos();
+    if (Notification.permission === 'granted') aviso('🔔 Listo, te aviso acá cuando entre un pedido', 'ok');
+  } catch { /* nada: el botón se queda como estaba */ }
+});
+
+// Los pendientes en el título de la pestaña: "(2) Panel Tiago Store".
+// Es lo único que se ve del panel cuando está en otra pestaña.
+const TITULO_ORIGINAL = document.title;
+
+function actualizarTitulo(pendientes) {
+  document.title = pendientes > 0 ? `(${pendientes}) ${TITULO_ORIGINAL}` : TITULO_ORIGINAL;
+}
+
+
+// ============================================================
 // 9. ARRANQUE
 // ============================================================
-let yaCargado = false;
 document.addEventListener('vista-cambiada', e => {
   if (e.detail.vista !== 'ventas') return;
-  if (!yaCargado) { yaCargado = true; cargarTodo(); escuchar(); }
-  else cargarTodo();
+  pintarBotonAvisos();
+  cargarTodo();
+});
+
+// Escuchar desde que abrís el panel, sin esperar a que entres a Ventas:
+// si estás cargando stock o cambiando un precio y entra un pedido, te
+// enterás igual. Antes el aviso solo existía dentro de esa pantalla.
+//
+// Se pregunta el permiso primero porque sin ser admin la suscripción no
+// recibe nada —Realtime respeta las mismas reglas que las consultas— y no
+// tiene sentido dejar un canal abierto para nadie.
+tengoPermiso().then(r => {
+  if (!r.puede) return;
+  escuchar();
+  // Los pendientes de arranque, para que el título diga la verdad aunque
+  // todavía no hayas abierto Ventas.
+  cargarTodo();
 });
 
 console.log('%c✓ Ventas listo', 'color:#22c55e;font-weight:bold');

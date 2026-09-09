@@ -699,6 +699,29 @@
         </div>
       </div>
 
+      <!-- El pedido se dio de baja desde el panel.
+           Antes este caso no mostraba NADA: la pagina se quedaba con el QR
+           y "Esperando pago...", y el cliente podia seguir transfiriendo a
+           un pedido que ya no existia. Decirselo es lo minimo. -->
+      <div id="pedidoCancelado" style="display:none;
+           background:rgba(20,22,26,0.04); border:1px solid var(--separador-2);
+           border-radius:12px; padding:1rem;">
+        <div style="font-size:0.95rem; font-weight:800; color:var(--tinta); margin-bottom:0.35rem;">
+          Este pedido fue cancelado
+        </div>
+        <div style="font-size:0.85rem; color:var(--texto); line-height:1.6;">
+          No hace falta que pagues. <strong>Si ya transferiste</strong>, escribinos
+          por WhatsApp con tu comprobante y lo resolvemos en el momento.
+        </div>
+        <a href="https://wa.me/59157707335?text=Hola!%20Mi%20pedido%20figura%20cancelado%20y%20queria%20consultar"
+           target="_blank" rel="noopener"
+           style="display:block; text-align:center; margin-top:0.9rem; padding:0.75rem;
+                  background:var(--verde-wa); color:#fff; border-radius:9px;
+                  font-weight:800; font-size:0.9rem; text-decoration:none;">
+          Escribinos por WhatsApp
+        </a>
+      </div>
+
     </div>
 
     <!-- Success Screen (no se muestra, redirige directo a WhatsApp) -->
@@ -1018,10 +1041,13 @@
     // faltan se avisan dentro del mismo bloque.
     const listo     = r.estado === 'entregado' || r.estado === 'parcial';
     const sinStock  = r.estado === 'sin_stock';
+    // Lo dimos de baja desde el panel: no hay nada que esperar ni que pagar.
+    const cancelado = r.estado === 'cancelado';
 
     $('pedidoEsperando').style.display = esperando ? 'block' : 'none';
     $('pedidoEntregado').style.display = listo     ? 'block' : 'none';
     $('pedidoSinStock').style.display  = sinStock  ? 'block' : 'none';
+    $('pedidoCancelado').style.display = cancelado ? 'block' : 'none';
 
     $('pedidoNumero').textContent = '#' + r.numero;
 
@@ -1078,6 +1104,18 @@
       apagarReloj();
       avisarArriba(listo, r);
       esconderLoDePagar();
+    }
+
+    // Cancelado: se saca todo lo de pagar y se dice arriba, para que no
+    // siga mirando un QR que ya no cobra nada.
+    if (cancelado) {
+      apagarReloj();
+      esconderLoDePagar();
+      const barra = $('statusBar');
+      if (barra) { barra.classList.remove('pendiente', 'pagado'); barra.classList.add('expirado'); }
+      const texto = $('statusText');
+      if (texto) texto.textContent = 'Pedido cancelado';
+      document.title = 'Pedido cancelado - Tiago Store';
     }
 
     if (!listo) return;

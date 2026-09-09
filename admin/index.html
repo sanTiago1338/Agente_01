@@ -823,7 +823,18 @@ function urlImagen(p) {
   const src = (p.imagen || '').trim();
   if (!src) return placeholderSvg(p.nombre);
   if (src.startsWith('http') || src.startsWith('data:') || src.startsWith('../')) return src;
-  return '../' + src;
+  return '../' + aOptimizada(src);
+}
+
+// Las imágenes locales viven en Img/opt: los originales de Img/ se borraron
+// por peso. La tienda redirige en imgOptimizada() y acá hace falta lo mismo,
+// si no el panel muestra un cuadrito roto en vez del logo.
+//
+// "Img/Claude.jpg" -> "Img/opt/Claude.jpg" · "Img/iQIYI VIP.png" -> ".../iQIYI VIP.jpg"
+// Lo que ya apunta a Img/opt, o no es png/jpg (los .svg), pasa de largo.
+function aOptimizada(ruta) {
+  if (/^Img\/opt\//i.test(ruta)) return ruta;
+  return ruta.replace(/^Img\/(.+)\.(png|jpe?g)$/i, 'Img/opt/$1.jpg');
 }
 
 function placeholderSvg(nombre = '?') {

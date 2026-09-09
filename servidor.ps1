@@ -87,12 +87,20 @@ while ($listener.IsListening) {
       # dos lugares se baja dos veces. Para medir una primera visita de
       # verdad, recargar con Ctrl+F5.
       $res.Headers.Add('Cache-Control', 'public, max-age=60')
-      $res.OutputStream.Write($bytes, 0, $bytes.Length)
+      # HEAD pide solo los encabezados: mandar el cuerpo tira
+      # "los bytes sobrepasan el Content-Length" y deja el servidor colgado
+      # sin volver a atender a nadie. Los navegadores y cualquier chequeo
+      # de "existe este archivo" usan HEAD, asi que pasaba de verdad.
+      if ($req.HttpMethod -ne 'HEAD') {
+        $res.OutputStream.Write($bytes, 0, $bytes.Length)
+      }
       Write-Host ("  200 {0,8} B  {1}" -f $bytes.Length, $ruta) -ForegroundColor DarkGray
     } else {
       $res.StatusCode = 404
       $msg = [System.Text.Encoding]::UTF8.GetBytes("404: $ruta")
-      $res.OutputStream.Write($msg, 0, $msg.Length)
+      if ($req.HttpMethod -ne 'HEAD') {
+        $res.OutputStream.Write($msg, 0, $msg.Length)
+      }
       # /favicon.ico lo pide el navegador solo; que falte no rompe nada.
       Write-Host "  404          $ruta" -ForegroundColor DarkYellow
     }

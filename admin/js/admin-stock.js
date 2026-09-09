@@ -494,11 +494,23 @@ function filasDeCuentas(cuentas) {
 
 // Los productos guardan rutas relativas a la raíz del sitio, y el panel
 // vive en /admin/. Igual que en admin-productos.js.
+//
+// Y las locales apuntan a Img/, que ya no existe: los originales se
+// borraron por peso y quedaron solo las livianas de Img/opt. La tienda
+// redirige en imgOptimizada(); acá hacía falta lo mismo, si no el panel
+// muestra la letra gris en vez del logo.
 function urlImagen(img) {
   const s = String(img || '');
   if (!s) return '';
   if (s.startsWith('http') || s.startsWith('data:')) return s;
-  return '../' + s;
+  return '../' + aOptimizada(s);
+}
+
+// "Img/Claude.jpg" -> "Img/opt/Claude.jpg" · "Img/iQIYI VIP.png" -> ".../iQIYI VIP.jpg"
+// Lo que ya apunta a Img/opt, o no es png/jpg (los .svg), pasa de largo.
+function aOptimizada(ruta) {
+  if (/^Img\/opt\//i.test(ruta)) return ruta;
+  return ruta.replace(/^Img\/(.+)\.(png|jpe?g)$/i, 'Img/opt/$1.jpg');
 }
 
 

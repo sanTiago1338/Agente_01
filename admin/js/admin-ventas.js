@@ -251,6 +251,12 @@ css.textContent = `
   }
   .vt-pie { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
 
+  /* Los cuatro datos de la cuenta, de a dos por fila en pantalla grande */
+  .vt-mano-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+  @media (max-width: 480px) {
+    .vt-mano-campos { grid-template-columns: 1fr; }
+  }
+
   .vt-alerta {
     padding: 11px 13px; border-radius: 9px; font-size: 13px;
     line-height: 1.5; margin-bottom: 16px;
@@ -340,6 +346,21 @@ $('vistaVentas').innerHTML = `
       <h3 id="vtManoTitulo"></h3>
       <p class="sub" id="vtManoSub"></p>
       <div class="vt-alerta ojo" id="vtManoAviso"></div>
+
+      <!-- La cuenta que le pasaste por el chat. Guardarla acá es lo que
+           hace que el cliente la vea en su página y en "Mis compras", en
+           vez de depender de que no borre la conversación. -->
+      <div id="vtManoCuenta" hidden>
+        <label>Datos de la cuenta <span style="font-weight:400;">(opcional)</span></label>
+        <div class="vt-mano-campos">
+          <input type="text" id="vtManoUsuario" placeholder="Usuario o correo" autocomplete="off">
+          <input type="text" id="vtManoClave"   placeholder="Clave"            autocomplete="off">
+          <input type="text" id="vtManoPerfil"  placeholder="Perfil"           autocomplete="off">
+          <input type="text" id="vtManoPin"     placeholder="PIN"              autocomplete="off">
+        </div>
+        <p class="vt-nota" id="vtManoNota"></p>
+      </div>
+
       <div class="vt-pie">
         <button class="btn btn-fantasma" id="vtManoVolver">Volver</button>
         <button class="btn btn-primario" id="vtManoOk"></button>
@@ -876,9 +897,35 @@ function abrirCierreAMano(pedidoId, accion) {
     : 'El pedido queda <strong>cancelado</strong> y desaparece de lo pendiente. ' +
       'Después no vas a poder confirmarlo desde acá.';
 
+  // Los datos de la cuenta solo tienen sentido al entregar, y solo en una
+  // compra de un producto: con tres, un solo usuario y clave no alcanza —
+  // esas se cargan desde Stock, que sabe cuál va con cuál.
+  const cabeLaCuenta = accion === 'entregar' && filas.length === 1 && !!p.producto_id;
+  $('vtManoCuenta').hidden = !cabeLaCuenta;
+  ['vtManoUsuario', 'vtManoClave', 'vtManoPerfil', 'vtManoPin'].forEach(id => { $(id).value = ''; });
+
+  if (cabeLaCuenta) {
+    $('vtManoNota').textContent =
+      'Si los pegás acá, al cliente le aparecen en su página y en "Mis compras", ' +
+      'aunque borre el chat de WhatsApp. Si lo dejás vacío, solo se marca entregado.';
+  }
+
   $('vtManoOk').textContent = accion === 'entregar' ? 'Sí, ya lo entregué' : 'Sí, cancelar';
   $('vtFondoMano').classList.add('abierto');
   $('vtManoOk').focus();
+}
+
+// Lo escrito en el formulario, sin los campos vacíos. Devuelve null si no
+// se escribió nada: entonces se cierra la fila y nada más, como antes.
+function credencialesEscritas() {
+  const cred = {
+    usuario: $('vtManoUsuario').value.trim(),
+    clave:   $('vtManoClave').value.trim(),
+    perfil:  $('vtManoPerfil').value.trim(),
+    pin:     $('vtManoPin').value.trim()
+  };
+  for (const k of Object.keys(cred)) if (!cred[k]) delete cred[k];
+  return Object.keys(cred).length ? cred : null;
 }
 
 function cerrarMano() { $('vtFondoMano').classList.remove('abierto'); cerrandoAMano = null; }
@@ -900,8 +947,32 @@ $('vtManoOk').addEventListener('click', async () => {
   btn.textContent = 'Guardando…';
 
   let error;
+  let cred = null;
   if (accion === 'entregar') {
     const ahora = new Date().toISOString();
+
+    // La cuenta se guarda ANTES de dar el pedido por entregado. Al revés,
+    // si fallara esta parte el cliente vería su pedido entregado y sin
+    // datos, y el botón para cargarlos ya no estaría.
+    cred = $('vtManoCuenta').hidden ? null : credencialesEscritas();
+    if (cred) {
+      const { error: errCuenta } = await sbAdmin.from('cuentas').insert({
+        producto_id:  pedido.producto_id,
+        credenciales: cred,
+        estado:       'entregada',
+        pedido_id:    pedido.id,
+        entregada_en: ahora
+      });
+
+      if (errCuenta) {
+        console.error(errCuenta);
+        aviso(`No se pudo guardar la cuenta: ${errCuenta.message}`, 'error');
+        btn.disabled = false;
+        btn.textContent = texto;
+        return;
+      }
+    }
+
     ({ error } = await sbAdmin.from('pedidos').update({
       estado:         'entregado',
       entregado_en:   ahora,
@@ -928,9 +999,11 @@ $('vtManoOk').addEventListener('click', async () => {
     return;
   }
 
-  aviso(accion === 'entregar'
-    ? `✓ Pedido #${pedido.numero} entregado por WhatsApp`
-    : `Pedido #${pedido.numero} cancelado`, 'ok');
+  aviso(accion !== 'entregar'
+    ? `Pedido #${pedido.numero} cancelado`
+    : cred
+      ? `✓ Pedido #${pedido.numero} entregado. El cliente ya ve su cuenta en la página`
+      : `✓ Pedido #${pedido.numero} entregado por WhatsApp`, 'ok');
 
   cerrarMano();
   await cargarTodo();

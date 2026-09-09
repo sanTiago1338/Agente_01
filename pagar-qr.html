@@ -710,8 +710,9 @@
           Este pedido fue cancelado
         </div>
         <div style="font-size:0.85rem; color:var(--texto); line-height:1.6;">
-          No hace falta que pagues. <strong>Si ya transferiste</strong>, escribinos
-          por WhatsApp con tu comprobante y lo resolvemos en el momento.
+          Su pedido fue cancelado porque no se detectó el pago.
+          <strong>Si ya transferiste</strong>, escribinos por WhatsApp con tu
+          comprobante y lo resolvemos en el momento.
         </div>
         <a href="https://wa.me/59157707335?text=Hola!%20Mi%20pedido%20figura%20cancelado%20y%20queria%20consultar"
            target="_blank" rel="noopener"
@@ -1114,7 +1115,7 @@
       const barra = $('statusBar');
       if (barra) { barra.classList.remove('pendiente', 'pagado'); barra.classList.add('expirado'); }
       const texto = $('statusText');
-      if (texto) texto.textContent = 'Pedido cancelado';
+      if (texto) texto.textContent = 'Pedido no facturado';
       document.title = 'Pedido cancelado - Tiago Store';
     }
 

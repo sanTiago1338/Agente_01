@@ -1980,19 +1980,44 @@
       color: var(--tinta-tenue);
     }
 
-    /* ---- Celular: una sola columna ---- */
+    /* ---- Celular ----
+       DOS columnas, no una. Apilado todo en una sola, el pie medía 887 px:
+       más que la pantalla entera del teléfono, y había que scrollear un
+       rato para pasarlo. Las etiquetas son cortas y entran de a dos.
+
+       Y alineado a la izquierda: una lista centrada se lee peor y ocupa
+       más, porque cada renglón arranca en un lugar distinto. */
     @media (max-width: 760px) {
       .pie {
-        padding-top: 2rem;
-        text-align: center;
-        /* Un poco mas de aire que en escritorio: el boton flotante de
-           WhatsApp se apoya justo ahi y se comia la linea del copyright.
-           Lo justo para que no se toquen, sin dejar un hueco. */
-        padding-bottom: calc(var(--barra-h) + 3rem);
+        padding: 1.8rem 1.25rem calc(var(--barra-h) + 3rem);
+        font-size: 0.82rem;
+        line-height: 1.55;
       }
-      .pie-cols { grid-template-columns: 1fr; gap: 1.8rem; }
-      .pie-lema { max-width: none; }
-      .pie-lista a { justify-content: center; }
+
+      .pie-cols {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem 1.2rem;
+      }
+      .pie-marca { grid-column: 1 / -1; }
+
+      .pie-logo  { font-size: 1.35rem; margin-bottom: 0.35rem; }
+      .pie-lema  { max-width: none; margin-bottom: 0.45rem; }
+      .pie-lugar { font-size: 0.78rem; }
+
+      .pie-titulo      { font-size: 0.95rem; margin-bottom: 0.45rem; }
+      .pie-titulo--sep { margin-top: 1.1rem; }
+      .pie-lista li    { margin-bottom: 0.3rem; }
+
+      /* El botón flotante de WhatsApp se apoya abajo a la derecha y se
+         comía el final del copyright. En vez de empujar todo hacia arriba
+         --que dejaba un hueco muerto de 100 px-- se le corre el texto:
+         envuelve antes de llegar a la esquina del botón. */
+      .pie-abajo {
+        margin-top: 1.5rem;
+        padding-top: 0.9rem;
+        padding-right: 4.5rem;
+        text-align: left;
+      }
     }
 
     /* ===== BOTTOM NAV BAR ===== */

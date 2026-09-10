@@ -1892,224 +1892,110 @@
       color: white;
     }
 
-    /* ===== FOOTER INFO ===== */
-    .footer-info {
-      background: var(--negro2);
-      border-top: 1px solid var(--borde);
-      margin: 1rem 0 0;
-      padding: 2rem 1.25rem 1.25rem;
-      text-align: center;
+    /* ===== PIE DE PÁGINA =====
+       La tienda es clara; el pie va oscuro para que se lea como el final
+       de la página y no como una sección más. Tres columnas en pantalla
+       ancha, apiladas en celular. */
+    .pie {
+      background: #14161a;
+      color: #a8aeb8;
+      font-size: 0.86rem;
+      line-height: 1.7;
+      margin-top: 2.5rem;
+      padding: 2.5rem 1.25rem 1.5rem;
+
+      /* El body reserva abajo el alto de la barra fija. Sin esto, entre el
+         pie y la barra quedaba una franja blanca: el fondo oscuro se
+         cortaba antes. Con el margen negativo el pie se estira por debajo,
+         y el padding devuelve el aire para que el texto no quede tapado. */
+      margin-bottom: calc(-1 * (var(--barra-h) + 1rem));
+      padding-bottom: calc(var(--barra-h) + 2.5rem);
     }
 
-    .footer-logo-img {
-      width: 56px; height: 56px;
-      background: linear-gradient(135deg, var(--rojo), #fdecec);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
+    .pie-cols {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 2.5rem;
+    }
+
+    /* ---- Marca ---- */
+    .pie-logo {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1rem;
-      letter-spacing: 1px;
-      color: var(--dorado);
-      margin: 0 auto 0.75rem;
+      font-size: 1.6rem;
+      letter-spacing: 3px;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 0.6rem;
+    }
+    .pie-logo span { color: var(--marca); }
+
+    .pie-lema {
+      margin: 0 0 0.9rem;
+      max-width: 34ch;
     }
 
-    .footer-info .subscribe-title {
-      font-size: 0.85rem;
-      color: var(--texto-dim);
-      margin-bottom: 0.75rem;
-    }
-
-    .subscribe-row {
-      display: flex;
-      gap: 0.5rem;
-      max-width: 340px;
-      margin: 0 auto 1.5rem;
-    }
-
-    .subscribe-row input {
-      flex: 1;
-      background: var(--negro3);
-      border: 1px solid var(--gris);
-      color: var(--blanco);
-      font-family: 'Outfit', sans-serif;
+    .pie-lugar {
+      margin: 0;
       font-size: 0.82rem;
-      padding: 0.55rem 0.85rem;
-      border-radius: 8px;
-      outline: none;
+      color: #7d838d;
     }
 
-    .subscribe-row input:focus { border-color: var(--rojo); }
-
-    .subscribe-row button {
-      background: var(--rojo);
-      color: white;
-      border: none;
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 700;
-      padding: 0.55rem 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .app-badges {
-      display: flex;
-      justify-content: center;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .app-badge {
-      background: var(--negro3);
-      border: 1px solid var(--borde);
-      border-radius: 10px;
-      padding: 0.5rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.75rem;
-      color: var(--texto-dim);
-      text-decoration: none;
-    }
-
-    .app-badge strong { color: var(--blanco); display: block; font-size: 0.82rem; }
-
-    .footer-links {
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .footer-link-item {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      text-decoration: none;
-      color: var(--rojo);
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-
-    .footer-link-item .fli {
-      width: 32px; height: 32px;
-      background: rgba(229,9,20,0.08);
-      border: 1px solid rgba(229,9,20,0.2);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
-    }
-
-    .footer-divider {
-      border: none;
-      height: 1px;
-      background: var(--borde);
-      margin: 1rem 0;
-    }
-
-    .footer-contact-section {
-      margin-bottom: 1.25rem;
-    }
-
-    .footer-contact-title {
+    /* ---- Columnas de enlaces ---- */
+    .pie-titulo {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1rem;
+      font-size: 1.05rem;
       letter-spacing: 2px;
-      color: var(--texto-dim);
-      margin-bottom: 0.75rem;
+      color: #fff;
+      margin: 0 0 0.7rem;
+      font-weight: 400;
     }
+    .pie-titulo--sep { margin-top: 1.4rem; }
 
-    .footer-contact-list {
-      display: flex;
-      flex-direction: column;
+    .pie-lista {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .pie-lista li { margin-bottom: 0.4rem; }
+
+    .pie-lista a {
+      color: #a8aeb8;
+      text-decoration: none;
+      transition: color .15s;
+      display: inline-flex;
+      align-items: center;
       gap: 0.45rem;
     }
+    .pie-lista a:hover { color: #fff; }
 
-    .footer-contact-item {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      font-size: 0.8rem;
-      color: var(--texto-dim);
-      cursor: pointer;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
+    .pie-ico { font-size: 0.9rem; }
 
-    .footer-contact-item:hover { color: var(--verde); }
-
-    .status-dot {
-      width: 8px; height: 8px;
-      background: var(--verde);
-      border-radius: 50%;
-      display: inline-block;
-      animation: blink 2s ease-in-out infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    .status-dot.red { background: var(--rojo); }
-    .status-dot.yellow { background: var(--dorado); }
-
-    .footer-my-account {
-      margin-bottom: 1.25rem;
-    }
-
-    .footer-account-links {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .footer-account-links a {
-      font-size: 0.8rem;
-      color: var(--texto-dim);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer-account-links a:hover { color: var(--rojo); }
-
-    .footer-social {
-      display: flex;
-      justify-content: center;
-      gap: 0.85rem;
-      margin-bottom: 1rem;
-    }
-
-    .social-icon {
-      width: 36px; height: 36px;
-      background: var(--negro3);
-      border: 1px solid var(--borde);
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--texto-dim);
-      text-decoration: none;
-      font-size: 1rem;
-      transition: all 0.2s;
-    }
-
-    .social-icon:hover { background: var(--rojo); border-color: var(--rojo); color: white; }
-
-    .footer-copyright {
-      font-size: 0.75rem;
-      color: var(--tinta-suave);
-      margin-top: 1rem;
-    }
-
-    .footer-address-block {
+    /* ---- Franja de abajo ---- */
+    .pie-abajo {
+      max-width: 1100px;
+      margin: 2rem auto 0;
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(255,255,255,.09);
+      text-align: center;
       font-size: 0.78rem;
-      color: var(--tinta-suave);
-      line-height: 1.8;
-      margin-bottom: 1rem;
+      color: #7d838d;
     }
 
-    .footer-address-block a { color: var(--rojo); text-decoration: none; }
+    /* ---- Celular: una sola columna ---- */
+    @media (max-width: 760px) {
+      .pie {
+        padding-top: 2rem;
+        text-align: center;
+        /* Mas aire abajo que en escritorio: el boton flotante de WhatsApp
+           se apoya justo ahi y se comia la linea del copyright. */
+        padding-bottom: calc(var(--barra-h) + 5.5rem);
+      }
+      .pie-cols { grid-template-columns: 1fr; gap: 1.8rem; }
+      .pie-lema { max-width: none; }
+      .pie-lista a { justify-content: center; }
+    }
 
     /* ===== BOTTOM NAV BAR ===== */
     .bottom-nav {

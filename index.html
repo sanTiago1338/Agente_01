@@ -235,69 +235,72 @@
   <!-- PAGINATION -->
   <div class="pagination" id="6"></div>
 
-  <!-- FOOTER -->
-  <div class="footer-info">
+  <!-- ==========================================================
+       FOOTER
+       ==========================================================
+       Tres columnas en pantalla ancha, una sola apiladas en celular.
+       Fondo oscuro a proposito: la tienda es clara, asi el pie se lee
+       como el final de la pagina y no como una seccion mas.
+       ========================================================== -->
+  <footer class="pie">
+    <div class="pie-cols">
 
-    <div class="footer-logo-img">VIP</div>
-    <p class="subscribe-title">Bienvenido a Tiago Store — Streaming & Apps Premium Bolivia</p>
-
-    <hr class="footer-divider">
-
-    <div class="footer-address-block">
-      <strong style="color:var(--tinta-suave); display:block; margin-bottom:0.25rem;">Dirección:</strong>
-      Cercado, Cochabamba, Bolivia<br>
-      <strong style="color:var(--tinta-suave);">Teléfono:</strong> <a href="tel:+59157707335">+591 57707335</a><br>
-      <strong style="color:var(--tinta-suave);">Email:</strong> <a href="mailto:zonavip@gmail.com">zonavip@gmail.com</a>
-    </div>
-
-    <hr class="footer-divider">
-
-    <div class="footer-contact-section">
-      <div class="footer-contact-title">CONTACTOS WHATSAPP</div>
-      <div class="footer-contact-list">
-        <a href="https://wa.me/59157707335" target="_blank" class="footer-contact-item">
-          WhatsApp ventas verificado cuentas al por mayor <span class="status-dot"></span>
-        </a>
-        <a href="https://wa.me/59157707335" target="_blank" class="footer-contact-item">
-          WhatsApp recargas de créditos en la página <span class="status-dot yellow"></span>
-        </a>
-        <a href="https://wa.me/59157707335" target="_blank" class="footer-contact-item">
-          WhatsApp ventas verificado <span class="status-dot"></span>
-        </a>
-        <a href="https://wa.me/59157707335" target="_blank" class="footer-contact-item">
-          WhatsApp ventas para uso personal perfiles <span class="status-dot"></span>
-        </a>
-        <a href="https://wa.me/59157707335" target="_blank" class="footer-contact-item">
-          WhatsApp soporte de cuentas <span class="status-dot red"></span>
-        </a>
+      <!-- Marca -->
+      <div class="pie-col pie-marca">
+        <div class="pie-logo"><span>TIAGO</span> STORE</div>
+        <p class="pie-lema">
+          Cuentas de streaming, apps premium y recargas de juegos.
+          Entrega de 5 a 30 minutos.
+        </p>
+        <p class="pie-lugar">📍 Cercado, Cochabamba · Bolivia</p>
       </div>
-    </div>
 
-    <hr class="footer-divider">
+      <!-- Contacto -->
+      <div class="pie-col">
+        <h3 class="pie-titulo">Contacto</h3>
+        <ul class="pie-lista">
+          <li><a href="https://wa.me/59157707335" target="_blank" rel="noopener">
+            <span class="pie-ico">💬</span> WhatsApp · +591 57707335</a></li>
+          <li><a href="tel:+59157707335">
+            <span class="pie-ico">📞</span> Llamar</a></li>
+          <li><a href="mailto:zonavip@gmail.com">
+            <span class="pie-ico">✉️</span> zonavip@gmail.com</a></li>
+        </ul>
 
-    <div class="footer-my-account">
-      <div class="footer-contact-title">MI CUENTA</div>
-      <div class="footer-account-links">
-        <a href="#">Historial de pedidos</a>
-        <a href="#">Mi lista de deseos</a>
-        <a href="#">Orden de pista</a>
-        <a href="https://wa.me/59157707335" target="_blank">Sea un socio afiliado</a>
+        <h3 class="pie-titulo pie-titulo--sep">Atención</h3>
+        <ul class="pie-lista">
+          <li><a href="https://wa.me/59157707335?text=Hola,%20quiero%20comprar%20una%20cuenta"
+                 target="_blank" rel="noopener">Ventas</a></li>
+          <li><a href="https://wa.me/59157707335?text=Hola,%20necesito%20soporte%20con%20mi%20cuenta"
+                 target="_blank" rel="noopener">Soporte de cuentas</a></li>
+          <li><a href="https://wa.me/59157707335?text=Hola,%20quiero%20comprar%20al%20por%20mayor"
+                 target="_blank" rel="noopener">Ventas al por mayor</a></li>
+          <li><a href="https://wa.me/59157707335?text=Hola,%20quiero%20ser%20socio%20afiliado"
+                 target="_blank" rel="noopener">Ser socio afiliado</a></li>
+        </ul>
       </div>
+
+      <!-- La tienda -->
+      <div class="pie-col">
+        <h3 class="pie-titulo">La tienda</h3>
+        <ul class="pie-lista">
+          <li><a href="index.html">Catálogo</a></li>
+          <li><a href="planes.html">Planes y precios</a></li>
+          <li><a href="recarga-juegos.html">Recargas de juegos</a></li>
+          <li><a href="mis-compras.html">Mis compras</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+      </div>
+
     </div>
 
-    <hr class="footer-divider">
-
-    <div class="footer-social">
-      <a href="https://facebook.com" class="social-icon" target="_blank">f</a>
-      <a href="#" class="social-icon" target="_blank">𝕏</a>
-      <a href="https://instagram.com" class="social-icon" target="_blank">📷</a>
-      <a href="https://wa.me/59157707335" class="social-icon" target="_blank">💬</a>
-      <a href="#" class="social-icon" target="_blank">in</a>
+    <!-- Sin iconos de redes: los que habia (X, LinkedIn) no llevaban a
+         ningun lado, y el de WhatsApp repetia el boton flotante, que
+         ademas lo tapaba. -->
+    <div class="pie-abajo">
+      <span>© 2026 Tiago Store Bolivia · Todos los derechos reservados</span>
     </div>
-
-    <div class="footer-copyright">© 2025 Tiago Store Bolivia · Todos los derechos reservados</div>
-
-  </div>
+  </footer>
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">

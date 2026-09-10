@@ -867,9 +867,12 @@
       display: inline-flex;
       align-items: center;
       gap: .4rem;
-      background: rgba(255,255,255,.12);
-      border: 1px solid rgba(255,255,255,.2);
-      color: var(--tinta);
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.28);
+      /* Misma razón que el h3 de arriba: va sobre el velo oscuro. El
+         fondo y el borde ya estaban pensados para eso; solo el texto
+         había quedado en el negro del tema claro. */
+      color: rgba(255,255,255,.92);
       font-size: .6rem;
       font-weight: 900;
       letter-spacing: .13em;
@@ -884,14 +887,19 @@
       border-radius: 50%;
       background: var(--acento, var(--marca));
     }
+    /* Blanco, no var(--tinta).
+       Encima de la foto hay un velo oscuro (.pl-hero::after), asi que todo
+       lo que va sobre el tiene que ser claro. Con el negro del tema claro
+       el titulo desaparecia contra el velo: en Magis TV Pro, sobre un arte
+       dorado y oscuro, no se leia nada. */
     .pl-hero h3 {
       font-family: 'Bebas Neue', sans-serif;
       font-size: clamp(1.9rem, 6vw, 2.9rem);
       letter-spacing: 1.5px;
-      color: var(--tinta);
+      color: #fff;
       margin: 0 0 .5rem;
       line-height: .95;
-      text-shadow: 0 2px 14px rgba(0,0,0,.5);
+      text-shadow: 0 2px 14px rgba(0,0,0,.55);
     }
     .pl-hero p {
       margin: 0;

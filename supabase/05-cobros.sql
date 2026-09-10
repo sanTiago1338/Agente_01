@@ -158,6 +158,19 @@ create table if not exists public.pedidos (
   -- quién dio por bueno cada pago.
   confirmado_por    text,
 
+  -- Por qué se rechazó, escrito desde el panel. Vacío en los demás estados.
+  --
+  -- Antes rechazar solo marcaba 'cancelado'. Al mes siguiente, mirando seis
+  -- pedidos rechazados, no había forma de saber si fue gente que nunca
+  -- pagó, comprobantes que no cerraban, o pruebas tuyas. Son tres problemas
+  -- distintos y cada uno se arregla de otra manera.
+  --
+  -- Texto libre y no una lista cerrada: los motivos de verdad aparecen con
+  -- el uso, y una lista fija obliga a migrar la tabla cada vez que aparece
+  -- uno nuevo. La lista corta vive en admin-ventas.js, donde se cambia sin
+  -- tocar la base.
+  motivo            text,
+
   pagado_en         timestamptz,
   entregado_en      timestamptz,
 
@@ -823,7 +836,11 @@ grant  execute on function public.confirmar_pago_webhook(bigint, numeric, text, 
 --   links que los clientes ya tienen siguen funcionando.
 -- ============================================================
 
-alter table public.pedidos add column if not exists grupo uuid;
+-- Las dos columnas que se agregaron después de crear la tabla. Van con
+-- "if not exists" porque el create de arriba se saltea en una base que ya
+-- existe, así que sin esto una base vieja se quedaría sin ellas.
+alter table public.pedidos add column if not exists grupo  uuid;
+alter table public.pedidos add column if not exists motivo text;
 
 create index if not exists pedidos_grupo_idx
   on public.pedidos (grupo)

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Tiago Store">
+  <!-- El icono de la pestaña y de la pantalla de inicio.
+       A 16 px no entra nada más que una letra: la T de Tiago, en el rojo
+       de la marca sobre el negro del sitio. Cualquier detalle más se
+       convierte en una mancha a ese tamaño. -->
+  <rect width="64" height="64" rx="14" fill="#0a0a0a"/>
+  <path d="M14 18h36v9H38.5v29h-13V27H14z" fill="#e50914"/>
+</svg>

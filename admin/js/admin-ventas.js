@@ -266,6 +266,24 @@ css.textContent = `
   }
   .vt-alerta.ojo { background: rgba(180,83,9,.09); border: 1px solid rgba(180,83,9,.28); color: #7c3d06; }
 
+  /* ---------- Motivo del rechazo ---------- */
+  .vt-motivos { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 9px; }
+  .vt-motivo {
+    background: none; border: 1px solid var(--borde); color: var(--gris);
+    border-radius: 99px; padding: 6px 13px;
+    font-size: 12.5px; font-family: inherit; cursor: pointer;
+  }
+  .vt-motivo:hover { border-color: var(--rojo); color: var(--rojo); }
+  .vt-motivo.elegido { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+
+  /* El motivo escrito a mano, en la fila del pedido rechazado */
+  .vt-motivo-fila {
+    grid-column: 1 / -1;
+    font-size: 12.5px; color: var(--gris);
+    padding: 7px 11px; border-radius: 8px;
+    background: var(--panel-2);
+  }
+
   /* ---------- Celular ----------
      La fila deja de ser una grilla de tres columnas y pasa a ser una sola,
      en tres renglones: número, producto y cliente, y abajo plata y botones.
@@ -369,6 +387,16 @@ $('vistaVentas').innerHTML = `
           <input type="text" id="vtManoPin"     placeholder="PIN"              autocomplete="off">
         </div>
         <p class="vt-nota" id="vtManoNota"></p>
+      </div>
+
+      <!-- Por qué lo rechazás. Dentro de un mes, seis pedidos rechazados
+           sin motivo no te dicen nada; con motivo te dicen si el problema
+           es que la gente no paga, que los comprobantes no cierran, o que
+           son pruebas tuyas. Son tres cosas distintas. -->
+      <div id="vtManoMotivo" hidden>
+        <label>¿Por qué lo rechazás?</label>
+        <div class="vt-motivos" id="vtMotivos"></div>
+        <input type="text" id="vtManoMotivoOtro" placeholder="O escribilo con tus palabras" autocomplete="off">
       </div>
 
       <div class="vt-pie">
@@ -678,6 +706,9 @@ function pintarPedido(p, esPrimeroDelGrupo = true) {
           Pagó y no había cuentas libres. Cargá stock de este producto y tocá
           <strong>Reintentar</strong>, o resolvelo por WhatsApp.
         </div>` : ''}
+
+      ${p.estado === 'cancelado' && p.motivo ? `
+        <div class="vt-motivo-fila">✕ Rechazado: ${escapar(p.motivo)}</div>` : ''}
     </div>`;
 }
 
@@ -954,9 +985,62 @@ function abrirCierreAMano(pedidoId, accion) {
       'aunque borre el chat de WhatsApp. Si lo dejás vacío, solo se marca entregado.';
   }
 
+  // El motivo solo al rechazar: al entregar no hay nada que explicar.
+  const pideMotivo = accion !== 'entregar';
+  $('vtManoMotivo').hidden = !pideMotivo;
+  motivoElegido = '';
+  $('vtManoMotivoOtro').value = '';
+  if (pideMotivo) dibujarMotivos();
+
   $('vtManoOk').textContent = accion === 'entregar' ? 'Sí, ya lo entregué' : 'Sí, rechazar';
   $('vtFondoMano').classList.add('abierto');
   $('vtManoOk').focus();
+}
+
+// ------------------------------------------------------------
+// Los motivos de rechazo
+// ------------------------------------------------------------
+// La lista vive acá y no en la base: los motivos de verdad aparecen con el
+// uso, y así agregar uno es tocar esta línea. La columna guarda texto
+// libre, así que lo escrito a mano vale igual que lo de la lista.
+const MOTIVOS = [
+  'Nunca pagó',
+  'El comprobante no coincide',
+  'Se arrepintió',
+  'Pedido duplicado',
+  'Prueba mía'
+];
+
+let motivoElegido = '';
+
+function dibujarMotivos() {
+  $('vtMotivos').innerHTML = MOTIVOS.map(m =>
+    `<button type="button" class="vt-motivo${m === motivoElegido ? ' elegido' : ''}"
+             data-motivo="${escapar(m)}">${escapar(m)}</button>`).join('');
+}
+
+$('vtMotivos').addEventListener('click', e => {
+  const b = e.target.closest('[data-motivo]');
+  if (!b) return;
+  // Tocar el que ya estaba elegido lo deselecciona.
+  motivoElegido = (b.dataset.motivo === motivoElegido) ? '' : b.dataset.motivo;
+  // Elegir de la lista pisa lo escrito a mano: si no, quedaban los dos y
+  // no se sabía cuál se guardaba.
+  if (motivoElegido) $('vtManoMotivoOtro').value = '';
+  dibujarMotivos();
+});
+
+// Y escribir a mano deselecciona la lista, por el mismo motivo.
+$('vtManoMotivoOtro').addEventListener('input', () => {
+  if ($('vtManoMotivoOtro').value.trim() && motivoElegido) {
+    motivoElegido = '';
+    dibujarMotivos();
+  }
+});
+
+/** Lo que se guarda: lo escrito a mano gana, si hay algo. */
+function motivoDelRechazo() {
+  return $('vtManoMotivoOtro').value.trim() || motivoElegido || '';
 }
 
 // Lo escrito en el formulario, sin los campos vacíos. Devuelve null si no
@@ -1030,8 +1114,9 @@ $('vtManoOk').addEventListener('click', async () => {
         .update({ pagado_en: ahora }).in('id', ids).is('pagado_en', null);
     }
   } else {
+    const motivo = motivoDelRechazo();
     ({ error } = await sbAdmin.from('pedidos')
-      .update({ estado: 'cancelado' }).in('id', ids));
+      .update({ estado: 'cancelado', motivo: motivo || null }).in('id', ids));
   }
 
   btn.disabled = false;

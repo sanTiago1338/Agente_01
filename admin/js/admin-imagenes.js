@@ -10,11 +10,12 @@
 //   265 px. Con 226 productos eso ya pasó una vez: el catálogo llegó a
 //   pesar 17 MB y la consulta se cortaba por tiempo.
 //
-// ⚠️ PENDIENTE: que esto suba al bucket "imagenes" en vez de guardar el
-//    data URI adentro de la fila. El bucket ya existe y las fotos viejas
-//    ya están ahí; solo las NUEVAS siguen entrando pegadas. Mientras
-//    tanto, backup/migrar-imagenes-supabase.html las mueve cuando se
-//    juntan.
+// DÓNDE TERMINA LA FOTO
+//   Acá queda como data URI en el campo del formulario, para poder verla
+//   en la vista previa sin subir nada. Al guardar, js/subir-imagen.js la
+//   convierte en un archivo del bucket "imagenes" y en la base queda solo
+//   la URL. La compresión sigue haciendo falta igual: el archivo del
+//   bucket es el que se baja el cliente.
 //
 // Flujo:  archivo → <canvas> achicado de a mitades → 1024x1024 máx
 //         → toque de nitidez → WebP (o JPEG/PNG) → ~80-250 KB

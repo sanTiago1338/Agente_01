@@ -11,10 +11,12 @@ migrar-imagenes-supabase.html
     Se corrió una vez, el 7/9/2026, y movió 59 fotos: el catálogo pasó
     de 17 MB a 215 KB.
 
-    Sigue acá porque el panel guarda las imágenes nuevas pegadas otra
-    vez. Unas pocas no molestan. Si se juntan muchas y la tienda empieza
-    a tardar, se vuelve a correr: se puede correr las veces que quieras y
-    solo toca las que están pegadas.
+    Desde el 10/9/2026 el panel ya sube solo al bucket al guardar, así
+    que esto dejó de hacer falta para el uso de todos los días.
+
+    Sigue acá para los casos raros: una importación que traiga fotos
+    pegadas, o una URL "data:" pegada a mano en el campo. Se puede correr
+    las veces que quieras y solo toca las que están pegadas.
 
     Para saber si hace falta:
         select count(*) filter (where imagen like 'data:image/p%'

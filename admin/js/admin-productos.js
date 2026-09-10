@@ -15,6 +15,11 @@ import {
   db, collection, addDoc, doc, updateDoc, deleteDoc, serverTimestamp
 } from '../../js/panel-datos.js';
 
+// La foto se sube al depósito antes de guardar, en vez de quedar pegada
+// dentro de la fila. Ver js/subir-imagen.js.
+import { prepararImagen, esFotoPegada, borrarSiQuedoHuerfana }
+  from '../../js/subir-imagen.js';
+
 const productosRef = collection(db, 'productos');
 
 // Avisos tipo toast — los define admin/index.html
@@ -916,7 +921,17 @@ $('zvForm').addEventListener('submit', async e => {
   $('zvGuardar').disabled = true;
   $('zvGuardar').textContent = 'Guardando…';
 
+  // Guardamos cuál era la foto anterior para poder limpiarla si cambió.
+  const imagenVieja = editando?.imagen ?? '';
+
   try {
+    // La foto va al depósito ANTES de tocar la base. Si esto falla, el
+    // producto no se guarda: es preferible a guardarla pegada en silencio
+    // y que el catálogo vuelva a engordar sin que nadie se entere.
+    if (esFotoPegada(datos.imagen)) $('zvGuardar').textContent = 'Subiendo la imagen…';
+    datos.imagen = await prepararImagen(datos.imagen, nombre);
+    $('zvGuardar').textContent = 'Guardando…';
+
     if (editando) {
       await updateDoc(doc(db, 'productos', editando.id), datos);
       aviso(`✓ "${recortar(nombre)}" actualizado`, 'ok');
@@ -932,6 +947,11 @@ $('zvForm').addEventListener('submit', async e => {
       aviso(`✓ "${recortar(nombre)}" creado`, 'ok');
     }
     cerrarTodo();
+
+    // Recién ahora, con el guardado hecho: si la foto cambió y la vieja no
+    // la usa nadie más, se saca del depósito. No se espera ni se avisa —
+    // es limpieza, y si falla no cambia nada de lo que ya salió bien.
+    borrarSiQuedoHuerfana(imagenVieja, datos.imagen);
   } catch (err) {
     console.error(err);
     aviso(`No se pudo guardar: ${err.message}`, 'error');

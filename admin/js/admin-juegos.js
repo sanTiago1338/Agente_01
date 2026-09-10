@@ -14,6 +14,11 @@ import {
   db, collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc, serverTimestamp
 } from '../../js/panel-datos.js';
 
+// El logo se sube al depósito antes de guardar, igual que las fotos de los
+// productos. Ver js/subir-imagen.js.
+import { prepararImagen, esFotoPegada, borrarSiQuedoHuerfana }
+  from '../../js/subir-imagen.js';
+
 const juegosRef = collection(db, 'juegos');
 const aviso = (t, tipo) => (window.avisoAdmin ? window.avisoAdmin(t, tipo) : console.log(t));
 
@@ -572,7 +577,15 @@ $('jgForm').addEventListener('submit', async e => {
 
   $('jgGuardar').disabled = true;
   $('jgGuardar').textContent = 'Guardando…';
+
+  const logoViejo = editando?.logo ?? '';
+
   try {
+    // Al depósito antes de tocar la base: si falla, el juego no se guarda.
+    if (esFotoPegada(datos.logo)) $('jgGuardar').textContent = 'Subiendo el logo…';
+    datos.logo = await prepararImagen(datos.logo, nombre);
+    $('jgGuardar').textContent = 'Guardando…';
+
     if (editando) {
       await updateDoc(doc(db, 'juegos', editando.id), datos);
       aviso(`✓ "${nombre}" actualizado`, 'ok');
@@ -586,6 +599,7 @@ $('jgForm').addEventListener('submit', async e => {
       aviso(`✓ "${nombre}" creado`, 'ok');
     }
     cerrar();
+    borrarSiQuedoHuerfana(logoViejo, datos.logo);
   } catch (err) {
     console.error(err);
     aviso(`No se pudo guardar: ${err.message}`, 'error');

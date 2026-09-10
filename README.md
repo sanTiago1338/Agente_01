@@ -124,9 +124,13 @@ git checkout 4d67da4 -- Img/
 powershell -File optimizar-imagenes.ps1
 ```
 
-> El panel guarda las fotos **nuevas** pegadas adentro de la fila, no en el
-> bucket. Unas pocas no molestan; si se juntan, la tienda empieza a tardar.
-> `backup/migrar-imagenes-supabase.html` las mueve al bucket.
+Cuando subís una foto desde el panel, el navegador la comprime y al guardar
+se va sola al bucket: en la fila del producto queda solo la URL. Si
+reemplazás una foto y la anterior no la usa nadie más, se borra del bucket.
+
+`backup/migrar-imagenes-supabase.html` sigue estando por si alguna vez
+aparecen fotos pegadas —de una importación, o de una URL pegada a mano— y
+hay que moverlas en lote.
 
 ---
 

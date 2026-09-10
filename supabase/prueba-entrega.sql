@@ -6,10 +6,8 @@
 -- Crea un producto de prueba para que pagar-qr.html tenga contra qué crear
 -- un pedido de verdad.
 --
--- ⚠️ OJO, ESTO CAMBIÓ. Cuando se escribió este archivo la tienda todavía
---    leía de Firestore y el producto de prueba no aparecía en ninguna
---    página. Ahora la tienda lee de Supabase, así que este producto SÍ se
---    va a ver en el catálogo mientras exista.
+-- ⚠️ OJO: este producto SÍ se va a ver en el catálogo mientras exista, y
+--    lo puede ver un cliente. Crealo, probá, y borralo con el bloque 4.
 --
 --    Y tiene que estar activo: crear_pedido() se niega a cobrar por algo
 --    agotado, así que no se puede esconder marcándolo inactivo sin romper

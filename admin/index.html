@@ -760,8 +760,8 @@
 <div id="avisos" aria-live="polite"></div>
 
 <script type="module">
-// El login sale del interruptor js/panel-auth.js (Firebase o Supabase,
-// según cuál esté descomentado allá). Este archivo no se entera de cuál es.
+// El login sale de js/panel-auth.js, que traduce a Supabase. Este archivo
+// no se entera: pide las funciones por su nombre y listo.
 import { auth, onAuthStateChanged, signOut, esAdmin } from '../js/panel-auth.js';
 import { subscribeProductos, precioFinal, formatBs, porcentajeDescuento }
   from '../js/productos-service.js';
@@ -769,7 +769,7 @@ import { subscribeProductos, precioFinal, formatBs, porcentajeDescuento }
 const $ = id => document.getElementById(id);
 const POR_PAGINA = 50;
 
-let TODOS   = [];       // catálogo completo desde Firestore
+let TODOS   = [];       // catálogo completo desde Supabase
 let pagina  = 1;
 let cargado = false;
 
@@ -789,7 +789,6 @@ onAuthStateChanged(auth, async usuario => {
   // seguridad — es el aviso. Sin él, un usuario fuera de la lista entraría,
   // vería todo, tocaría "Guardar" y recibiría un error de Postgres sin
   // entender por qué.
-  // Con Firebase esta función devuelve true siempre y no cambia nada.
   if (await esAdmin() === false) {
     aviso('Entraste, pero tu usuario no está en la lista de admins: vas a poder mirar, no guardar.', 'error');
   }
@@ -882,7 +881,7 @@ function escucharCatalogo() {
           <h3>No se pudo cargar el catálogo</h3>
           <p>${escapar(error.message)}</p>
         </div></td></tr>`;
-      aviso('Error al conectar con Firestore', 'error');
+      aviso('Error al conectar con la base', 'error');
     }
   );
 }
@@ -1167,8 +1166,8 @@ document.querySelector('.vistas-in').addEventListener('click', e => {
 <script type="module" src="js/admin-juegos.js"></script>
 
 <!-- Ventas y stock: construyen las vistas 💳 Ventas y 🔑 Stock.
-     Son solo de Supabase (pedidos y cuentas no existen en Firestore),
-     así que no pasan por el interruptor js/panel-datos.js. -->
+     Le hablan a Supabase directo, sin pasar por el puente
+     js/panel-datos.js que usan Productos y Juegos. -->
 <script type="module" src="js/admin-ventas.js"></script>
 <script type="module" src="js/admin-stock.js"></script>
 

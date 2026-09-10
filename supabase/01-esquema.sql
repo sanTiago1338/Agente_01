@@ -66,20 +66,11 @@ create table if not exists public.productos (
   mostrar_en_planes   boolean     not null default false,
   orden               integer     not null default 999999,  -- menor = primero
 
-  -- El id numérico del catálogo viejo (el de antes de Firestore).
-  -- La tienda lo usa en los onclick: openProduct(12). Se conserva para
-  -- que los links viejos que alguien haya guardado sigan funcionando.
+  -- El id numérico del catálogo original, de cuando los productos estaban
+  -- escritos en el código. La tienda lo usa en los onclick:
+  -- openProduct(12). Se conserva para que los links viejos que alguien
+  -- haya guardado sigan funcionando.
   id_legacy           integer,
-
-  -- El id que tenía el documento en Firestore ("kL9x2mPq").
-  -- Es SOLO para la mudanza, y hace dos cosas importantes:
-  --   1. La herramienta de migración se puede correr las veces que quieras
-  --      sin duplicar nada: la segunda vez actualiza en vez de insertar.
-  --   2. Deja comparar las dos bases fila por fila para verificar que la
-  --      copia salió bien.
-  -- Cuando la mudanza esté confirmada se puede borrar la columna:
-  --      alter table public.productos drop column firestore_id;
-  firestore_id        text unique,
 
   fecha_creacion      timestamptz not null default now(),
   fecha_actualizacion timestamptz not null default now()
@@ -142,13 +133,9 @@ create table if not exists public.juegos (
 
   -- Cada paquete:
   --   { nombre, icono, precio, grupo, consultar, necesitaEmail, cantidad, orden }
-  -- Adentro del JSON los nombres siguen en camelCase, igual que en
-  -- Firestore, así el front no cambia ni una línea.
+  -- Adentro del JSON los nombres van en camelCase, igual que los espera el
+  -- front, así recarga-juegos.html no traduce nada.
   paquetes            jsonb       not null default '[]'::jsonb,
-
-  -- Igual que en productos: el id del documento de Firestore, para que la
-  -- migración se pueda repetir sin duplicar. Se borra cuando ya no haga falta.
-  firestore_id        text unique,
 
   fecha_creacion      timestamptz not null default now(),
   fecha_actualizacion timestamptz not null default now()

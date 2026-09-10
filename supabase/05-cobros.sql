@@ -829,24 +829,212 @@ create index if not exists pedidos_grupo_idx
   on public.pedidos (grupo)
   where grupo is not null;
 
--- Las tres funciones (crear_compra, ver_mi_compra y confirmar_compra) se
--- aplicaron con la migracion 13_compras_de_varios_productos. Se listan sus
--- permisos aca para tener el cuadro completo:
+-- ------------------------------------------------------------
+-- Armar la compra
+-- ------------------------------------------------------------
+-- El precio sale de la base, NUNCA del cliente. Topes: 20 lineas y
+-- cantidad 10 por linea, para que nadie cree 99999 filas de un saque.
+create or replace function public.crear_compra(
+  p_items    jsonb,
+  p_nombre   text default '',
+  p_whatsapp text default '',
+  p_email    text default ''
+)
+returns table (token text, grupo uuid, total numeric, cuantos integer)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_item     jsonb;
+  v_producto public.productos%rowtype;
+  v_precio   numeric(10,2);
+  v_cant     integer;
+  v_grupo    uuid := gen_random_uuid();
+  v_token    text;
+  v_primero  text := null;
+  v_total    numeric(10,2) := 0;
+  v_cuantos  integer := 0;
+  i          integer;
+begin
+  if p_items is null or jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
+    raise exception 'No hay nada que comprar';
+  end if;
+
+  -- Tope de lineas distintas. Un carrito de verdad no tiene 50 productos.
+  if jsonb_array_length(p_items) > 20 then
+    raise exception 'Demasiados productos en un solo pedido';
+  end if;
+
+  for v_item in select * from jsonb_array_elements(p_items) loop
+    select * into v_producto
+    from public.productos
+    where id = (v_item->>'producto_id')::uuid;
+
+    if not found then
+      raise exception 'Uno de los productos no existe';
+    end if;
+
+    if v_producto.activo = false then
+      raise exception 'El producto "%" esta agotado', v_producto.nombre;
+    end if;
+
+    v_cant := greatest(1, least(10, coalesce((v_item->>'cantidad')::integer, 1)));
+
+    v_precio := case
+      when v_producto.oferta and coalesce(v_producto.precio_oferta, 0) > 0
+        then v_producto.precio_oferta
+      else v_producto.precio
+    end;
+
+    -- Un pedido por unidad: cada uno se lleva su propia cuenta.
+    for i in 1..v_cant loop
+      v_token := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');
+      if v_primero is null then v_primero := v_token; end if;
+
+      insert into public.pedidos (
+        producto_id, producto_nombre, precio,
+        cliente_nombre, cliente_whatsapp, cliente_email, token, grupo
+      ) values (
+        v_producto.id, v_producto.nombre, v_precio,
+        coalesce(p_nombre,''), coalesce(p_whatsapp,''), coalesce(p_email,''),
+        v_token, v_grupo
+      );
+
+      v_total   := v_total + v_precio;
+      v_cuantos := v_cuantos + 1;
+    end loop;
+  end loop;
+
+  return query select v_primero, v_grupo, v_total, v_cuantos;
+end;
+$$;
+
+
+-- ------------------------------------------------------------
+-- Lo que ve el cliente
+-- ------------------------------------------------------------
+-- Sirve para los dos casos: una compra suelta devuelve una linea, una
+-- agrupada devuelve todas.
 --
---   crear_compra      anon        arma la compra. El precio sale de la
---                                 base, nunca del cliente. Topes: 20
---                                 lineas y cantidad 10 por linea, para que
---                                 nadie cree 99999 filas de un saque.
---   ver_mi_compra     anon        lo que ve el cliente. Sirve para los dos
---                                 casos: compra suelta devuelve una linea,
---                                 compra agrupada devuelve todas.
---                                 Devuelve tambien creado_en (migracion
---                                 ver_mi_compra_devuelve_creado_en): es la
---                                 "Fecha de orden" del mensaje de WhatsApp,
---                                 y tiene que salir de la base para que sea
---                                 la misma que se ve en el panel. El reloj
---                                 del telefono del cliente no sirve: si esta
---                                 mal, lo que te manda no coincide con lo
---                                 que ves en Ventas.
---   confirmar_compra  authenticated  el boton del panel. Entrega lo que
---                                 puede y nunca falla entera por una linea.
+-- Devuelve tambien creado_en, que es la "Fecha de orden" del mensaje de
+-- WhatsApp. Tiene que salir de la base para que sea la misma que ves en el
+-- panel: el reloj del telefono del cliente no sirve, si esta mal lo que te
+-- manda no coincide con lo que ves en Ventas.
+create or replace function public.ver_mi_compra(p_token text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_pedido public.pedidos%rowtype;
+  v_lineas jsonb;
+  v_total  numeric(10,2);
+begin
+  if p_token is null or length(p_token) < 32 then
+    return jsonb_build_object('error', 'token invalido');
+  end if;
+
+  select * into v_pedido from public.pedidos where token = p_token;
+  if not found then
+    return jsonb_build_object('error', 'no existe');
+  end if;
+
+  select
+    jsonb_agg(jsonb_build_object(
+      'numero',       p.numero,
+      'producto',     p.producto_nombre,
+      'producto_id',  p.producto_id,
+      'precio',       p.precio,
+      'estado',       p.estado,
+      'entregado_en', p.entregado_en,
+      -- Las credenciales SOLO de los que ya estan entregados.
+      'credenciales', case when p.estado = 'entregado' then (
+        select c.credenciales from public.cuentas c
+        where c.pedido_id = p.id and c.estado = 'entregada' limit 1
+      ) else null end
+    ) order by p.numero),
+    sum(p.precio)
+  into v_lineas, v_total
+  from public.pedidos p
+  where (v_pedido.grupo is not null and p.grupo = v_pedido.grupo)
+     or (v_pedido.grupo is null     and p.id    = v_pedido.id);
+
+  return jsonb_build_object(
+    'numero',    v_pedido.numero,          -- el primero, para nombrar la compra
+    'grupo',     v_pedido.grupo,
+    'total',     v_total,
+    'moneda',    v_pedido.moneda,
+    'vence_en',  v_pedido.vence_en,
+    'creado_en', v_pedido.creado_en,
+    'lineas',    coalesce(v_lineas, '[]'::jsonb)
+  );
+end;
+$$;
+
+
+-- ------------------------------------------------------------
+-- El boton del panel
+-- ------------------------------------------------------------
+-- Entrega lo que puede y nunca falla entera por una linea: si de tres
+-- productos hay stock de dos, entrega esos dos y el tercero queda en
+-- sin_stock para atenderlo a mano.
+create or replace function public.confirmar_compra(
+  p_grupo      uuid,
+  p_referencia text default null,
+  p_quien      text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_id         uuid;
+  v_res        record;
+  v_entregados integer := 0;
+  v_sin_stock  integer := 0;
+  v_ya         integer := 0;
+begin
+  for v_id in
+    select p.id from public.pedidos p where p.grupo = p_grupo order by p.numero
+  loop
+    select * into v_res from public.confirmar_pago(v_id, p_referencia, p_quien);
+
+    if v_res.entregada then
+      v_entregados := v_entregados + 1;
+    elsif v_res.estado = 'sin_stock' then
+      v_sin_stock := v_sin_stock + 1;
+    else
+      v_ya := v_ya + 1;
+    end if;
+  end loop;
+
+  return jsonb_build_object(
+    'entregados', v_entregados,
+    'sin_stock',  v_sin_stock,
+    'sin_cambio', v_ya);
+end;
+$$;
+
+
+-- Quien puede llamar a cada una. Mismo criterio que el resto del archivo:
+-- la tienda arma y mira, y confirmar es cosa tuya.
+revoke execute on function public.crear_compra(jsonb, text, text, text) from public, anon, authenticated;
+revoke execute on function public.ver_mi_compra(text)                   from public, anon, authenticated;
+revoke execute on function public.confirmar_compra(uuid, text, text)    from public, anon, authenticated;
+
+grant execute on function public.crear_compra(jsonb, text, text, text) to anon, authenticated;
+grant execute on function public.ver_mi_compra(text)                   to anon, authenticated;
+grant execute on function public.confirmar_compra(uuid, text, text)    to authenticated;
+
+
+-- ------------------------------------------------------------
+-- El indice que le faltaba a la clave foranea
+-- ------------------------------------------------------------
+-- Lo recorren confirmar_pago() para buscar una cuenta libre del producto,
+-- y la vista Ventas del panel. Sin el, borrar un producto obliga a revisar
+-- todos los pedidos uno por uno.
+create index if not exists pedidos_producto_idx
+  on public.pedidos (producto_id);

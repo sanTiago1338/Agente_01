@@ -1,88 +1,180 @@
-﻿# TIAGO STORE - Tienda de Servicios Premium
+# Tiago Store
 
-Plataforma de venta de servicios de streaming, aplicaciones premium, herramientas de IA y recargas de juegos en Bolivia.
+Tienda de cuentas de streaming, apps premium, herramientas de IA y recargas
+de juegos, en Bolivia. Precios en bolivianos, pago por QR y entrega
+automática de la cuenta en la misma página.
 
-## 📋 Características
-
-- **Catálogo completo** de servicios premium
-- **Planes flexibles**: 1 pantalla, cuentas completas y multi-mes
-- **Precios en bolivianos (Bs.)**
-- **Activación inmediata** tras confirmación de pago
-- **Contacto directo** por WhatsApp
-- **Diseño moderno y responsivo**
-
-## 🎯 Servicios Disponibles
-
-- 🎬 **Streaming & Video**: Netflix, Disney+, Prime Video, HBO Max, Crunchyroll, Paramount+, VIX Plus
-- 🎵 **Música & Audio**: Spotify, YouTube Premium, Apple Music, Tidal, Deezer
-- 🤖 **IA & Herramientas**: ChatGPT, Claude Pro, Perplexity, Canva Pro, Adobe Photoshop, CapCut Pro
-- 🎮 **Recargas de Juegos**
-
-## 📁 Estructura del Proyecto
-
-```
-zona-vip-tienda/
-├── files/
-│   ├── tienda.html        # Página principal - catálogo de servicios
-│   ├── planes.html        # Página de planes y precios
-│   ├── contacto.html      # Página de contacto e información
-│   └── styles.css         # Estilos globales del sitio
-├── README.md              # Este archivo
-└── .gitignore             # Archivos a excluir del control de versiones
-```
-
-## 🚀 Cómo Usar
-
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/tu-usuario/zona-vip-tienda.git
-   ```
-
-2. Abre `files/tienda.html` en tu navegador o sirve los archivos localmente
-
-3. Navega por las páginas:
-   - **Tienda** - Explora todos los servicios disponibles
-   - **Planes** - Consulta precios y modalidades de pago
-   - **Contacto** - Información de contacto y cómo pedir
-
-## 📞 Contacto
-
-- **WhatsApp**: +591 57707335
-- **Horario**: Atención todos los días
-- **Respuesta**: Rápida y confiable
-
-## 🎨 Tecnologías Utilizadas
-
-- HTML5
-- CSS3 (con variables personalizadas)
-- Fuentes de Google Fonts (Bebas Neue, Outfit)
-- Diseño responsivo (mobile-first)
-
-## 📦 Paleta de Colores
-
-- **Negro**: `#0a0a0a`
-- **Rojo Principal**: `#e50914`
-- **Dorado**: `#ffd700`
-- **Blanco**: `#ffffff`
-
-## ✅ Características de Diseño
-
-- ✨ Gradientes elegantes
-- 🎯 Efecto hover interactivo
-- 📱 Totalmente responsivo
-- 🎬 Animaciones suaves
-- ♿ Estructura semántica
-
-## 📝 Notas
-
-- Todos los precios están en **bolivianos (Bs.)**
-- Los servicios incluyen soporte técnico y activación inmediata
-- Los datos de contacto y modalidades de pago se manejan vía WhatsApp
-
-## 📄 Licencia
-
-Proyecto privado - Tiago Store Bolivia © 2025
+**En vivo:** <https://santiago1338.github.io/Agente_01/>
 
 ---
 
-**Última actualización**: Marzo 2025
+## Cómo está hecha
+
+Páginas HTML sueltas, sin framework ni compilación: lo que está en el
+repositorio es exactamente lo que sirve el navegador. Los datos salen de
+**Supabase** (Postgres + Auth + Storage), y GitHub Pages sirve los archivos.
+
+No hay servidor propio. Todo lo que necesita privilegios —cobrar, entregar
+una cuenta, avisar por Telegram— vive adentro de la base como funciones, y
+las políticas de la base son las que deciden quién puede qué.
+
+---
+
+## Levantarla en tu máquina
+
+```bash
+powershell -File servidor.ps1
+```
+
+Y abrí <http://localhost:8099/>. Hace falta un servidor de verdad: abriendo
+el HTML con doble clic el navegador bloquea los módulos y no carga ni el
+catálogo ni el panel.
+
+`servidor.ps1` usa HttpListener, que ya viene con Windows. No hay nada que
+instalar.
+
+> Manda `Cache-Control: max-age=60`. Si tocás algo y "no toma", agregá
+> `?v=1` a la URL antes de sospechar del código.
+
+---
+
+## Qué hay en cada lado
+
+### Lo que ve el cliente
+
+| Archivo | Qué es |
+|---|---|
+| `index.html` | La tienda: catálogo, buscador, categorías, carrito |
+| `planes.html` | Tablas de precios por modalidad |
+| `recarga-juegos.html` | Recargas de juegos, con sus paquetes |
+| `pagar-qr.html` | El QR, y donde le aparece la cuenta al confirmarse el pago |
+| `mis-compras.html` | Su historial, guardado en su propio navegador |
+| `contacto.html` | Contacto |
+
+### El panel
+
+En `admin/`, con login propio. Cuatro vistas: **Productos**, **Juegos**,
+**Ventas** y **Stock**. Cada una vive en su archivo de `admin/js/`.
+
+Para entrar hace falta dos cosas: una cuenta en Supabase Auth **y** estar en
+la tabla `admins`. Lo primero solo te deja mirar; lo segundo es lo que te
+deja guardar.
+
+### El puente con la base
+
+| Archivo | Para qué |
+|---|---|
+| `js/supabase-base.js` | La conexión de la tienda pública. Sin sesión |
+| `js/supabase-config.js` | La del panel. Esta sí guarda sesión |
+| `js/productos-service.js`, `js/juegos-service.js` | De dónde salen productos y juegos |
+| `js/panel-datos.js`, `js/panel-auth.js` | De dónde salen los datos y el login del panel |
+| `js/mapeo.js` | Traduce `precio_oferta` (base) ↔ `precioOferta` (front) |
+| `js/pedido-automatico.js` | El pedido y la espera de la confirmación |
+| `js/historial.js`, `js/stock-tienda.js` | Historial del cliente y stock visible en la tienda |
+
+### La base
+
+Los `.sql` de `supabase/` son el esquema completo, en orden. Se pueden
+correr de nuevo sin romper nada.
+
+| Archivo | Qué crea |
+|---|---|
+| `01-esquema.sql` | Tablas `productos` y `juegos` |
+| `02-seguridad.sql` | Quién puede leer y escribir cada cosa |
+| `03-realtime.sql` | Que la tienda se actualice sola al editar |
+| `04-storage.sql` | El bucket `imagenes` y sus permisos |
+| `05-cobros.sql` | `pedidos`, `cuentas` y la entrega automática |
+| `06-avisos.sql` | Los avisos de pedido nuevo por Telegram |
+| `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
+
+---
+
+## Dos decisiones que conviene conocer
+
+### Los nombres de los campos
+
+Postgres usa `precio_oferta`, el front usa `precioOferta`. La traducción
+vive **entera en `js/mapeo.js`**, en una sola lista. Para agregar un campo:
+una línea ahí y una columna en `01-esquema.sql`. No hay un segundo lugar.
+
+### El panel habla en otro idioma
+
+El CRUD del panel le pide cosas a la base con nombres tipo
+`updateDoc(doc(db, 'productos', id), {...})`, que vienen de la biblioteca
+con la que se escribió originalmente. `js/supabase-compat.js` los traduce.
+
+Se hizo así porque de esas 1.600 líneas, 13 hablan con la base: el resto es
+interfaz ya probada. Es un puente, no un destino — las llamadas se pueden ir
+pasando a Supabase nativo de a una, y las dos formas conviven.
+
+---
+
+## Las imágenes
+
+Las fotos de los productos viven en el bucket `imagenes` de Supabase, con
+caché de un año. Los logos genéricos son archivos en `Img/opt/`.
+
+`Img/opt/` es la versión liviana de cada logo, y es la **única** que se
+sirve: tanto la tienda como el panel reescriben cualquier ruta `Img/algo.jpg`
+a `Img/opt/algo.jpg`. Los originales se borraron por peso; si hace falta
+volver a generarlos, están en el historial:
+
+```bash
+git checkout 4d67da4 -- Img/
+powershell -File optimizar-imagenes.ps1
+```
+
+> El panel guarda las fotos **nuevas** pegadas adentro de la fila, no en el
+> bucket. Unas pocas no molestan; si se juntan, la tienda empieza a tardar.
+> `backup/migrar-imagenes-supabase.html` las mueve al bucket.
+
+---
+
+## El cobro
+
+Está explicado aparte, con detalle, en **[COBROS.md](COBROS.md)**: cómo
+cargar stock, qué protege tu plata, y qué falta para que el pago se detecte
+solo sin que confirmes a mano.
+
+En resumen: el cliente paga por QR y avisa por WhatsApp, vos tocás
+**Confirmar pago** en 💳 Ventas, y la cuenta le aparece sola en su pantalla.
+Si no había stock, el pedido queda marcado para atenderlo a mano.
+
+---
+
+## Si algo sale mal
+
+**"No se pudo guardar: tu usuario no tiene permiso"** — tu usuario no está en
+la tabla `admins`.
+
+**La tienda carga pero no se actualiza sola** — Realtime no quedó encendido.
+Corré `supabase/03-realtime.sql` y comprobá:
+
+```sql
+select tablename from pg_publication_tables where pubname = 'supabase_realtime';
+```
+
+Tienen que salir `productos`, `juegos` y `pedidos`.
+
+**El correo de "recuperar contraseña" no llega** — con el plan gratis
+Supabase manda pocos por hora y suelen caer en spam. Para producción:
+Authentication → Emails → SMTP, con tu propio proveedor.
+
+**El catálogo tarda mucho** — mirá si volvieron a guardarse fotos pegadas:
+
+```sql
+select count(*) filter (where imagen like 'data:image/p%'
+                           or imagen like 'data:image/w%') as pegadas,
+       pg_size_pretty(sum(length(imagen))::bigint) as peso
+from public.productos;
+```
+
+---
+
+## Contacto
+
+WhatsApp **+591 57707335**, todos los días.
+
+---
+
+Proyecto privado · Tiago Store Bolivia

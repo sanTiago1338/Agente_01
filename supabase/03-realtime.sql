@@ -4,11 +4,10 @@
 -- Correr DESPUÉS de 02-seguridad.sql.
 --
 -- QUÉ HACE
---   Hoy, con Firestore, cuando cambiás un precio en el panel la tienda
---   abierta en el celular de un cliente se actualiza sola, sin recargar.
---   Eso lo daba onSnapshot().
+--   Cuando cambiás un precio en el panel, la tienda abierta en el celular
+--   de un cliente se actualiza sola, sin que él recargue nada.
 --
---   En Supabase el equivalente es Realtime, y hay que encenderlo tabla por
+--   Eso lo da Realtime, y hay que encenderlo tabla por
 --   tabla: Postgres no manda cambios a nadie salvo que se lo pidas.
 --
 -- OJO CON RLS

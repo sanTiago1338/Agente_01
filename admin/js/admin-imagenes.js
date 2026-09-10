@@ -2,11 +2,19 @@
 // TIAGO STORE · Subida y compresión de imágenes
 // ============================================================
 // Comprime la imagen EN EL NAVEGADOR antes de guardarla, y la
-// deja como data URI dentro del producto en Firestore.
+// deja como data URI dentro del producto.
 //
 // Por qué comprimir sí o sí:
-//   Firestore tiene un límite duro de 1 MB por documento.
-//   Una foto de celular pesa 3-5 MB. Sin comprimir, no entra.
+//   Una foto de celular pesa 3-5 MB. Guardada así, cada cliente que
+//   entra a la tienda se la baja entera para verla en un cuadrito de
+//   265 px. Con 226 productos eso ya pasó una vez: el catálogo llegó a
+//   pesar 17 MB y la consulta se cortaba por tiempo.
+//
+// ⚠️ PENDIENTE: que esto suba al bucket "imagenes" en vez de guardar el
+//    data URI adentro de la fila. El bucket ya existe y las fotos viejas
+//    ya están ahí; solo las NUEVAS siguen entrando pegadas. Mientras
+//    tanto, backup/migrar-imagenes-supabase.html las mueve cuando se
+//    juntan.
 //
 // Flujo:  archivo → <canvas> achicado de a mitades → 1024x1024 máx
 //         → toque de nitidez → WebP (o JPEG/PNG) → ~80-250 KB
@@ -34,9 +42,8 @@ const CALIDAD       = 0.86;
 const LADO_MINIMO   = 768;
 const PESO_OBJETIVO = 220 * 1024;  // 220 KB — si se pasa, reintenta
 // Tope duro. Ojo: estos bytes son los de la imagen, pero se guarda en
-// base64, que ocupa un tercio más (420 KB -> ~560 KB en el documento).
-// El límite de Firestore es 1 MB por documento, contando el resto de
-// los campos, así que de acá no conviene subir.
+// base64, que ocupa un tercio más (420 KB -> ~560 KB en la fila). Como la
+// fila viaja entera en el catálogo, de acá no conviene subir.
 const PESO_MAXIMO   = 420 * 1024;
 
 // Cuánta nitidez se devuelve después de achicar (0 = nada).
@@ -247,7 +254,7 @@ function montar(input) {
       const kb      = Math.round(valor.length * 0.75 / 1024);   // base64 → bytes reales
       const formato = nombreDeMime(valor);
       const detalle = ficha.querySelector('.d');
-      detalle.textContent = `${formato} · ~${kb} KB · guardada en Firestore`;
+      detalle.textContent = `${formato} · ~${kb} KB · guardada en la base`;
 
       // Las medidas salen recién cuando el navegador la decodifica.
       // Si es una imagen chica de antes, avisar: así se ven cuáles
@@ -257,7 +264,7 @@ function montar(input) {
         if (input.value.trim() !== valor) return;   // ya cambió de producto
         const lado = Math.max(sonda.naturalWidth, sonda.naturalHeight);
         detalle.textContent =
-          `${formato} · ${sonda.naturalWidth}×${sonda.naturalHeight} · ~${kb} KB · guardada en Firestore`;
+          `${formato} · ${sonda.naturalWidth}×${sonda.naturalHeight} · ~${kb} KB · guardada en la base`;
         if (lado < LADO_MINIMO) {
           const b = document.createElement('b');
           b.textContent = ' · ⚠ chica: se ve borrosa en la tienda, volvé a subirla en buena calidad';

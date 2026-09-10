@@ -47,9 +47,9 @@ const LLAVE = 'tiago-pedido-en-curso';
 // ============================================================
 // 1. ¿SE PUEDE ENTREGAR SOLO?
 // ============================================================
-// Un uuid tiene 36 caracteres con guiones. Los ids de Firestore eran más
-// cortos y sin guiones: esto distingue un producto de la base de cualquier
-// otra cosa que venga en el carrito, como los juegos, que no tienen
+// Un uuid tiene 36 caracteres con guiones. Con eso alcanza para distinguir
+// un producto de la base de cualquier otra cosa que venga en el carrito,
+// como los juegos, que no tienen
 // entrega automática. Una recarga no se entrega dando una cuenta: se le
 // carga saldo al ID de jugador del cliente.
 const esIdDeProducto = fid => typeof fid === 'string' && /^[0-9a-f-]{36}$/i.test(fid);

@@ -7,14 +7,9 @@
 // Exporta: subscribeProductos · precioFinal · formatBs · porcentajeDescuento
 //
 // POR QUÉ EXISTE SI NO HACE NADA
-//   Hasta el 7/9/2026 era un interruptor: tenía dos líneas, una de Firestore
-//   y otra de Supabase, y se cambiaba de base moviendo un comentario. La
-//   mudanza terminó y la de Firestore se borró, pero el archivo se queda:
-//   las tres páginas importan desde acá, así que sigue siendo el único lugar
-//   donde tocar si algún día la implementación cambia de nombre o de lugar.
-//
-//   Si hace falta volver a Firestore, está entero en el historial:
-//     git log --diff-filter=D -- js/productos-service-firebase.js
+//   Es el único lugar del que importan las tres páginas. Mientras siga
+//   siendo así, cambiar de dónde salen los productos —otro archivo, otro
+//   nombre, otra base— se hace tocando esta línea y nada más.
 // ============================================================
 
 export * from './productos-service-supabase.js';

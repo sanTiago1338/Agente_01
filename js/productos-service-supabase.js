@@ -1,15 +1,16 @@
 // ============================================================
 // TIAGO STORE · Servicio de Productos sobre Supabase (solo lectura)
 // ============================================================
-// Misma API que la versión de Firestore, exportación por exportación:
+// Misma API que tenía la versión anterior, exportación por exportación:
 //   subscribeProductos · precioFinal · formatBs · porcentajeDescuento
 //
-// index.html y planes.html no cambian ni una línea. El que elige entre una
-// versión y la otra es js/productos-service.js.
+// Las páginas no importan de acá directamente: pasan por
+// js/productos-service.js, que es el único lugar donde tocar si esto
+// cambia de nombre o de lugar.
 //
 // CÓMO SE IMITA onSnapshot
-//   Firestore tenía onSnapshot(): una función que te da la lista entera y
-//   te la vuelve a dar cada vez que algo cambia.
+//   La versión anterior tenía onSnapshot(): una función que te da la lista
+//   entera y te la vuelve a dar cada vez que algo cambia.
 //
 //   Supabase Realtime no funciona así. Te manda cambios sueltos:
 //   "se insertó esta fila", "se actualizó esta otra". Nunca te da la lista.
@@ -24,7 +25,7 @@ import { filaAProducto } from './mapeo.js';
 
 const TABLA = 'productos';
 
-// Firestore no sabía ordenar sin índice y ordenábamos en JavaScript.
+// La base vieja no sabía ordenar sin índice y ordenábamos en JavaScript.
 // Postgres sí sabe, y encima tiene el índice productos_orden_idx.
 // Igual dejamos el ordenar() de abajo, porque las filas que llegan por
 // realtime hay que meterlas en su lugar.
@@ -169,7 +170,7 @@ export function subscribeProductos(onCambio, onError) {
 // ============================================================
 // HELPERS DE PRESENTACIÓN
 // ============================================================
-// Copiados tal cual de la versión de Firestore: no dependen de la base,
+// Copiados tal cual de la versión anterior: no dependen de la base,
 // solo de la forma del producto, que el mapeo deja igual.
 
 /**

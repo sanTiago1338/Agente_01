@@ -302,10 +302,8 @@
 </main>
 
 <script type="module">
-// Todo sale del interruptor js/panel-auth.js, que decide si por detrás hay
-// Firebase o Supabase. Este archivo no se entera de cuál es: los nombres y
-// hasta los códigos de error ('auth/invalid-credential' y compañía) son los
-// mismos en las dos versiones, así que la tabla ERRORES de abajo sirve igual.
+// Todo sale de js/panel-auth.js, que le habla a Supabase. Este archivo no
+// se entera: pide las funciones por su nombre y listo.
 import {
   auth,
   signInWithEmailAndPassword,
@@ -320,7 +318,8 @@ const $ = id => document.getElementById(id);
 const DESTINO = 'index.html';   // panel al que se entra tras loguearse
 
 // -----------------------------------------------------------
-// Mensajes de error en español (en vez de códigos de Firebase)
+// Mensajes de error en español, en vez de los códigos 'auth/...' que
+// devuelve js/supabase-auth.js
 // -----------------------------------------------------------
 const ERRORES = {
   'auth/invalid-credential':  'Email o contraseña incorrectos.',

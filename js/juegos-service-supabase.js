@@ -1,14 +1,14 @@
 // ============================================================
 // TIAGO STORE · Servicio de Juegos sobre Supabase (solo lectura)
 // ============================================================
-// Misma API que la versión de Firestore:
+// Misma API que tenía la versión anterior:
 //   subscribeJuegos · precioDesde
 //
 // recarga-juegos.html no cambia ni una línea. El que elige entre una
 // versión y la otra es js/juegos-service.js.
 //
 // Los paquetes de recarga viven dentro del juego, en la columna jsonb
-// "paquetes", igual que vivían dentro del documento en Firestore. Una sola
+// "paquetes", igual que vivían dentro del documento en la base vieja. Una sola
 // lectura trae el juego completo.
 // ============================================================
 
@@ -55,7 +55,7 @@ export function subscribeJuegos(onCambio, onError) {
   // funciona" en las dos direcciones.
   //
   // Son 27 juegos: traer los apagados no cuesta nada. Es la misma decisión
-  // que tomaba la versión de Firestore.
+  // que tomaba la versión anterior.
   const emitir = () => {
     if (cortado) return;
 

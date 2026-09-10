@@ -19,7 +19,8 @@
 //   vacío es de verdad.
 //
 // Lo usan admin-ventas.js y admin-stock.js. El CRUD de productos y juegos
-// no lo necesita: esos leen del interruptor, que puede estar en Firestore.
+// no lo necesita: esos pasan por el puente js/panel-datos.js, que avisa del
+// error de permiso por su cuenta.
 // ============================================================
 
 import { sbAdmin } from '../../js/supabase-config.js';

@@ -6,7 +6,7 @@
 # seguridad para cualquier referencia vieja.
 #
 # Por que /Img/opt en vez de reemplazar en el lugar:
-#   las rutas de las imagenes viven en Firestore (campo "imagen" de
+#   las rutas de las imagenes viven en Supabase (campo "imagen" de
 #   cada producto y "logo" de cada juego), no solo en el codigo. Si
 #   renombraramos los archivos habria que migrar la base. En cambio
 #   la tienda redirige sola de "Img/X.png" a "Img/opt/X.jpg" desde

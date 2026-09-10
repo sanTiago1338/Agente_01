@@ -678,7 +678,7 @@
       filter: drop-shadow(0 1px 2px rgba(20,22,26,0.140));
     }
 
-    /* ===== SKELETONS (carga desde Firestore) ===== */
+    /* ===== SKELETONS (carga desde Supabase) ===== */
     .skeleton-card { pointer-events: none; }
     .skeleton-box {
       background: linear-gradient(90deg, var(--superficie-2) 25%, var(--separador) 50%, var(--superficie-2) 75%);
@@ -2769,14 +2769,14 @@
     </select>
   </div>
 
-  <!-- CATEGORY TABS · se generan desde Firestore (renderCategorias) -->
+  <!-- CATEGORY TABS · se generan desde Supabase (renderCategorias) -->
   <div class="cat-tabs-wrap" id="cats">
     <div class="cat-tabs">
       <button class="cat-tab active" onclick="filterCat('all', this)">TODOS</button>
     </div>
   </div>
 
-  <!-- SUBCATEGORY PILLS · se generan desde Firestore (renderSubfiltros) -->
+  <!-- SUBCATEGORY PILLS · se generan desde Supabase (renderSubfiltros) -->
   <div class="sub-pills">
     <button class="sub-pill active" onclick="filterSub('all', this)">Todos</button>
   </div>
@@ -2899,7 +2899,7 @@
     // CATÁLOGO DE PRODUCTOS
     // ==========================================================
     // Los productos YA NO se escriben acá.
-    // Viven en Firestore y se cargan solos — ver el <script type="module">
+    // Viven en Supabase y se cargan solos — ver el <script type="module">
     // al final de este archivo.
     //
     // Para agregar, editar o borrar productos, cambiar precios,
@@ -2909,18 +2909,18 @@
     let PRODUCTS = [];
     let catalogoCargado = false;
 
-    // Firestore llama a esto en cada cambio (tiempo real).
+    // Supabase llama a esto en cada cambio (tiempo real).
     window.__aplicarCatalogo = function (productos) {
       PRODUCTS = productos;
       catalogoCargado = true;
-      renderCategorias();   // pestañas según lo que haya en Firestore
+      renderCategorias();   // pestañas según lo que haya en Supabase
       renderSubfiltros();
       renderProducts();
       // El carrito se rearma con los precios frescos que acaban de llegar.
       reconstruirCarrito();
     };
 
-    // Si Firestore falla, lo mostramos en la grilla en vez de dejarla vacía.
+    // Si Supabase falla, lo mostramos en la grilla en vez de dejarla vacía.
     window.__errorCatalogo = function (mensaje) {
       catalogoCargado = true;
       const grid = document.getElementById('5');
@@ -3155,7 +3155,7 @@
     // El caso aparte es el favicon de Google, que se pide con su tamaño
     // en la URL (sz=128). A 128px no alcanza para llenar la tarjeta sin
     // verse borroso, así que pedimos el mismo ícono al doble. Vale
-    // también para las imágenes viejas guardadas en Firestore, que
+    // también para las imágenes viejas guardadas en Supabase, que
     // quedaron apuntando a sz=128.
     function enAlta(url) {
       return url.includes('/s2/favicons') ? url.replace(/([?&]sz=)\d+/, '$1256') : url;
@@ -3166,7 +3166,7 @@
     // en un cuadrito de 265 px. Las de /Img/opt son JPEG de 900 px: hasta 96%
     // más livianas y sin diferencia visible ni en un celular a 3x.
     // Se hace acá, en el código, y no renombrando los archivos, porque las
-    // rutas viven en Firestore (campo "imagen" de cada producto): así no hay
+    // rutas viven en Supabase (campo "imagen" de cada producto): así no hay
     // que migrar la base y los originales siguen sirviendo de respaldo.
     // Las genera optimizar-imagenes.ps1.
     function imgOptimizada(url) {
@@ -3185,7 +3185,7 @@
     }
 
     function getImageUrlBase(productName, category, imgColor, urlGuardada) {
-      // 0) Si el producto tiene imagen guardada en Firestore (subida desde el
+      // 0) Si el producto tiene imagen guardada en Supabase (subida desde el
       //    panel de admin, o migrada del catálogo viejo), esa manda y corta acá.
       //    Esto es lo que permite cambiar la imagen de un producto sin tocar código.
       if (typeof urlGuardada === 'string' && urlGuardada.trim() !== '') return enAlta(urlGuardada);
@@ -3316,7 +3316,7 @@
       return generateLogoSvg(productName, imgColor);
     }
 
-    // Esqueletos animados mientras Firestore responde (~300ms).
+    // Esqueletos animados mientras Supabase responde (~300ms).
     function renderSkeletons() {
       const grid = document.getElementById('5');
       if (!grid) return;
@@ -3581,7 +3581,7 @@
     }
 
     function renderProducts() {
-      // Todavía no llegó el catálogo desde Firestore.
+      // Todavía no llegó el catálogo desde Supabase.
       if (!catalogoCargado) { renderSkeletons(); return; }
 
       // Buscar es buscar en toda la tienda: si el cliente escribió algo,
@@ -4022,7 +4022,7 @@
     // FILTROS DINÁMICOS
     // ==========================================================
     // Las pestañas de categoría y las pastillas de subcategoría se arman
-    // solas leyendo lo que hay en Firestore. Si creás una categoría nueva
+    // solas leyendo lo que hay en Supabase. Si creás una categoría nueva
     // desde el panel, aparece acá sin republicar la web.
     // ==========================================================
 
@@ -4045,7 +4045,7 @@
     }
 
     // Orden en que se muestran las pestañas.
-    // Una categoría que exista en Firestore y no esté en esta lista se
+    // Una categoría que exista en Supabase y no esté en esta lista se
     // agrega al final, así crear una nueva desde el panel sigue funcionando
     // sin tocar este archivo.
     const ORDEN_CATEGORIAS = ['streaming', 'musica', 'ia', 'combos', 'vpn', 'seguidores'];
@@ -4105,10 +4105,10 @@
       const wrap = document.querySelector('.cat-tabs');
       if (!wrap) return;
 
-      // Las que hay en Firestore + las fijas, ordenadas según ORDEN_CATEGORIAS.
+      // Las que hay en Supabase + las fijas, ordenadas según ORDEN_CATEGORIAS.
       // Lo que no esté en esa lista va al final, alfabético.
-      const enFirestore = PRODUCTS.map(p => p.cat).filter(Boolean);
-      const cats = [...new Set([...enFirestore, ...CATEGORIAS_FIJAS])].sort((a, b) => {
+      const enSupabase = PRODUCTS.map(p => p.cat).filter(Boolean);
+      const cats = [...new Set([...enSupabase, ...CATEGORIAS_FIJAS])].sort((a, b) => {
         const ia = ORDEN_CATEGORIAS.indexOf(a);
         const ib = ORDEN_CATEGORIAS.indexOf(b);
         return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib) || a.localeCompare(b);
@@ -4798,7 +4798,7 @@
       from './js/productos-service.js';
     import { mapaDeStock } from './js/stock-tienda.js';
 
-    // Los IDs de Firestore son texto ("kL9x2mPq"), pero la tienda usa números
+    // Los IDs de la base son texto (un uuid), pero la tienda usa números
     // en los onclick: openProduct(12). Para productos migrados usamos idLegacy;
     // para los que crees desde el admin, derivamos un número estable del ID.
     function idNumerico(p) {
@@ -4808,13 +4808,13 @@
       return 1000000 + Math.abs(h % 8000000);
     }
 
-    // Adaptador: traduce el producto de Firestore a la forma que la tienda ya usa.
+    // Adaptador: traduce el producto de Supabase a la forma que la tienda ya usa.
     // Gracias a esto no hubo que reescribir el render, el carrito ni el pago QR.
     function aFormaTienda(p) {
       const precio = precioFinal(p);
       return {
         id:          idNumerico(p),
-        fid:         p.id,                       // ID real de Firestore
+        fid:         p.id,                       // ID real del producto
         cat:         p.categoria    || '',
         name:        p.nombre       || '',
         price:       precio,

@@ -9,8 +9,8 @@
 //   accion: 'nuevo' | 'editar' | 'agotar' | 'borrar'
 // ============================================================
 
-// Todo sale del interruptor js/panel-datos.js, que decide si por detrás
-// hay Firestore o Supabase. Este archivo no se entera de cuál es.
+// Todo sale de js/panel-datos.js, el puente que traduce estos nombres a
+// Supabase. Este archivo no se entera de cómo lo hace.
 import {
   db, collection, addDoc, doc, updateDoc, deleteDoc, serverTimestamp
 } from '../../js/panel-datos.js';

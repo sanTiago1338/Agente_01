@@ -8,8 +8,8 @@
 // array "paquetes". Editar un precio = actualizar ese array.
 // ============================================================
 
-// Todo sale del interruptor js/panel-datos.js, que decide si por detrás
-// hay Firestore o Supabase. Este archivo no se entera de cuál es.
+// Todo sale de js/panel-datos.js, el puente que traduce estos nombres a
+// Supabase. Este archivo no se entera de cómo lo hace.
 import {
   db, collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc, serverTimestamp
 } from '../../js/panel-datos.js';
@@ -333,9 +333,10 @@ onSnapshot(juegosRef,
     $('jgLista').innerHTML = `
       <div class="jg-vacio" style="grid-column:1/-1;">
         <div class="emo">🔒</div>
-        <h3>No se pudo leer la colección "juegos"</h3>
+        <h3>No se pudo leer la tabla "juegos"</h3>
         <p>${escapar(error.code || error.message)}<br>
-           Revisá que las reglas de Firestore incluyan <code>match /juegos/{juegoId}</code>.</p>
+           Si dice algo de permisos, tu usuario no está en la tabla
+           <code>admins</code> de Supabase.</p>
       </div>`;
   }
 );

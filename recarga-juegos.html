@@ -1023,7 +1023,7 @@
     .btn-comprar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(236,64,192,0.6); }
     .btn-comprar:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.3); }
 
-    /* Esqueletos mientras llegan los juegos desde Firestore */
+    /* Esqueletos mientras llegan los juegos desde Supabase */
     @keyframes brilloJuego {
       0%   { background-position: 200% 0; }
       100% { background-position: -200% 0; }
@@ -1190,7 +1190,7 @@
     // CATÁLOGO DE JUEGOS
     // ==========================================================
     // Los juegos y sus precios YA NO se escriben acá.
-    // Viven en Firestore (colección "juegos") y se cargan solos.
+    // Viven en Supabase (colección "juegos") y se cargan solos.
     //
     // Para cambiar el precio de un paquete de diamantes:
     //   abrí  /admin  ->  pestaña Juegos
@@ -1199,7 +1199,7 @@
     let GAMES = [];
     let juegosCargados = false;
 
-    // Firestore llama a esto en cada cambio (tiempo real).
+    // Supabase llama a esto en cada cambio (tiempo real).
     window.__aplicarJuegos = function (juegos) {
       GAMES = juegos;
       juegosCargados = true;
@@ -1224,7 +1224,7 @@
     // Redirige cualquier imagen de /Img a su versión liviana de /Img/opt.
     // Los logos de juegos eran PNG de hasta 3,7 MB para verse en 242 px.
     // Se hace acá y no renombrando archivos porque la ruta de cada logo
-    // vive en Firestore. Las genera optimizar-imagenes.ps1.
+    // vive en Supabase. Las genera optimizar-imagenes.ps1.
     function imgOptimizada(url) {
       if (typeof url !== 'string') return url;
       // Si ya apunta a la carpeta optimizada, no la volvemos a mapear
@@ -1255,7 +1255,7 @@
       `;
     }
 
-    // Esqueletos mientras Firestore responde
+    // Esqueletos mientras Supabase responde
     function esqueletosHtml(n) {
       return Array.from({ length: n }, () => `
         <div class="game-card" style="pointer-events:none;">
@@ -1708,7 +1708,7 @@
   <script type="module">
     import { subscribeJuegos } from './js/juegos-service.js';
 
-    // Adaptador: traduce el juego de Firestore a la forma que ya usa
+    // Adaptador: traduce el juego de Supabase a la forma que ya usa
     // esta página. Gracias a esto no hubo que reescribir el render,
     // el modal de recarga ni el flujo de WhatsApp.
     function aFormaPagina(j) {

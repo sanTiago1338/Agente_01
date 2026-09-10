@@ -102,7 +102,10 @@ export async function crearCompra(lineas, cliente = {}) {
       p_items:    lineas,
       p_nombre:   (cliente.nombre   || '').slice(0, 80),
       p_whatsapp: (cliente.whatsapp || '').slice(0, 30),
-      p_email:    (cliente.email    || '').slice(0, 120)
+      p_email:    (cliente.email    || '').slice(0, 120),
+      // Pidio que le avisemos antes de que se le venza. La fecha no viaja:
+      // la calcula la base, que es la que sabe cuando se le entrego.
+      p_renovar:  cliente.renovar === true
     });
 
     if (error) {

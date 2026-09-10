@@ -855,6 +855,15 @@
         if (s.needsUsername) lines.push(`🧾 *Usuario / Nombre:* ${username.trim() || '(pendiente)'}`);
         customerBlock = lines.join('\n');
       }
+
+      // El aviso de renovacion tambien va en el mensaje. Si Supabase no
+      // contesta, el pedido no se crea y el unico registro que queda de
+      // este numero es este chat: mejor que este escrito.
+      const url = new URLSearchParams(window.location.search);
+      const waCliente = (url.get('wa') || '').replace(/\D/g, '');
+      const renovBlock = (url.get('recordar') === '1' && waCliente)
+        ? `\n━━━━━━━━━━━━━━━━━━\n🔁 *Avisenme para renovar*\n📲 *Mi WhatsApp:* +${waCliente}`
+        : '';
       // El mensaje lleva SOLO el pedido y el comprobante. Nada de links ni
       // de promesas de entrega: decision del duenio.
       //
@@ -863,7 +872,7 @@
       // el link ya no le queda en el chat. Se resuelve desde el panel, con
       // "Copiar para mandar", que arma el mensaje con sus credenciales.
       const linkPedido = '';
-      const whatsappMsg = `🦁 *TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${window._pedidoNumero || s.ref}\n📅 *Fecha de orden:* ${fechaOrden(window._pedidoCreado)}\n💰 *Monto:* ${s.total.toFixed(2)} Bs\n🛒 *Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
+      const whatsappMsg = `🦁 *TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n📋 *Codigo:* ${window._pedidoNumero || s.ref}\n📅 *Fecha de orden:* ${fechaOrden(window._pedidoCreado)}\n💰 *Monto:* ${s.total.toFixed(2)} Bs\n🛒 *Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}${renovBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
       window._waUrl = `https://wa.me/59157707335?text=${encodeURIComponent(whatsappMsg)}`;
     }
 
@@ -1369,10 +1378,16 @@
     // el primer segundo y no despues de que el cliente ya pago.
     cobertura = await calcularCobertura(lineas);
 
+    // El numero y el pedido de aviso vienen del checkout, donde el cliente
+    // prendio el interruptor de "recordame renovar". Aca solo se pasan.
+    const url = new URLSearchParams(window.location.search);
+    const wa  = (url.get('wa') || '').replace(/\D/g, '');
+
     const compra = await crearCompra(lineas, {
       nombre:   ($('customerUsername') || {}).value || '',
       email:    ($('customerEmail')    || {}).value || '',
-      whatsapp: ''
+      whatsapp: wa,
+      renovar:  url.get('recordar') === '1' && wa !== ''
     });
     if (!compra) return;   // Supabase no contesto: sigue el flujo viejo
 

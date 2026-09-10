@@ -344,6 +344,7 @@ as $$
 declare
   v_pedido  public.pedidos%rowtype;
   v_cuenta  public.cuentas%rowtype;
+  v_vence   date;
 begin
   -- Bloquea la fila del pedido: si llegan dos confirmaciones a la vez
   -- (tocaste el botón y encima entró el webhook), la segunda espera acá.
@@ -365,6 +366,11 @@ begin
     return query select v_pedido.estado, false, 'Este pedido está cancelado'::text;
     return;
   end if;
+
+  -- Cuándo se le termina el servicio al cliente. Le empieza a correr
+  -- ahora, que es cuando lo recibe, no cuando armó el pedido. De esta
+  -- fecha sale el aviso de renovación (ver 06-avisos.sql).
+  v_vence := (now() + make_interval(days => coalesce(v_pedido.plan_dias, 30)))::date;
 
   -- Toma UNA cuenta libre de ese producto.
   --
@@ -393,12 +399,20 @@ begin
       estado          = 'sin_stock',
       pagado_en       = coalesce(v_pedido.pagado_en, now()),
       referencia_pago = coalesce(p_referencia, referencia_pago),
-      confirmado_por  = coalesce(p_quien, confirmado_por)
+      confirmado_por  = coalesce(p_quien, confirmado_por),
+      suscripcion_vence_en = v_vence
     where id = p_pedido_id;
 
     return query select 'sin_stock'::text, false,
       'Pago confirmado, pero no hay cuentas libres de este producto. Atendelo a mano.'::text;
     return;
+  end if;
+
+  -- La cuenta se puede morir antes que el plan que pagó: una cuenta
+  -- alquilada que vence en 12 días no le da 30 al cliente. Gana la fecha
+  -- más cercana, que es cuando de verdad se queda sin servicio.
+  if v_cuenta.vence_en is not null then
+    v_vence := least(v_vence, v_cuenta.vence_en);
   end if;
 
   update public.cuentas set
@@ -412,7 +426,8 @@ begin
     pagado_en       = coalesce(v_pedido.pagado_en, now()),
     entregado_en    = now(),
     referencia_pago = coalesce(p_referencia, referencia_pago),
-    confirmado_por  = coalesce(p_quien, confirmado_por)
+    confirmado_por  = coalesce(p_quien, confirmado_por),
+    suscripcion_vence_en = v_vence
   where id = p_pedido_id;
 
   return query select 'entregado'::text, true, 'Entregado'::text;
@@ -851,11 +866,17 @@ create index if not exists pedidos_grupo_idx
 -- ------------------------------------------------------------
 -- El precio sale de la base, NUNCA del cliente. Topes: 20 lineas y
 -- cantidad 10 por linea, para que nadie cree 99999 filas de un saque.
+-- OJO con la firma: cuando se le agregó p_renovar hubo que BORRAR la
+-- versión de 4 argumentos. Si quedaran las dos, PostgREST no sabría cuál
+-- llamar y todas las compras fallarían con "could not choose the best
+-- candidate function".
+--   drop function if exists public.crear_compra(jsonb, text, text, text);
 create or replace function public.crear_compra(
   p_items    jsonb,
   p_nombre   text default '',
   p_whatsapp text default '',
-  p_email    text default ''
+  p_email    text default '',
+  p_renovar  boolean default false
 )
 returns table (token text, grupo uuid, total numeric, cuantos integer)
 language plpgsql
@@ -867,6 +888,7 @@ declare
   v_producto public.productos%rowtype;
   v_precio   numeric(10,2);
   v_cant     integer;
+  v_dias     integer;
   v_grupo    uuid := gen_random_uuid();
   v_token    text;
   v_primero  text := null;
@@ -904,6 +926,11 @@ begin
       else v_producto.precio
     end;
 
+    -- Cuánto le dura. Se calcula acá y no en el navegador: el cliente
+    -- podría mandar cualquier número, y de esta fecha depende cuándo le
+    -- avisamos que renueve.
+    v_dias := public.dias_del_plan(v_producto.nombre, v_producto.suscripcion);
+
     -- Un pedido por unidad: cada uno se lleva su propia cuenta.
     for i in 1..v_cant loop
       v_token := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');
@@ -911,11 +938,16 @@ begin
 
       insert into public.pedidos (
         producto_id, producto_nombre, precio,
-        cliente_nombre, cliente_whatsapp, cliente_email, token, grupo
+        cliente_nombre, cliente_whatsapp, cliente_email, token, grupo,
+        renovar, plan_dias
       ) values (
         v_producto.id, v_producto.nombre, v_precio,
         coalesce(p_nombre,''), coalesce(p_whatsapp,''), coalesce(p_email,''),
-        v_token, v_grupo
+        v_token, v_grupo,
+        -- Sin número no hay a dónde escribirle: la promesa de avisar no se
+        -- guarda como si fuera a cumplirse.
+        coalesce(p_renovar, false) and coalesce(p_whatsapp, '') <> '',
+        v_dias
       );
 
       v_total   := v_total + v_precio;
@@ -1038,11 +1070,11 @@ $$;
 
 -- Quien puede llamar a cada una. Mismo criterio que el resto del archivo:
 -- la tienda arma y mira, y confirmar es cosa tuya.
-revoke execute on function public.crear_compra(jsonb, text, text, text) from public, anon, authenticated;
+revoke execute on function public.crear_compra(jsonb, text, text, text, boolean) from public, anon, authenticated;
 revoke execute on function public.ver_mi_compra(text)                   from public, anon, authenticated;
 revoke execute on function public.confirmar_compra(uuid, text, text)    from public, anon, authenticated;
 
-grant execute on function public.crear_compra(jsonb, text, text, text) to anon, authenticated;
+grant execute on function public.crear_compra(jsonb, text, text, text, boolean) to anon, authenticated;
 grant execute on function public.ver_mi_compra(text)                   to anon, authenticated;
 grant execute on function public.confirmar_compra(uuid, text, text)    to authenticated;
 

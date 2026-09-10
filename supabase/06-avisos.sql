@@ -305,3 +305,215 @@ revoke all on function public.probar_telegram() from public, anon, authenticated
 --                        'select public.avisar_pedidos_nuevos();');
 --
 -- Para apagarlo:  select cron.unschedule('avisar-pedidos-nuevos');
+
+
+-- ============================================================
+-- 6. AVISO DE RENOVACION
+-- ============================================================
+-- Aplicado con las migraciones:
+--   renovacion_columnas_y_dias_del_plan
+--   crear_compra_con_renovacion
+--   confirmar_pago_anota_cuando_se_vence
+--   aviso_de_renovaciones_por_telegram
+--
+-- EL PROBLEMA
+--   En el checkout habia un interruptor que decia "te recordamos renovar
+--   al vencer, te escribimos por WhatsApp unos dias antes". Era mentira:
+--   la preferencia se perdia en el camino a la pagina de pago, y ademas
+--   nunca se le pedia el numero. No habia a quien escribirle ni cuando.
+--
+-- LO QUE SE HACE AHORA
+--   1. El checkout, al prender el interruptor, pide el celular ahi mismo
+--      y no deja pagar sin uno valido (8 numeros, 6 o 7 adelante).
+--   2. crear_compra() guarda el numero, el pedido de aviso, y cuantos
+--      dias dura el plan (dias_del_plan(), la misma regla que muestra la
+--      tienda).
+--   3. confirmar_pago() anota suscripcion_vence_en al entregar: es ahi
+--      cuando le empieza a correr el servicio, no cuando armo el pedido.
+--   4. Este reloj mira todos los dias cuales estan por vencer.
+--
+-- POR QUE NO LE ESCRIBE AL CLIENTE
+--   Mandar WhatsApp desde un programa necesita la API de WhatsApp
+--   Business, que es un proveedor pago con alta y verificacion de la
+--   empresa. No lo hay. Asi que el aviso te llega a VOS por Telegram,
+--   con el link wa.me ya armado y el mensaje escrito: tocar y enviar.
+--   Un toque tuyo por cliente, y el cliente igual recibe su aviso.
+--
+-- EL RELOJ
+--   Una vez por dia. A las 13:00 UTC, que en Bolivia son las 9 de la
+--   maniana: temprano para que te quede el dia para escribirle.
+--
+--   select cron.schedule('avisar-renovaciones', '0 13 * * *',
+--                        'select public.avisar_renovaciones();');
+--
+--   Para apagarlo:  select cron.unschedule('avisar-renovaciones');
+--
+-- CUANTOS DIAS ANTES
+--   Tres por defecto. Se cambia sin tocar nada mas:
+--     select cron.unschedule('avisar-renovaciones');
+--     select cron.schedule('avisar-renovaciones', '0 13 * * *',
+--                          'select public.avisar_renovaciones(5);');
+--
+--   La ventana tambien mira 7 dias PARA ATRAS. Si esto estuvo caido una
+--   semana, al volver avisa de los que se vencieron en el medio (mejor
+--   tarde que nunca) pero no de los de hace un mes.
+
+
+-- ------------------------------------------------------------
+-- 6.1 Lo que se guarda con el pedido
+-- ------------------------------------------------------------
+alter table public.pedidos
+  add column if not exists renovar                boolean not null default false,
+  add column if not exists plan_dias              integer,
+  add column if not exists suscripcion_vence_en   date,
+  add column if not exists suscripcion_avisada_en timestamptz;
+
+-- Los que hay que mirar cada dia son poquitos: los que pidieron aviso y
+-- todavia no lo recibieron.
+create index if not exists pedidos_renovacion_idx
+  on public.pedidos (suscripcion_vence_en)
+  where renovar and suscripcion_avisada_en is null;
+
+
+-- ------------------------------------------------------------
+-- 6.2 Cuantos dias dura un plan
+-- ------------------------------------------------------------
+-- Misma regla que diasDelPlan() en js/tienda.js, para que lo que el
+-- cliente ve en el checkout ("3 meses (90 dias)") sea exactamente lo que
+-- queda guardado. Mira primero el nombre y despues la suscripcion,
+-- porque 192 de los 225 productos tienen la suscripcion vacia y la
+-- duracion solo esta escrita en el nombre del plan.
+--
+-- SI TOCAS UNA, TOCA LA OTRA. Si no, el cliente ve una duracion y
+-- nosotros tenemos anotada otra.
+create or replace function public.dias_del_plan(p_nombre text, p_suscripcion text default '')
+returns integer
+language plpgsql
+immutable
+as $$
+declare
+  v_partes text[] := array[lower(coalesce(p_nombre, '')), lower(coalesce(p_suscripcion, ''))];
+  v_txt    text;
+  v_n      text[];
+begin
+  foreach v_txt in array v_partes loop
+    if v_txt = '' then continue; end if;
+
+    v_n := regexp_match(v_txt, '(\d+)\s*mes');
+    if v_n is not null then return least(730, greatest(1, v_n[1]::int * 30)); end if;
+
+    v_n := regexp_match(v_txt, '(\d+)\s*d[ií]a');
+    if v_n is not null then return least(730, greatest(1, v_n[1]::int)); end if;
+
+    v_n := regexp_match(v_txt, '(\d+)\s*semana');
+    if v_n is not null then return least(730, greatest(1, v_n[1]::int * 7)); end if;
+
+    if v_txt ~ '\manual\M' or v_txt ~ '1\s*a[ñn]o' then return 365; end if;
+    if v_txt ~ 'semestral'  then return 180; end if;
+    if v_txt ~ 'trimestral' then return 90;  end if;
+    if v_txt ~ 'mensual'    then return 30;  end if;
+    if v_txt ~ 'quincenal'  then return 15;  end if;
+    if v_txt ~ 'semanal'    then return 7;   end if;
+  end loop;
+
+  -- Lo mas comun del catalogo. Es una estimacion, no un dato.
+  return 30;
+end;
+$$;
+
+
+-- ------------------------------------------------------------
+-- 6.3 El aviso
+-- ------------------------------------------------------------
+create or replace function public.avisar_renovaciones(p_dias_antes integer default 3)
+returns integer
+language plpgsql
+security definer
+set search_path = public, extensions
+as $$
+declare
+  v_token   text;
+  v_chat    text;
+  v_fila    record;
+  v_texto   text;
+  v_link    text;
+  v_cuantos integer := 0;
+  v_estado  integer;
+begin
+  select valor into v_token from public.ajustes where clave = 'telegram_token';
+  select valor into v_chat  from public.ajustes where clave = 'telegram_chat';
+  if v_token is null or v_chat is null then
+    return 0;
+  end if;
+
+  perform extensions.http_set_curlopt('CURLOPT_TIMEOUT_MS', '8000');
+
+  for v_fila in
+    select
+      p.id,
+      p.numero,
+      p.producto_nombre,
+      p.suscripcion_vence_en                            as vence,
+      nullif(p.cliente_nombre, '')                      as cliente,
+      regexp_replace(p.cliente_whatsapp, '\D', '', 'g') as tel,
+      (p.suscripcion_vence_en - current_date)           as faltan
+    from public.pedidos p
+    where p.renovar
+      and p.suscripcion_avisada_en is null
+      and p.estado in ('entregado', 'sin_stock')
+      and p.cliente_whatsapp <> ''
+      and p.suscripcion_vence_en is not null
+      and p.suscripcion_vence_en <= current_date + greatest(0, p_dias_antes)
+      -- Si esto estuvo apagado un mes, no se despierta avisando de
+      -- suscripciones que ya se vencieron hace rato.
+      and p.suscripcion_vence_en >= current_date - 7
+    order by p.suscripcion_vence_en, p.numero
+  loop
+    v_link := 'https://wa.me/' || v_fila.tel || '?text=' ||
+      replace(replace(replace(
+        'Hola' || coalesce(' ' || v_fila.cliente, '') ||
+        '! Te escribo de Tiago Store. Tu ' || v_fila.producto_nombre ||
+        ' se vence el ' || to_char(v_fila.vence, 'DD/MM') ||
+        '. Queres renovarlo?',
+        ' ', '%20'), '!', '%21'), '?', '%3F');
+
+    v_texto :=
+      case
+        when v_fila.faltan < 0  then '🔁 Se le vencio hace ' || abs(v_fila.faltan) || ' dia(s)'
+        when v_fila.faltan = 0  then '🔁 Se le vence HOY'
+        when v_fila.faltan = 1  then '🔁 Se le vence manana'
+        else '🔁 Se le vence en ' || v_fila.faltan || ' dias'
+      end
+      || chr(10) || v_fila.producto_nombre
+      || chr(10) || coalesce(v_fila.cliente, 'Sin nombre') || ' · ' || v_fila.tel
+      || chr(10) || 'Pedido #' || v_fila.numero ||
+         ' · vence ' || to_char(v_fila.vence, 'DD/MM/YYYY')
+      || chr(10) || chr(10) || 'Escribile: ' || v_link;
+
+    begin
+      select (extensions.http_post(
+                'https://api.telegram.org/bot' || v_token || '/sendMessage',
+                jsonb_build_object(
+                  'chat_id', v_chat,
+                  'text',    v_texto,
+                  'disable_web_page_preview', true)::text,
+                'application/json')).status
+        into v_estado;
+    exception when others then
+      v_estado := null;
+    end;
+
+    -- Igual que con los pedidos nuevos: se da por avisado solo si
+    -- Telegram lo acepto. Si no, se reintenta maniana.
+    if v_estado between 200 and 299 then
+      update public.pedidos set suscripcion_avisada_en = now() where id = v_fila.id;
+      v_cuantos := v_cuantos + 1;
+    end if;
+  end loop;
+
+  return v_cuantos;
+end;
+$$;
+
+-- Que no la pueda llamar cualquiera desde la API: manda mensajes.
+revoke all on function public.avisar_renovaciones(integer) from public, anon, authenticated;

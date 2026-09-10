@@ -1175,9 +1175,11 @@
     }
 
     /* ---------- Recordatorio de renovación ---------- */
-    .ck-renovar { display: flex; align-items: center; gap: 1rem; }
+    /* La caja ya no es una sola fila: adentro está el interruptor arriba y
+       el campo del número abajo, que aparece recién al prenderlo. */
+    .ck-renovar-fila { display: flex; align-items: center; gap: 1rem; }
     .ck-renovar-txt { flex: 1; }
-    .ck-renovar b {
+    .ck-renovar-txt b {
       display: block;
       font-size: .84rem;
       color: var(--tinta);
@@ -1185,12 +1187,85 @@
       letter-spacing: .02em;
       margin-bottom: .25rem;
     }
-    .ck-renovar p {
+    .ck-renovar-txt p {
       margin: 0;
       font-size: .74rem;
       color: var(--tinta-suave);
       line-height: 1.5;
     }
+
+    /* ---------- El número para el aviso ---------- */
+    .ck-renovar-tel {
+      margin-top: .9rem;
+      padding-top: .9rem;
+      border-top: 1px solid var(--separador);
+      animation: ck-abrir .18s ease-out;
+    }
+    @keyframes ck-abrir {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ck-renovar-tel { animation: none; }
+    }
+    .ck-renovar-tel > label {
+      display: block;
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--tinta);
+      margin-bottom: .45rem;
+    }
+    /* El +591 va pegado al campo y no adentro: así el cliente escribe los
+       8 números de siempre, los mismos que le dicta a cualquiera. */
+    .ck-tel-campo {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--separador-2);
+      border-radius: 10px;
+      background: var(--fondo);
+      overflow: hidden;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .ck-tel-campo:focus-within {
+      border-color: var(--marca);
+      box-shadow: 0 0 0 3px rgba(37,211,102,.15);
+    }
+    .ck-tel-pais {
+      display: flex;
+      align-items: center;
+      padding: 0 .7rem;
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--tinta-suave);
+      background: var(--separador);
+      white-space: nowrap;
+    }
+    .ck-tel-campo input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      background: transparent;
+      padding: .65rem .7rem;
+      font: inherit;
+      font-size: 1rem;          /* 16px: menos que eso y el iPhone hace zoom */
+      letter-spacing: .06em;
+      color: var(--tinta);
+    }
+    .ck-tel-campo input:focus { outline: none; }
+    .ck-tel-campo:has(input.mal) { border-color: #e50914; }
+    .ck-tel-error {
+      margin: .4rem 0 0;
+      font-size: .74rem;
+      color: #e50914;
+      line-height: 1.45;
+    }
+    .ck-tel-nota {
+      margin: .5rem 0 0;
+      font-size: .72rem;
+      color: var(--tinta-suave);
+      line-height: 1.5;
+    }
+    .ck-tel-nota b { color: var(--tinta); }
 
     /* Aviso de los datos que le vamos a pedir al cliente en el pago */
     .ck-correo {

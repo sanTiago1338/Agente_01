@@ -284,6 +284,16 @@ css.textContent = `
     background: var(--panel-2);
   }
 
+  /* El que pidió aviso de renovación. Va en verde y no en gris: es el
+     único renglón de la fila que pide algo tuyo más adelante. */
+  .vt-renov-fila {
+    grid-column: 1 / -1;
+    font-size: 12.5px; color: #15803d;
+    padding: 7px 11px; border-radius: 8px;
+    background: rgba(34,197,94,.09);
+  }
+  .vt-renov-fila strong { color: #14532d; }
+
   /* ---------- Celular ----------
      La fila deja de ser una grilla de tres columnas y pasa a ser una sola,
      en tres renglones: número, producto y cliente, y abajo plata y botones.
@@ -709,6 +719,15 @@ function pintarPedido(p, esPrimeroDelGrupo = true) {
 
       ${p.estado === 'cancelado' && p.motivo ? `
         <div class="vt-motivo-fila">✕ Rechazado: ${escapar(p.motivo)}</div>` : ''}
+
+      ${p.renovar ? `
+        <div class="vt-renov-fila">
+          🔁 Pidió que le avisemos para renovar${
+            p.suscripcion_vence_en
+              ? ` · se le vence el <strong>${fechaCorta(p.suscripcion_vence_en)}</strong>`
+              : p.plan_dias ? ` · plan de ${p.plan_dias} días, la fecha se anota al entregar` : ''
+          }${p.suscripcion_avisada_en ? ' · ya te avisé por Telegram' : ''}
+        </div>` : ''}
     </div>`;
 }
 
@@ -727,6 +746,13 @@ function cuandoFue(iso) {
 // "07-09-2026 18:52 PM" — el mismo formato, al pie de la letra, que el
 // cliente tiene en su mensaje de WhatsApp. Si acá se viera de otra forma,
 // cruzar los dos sería adivinar.
+// Una fecha suelta de la base ("2026-10-10"), sin hora. No se pasa por
+// new Date(): eso la lee como UTC y en Bolivia la muestra un dia antes.
+function fechaCorta(ymd) {
+  const m = String(ymd || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : '';
+}
+
 function fechaOrden(iso) {
   if (!iso) return '';
   const d = new Date(iso);

@@ -895,20 +895,67 @@
     };
     const rubroDe = p => RUBRO[p.cat] || 'Servicio Digital';
 
-    // Duración leída del nombre del plan. Si el nombre no dice nada,
-    // usamos "1 mes (30 días)", que es lo más común del catálogo.
-    function duracionDe(p) {
-      const n = (p.name || '').toLowerCase();
-      const meses = n.match(/(\d+)\s*mes(?:es)?/);
-      if (meses) {
-        const k = Number(meses[1]);
-        return k === 1 ? '1 mes (30 días)' : `${k} meses (${k * 30} días)`;
+    // Cuántos días dura el plan. Mira primero el nombre y después el campo
+    // suscripción, porque casi todos los productos tienen la suscripción
+    // vacía y la duración solo está escrita en el nombre del plan.
+    //
+    // Esta misma regla está copiada en la base, en dias_del_plan(): de ahí
+    // sale la fecha de vencimiento que se guarda con el pedido. Si tocás
+    // una, tocá la otra, o el cliente va a ver una duración y nosotros
+    // vamos a tener anotada otra.
+    function diasDelPlan(p) {
+      for (const parte of [(p.name || ''), (p.suscripcion || '')]) {
+        const t = parte.toLowerCase();
+        if (!t) continue;
+
+        const meses   = t.match(/(\d+)\s*mes/);
+        if (meses)   return Math.min(730, Math.max(1, Number(meses[1]) * 30));
+        const dias    = t.match(/(\d+)\s*d[ií]a/);
+        if (dias)    return Math.min(730, Math.max(1, Number(dias[1])));
+        const semanas = t.match(/(\d+)\s*semana/);
+        if (semanas) return Math.min(730, Math.max(1, Number(semanas[1]) * 7));
+
+        if (/\banual\b|1\s*a[ñn]o/.test(t)) return 365;
+        if (/semestral/.test(t))            return 180;
+        if (/trimestral/.test(t))           return 90;
+        if (/mensual/.test(t))              return 30;
+        if (/quincenal/.test(t))            return 15;
+        if (/semanal/.test(t))              return 7;
       }
-      const dias = n.match(/(\d+)\s*d[ií]as?/);
-      if (dias) return `${dias[1]} días`;
-      if (/\banual\b|1\s*a[ñn]o/.test(n)) return '1 año (365 días)';
-      if (/\bsemanal\b/.test(n))          return '7 días';
-      return '1 mes (30 días)';
+      // Lo más común del catálogo. Es una estimación, no un dato.
+      return 30;
+    }
+
+    // Los celulares de Bolivia son 8 números que empiezan con 6 o con 7.
+    // No se acepta menos: un número mal escrito es un aviso que nunca
+    // llega, y el cliente se entera cuando ya perdió el servicio.
+    function telValido(v) {
+      return /^[67]\d{7}$/.test(String(v || '').replace(/\D/g, ''));
+    }
+
+    // Como lo necesita wa.me: código de país pegado, sin nada más.
+    function normalizarTel(v) {
+      return '591' + String(v || '').replace(/\D/g, '');
+    }
+
+    // Cuándo se le vencería si compra hoy. Es una cuenta aproximada: el
+    // plan le empieza a correr cuando se le entrega la cuenta, no cuando
+    // toca pagar. La fecha buena la anota la base al entregar.
+    function fechaDeVencimiento(p) {
+      const d = new Date();
+      d.setDate(d.getDate() + diasDelPlan(p));
+      return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
+    }
+
+    // Lo mismo, escrito para que lo lea una persona.
+    function duracionDe(p) {
+      const d = diasDelPlan(p);
+      if (d === 365) return '1 año (365 días)';
+      if (d % 30 === 0) {
+        const meses = d / 30;
+        return meses === 1 ? '1 mes (30 días)' : `${meses} meses (${d} días)`;
+      }
+      return `${d} días`;
     }
 
     // Grupo (plataforma) al que pertenece un plan dentro de la vista actual.
@@ -1002,17 +1049,39 @@
             </div>
           </div>
 
+          ${sinPrecio(p) ? '' : `
           <div class="ck-caja ck-renovar">
-            <div class="ck-renovar-txt">
-              <b>¿Te recordamos renovar al vencer?</b>
-              <p>Te escribimos por WhatsApp unos días antes del vencimiento para
-                 que no pierdas el servicio. No se cobra nada automáticamente.</p>
+            <div class="ck-renovar-fila">
+              <div class="ck-renovar-txt">
+                <b>¿Te recordamos renovar al vencer?</b>
+                <p>Te escribimos por WhatsApp unos días antes del vencimiento para
+                   que no pierdas el servicio. No se cobra nada automáticamente.</p>
+              </div>
+              <label class="ck-switch">
+                <input type="checkbox" id="ckRenovar">
+                <span class="ck-switch-pista"><span class="ck-switch-bola"></span></span>
+              </label>
             </div>
-            <label class="ck-switch">
-              <input type="checkbox" id="ckRenovar">
-              <span class="ck-switch-pista"><span class="ck-switch-bola"></span></span>
-            </label>
-          </div>
+
+            <!-- Aparece recién al prender el interruptor: si no vamos a
+                 escribirle, pedirle el número es preguntar por gusto. -->
+            <div class="ck-renovar-tel" id="ckRenovarTel" hidden>
+              <label for="ckTel">¿A qué WhatsApp te escribimos?</label>
+              <div class="ck-tel-campo">
+                <span class="ck-tel-pais">🇧🇴 +591</span>
+                <input type="tel" id="ckTel" inputmode="numeric" maxlength="14"
+                       autocomplete="tel-national" placeholder="7 123 4567">
+              </div>
+              <p class="ck-tel-error" id="ckTelError" hidden></p>
+              <p class="ck-tel-nota">Comprando hoy, el plan se te vence
+                 alrededor del <b>${fechaDeVencimiento(p)}</b>.
+                 Te escribimos unos días antes.</p>
+            </div>
+          </div>`}
+          <!-- Sin precio no hay pedido a donde colgar el aviso: la compra
+               se arregla por WhatsApp. Pedirle el número acá sería pedirlo
+               para tirarlo. -->
+
 
           ${sinPrecio(p) ? '' : avisoDatos(p).caja}
 
@@ -1051,14 +1120,61 @@
       // lugar quedó el enlace de consulta, así que no hay nada que atar.
       const terminos = document.getElementById('ckTerminos');
       const boton    = document.getElementById('ckPagar');
+      const renovar  = document.getElementById('ckRenovar');
+      const cajaTel  = document.getElementById('ckRenovarTel');
+      const campoTel = document.getElementById('ckTel');
+      const errorTel = document.getElementById('ckTelError');
+
+      // El campo del número se abre y se cierra con el interruptor. Puede
+      // no haber interruptor: los productos sin precio no llevan esta caja.
+      if (renovar && cajaTel && campoTel) {
+        renovar.addEventListener('change', () => {
+          cajaTel.hidden = !renovar.checked;
+          if (renovar.checked) campoTel.focus();
+          else { errorTel.hidden = true; campoTel.classList.remove('mal'); }
+          if (terminos && boton) refrescarBoton();
+        });
+
+        // Solo los 8 números del celular. Si pega el número entero con el
+        // 591 adelante —que es como te lo mandan por WhatsApp— se le saca
+        // solo, en vez de decirle que está mal.
+        campoTel.addEventListener('input', () => {
+          let limpio = campoTel.value.replace(/\D/g, '');
+          if (limpio.length > 8 && limpio.startsWith('591')) limpio = limpio.slice(3);
+          limpio = limpio.slice(0, 8);
+          if (limpio !== campoTel.value) campoTel.value = limpio;
+          // El error se borra apenas empieza a corregirlo. Dejarlo puesto
+          // mientras escribe es retarlo por algo que ya está arreglando.
+          errorTel.hidden = true;
+          campoTel.classList.remove('mal');
+          if (terminos && boton) refrescarBoton();
+        });
+      }
+
+      // El botón de pagar solo se abre con los términos aceptados y —si
+      // pidió el aviso— con un número que sirva para escribirle.
+      function refrescarBoton() {
+        boton.disabled = !terminos.checked ||
+                         (renovar.checked && !telValido(campoTel.value));
+      }
+
       if (terminos && boton) {
-        terminos.addEventListener('change', () => { boton.disabled = !terminos.checked; });
+        terminos.addEventListener('change', refrescarBoton);
 
         // Al confirmar se genera el QR con el plan y la preferencia elegida
         boton.addEventListener('click', () => {
           if (!terminos.checked) return;
-          const recordar = document.getElementById('ckRenovar').checked;
-          pagarConQR(p.id, recordar);
+
+          const quiereAviso = renovar.checked;
+          if (quiereAviso && !telValido(campoTel.value)) {
+            errorTel.textContent = 'Escribí tu celular completo: 8 números que empiezan con 6 o 7.';
+            errorTel.hidden = false;
+            campoTel.classList.add('mal');
+            campoTel.focus();
+            return;
+          }
+
+          pagarConQR(p.id, quiereAviso, quiereAviso ? normalizarTel(campoTel.value) : '');
         });
       }
 
@@ -1072,7 +1188,7 @@
     // Genera el QR de pago para un plan.
     // Igual que payProductQR(), pero pasando si el cliente pidió
     // que le recordemos renovar, para que llegue con el pedido.
-    function pagarConQR(id, recordarRenovacion) {
+    function pagarConQR(id, recordarRenovacion, whatsapp) {
       const p = PRODUCTS.find(x => x.id === id);
       if (!p || p.price <= 0) return;
 
@@ -1097,7 +1213,12 @@
         cart: encodeURIComponent(JSON.stringify(cartData)),
         total: p.price.toFixed(2),
       });
-      if (recordarRenovacion) params.set('recordar', '1');
+      // El aviso de renovación viaja con el número: sin a dónde escribir,
+      // la preferencia sola no sirve para nada.
+      if (recordarRenovacion && whatsapp) {
+        params.set('recordar', '1');
+        params.set('wa', whatsapp);
+      }
       window.location.href = `pagar-qr.html?${params.toString()}`;
     }
 

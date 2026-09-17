@@ -1451,6 +1451,16 @@
       renderSugerencias();
     }
 
+    // La ✕ del buscador. Vuelve a enfocar el campo porque quien borra casi
+    // siempre es para escribir otra cosa, y así le salen sus recientes.
+    function limpiarBusqueda() {
+      const input = document.getElementById('2');
+      if (!input) return;
+      input.value = '';
+      filterProducts();
+      input.focus();
+    }
+
     // Deja la tienda filtrada por un texto, como si el cliente lo hubiera
     // escrito. Lo usan las tarjetas de "Tops", las recientes y el Enter.
     function usarBusqueda(texto) {

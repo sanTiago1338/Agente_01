@@ -227,6 +227,26 @@
     .search-input-wrap input::placeholder { color: var(--gris-texto); }
     .search-icon { color: var(--gris-texto); font-size: 1rem; }
 
+    /* La ✕ para borrar lo escrito de un toque. Se esconde con el campo
+       vacío mirando :placeholder-shown, y no con JavaScript, porque al campo
+       también le escriben los botones del carrusel y las tarjetas de Tops:
+       así aparece sola venga el texto de donde venga.
+       28 px para que se pueda acertar con el dedo; los márgenes negativos
+       evitan que la barra crezca de alto. */
+    .search-clear {
+      flex: none;
+      width: 28px; height: 28px;
+      margin: -4px -6px -4px 0;
+      border: none; border-radius: 50%;
+      background: none;
+      color: var(--gris-texto);
+      font-size: 0.85rem; line-height: 1;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .search-clear:hover { background: var(--gris); color: var(--blanco); }
+    .search-input-wrap input:placeholder-shown + .search-clear { display: none; }
+
     /* Desplegable de sugerencias y búsquedas recientes.
        Cuelga de .search-box, que es el que tiene position:relative. */
     .search-box { position: relative; }

@@ -69,6 +69,8 @@
         <input type="text" id="2" placeholder="Buscar plataforma, app o juego..."
                autocomplete="off" oninput="filterProducts()"
                onfocus="renderSugerencias()" onkeydown="teclaSugerencias(event)">
+        <button type="button" class="search-clear" onclick="limpiarBusqueda()"
+                aria-label="Borrar búsqueda" title="Borrar búsqueda">✕</button>
       </div>
       <div class="search-sug" id="sugerencias" hidden></div>
     </div>

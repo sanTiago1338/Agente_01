@@ -67,8 +67,9 @@ create table if not exists public.cuentas (
   -- libre      → esperando comprador
   -- reservada  → hay un pedido pagado apuntándole, se está entregando
   -- entregada  → ya es de un cliente
-  -- anulada    → se cayó, la reemplazaste, no la vendas
-  estado        text not null default 'libre'
+  -- anulada    → YA NO SE USA. "Anular" en el panel borra la fila (ver
+  --              admin-stock.js). Queda en el check para no migrar la tabla.
+  estado       text not null default 'libre'
                 check (estado in ('libre','reservada','entregada','anulada')),
 
   pedido_id     uuid,

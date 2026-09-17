@@ -111,7 +111,6 @@ css.textContent = `
                text-transform: uppercase; flex: none; }
   .st-estado.libre     { color: #15803d; }
   .st-estado.entregada { color: var(--gris-dim); }
-  .st-estado.anulada   { color: #dc2626; text-decoration: line-through; }
 
   /* La contraseña tapada hasta que la pidan */
   .st-clave {
@@ -132,6 +131,7 @@ css.textContent = `
     font-family: inherit; flex: none;
   }
   .st-mini:hover { border-color: var(--rojo); color: var(--rojo); }
+  .st-mini.seguro, .st-mini.seguro:hover { background: #dc2626; border-color: #dc2626; color: #fff; }
 
   .st-vacio { padding: 46px 20px; text-align: center; color: var(--gris-dim); }
   .st-vacio .emo { font-size: 40px; margin-bottom: 10px; }
@@ -546,7 +546,7 @@ $('stLista').addEventListener('click', async e => {
   // --- Anular una cuenta ---
   const anular = e.target.closest('[data-anular]');
   if (anular) {
-    await anularCuenta(anular.dataset.anular);
+    if (pedirAnular(anular)) await anularCuenta(anular.dataset.anular);
     return;
   }
 
@@ -563,14 +563,40 @@ $('stBuscar').addEventListener('input', listar);
 $('stRefrescar').addEventListener('click', cargarTodo);
 $('stCargar').addEventListener('click', () => abrirModal(null));
 
-// Anular = "esta cuenta se cayó, no la vendas". No se borra: si ya se
-// entregó, el pedido tiene que seguir apuntando a algo.
+// Anular = "esta cuenta se cayó, no la vendas", y se BORRA de la base.
+// Antes quedaba marcada 'anulada' y el stock se llenaba de filas tachadas
+// que no servían para nada. Lo que sí se guarda son las entregadas: esas
+// tienen un pedido y un cliente apuntándoles.
+//
+// Borrar no tiene vuelta atrás, así que pide dos toques: el primero pone
+// el botón en rojo y el segundo borra. Si no confirmás, vuelve solo.
+function pedirAnular(btn) {
+  if (btn.disabled) return false;
+  if (btn.classList.contains('seguro')) { btn.disabled = true; return true; }
+
+  btn.classList.add('seguro');
+  btn.textContent = '¿Borrar?';
+  setTimeout(() => {
+    btn.classList.remove('seguro');
+    btn.textContent = 'Anular';
+  }, 4000);
+  return false;
+}
+
 async function anularCuenta(id) {
-  const { error } = await sbAdmin.from('cuentas')
-    .update({ estado: 'anulada' }).eq('id', id);
+  // Solo si sigue libre: entre que abriste la lista y tocaste, pudo
+  // venderse. Una entregada no se borra nunca.
+  // El select() es para saber cuántas borró de verdad: con RLS, un delete
+  // que no alcanza a nadie no da error, vuelve vacío.
+  const { data, error } = await sbAdmin.from('cuentas')
+    .delete().eq('id', id).eq('estado', 'libre').select('id');
 
   if (error) { aviso(`No se pudo anular: ${error.message}`, 'error'); return; }
-  aviso('Cuenta anulada: ya no se va a entregar', 'ok');
+  if (!data.length) {
+    aviso('No se borró: la cuenta ya no estaba libre (¿se acaba de vender?)', 'error');
+  } else {
+    aviso('Cuenta anulada y borrada del stock', 'ok');
+  }
   await cargarTodo();
 }
 

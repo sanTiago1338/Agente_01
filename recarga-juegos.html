@@ -1101,7 +1101,7 @@
           <div class="hero-content">
             <span class="hero-tag">⚔️ MOBA</span>
             <div class="hero-title">DIAMANTES <span class="gold">ML</span></div>
-            <div class="hero-sub">Skins, héroes y pases con recarga instantánea</div>
+            <div class="hero-sub">Skins, héroes y pases con recarga en 5-30 minutos</div>
             <button class="hero-cta" onclick="document.querySelector('.section').scrollIntoView({behavior:'smooth'})">Ver paquetes →</button>
           </div>
         </div>
@@ -1180,7 +1180,7 @@
   <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
     <div class="modal-box" id="modalBox">
       <h3 id="modalTitle">Recargar</h3>
-      <p id="modalText">Escríbenos por WhatsApp para procesar tu recarga al instante.</p>
+      <p id="modalText">Escríbenos por WhatsApp para procesar tu recarga en 5 a 30 minutos.</p>
       <div id="modalPkgs"></div>
       <div class="btn-row">
         <button class="btn-modal btn-cancel" onclick="closeModal()">Cancelar</button>
@@ -1600,7 +1600,7 @@
         box.classList.remove('with-pkgs');
         pkgsEl.innerHTML = '';
         document.getElementById('modalText').textContent =
-          `Escríbenos por WhatsApp para procesar tu recarga de ${name} al instante.`;
+          `Escríbenos por WhatsApp para procesar tu recarga de ${name} en 5 a 30 minutos.`;
         const waBtn = document.getElementById('modalWaBtn');
         waBtn.style.display = 'flex';
         const msg = encodeURIComponent(`Hola Tiago Store! Quiero recargar ${name} 🎮`);

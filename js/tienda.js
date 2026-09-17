@@ -208,14 +208,16 @@
     // Formatos soportados: .png .jpg .jpeg .webp .svg
     const LOCAL_LOGOS = {
       // Más específicas primero (para evitar matches genéricos)
-      'espn (cuenta completa)': 'Img/Disney%20%2B%20ESPN%20Completo.jpg',
+      // Sin Netflix, IPTV, Flujo, Hallow, Pixlr, Linear, Apple Music, Drama
+      // Box, Tele Latino, Zona IPTV ni las "completas" de Disney y Claude:
+      // esas fotos se borraron de Img/opt y los productos ya tienen la suya
+      // en Storage. Si alguno se queda sin imagen, cae al logo de Google de
+      // más abajo en vez de a un cuadro roto.
       'disney plus + espn':     'Img/Disney%20%2B%20ESPN.jpg',
       'youtube premium':        'Img/You%20Tube.jpg',
-      'zona iptv':              'Img/Zona%20IPTV.jpg',
       'canva pro':              'Img/Canva%20Pro.jpeg',
       'canva edu':              'Img/Canva%20EDU.jpg',
       'chatgpt pro':            'Img/ChatGPT%20Pro.svg',
-      'claude ia pro renovable (cuenta asignada': 'Img/Claude%20Pro%20Completa.jpeg',
       'hbo max (3 meses':       'Img/Hho%20Max%203%20meses.jpg',
       'notion business':        'Img/NOTION%20BUSINESS%20AI.png',
       'rixx':                   'Img/RIXX%20PRO%20AI.png',
@@ -223,11 +225,8 @@
       'ibispaint':              'Img/IBISPAINT%20PREMIUM.png',
       'moclow':                 'Img/MOCLOW%20AI.png',
       'pelidom':                'Img/PELIDOM.png',
-      'pixlr':                  'Img/PIXLR%20PREMIUM.png',
-      'linear plan':            'Img/LINEAR%20PLAN%20BUSINESS%20PROFESIONAL%20(2%20A%C3%91OS).png',
       'beautiful ai':           'Img/BEAUTIFUL%20AI.png',
       'iqiyi':                  'Img/iQIYI%20VIP.png',
-      'hallow':                 'Img/HALLOW.png',
       'qobuz':                  'Img/QOBUZ%20STUDIO.png',
       'openart':                'Img/OPENART%20AI.png',
       'hma':                    'Img/VPN%20HMA%207DIAS.jpg',
@@ -239,27 +238,21 @@
       'pug mobile':             'Img/Pug%20Mobile.png',
       // Generales
       'amazon music':  'Img/Amazon%20Music.jpg',
-      'apple music':   'Img/Apple%20Music.jpg',
       'capcut':        'Img/Cap%20cut.jpg',
       'chatgpt':       'Img/Chat%20Gpt.jpg',
       'claude':        'Img/Claude.jpg',
       'deezer':        'Img/Deezer.jpg',
-      'drama box':     'Img/Drama%20Box.jpg',
-      'flujo':         'Img/FLUJO%20TV.jpg',
       'free fire':     'Img/Free%20fire.jpg',
       'gamma':         'Img/Gamma.jpg',
       'gemini':        'Img/Gemini.jpg',
       'grok':          'Img/Grok.jpg',
       'hbo':           'Img/Hbo.jpeg',
-      'iptv':          'Img/IPTV.jpg',
       'leonardo':      'Img/Leonardo%20IA.jpg',
       'magis':         'Img/Magis%20TV.jpg',
-      'netflix':       'Img/Netflix.jpg',
       'paramount':     'Img/Paramount%2B.png',
       'perplexity':    'Img/Perplexity.jpg',
       'prime video':   'Img/Prime%20Video.jpg',
       'spotify':       'Img/Spotyfi.jpg',
-      'tele latino':   'Img/Tele%20Latino.jpg',
       'tidal':         'Img/Tidal.jpeg',
       'ufc':           'Img/UFC.jpg',
       'viki':          'Img/Viki%20Rakuten%20.jpeg',

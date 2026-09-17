@@ -352,6 +352,10 @@
   }
   .buscador .limpiar:hover { color: var(--texto); }
   .buscador.con-texto .limpiar { display: block; }
+  /* type="search" trae su propia ✕ en Chrome y Edge, que salía al lado de
+     la nuestra: dos X seguidas. Se apaga solo donde está la nuestra; en
+     Juegos y Stock no hay otra y la del navegador es la única que tienen. */
+  .buscador:has(.limpiar) input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
 
   select {
     padding: 10px 12px;

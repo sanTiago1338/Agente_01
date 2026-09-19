@@ -356,11 +356,25 @@ async function cargarTodo() {
   PRODUCTOS = rProd.data.sort((a, b) =>
     (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base', numeric: true })
   );
-  CUENTAS   = rCuentas.data;
+  // Las 'anuladas' son restos de antes: desde que "Anular" borra la fila no
+  // se crea ninguna nueva, pero las viejas quedaron ensuciando la lista de
+  // cada producto. Se van de la vista acá y de la base en borrarAnuladas(),
+  // así en el stock quedan solo las libres y las entregadas.
+  const anuladas = rCuentas.data.filter(c => c.estado === 'anulada');
+  CUENTAS        = rCuentas.data.filter(c => c.estado !== 'anulada');
+  if (anuladas.length) borrarAnuladas(anuladas.map(c => c.id));
 
   llenarSelectorProductos();
   metricas();
   listar();
+}
+
+// Borra de la base las anuladas que quedaron de antes. No se espera el
+// resultado: la pantalla ya las sacó, y si el borrado falla (RLS, sin red)
+// lo único que pasa es que siguen escondidas y se reintenta la próxima vez.
+async function borrarAnuladas(ids) {
+  const { error } = await sbAdmin.from('cuentas').delete().in('id', ids);
+  if (error) console.error('No se pudieron borrar las cuentas anuladas:', error);
 }
 
 function fallo(error) {

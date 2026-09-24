@@ -19,12 +19,12 @@
 # Requisitos: ninguno. Usa System.Drawing, que ya viene con Windows.
 # ============================================================
 param(
-  # 900 px cubre una pantalla de celular a 3x sobre los 265 px en que
-  # se muestran las imagenes mas grandes del sitio (el carrusel).
-  [int]$MaxLado = 900,
-  # q95 medido: 41,5 dB de PSNR al tamano real de pantalla. Por encima
-  # de 40 dB la diferencia con el original ya no se ve.
-  [int]$Calidad = 95,
+  # 720 px: las tarjetas se muestran a ~250 px y el carrusel a ~190 px
+  # de alto en el celular, asi que alcanza de sobra a 2x y 3x. Antes era
+  # 900 px a q95 y la carpeta pesaba 14 MB; con 720 a q80 pesa 5 MB y a
+  # tamano de pantalla no se nota la diferencia (comparado a ojo, sep 2026).
+  [int]$MaxLado = 720,
+  [int]$Calidad = 80,
   [switch]$Forzar
 )
 

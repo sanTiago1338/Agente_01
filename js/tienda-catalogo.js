@@ -56,6 +56,9 @@
         // Hay una cuenta comprada esperando: se entrega en el momento de
         // pagar, sin que vos tengas que hacer nada.
         entregaInmediata: (STOCK.get(p.id) || 0) > 0,
+        // Cuántas hay: el carrito no deja pedir más que eso (0 = este
+        // producto no tiene cuentas cargadas y se entrega a mano).
+        stock:       STOCK.get(p.id) || 0,
         // Para ordenar por "El más nuevo". Los productos migrados del
         // catálogo viejo no tienen fecha: quedan en 0, detrás.
         nuevo:       p.fechaCreacion?.seconds || 0

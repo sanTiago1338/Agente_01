@@ -125,6 +125,25 @@
       .pay-container { padding-left: 0.5rem; padding-right: 0.5rem; }
     }
 
+    /* Los tres pasos de la compra: el mismo dibujo que el carrito de la
+       tienda (.cr-pasos en css/tienda.css). */
+    .cr-pasos { list-style: none; display: flex; align-items: center; gap: .4rem; margin: 0 0 1rem; padding: 0; }
+    .cr-pasos[hidden] { display: none; }
+    .cr-pasos li {
+      flex: 1; display: flex; align-items: center; gap: .45rem;
+      font-size: .74rem; font-weight: 700; color: var(--tinta-suave); white-space: nowrap;
+    }
+    .cr-pasos li:not(:last-child)::after {
+      content: ''; flex: 1; height: 2px; border-radius: 2px; background: var(--rojo); margin-left: .2rem;
+    }
+    .cr-pasos span {
+      width: 24px; height: 24px; flex: none; display: grid; place-items: center;
+      border-radius: 50%; font-size: .72rem; font-weight: 800;
+    }
+    .cr-pasos li.hecho span  { background: var(--rojo); color: #fff; }
+    .cr-pasos li.actual      { color: var(--tinta); }
+    .cr-pasos li.actual span { border: 1.5px solid var(--rojo); color: var(--rojo); background: #fff; box-shadow: 0 0 0 3px rgba(229,9,20,.12); }
+
     .pay-status-bar {
       display: flex;
       align-items: center;
@@ -542,6 +561,15 @@
 
     <!-- Payment Content -->
     <div id="payContent" style="display:none;">
+      <!-- Los tres pasos de la compra, el mismo dibujo del carrito de la
+           tienda. Solo si la compra viene de ahí: las recargas de juegos
+           llegan directo, sin carrito (ver renderPayment). -->
+      <ol class="cr-pasos" id="pasosPago" aria-label="Pasos de la compra" hidden>
+        <li class="hecho"><span>✓</span>Elegir</li>
+        <li class="hecho"><span>✓</span>Carrito</li>
+        <li class="actual" aria-current="step"><span>3</span>Pagar con QR</li>
+      </ol>
+
       <!-- Status bar -->
       <div class="pay-status-bar pendiente" id="statusBar">
         <div class="status-dot"></div>
@@ -805,6 +833,8 @@
     function renderPayment(items, total, ref) {
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('payContent').style.display = 'block';
+      // Viene del carrito de la tienda (sus productos traen fid): paso 3 de 3
+      document.getElementById('pasosPago').hidden = !items.some(i => i && i.fid);
 
       document.getElementById('payAmount').textContent = `${total.toFixed(2)} Bs`;
       document.getElementById('instrMonto').textContent = `${total.toFixed(2)} Bs`;

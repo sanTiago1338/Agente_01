@@ -1606,6 +1606,197 @@
     }
     .ck-volver:hover { color: var(--marca); }
 
+    /* ==========================================================
+       CARRITO (paso 2 de 3)
+       ========================================================== */
+    /* Los tres pasos, arriba: dónde está el cliente y qué sigue */
+    .cr-pasos {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      margin: 0 0 1rem;
+      padding: 0;
+      counter-reset: none;
+    }
+    .cr-pasos li {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: .76rem;
+      font-weight: 700;
+      color: var(--tinta-suave);
+      white-space: nowrap;
+    }
+    .cr-pasos li:not(:last-child)::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--separador-2);
+      margin-left: .2rem;
+    }
+    .cr-pasos li.hecho::after { background: var(--marca); }
+    .cr-pasos span {
+      width: 24px; height: 24px; flex: none;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: var(--superficie-2);
+      border: 1.5px solid var(--separador-2);
+      font-size: .72rem; font-weight: 800;
+      color: var(--tinta-suave);
+    }
+    .cr-pasos li.hecho span  { background: var(--marca); border-color: var(--marca); color: #fff; }
+    .cr-pasos li.actual      { color: var(--tinta); }
+    .cr-pasos li.actual span { border-color: var(--marca); color: var(--marca); background: #fff; box-shadow: 0 0 0 3px rgba(229,9,20,.12); }
+
+    .cr-agregado {
+      margin-bottom: .8rem;
+      padding: .6rem .8rem;
+      border-radius: 10px;
+      background: rgba(21,128,61,.09);
+      color: #14632f;
+      font-size: .82rem;
+    }
+
+    /* ---- Productos ---- */
+    .cr-items { list-style: none; margin: 0 0 1rem; padding: 0; }
+    .cr-item {
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr) auto;
+      gap: .8rem;
+      align-items: center;
+      padding: .85rem 0;
+      border-bottom: 1px solid var(--borde);
+    }
+    .cr-item:first-child { padding-top: .2rem; }
+    .cr-img {
+      width: 56px; height: 56px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: var(--superficie-2);
+    }
+    .cr-nombre { font-weight: 800; font-size: .9rem; color: var(--tinta); line-height: 1.3; }
+    .cr-meta { font-size: .72rem; color: var(--tinta-suave); margin-top: .2rem; }
+    .cr-ya { color: #0f7a6e; font-weight: 700; }
+    .cr-unit { font-size: .76rem; color: var(--tinta-media); margin-top: .25rem; }
+    .cr-unit s { color: var(--tinta-suave); margin-left: .25rem; }
+    .cr-aviso {
+      display: inline-block;
+      margin-top: .4rem;
+      padding: .2rem .55rem;
+      border-radius: 7px;
+      background: rgba(229,9,20,.09);
+      color: var(--marca-oscura);
+      font-size: .72rem;
+      font-weight: 800;
+    }
+    .cr-aviso[hidden] { display: none; }
+    /* Al querer pasarse del stock, la fila "dice que no" con un sacudón */
+    .cr-tope .cr-cant { animation: crNo .35s ease; }
+    @keyframes crNo {
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+    @media (prefers-reduced-motion: reduce) { .cr-tope .cr-cant { animation: none; } }
+
+    .cr-der { display: flex; flex-direction: column; align-items: flex-end; gap: .45rem; }
+    .cr-cant {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--separador-2);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+    }
+    .cr-cant button {
+      width: 34px; height: 34px;
+      border: none;
+      background: none;
+      font: 700 1.05rem/1 'Outfit', sans-serif;
+      color: var(--tinta);
+      cursor: pointer;
+    }
+    .cr-cant button:hover { background: var(--superficie-2); }
+    .cr-qty {
+      min-width: 28px;
+      text-align: center;
+      font-weight: 800;
+      font-size: .9rem;
+      color: var(--tinta);
+      font-variant-numeric: tabular-nums;
+    }
+    .cr-sub { font-weight: 800; font-size: .95rem; color: var(--tinta); font-variant-numeric: tabular-nums; }
+    .cr-quitar {
+      width: 30px; height: 30px;
+      display: grid; place-items: center;
+      border: none; border-radius: 8px;
+      background: none;
+      color: var(--tinta-suave);
+      cursor: pointer;
+    }
+    .cr-quitar svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .cr-quitar:hover { color: var(--marca); background: rgba(229,9,20,.07); }
+
+    /* ---- Total y paso 3 ---- */
+    .cr-total {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 1rem 0 .8rem;
+      padding: .9rem 1rem;
+      border-radius: 14px;
+      background: var(--superficie-2);
+    }
+    .cr-total-lbl { display: block; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-suave); }
+    .cr-total small { font-size: .78rem; color: var(--tinta-suave); }
+    .cr-total b { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; color: var(--tinta); font-variant-numeric: tabular-nums; }
+
+    .cr-pagar { gap: .55rem; }
+    .cr-pagar-paso {
+      width: 22px; height: 22px;
+      display: inline-grid; place-items: center;
+      border-radius: 50%;
+      background: rgba(255,255,255,.22);
+      font-size: .75rem;
+    }
+    .cr-pagar-monto { opacity: .9; font-weight: 700; }
+
+    .cr-otros {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-top: .9rem;
+      padding-top: .8rem;
+      border-top: 1px solid var(--borde);
+    }
+    .cr-seguir {
+      border: none; background: none; padding: .3rem 0;
+      font: 700 .82rem 'Outfit', sans-serif;
+      color: var(--tinta-media);
+      cursor: pointer;
+    }
+    .cr-seguir:hover { color: var(--marca); }
+    .cr-wa { font-size: .8rem; font-weight: 700; color: #0f7a6e; text-decoration: none; }
+    .cr-wa:hover { text-decoration: underline; }
+
+    .cr-vacio { text-align: center; padding: 1.5rem .5rem 1rem; }
+    .cr-vacio-ico { font-size: 2.6rem; margin-bottom: .5rem; }
+    .cr-vacio b { display: block; font-size: 1.05rem; color: var(--tinta); margin-bottom: .35rem; }
+    .cr-vacio p { font-size: .85rem; color: var(--tinta-suave); margin: 0 0 1.1rem; }
+
+    @media (max-width: 420px) {
+      .cr-item { grid-template-columns: 48px minmax(0, 1fr); }
+      .cr-img { width: 48px; height: 48px; }
+      /* Cantidad, subtotal y quitar pasan abajo, en una fila */
+      .cr-der { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; }
+      .cr-pasos li { font-size: .7rem; }
+    }
+
 
     @media (prefers-reduced-motion: reduce) {
       .plat-card { transition: none; }

@@ -909,6 +909,9 @@
           ${guiaHtml}
         </div>`;
 
+      // Misma ventana que la de compra (.ancho y .compra miden igual en el
+      // CSS): al tocar "Comprar" cambia lo de adentro, no el tamaño.
+      document.getElementById('9').classList.remove('compra');
       document.getElementById('9').classList.add('ancho');
       document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -1067,6 +1070,22 @@
     // tope de la página de pago, 10 por producto (lineasEntregables en
     // js/pedido-automatico.js).
     const MAX_POR_PRODUCTO = 10;
+
+    // Descuento combo: con 2 productos o más en el carrito (cualquiera,
+    // aunque sea el mismo repetido) se descuentan 4 Bs del total, lleve 2
+    // o 10. El que cobra es la base (crear_compra en supabase/05-cobros.sql:
+    // se lo resta al pedido más caro); acá solo se muestra, con la MISMA
+    // cuenta. Si cambiás el monto, cambialo en los dos lados.
+    const DESCUENTO_COMBO = 4;
+
+    function cuentasDelCarrito() {
+      const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+      const unidades = cart.reduce((s, i) => s + i.qty, 0);
+      const descuento = unidades >= 2
+        ? Math.min(DESCUENTO_COMBO, Math.max(...cart.map(i => i.price)))
+        : 0;
+      return { subtotal, unidades, descuento, total: subtotal - descuento };
+    }
     const topeDe = p => (p.stock > 0 ? Math.min(p.stock, MAX_POR_PRODUCTO) : MAX_POR_PRODUCTO);
 
     // Paso 1 -> paso 2. Si ya estaba en el carrito no se suma otra unidad:
@@ -1621,33 +1640,51 @@
     function closeModal(e) {
       if(!e || e.target === document.getElementById('8')) {
         document.getElementById('8').classList.remove('open');
-        // El panel de planes ensancha el modal: lo devolvemos a su ancho
-        document.getElementById('9').classList.remove('ancho');
+        // El panel de planes y la compra agrandan el modal: vuelve a su ancho
+        document.getElementById('9').classList.remove('ancho', 'compra');
         document.body.style.overflow = '';
       }
     }
 
     // ==========================================================
-    // PASO 2: EL CARRITO
+    // PASOS 2 Y 3: CARRITO Y PAGO, CADA UNO EN SU PANTALLA
     // ==========================================================
-    // Cada producto con su foto, − cantidad +, subtotal y quitar. Abajo
-    // el aviso de renovación, los términos, el total y el paso 3.
+    // Paso 2 (Tu carrito): los productos con − cantidad +, subtotal y
+    // quitar. Abajo, fijo: el total, "Seguir comprando" y "Continuar".
+    // Paso 3 (Pagar con QR): el resumen de solo lectura, el aviso de
+    // correo, el de renovación y los términos. Abajo, fijo: el total,
+    // "Volver al carrito" y "Pagar con QR".
     //
-    // Cambiar una cantidad NO redibuja el carrito entero: solo esa fila y
-    // el total. Si no, se borraban los términos tildados y el número de
-    // WhatsApp cada vez que el cliente tocaba el +.
+    // Antes estaba todo en una sola ventana larga. Ahora openCart() dibuja
+    // los DOS pasos de una vez y irAPaso() muestra uno y esconde el otro:
+    // así ir y volver no borra los términos tildados ni el número de
+    // WhatsApp. Por lo mismo, cambiar una cantidad redibuja solo su fila.
     // ==========================================================
     const fmtBsCarrito = n => {
       const num = Number(n) || 0;
       return (Number.isInteger(num) ? String(num) : num.toFixed(2)) + ' Bs';
     };
 
-    const pasosHtml = () => `
+    // La guía de los tres pasos. Los ya hechos son botones para volver a
+    // ellos; hacia adelante no se salta desde acá (hay que pasar por el
+    // botón de cada pantalla, que es el que controla lo que falta).
+    const PASOS = ['Elegir', 'Carrito', 'Pagar con QR'];
+    const VOLVER_A_PASO = ['seguirComprando()', 'irAPaso(2)'];
+
+    function pasosHtml(actual) {
+      return `
       <ol class="cr-pasos" aria-label="Pasos de la compra">
-        <li class="hecho"><span>1</span>Elegir</li>
-        <li class="actual" aria-current="step"><span>2</span>Carrito</li>
-        <li><span>3</span>Pagar con QR</li>
+        ${PASOS.map((nombre, i) => {
+          const n = i + 1;
+          if (n === actual) return `<li class="actual" aria-current="step"><span>${n}</span>${nombre}</li>`;
+          if (n < actual)   return `<li class="hecho"><button type="button" onclick="${VOLVER_A_PASO[i]}"><span>✓</span>${nombre}</button></li>`;
+          return `<li><span>${n}</span>${nombre}</li>`;
+        }).join('')}
       </ol>`;
+    }
+
+    let pasoActual   = 0;      // 2 o 3 mientras el carrito está abierto
+    let planDeVuelta = null;   // el plan que se acaba de agregar, para "Seguir comprando"
 
     function openCart({ agregado = null } = {}) {
       // Si bajó el stock desde que lo agregó, se ajusta la cantidad
@@ -1657,6 +1694,11 @@
         if (item.qty > tope) { item.qty = tope; ajustados.push(item.id); }
       });
       if (ajustados.length) { updateCartCount(); guardarCarrito(); }
+
+      // Sin plan de donde vino (se abrió desde el ícono del carrito),
+      // "Seguir comprando" cierra la ventana
+      planDeVuelta = agregado;
+      pasoActual = 0;
 
       const cuerpo = document.getElementById('10');
 
@@ -1672,82 +1714,168 @@
             <p>Elegí un plan y tocá <b>Comprar</b>: aparece acá para pagarlo con QR.</p>
             <button class="ck-pagar" onclick="closeModal(); goHome();">Ver productos</button>
           </div>`;
-        abrirModalCarrito();
+        abrirModalCarrito(false);
         return;
       }
 
       const recien = agregado ? cart.find(i => i.id === agregado) : null;
       const pideDatos = cart.some(i => { const f = productFlags(i); return f.needsEmail || f.needsUsername; });
 
-      cuerpo.innerHTML = `
-        <div class="ck-cab">
-          <h3>Tu carrito</h3>
-          <button class="ck-cerrar" onclick="closeModal()" aria-label="Cerrar">✕</button>
-        </div>
-
-        ${pasosHtml()}
-
-        ${recien ? `<div class="cr-agregado" role="status">✓ Agregaste <b>${escaparHtml(recien.name)}</b></div>` : ''}
-
-        <ul class="cr-items">${cart.map((item, idx) => filaCarrito(item, idx, ajustados.includes(item.id))).join('')}</ul>
-
-        ${pideDatos ? `
-        <div class="ck-caja ck-correo">
-          <span class="ck-correo-ico">📧</span>
-          <div>
-            <b>Te pediremos tu correo al pagar</b>
-            <p>Alguno de estos servicios se activa sobre tu propia cuenta. En el paso 3 vas a ver el campo para escribirlo.</p>
-          </div>
-        </div>` : ''}
-
-        <div class="ck-caja ck-renovar">
-          <div class="ck-renovar-fila">
-            <div class="ck-renovar-txt">
-              <b>¿Te recordamos renovar al vencer?</b>
-              <p>Te escribimos por WhatsApp unos días antes del vencimiento para
-                 que no pierdas el servicio. No se cobra nada automáticamente.</p>
-            </div>
-            <label class="ck-switch">
-              <input type="checkbox" id="crRenovar">
-              <span class="ck-switch-pista"><span class="ck-switch-bola"></span></span>
-            </label>
-          </div>
-          <!-- Aparece recién al prender el interruptor: si no vamos a
-               escribirle, pedirle el número es preguntar por gusto. -->
-          <div class="ck-renovar-tel" id="crRenovarTel" hidden>
-            <label for="crTel">¿A qué WhatsApp te escribimos?</label>
-            <div class="ck-tel-campo">
-              <span class="ck-tel-pais">🇧🇴 +591</span>
-              <input type="tel" id="crTel" inputmode="numeric" maxlength="14"
-                     autocomplete="tel-national" placeholder="7 123 4567">
-            </div>
-            <p class="ck-tel-error" id="crTelError" hidden></p>
-          </div>
-        </div>
-
-        ${bloqueTerminos('cartTerminos')}
-
+      // El total va en el pie de los dos pasos: por eso son clases y no ids
+      const totalHtml = `
         <div class="cr-total">
           <div>
             <span class="cr-total-lbl">Total a pagar</span>
-            <small id="crCuantos"></small>
+            <small class="cr-cuantos"></small>
           </div>
-          <b id="crTotal"></b>
+          <b class="cr-total-num"></b>
+        </div>`;
+
+      cuerpo.innerHTML = `
+        <div class="ck-cab">
+          <h3 id="crTitulo" tabindex="-1">Tu carrito</h3>
+          <button class="ck-cerrar" onclick="closeModal()" aria-label="Cerrar">✕</button>
         </div>
 
-        <button class="ck-pagar cr-pagar" id="cartPagarQR" disabled onclick="payWithQR()">
-          <span class="cr-pagar-paso">3</span> Pagar con QR <span class="cr-pagar-monto" id="crPagarMonto"></span>
-        </button>
-        <p class="ck-aviso" id="crAvisoPagar">Aceptá los términos para pagar. Te llevamos al QR de BancoSol.</p>
+        <div id="crPasos"></div>
 
-        <div class="cr-otros">
-          <button type="button" class="cr-seguir" onclick="${recien ? `volverAPlanes(${recien.id})` : 'closeModal()'}">← Seguir comprando</button>
-          <a class="cr-wa" id="crWa" target="_blank" rel="noopener">💬 Prefiero pedir por WhatsApp</a>
-        </div>`;
+        <!-- ===== PASO 2: TU CARRITO ===== -->
+        <section class="cr-paso" id="crPaso2">
+          <div class="cr-scroll">
+            ${recien ? `<div class="cr-agregado" role="status">✓ Agregaste <b>${escaparHtml(recien.name)}</b></div>` : ''}
+            <ul class="cr-items">${cart.map((item, idx) => filaCarrito(item, idx, ajustados.includes(item.id))).join('')}</ul>
+            <!-- Descuento combo: aplicado, o la invitación a sumar otro.
+                 Lo llena pintarTotales() cada vez que cambia el carrito. -->
+            <div class="cr-combo" id="crCombo"></div>
+          </div>
+          <div class="cr-pie">
+            ${totalHtml}
+            <div class="cr-acciones">
+              <button type="button" class="cr-atras" onclick="seguirComprando()">← Seguir comprando</button>
+              <button type="button" class="ck-pagar" onclick="irAPaso(3)">Continuar →</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== PASO 3: PAGAR CON QR ===== -->
+        <section class="cr-paso" id="crPaso3" hidden>
+          <div class="cr-scroll">
+            <div class="ck-caja cr-pedido">
+              <div class="cr-pedido-cab">
+                <b>Tu pedido</b>
+                <button type="button" class="cr-editar" onclick="irAPaso(2)">Editar</button>
+              </div>
+              <ul class="cr-resumen" id="crResumen"></ul>
+            </div>
+
+            ${pideDatos ? `
+            <div class="ck-caja ck-correo">
+              <span class="ck-correo-ico">📧</span>
+              <div>
+                <b>Te pediremos tu correo al pagar</b>
+                <p>Alguno de estos servicios se activa sobre tu propia cuenta.
+                   En la pantalla del QR vas a ver el campo para escribirlo.</p>
+              </div>
+            </div>` : ''}
+
+            <div class="ck-caja ck-renovar">
+              <div class="ck-renovar-fila">
+                <div class="ck-renovar-txt">
+                  <b>¿Te recordamos renovar al vencer?</b>
+                  <p>Te escribimos por WhatsApp unos días antes del vencimiento para
+                     que no pierdas el servicio. No se cobra nada automáticamente.</p>
+                </div>
+                <label class="ck-switch">
+                  <input type="checkbox" id="crRenovar">
+                  <span class="ck-switch-pista"><span class="ck-switch-bola"></span></span>
+                </label>
+              </div>
+              <!-- Aparece recién al prender el interruptor: si no vamos a
+                   escribirle, pedirle el número es preguntar por gusto. -->
+              <div class="ck-renovar-tel" id="crRenovarTel" hidden>
+                <label for="crTel">¿A qué WhatsApp te escribimos?</label>
+                <div class="ck-tel-campo">
+                  <span class="ck-tel-pais">🇧🇴 +591</span>
+                  <input type="tel" id="crTel" inputmode="numeric" maxlength="14"
+                         autocomplete="tel-national" placeholder="7 123 4567">
+                </div>
+                <p class="ck-tel-error" id="crTelError" hidden></p>
+              </div>
+            </div>
+
+            ${bloqueTerminos('cartTerminos')}
+          </div>
+          <div class="cr-pie">
+            ${totalHtml}
+            <div class="cr-acciones">
+              <button type="button" class="cr-atras" onclick="irAPaso(2)">← Volver al carrito</button>
+              <button type="button" class="ck-pagar" id="cartPagarQR" disabled onclick="payWithQR()">
+                Pagar con QR <span class="cr-pagar-monto" id="crPagarMonto"></span>
+              </button>
+            </div>
+            <p class="ck-aviso" id="crAvisoPagar">Te llevamos al QR para completar el pago.</p>
+          </div>
+        </section>`;
 
       pintarTotales();
       atarCarrito();
-      abrirModalCarrito();
+      abrirModalCarrito(true);
+      irAPaso(2);
+    }
+
+    // Muestra el paso 2 o el 3. Los dos ya están dibujados: solo se
+    // esconde uno y se muestra el otro.
+    function irAPaso(n) {
+      const s2 = document.getElementById('crPaso2');
+      const s3 = document.getElementById('crPaso3');
+      if (!s2 || !s3) return;
+      if (n === 3 && cart.length === 0) return;
+
+      const antes = pasoActual;
+      const entra = n === 3 ? s3 : s2;
+      s2.hidden = n !== 2;
+      s3.hidden = n !== 3;
+      entra.querySelector('.cr-scroll').scrollTop = 0;
+
+      document.getElementById('crPasos').innerHTML = pasosHtml(n);
+      const titulo = document.getElementById('crTitulo');
+      titulo.textContent = n === 3 ? 'Pagar con QR' : 'Tu carrito';
+      if (n === 3) pintarResumen();
+
+      pasoActual = n;
+      if (antes && antes !== n) {
+        // Entra desde la derecha al avanzar y desde la izquierda al volver
+        entra.style.setProperty('--desde', n > antes ? '28px' : '-28px');
+        entra.classList.remove('entra');
+        void entra.offsetWidth;            // reinicia la animación
+        entra.classList.add('entra');
+        // El botón que se tocó quedó escondido: el foco pasa al título
+        titulo.focus({ preventScroll: true });
+      }
+    }
+
+    // "Seguir comprando" y "✓ Elegir": a los planes del producto recién
+    // agregado, o se cierra si el carrito se abrió desde el ícono.
+    function seguirComprando() {
+      if (planDeVuelta !== null && PRODUCTS.some(p => p.id === planDeVuelta)) volverAPlanes(planDeVuelta);
+      else closeModal();
+    }
+
+    // "Tu pedido" del paso 3: lo que se va a pagar, de solo lectura
+    function pintarResumen() {
+      const lista = document.getElementById('crResumen');
+      if (!lista) return;
+      const { descuento } = cuentasDelCarrito();
+      lista.innerHTML = cart.map(i => `
+        <li>
+          <span class="cr-res-nombre">${i.qty}× ${escaparHtml(i.name)}</span>
+          <b>${fmtBsCarrito(i.price * i.qty)}</b>
+        </li>`).join('') +
+        (descuento > 0 ? `
+        <li class="cr-res-desc">
+          <span class="cr-res-nombre">🎁 Descuento combo</span>
+          <b>−${fmtBsCarrito(descuento)}</b>
+        </li>` : '');
     }
 
     function filaCarrito(item, idx, ajustado) {
@@ -1789,20 +1917,27 @@
     }
 
     function pintarTotales() {
-      const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-      const unidades = cart.reduce((s, i) => s + i.qty, 0);
+      const { unidades, descuento, total } = cuentasDelCarrito();
       const el = id => document.getElementById(id);
-      if (!el('crTotal')) return;
+      if (!el('crPagarMonto')) return;
 
-      el('crTotal').textContent = fmtBsCarrito(total);
-      el('crCuantos').textContent = unidades === 1 ? '1 producto' : `${unidades} productos`;
+      // El total está en el pie del paso 2 y en el del 3, ya con el
+      // descuento combo si corresponde
+      document.querySelectorAll('.cr-total-num').forEach(e => { e.textContent = fmtBsCarrito(total); });
+      document.querySelectorAll('.cr-cuantos').forEach(e => {
+        e.textContent = (unidades === 1 ? '1 producto' : `${unidades} productos`) +
+                        (descuento > 0 ? ` · ahorrás ${fmtBsCarrito(descuento)}` : '');
+      });
       el('crPagarMonto').textContent = '· ' + fmtBsCarrito(total);
 
-      // El pedido por WhatsApp lleva el carrito tal como está ahora
-      el('crWa').href = 'https://wa.me/59157707335?text=' + encodeURIComponent(
-        '🦁 *TIAGO STORE BOLIVIA* 🦁\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nAdjunto el detalle de mi pedido:\n\n🛒 *RESUMEN DE PEDIDO*\n──────────────────────────\n' +
-        cart.map(i => `✔️ ${i.qty}x ${i.name} — ${fmtBsCarrito(i.price * i.qty)}`).join('\n') +
-        `\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n💰 *TOTAL A PAGAR: ${total.toFixed(2)} Bs*\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nQuedo en espera de su respuesta.\n*Muchas gracias.* 🙏`);
+      // Con 2 o más: el descuento aplicado. Con 1: la invitación a sumar otro.
+      const combo = el('crCombo');
+      if (combo) {
+        combo.classList.toggle('aplicado', descuento > 0);
+        combo.innerHTML = descuento > 0
+          ? `<span>🎁 <b>Descuento combo</b> por llevar ${unidades} productos</span><b class="cr-combo-monto">−${fmtBsCarrito(descuento)}</b>`
+          : `<span>🎁 Sumá otro producto y ahorrá <b>${fmtBsCarrito(DESCUENTO_COMBO)}</b> con el descuento combo</span>`;
+      }
     }
 
     // Términos + aviso de renovación: los mismos candados que tenía la
@@ -1814,13 +1949,11 @@
       const cajaTel  = document.getElementById('crRenovarTel');
       const campoTel = document.getElementById('crTel');
       const errorTel = document.getElementById('crTelError');
-      const avisoPagar = document.getElementById('crAvisoPagar');
 
+      // El aviso de abajo del botón (#crAvisoPagar) dice siempre lo mismo;
+      // que faltan los términos ya lo marca la caja en rojo.
       const refrescar = () => {
         boton.disabled = !terminos.checked || (renovar.checked && !telValido(campoTel.value));
-        avisoPagar.textContent = !terminos.checked
-          ? 'Aceptá los términos para pagar. Te llevamos al QR de BancoSol.'
-          : 'Te llevamos al QR de BancoSol para completar el pago.';
       };
 
       renovar.addEventListener('change', () => {
@@ -1844,12 +1977,16 @@
       terminos.addEventListener('change', refrescar);
     }
 
-    function abrirModalCarrito() {
-      // El panel de planes ensancha el modal: el carrito va en el ancho normal
-      document.getElementById('9').classList.remove('ancho');
+    // grande = la ventana de compra (.compra), del mismo tamaño que el
+    // panel de planes: al tocar "Comprar" cambia lo de adentro, no la
+    // ventana. El carrito vacío usa la ventana chica de siempre.
+    function abrirModalCarrito(grande) {
+      const hoja = document.getElementById('9');
+      hoja.classList.remove('ancho');
+      hoja.classList.toggle('compra', grande === true);
       document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
-      document.getElementById('9').scrollTop = 0;
+      hoja.scrollTop = 0;
     }
 
     // − y +. Con stock cargado no se pasa de lo que hay: al intentarlo,
@@ -1996,7 +2133,9 @@
       }
       if (cart.length === 0) return;
 
-      const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      // El total ya con el descuento combo: es el que se ve mientras la
+      // base arma la compra (después manda el que calculó ella, que es el mismo)
+      const { total } = cuentasDelCarrito();
       const cartData = cart.map(item => ({
         fid: item.fid,
         name: item.name.substring(0, 80),

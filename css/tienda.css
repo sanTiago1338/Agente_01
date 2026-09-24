@@ -868,12 +868,29 @@
        columnas y la guía de activación al final.
        ========================================================== */
 
-    /* Con el panel de planes abierto el modal usa todo el ancho de la
-       pantalla (menos 8 px a cada lado en la compu). Antes se frenaba en
-       940 px y en una pantalla ancha quedaba una franja angosta al medio. */
-    .modal-sheet.ancho { max-width: none; }
+    /* El panel de planes (.ancho) y la compra (.compra) miden EXACTAMENTE
+       lo mismo: al tocar "Comprar" la ventana no cambia de tamaño ni de
+       lugar, solo lo de adentro.
+       Celular: casi toda la pantalla. Compu: 90 % del ancho (mínimo
+       600 px) y hasta 800 px de alto. Antes el panel iba de borde a borde
+       y el carrito era una ventanita de 600 px. dvh descuenta la barra del
+       navegador del celular; vh queda para los que no lo entienden. */
+    .modal-sheet.ancho,
+    .modal-sheet.compra {
+      max-width: none;
+      height: 94vh;
+      height: 94dvh;
+      max-height: none;
+    }
     @media (min-width: 600px) {
-      .modal-sheet.ancho { width: calc(100% - 1rem); }
+      .modal-sheet.ancho,
+      .modal-sheet.compra {
+        width: calc(100% - 1rem);
+        max-width: max(600px, 90%);
+        height: min(800px, calc(100vh - 2rem));
+        height: min(800px, calc(100dvh - 2rem));
+        margin-bottom: 0;
+      }
     }
 
     .pl-cab {
@@ -1607,89 +1624,147 @@
     .ck-volver:hover { color: var(--marca); }
 
     /* ==========================================================
-       CARRITO (paso 2 de 3)
+       COMPRA EN TRES PASOS: 1 Elegir · 2 Carrito · 3 Pagar con QR
        ========================================================== */
-    /* Los tres pasos, arriba: dónde está el cliente y qué sigue */
+
+    /* ---- La guía de pasos ----
+       Los hechos son botones (✓) para volver; el actual, con aro rojo. */
     .cr-pasos {
       list-style: none;
       display: flex;
       align-items: center;
-      gap: .4rem;
+      gap: .5rem;
       margin: 0 0 1rem;
       padding: 0;
-      counter-reset: none;
     }
     .cr-pasos li {
       flex: 1;
       display: flex;
       align-items: center;
-      gap: .45rem;
-      font-size: .76rem;
+      gap: .5rem;
+      font-size: .84rem;
       font-weight: 700;
       color: var(--tinta-suave);
       white-space: nowrap;
     }
+    .cr-pasos li:last-child { flex: none; }
     .cr-pasos li:not(:last-child)::after {
       content: '';
       flex: 1;
+      min-width: 12px;
       height: 2px;
       border-radius: 2px;
       background: var(--separador-2);
-      margin-left: .2rem;
     }
     .cr-pasos li.hecho::after { background: var(--marca); }
     .cr-pasos span {
-      width: 24px; height: 24px; flex: none;
+      width: 30px; height: 30px; flex: none;
       display: grid; place-items: center;
       border-radius: 50%;
       background: var(--superficie-2);
       border: 1.5px solid var(--separador-2);
-      font-size: .72rem; font-weight: 800;
+      font-size: .8rem; font-weight: 800;
       color: var(--tinta-suave);
     }
+    .cr-pasos li.hecho button {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: 0; border: none; background: none;
+      font: inherit; color: var(--tinta-media);
+      cursor: pointer;
+    }
+    .cr-pasos li.hecho button:hover { color: var(--marca); }
+    .cr-pasos li.hecho button:focus-visible { outline: 2px solid var(--marca); outline-offset: 3px; border-radius: 6px; }
     .cr-pasos li.hecho span  { background: var(--marca); border-color: var(--marca); color: #fff; }
     .cr-pasos li.actual      { color: var(--tinta); }
     .cr-pasos li.actual span { border-color: var(--marca); color: var(--marca); background: #fff; box-shadow: 0 0 0 3px rgba(229,9,20,.12); }
 
+    @media (min-width: 760px) {
+      .cr-pasos li { font-size: .95rem; }
+      .cr-pasos span { width: 34px; height: 34px; font-size: .88rem; }
+    }
+
+    /* ---- La ventana de compra: cabecera, guía, contenido que scrollea
+       y un pie que queda siempre a la vista con el total y los botones ---- */
+    .modal-sheet.compra {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: .75rem 1rem 0;
+    }
+    @media (min-width: 600px) {
+      .modal-sheet.compra { padding: 1rem 2rem 0; }
+    }
+    .modal-sheet.compra > [id="10"],
+    .cr-paso {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .cr-paso[hidden] { display: none; }
+    .modal-sheet.compra .modal-handle { margin-bottom: .8rem; }
+    .modal-sheet.compra .ck-cab { margin-bottom: .9rem; padding-bottom: .8rem; }
+    .modal-sheet.compra .ck-cab h3 { font-size: 1.3rem; }
+    .ck-cab h3:focus { outline: none; }
+    @media (min-width: 600px) {
+      .modal-sheet.compra .ck-cab h3 { font-size: 1.45rem; }
+    }
+
+    .cr-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-bottom: 1rem;
+    }
+
+    /* Al cambiar de paso, lo nuevo entra desde el costado (--desde lo
+       pone irAPaso: desde la derecha al avanzar, desde la izquierda al volver) */
+    .cr-paso.entra { animation: crEntra .28s ease; }
+    @keyframes crEntra {
+      from { opacity: 0; transform: translateX(var(--desde, 28px)); }
+    }
+    @media (prefers-reduced-motion: reduce) { .cr-paso.entra { animation: none; } }
+
     .cr-agregado {
-      margin-bottom: .8rem;
-      padding: .6rem .8rem;
+      margin-bottom: .9rem;
+      padding: .7rem .9rem;
       border-radius: 10px;
       background: rgba(21,128,61,.09);
       color: #14632f;
-      font-size: .82rem;
+      font-size: .9rem;
     }
 
-    /* ---- Productos ---- */
-    .cr-items { list-style: none; margin: 0 0 1rem; padding: 0; }
+    /* ---- Productos (paso 2) ---- */
+    .cr-items { list-style: none; margin: 0 0 .9rem; padding: 0; }
     .cr-item {
       display: grid;
-      grid-template-columns: 56px minmax(0, 1fr) auto;
-      gap: .8rem;
+      grid-template-columns: 72px minmax(0, 1fr) auto;
+      gap: 1rem;
       align-items: center;
-      padding: .85rem 0;
+      padding: 1rem 0;
       border-bottom: 1px solid var(--borde);
     }
     .cr-item:first-child { padding-top: .2rem; }
     .cr-img {
-      width: 56px; height: 56px;
-      border-radius: 12px;
+      width: 72px; height: 72px;
+      border-radius: 14px;
       object-fit: cover;
       background: var(--superficie-2);
     }
-    .cr-nombre { font-weight: 800; font-size: .9rem; color: var(--tinta); line-height: 1.3; }
-    .cr-meta { font-size: .72rem; color: var(--tinta-suave); margin-top: .2rem; }
+    .cr-nombre { font-weight: 800; font-size: 1.05rem; color: var(--tinta); line-height: 1.3; }
+    .cr-meta { font-size: .8rem; color: var(--tinta-suave); margin-top: .25rem; }
     .cr-ya { color: #0f7a6e; font-weight: 700; }
-    .cr-unit { font-size: .76rem; color: var(--tinta-media); margin-top: .25rem; }
+    .cr-unit { font-size: .85rem; color: var(--tinta-media); margin-top: .3rem; }
     .cr-unit s { color: var(--tinta-suave); margin-left: .25rem; }
     .cr-aviso {
       display: inline-block;
-      margin-top: .4rem;
-      padding: .2rem .55rem;
+      margin-top: .45rem;
+      padding: .25rem .6rem;
       border-radius: 7px;
       background: rgba(229,9,20,.09);
       color: var(--marca-oscura);
-      font-size: .72rem;
+      font-size: .8rem;
       font-weight: 800;
     }
     .cr-aviso[hidden] { display: none; }
@@ -1701,100 +1776,186 @@
     }
     @media (prefers-reduced-motion: reduce) { .cr-tope .cr-cant { animation: none; } }
 
-    .cr-der { display: flex; flex-direction: column; align-items: flex-end; gap: .45rem; }
+    .cr-der { display: flex; flex-direction: column; align-items: flex-end; gap: .5rem; }
     .cr-cant {
       display: inline-flex;
       align-items: center;
       border: 1px solid var(--separador-2);
-      border-radius: 10px;
+      border-radius: 12px;
       background: #fff;
       overflow: hidden;
     }
     .cr-cant button {
-      width: 34px; height: 34px;
+      width: 40px; height: 40px;
       border: none;
       background: none;
-      font: 700 1.05rem/1 'Outfit', sans-serif;
+      font: 700 1.2rem/1 'Outfit', sans-serif;
       color: var(--tinta);
       cursor: pointer;
     }
     .cr-cant button:hover { background: var(--superficie-2); }
     .cr-qty {
-      min-width: 28px;
+      min-width: 32px;
       text-align: center;
       font-weight: 800;
-      font-size: .9rem;
+      font-size: 1rem;
       color: var(--tinta);
       font-variant-numeric: tabular-nums;
     }
-    .cr-sub { font-weight: 800; font-size: .95rem; color: var(--tinta); font-variant-numeric: tabular-nums; }
+    .cr-sub { font-weight: 800; font-size: 1.1rem; color: var(--tinta); font-variant-numeric: tabular-nums; }
     .cr-quitar {
-      width: 30px; height: 30px;
+      width: 34px; height: 34px;
       display: grid; place-items: center;
-      border: none; border-radius: 8px;
+      border: none; border-radius: 9px;
       background: none;
       color: var(--tinta-suave);
       cursor: pointer;
     }
-    .cr-quitar svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .cr-quitar svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .cr-quitar:hover { color: var(--marca); background: rgba(229,9,20,.07); }
 
-    /* ---- Total y paso 3 ---- */
+    /* ---- Descuento combo (paso 2) ----
+       Con 2 o más productos, verde y con el monto; con 1, una invitación
+       gris a sumar otro. El texto lo pone pintarTotales(). */
+    .cr-combo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding: .75rem .95rem;
+      border: 1.5px dashed var(--separador-2);
+      border-radius: 12px;
+      background: var(--superficie-2);
+      color: var(--tinta-media);
+      font-size: .9rem;
+    }
+    .cr-combo:empty { display: none; }
+    .cr-combo b { color: var(--tinta); }
+    .cr-combo.aplicado {
+      border: 1.5px solid rgba(21,128,61,.35);
+      background: rgba(21,128,61,.08);
+      color: #14632f;
+    }
+    .cr-combo.aplicado b { color: #14632f; }
+    .cr-combo-monto { font-size: 1.05rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    /* ---- Tu pedido (paso 3): el resumen de solo lectura ---- */
+    .cr-pedido-cab { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
+    .cr-pedido-cab b { font-size: 1rem; color: var(--tinta); }
+    .cr-editar {
+      border: 1px solid var(--separador-2); border-radius: 8px;
+      background: #fff; padding: .3rem .75rem;
+      font: 700 .82rem 'Outfit', sans-serif; color: var(--tinta-media);
+      cursor: pointer;
+    }
+    .cr-editar:hover { color: var(--marca); border-color: var(--marca); }
+    .cr-resumen { list-style: none; margin: 0; padding: 0; }
+    .cr-resumen li {
+      display: flex; align-items: baseline; gap: .5rem;
+      padding: .4rem 0;
+      font-size: .92rem; color: var(--tinta-media);
+    }
+    /* Los puntitos entre el nombre y el precio: "1× Netflix ...... 15 Bs" */
+    .cr-resumen li::after { content: ''; order: 1; flex: 1; border-bottom: 1.5px dotted var(--separador-2); min-width: 1rem; }
+    .cr-resumen b { order: 2; color: var(--tinta); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .cr-res-nombre { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cr-resumen li.cr-res-desc,
+    .cr-resumen li.cr-res-desc b { color: #14632f; font-weight: 700; }
+
+    /* Las cajas del paso 3, con la letra un poco más grande que en el
+       resto de la tienda: es lo último que el cliente lee antes de pagar */
+    .compra .ck-renovar-txt b, .compra .ck-correo b { font-size: .95rem; }
+    .compra .ck-renovar-txt p, .compra .ck-correo p { font-size: .85rem; }
+    .compra .ck-terminos        { font-size: .95rem; }
+    .compra .ck-ver-terminos    { font-size: .85rem; }
+    .compra .ck-lista-terminos  { font-size: .85rem; }
+    .compra .ck-tel-campo input { font-size: 1rem; }
+
+    /* ---- El pie: total y botones, siempre a la vista ----
+       Celular: el total en una caja gris, abajo el botón principal a todo
+       el ancho y abajo de todo "volver". */
+    .cr-pie {
+      flex: none;
+      border-top: 1px solid var(--borde);
+      padding: .8rem 0 calc(.8rem + env(safe-area-inset-bottom));
+      background: var(--negro2);
+    }
     .cr-total {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      margin: 1rem 0 .8rem;
-      padding: .9rem 1rem;
+      margin-bottom: .7rem;
+      padding: .75rem 1rem;
       border-radius: 14px;
       background: var(--superficie-2);
     }
-    .cr-total-lbl { display: block; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-suave); }
-    .cr-total small { font-size: .78rem; color: var(--tinta-suave); }
-    .cr-total b { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; color: var(--tinta); font-variant-numeric: tabular-nums; }
+    .cr-total-lbl { display: block; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-suave); }
+    .cr-cuantos { font-size: .82rem; color: var(--tinta-suave); }
+    .cr-total-num { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; color: var(--tinta); font-variant-numeric: tabular-nums; }
 
-    .cr-pagar { gap: .55rem; }
-    .cr-pagar-paso {
-      width: 22px; height: 22px;
-      display: inline-grid; place-items: center;
-      border-radius: 50%;
-      background: rgba(255,255,255,.22);
-      font-size: .75rem;
-    }
+    .cr-acciones { display: flex; flex-direction: column-reverse; gap: .45rem; }
+    .cr-pie .ck-pagar { padding: 1.05rem 1.25rem; font-size: 1rem; }
     .cr-pagar-monto { opacity: .9; font-weight: 700; }
-
-    .cr-otros {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: .75rem;
-      flex-wrap: wrap;
-      margin-top: .9rem;
-      padding-top: .8rem;
-      border-top: 1px solid var(--borde);
-    }
-    .cr-seguir {
-      border: none; background: none; padding: .3rem 0;
-      font: 700 .82rem 'Outfit', sans-serif;
+    .cr-atras {
+      border: none; background: none; padding: .45rem 0;
+      font: 700 .92rem 'Outfit', sans-serif;
       color: var(--tinta-media);
       cursor: pointer;
     }
-    .cr-seguir:hover { color: var(--marca); }
-    .cr-wa { font-size: .8rem; font-weight: 700; color: #0f7a6e; text-decoration: none; }
-    .cr-wa:hover { text-decoration: underline; }
+    .cr-atras:hover { color: var(--marca); }
+    .cr-pie .ck-aviso { margin-top: .35rem; font-size: .76rem; }
 
+    /* Desde 760 px, el pie entra en una fila: volver · total · botón */
+    @media (min-width: 760px) {
+      .cr-pie {
+        display: grid;
+        grid-template-columns: minmax(max-content, 1fr) auto minmax(200px, 340px);
+        grid-template-areas:
+          "atras total boton"
+          "aviso aviso aviso";
+        align-items: center;
+        column-gap: 1.5rem;
+        padding: 1rem 0 calc(1rem + env(safe-area-inset-bottom));
+      }
+      .cr-acciones { display: contents; }
+      .cr-atras { grid-area: atras; justify-self: start; }
+      .cr-pie .cr-total {
+        grid-area: total;
+        margin: 0;
+        padding: 0;
+        background: none;
+        white-space: nowrap;
+        text-align: right;
+      }
+      .cr-pie .ck-pagar { grid-area: boton; white-space: nowrap; }
+      /* El total ya está al lado: dentro del botón partía el texto en dos
+         renglones ("Pagar con QR" arriba, "· 131 Bs" abajo) */
+      .cr-pie .cr-pagar-monto { display: none; }
+      .cr-pie .ck-aviso { grid-area: aviso; text-align: right; }
+    }
+
+    /* Pantallas bajitas (compu chica, celular acostado): menos aire arriba */
+    @media (max-height: 560px) {
+      .modal-sheet.compra .modal-handle { display: none; }
+      .modal-sheet.compra .ck-cab { margin-bottom: .5rem; padding-bottom: .5rem; }
+      .modal-sheet.compra .cr-pasos { margin-bottom: .5rem; }
+      .cr-total-num { font-size: 1.5rem; }
+    }
+
+    /* ---- Carrito vacío (ventana chica) ---- */
     .cr-vacio { text-align: center; padding: 1.5rem .5rem 1rem; }
     .cr-vacio-ico { font-size: 2.6rem; margin-bottom: .5rem; }
-    .cr-vacio b { display: block; font-size: 1.05rem; color: var(--tinta); margin-bottom: .35rem; }
+    .cr-vacio > b { display: block; font-size: 1.05rem; color: var(--tinta); margin-bottom: .35rem; }
     .cr-vacio p { font-size: .85rem; color: var(--tinta-suave); margin: 0 0 1.1rem; }
 
+    /* ---- Celular angosto: foto más chica y los controles abajo ---- */
     @media (max-width: 420px) {
-      .cr-item { grid-template-columns: 48px minmax(0, 1fr); }
-      .cr-img { width: 48px; height: 48px; }
-      /* Cantidad, subtotal y quitar pasan abajo, en una fila */
+      .cr-item { grid-template-columns: 56px minmax(0, 1fr); gap: .8rem; }
+      .cr-img { width: 56px; height: 56px; border-radius: 12px; }
       .cr-der { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; }
-      .cr-pasos li { font-size: .7rem; }
+      .cr-pasos li { font-size: .76rem; gap: .35rem; }
+      .cr-pasos li.hecho button { gap: .35rem; }
     }
 
 

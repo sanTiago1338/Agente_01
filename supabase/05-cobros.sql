@@ -860,6 +860,11 @@ grant  execute on function public.confirmar_pago_webhook(bigint, numeric, text, 
 alter table public.pedidos add column if not exists grupo  uuid;
 alter table public.pedidos add column if not exists motivo text;
 
+-- Cuánto se le descontó a ESTE pedido por el descuento combo (ver
+-- crear_compra). "precio" ya es lo que se cobra: esto es solo el registro
+-- de cuánto se sacó, para mostrar "Descuento combo" en el QR y en el panel.
+alter table public.pedidos add column if not exists descuento numeric(10,2) not null default 0;
+
 create index if not exists pedidos_grupo_idx
   on public.pedidos (grupo)
   where grupo is not null;
@@ -898,6 +903,12 @@ declare
   v_total    numeric(10,2) := 0;
   v_cuantos  integer := 0;
   i          integer;
+  -- Descuento combo: 4 Bs fijos con 2 productos o más. El mismo número
+  -- está en js/tienda.js (DESCUENTO_COMBO): si cambiás uno, cambiá el otro,
+  -- o el carrito va a mostrar un total y el QR otro.
+  c_descuento_combo constant numeric(10,2) := 4.00;
+  v_mas_caro uuid;
+  v_desc     numeric(10,2);
 begin
   if p_items is null or jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
     raise exception 'No hay nada que comprar';
@@ -958,6 +969,29 @@ begin
     end loop;
   end loop;
 
+  -- DESCUENTO COMBO: con 2 unidades o más (cualquier producto, aunque sea
+  -- el mismo repetido) se descuentan 4 Bs fijos, lleve 2 o 10.
+  -- Va entero en el pedido más caro: su precio queda en lo que se cobra de
+  -- verdad y "descuento" guarda cuánto se le sacó. Así la suma de precio
+  -- del grupo es lo que paga el cliente, y el QR (ver_mi_compra), el aviso
+  -- de Telegram y lo vendido del panel quedan bien sin tocarlos.
+  -- Todo pasa en esta misma llamada: nadie llega a ver el grupo sin el
+  -- descuento aplicado.
+  if v_cuantos >= 2 then
+    select p.id, least(c_descuento_combo, p.precio)
+      into v_mas_caro, v_desc
+    from public.pedidos p
+    where p.grupo = v_grupo
+    order by p.precio desc, p.numero
+    limit 1;
+
+    update public.pedidos
+    set precio = precio - v_desc, descuento = v_desc
+    where id = v_mas_caro;
+
+    v_total := v_total - v_desc;
+  end if;
+
   return query select v_primero, v_grupo, v_total, v_cuantos;
 end;
 $$;
@@ -980,9 +1014,10 @@ security definer
 set search_path = public
 as $$
 declare
-  v_pedido public.pedidos%rowtype;
-  v_lineas jsonb;
-  v_total  numeric(10,2);
+  v_pedido    public.pedidos%rowtype;
+  v_lineas    jsonb;
+  v_total     numeric(10,2);
+  v_descuento numeric(10,2);
 begin
   if p_token is null or length(p_token) < 32 then
     return jsonb_build_object('error', 'token invalido');
@@ -993,12 +1028,16 @@ begin
     return jsonb_build_object('error', 'no existe');
   end if;
 
+  -- "precio" es lo que se cobra (ya con el descuento combo) y "descuento"
+  -- lo que se le sacó: la página del QR muestra el precio normal
+  -- (precio + descuento) y aparte la línea del descuento.
   select
     jsonb_agg(jsonb_build_object(
       'numero',       p.numero,
       'producto',     p.producto_nombre,
       'producto_id',  p.producto_id,
       'precio',       p.precio,
+      'descuento',    p.descuento,
       'estado',       p.estado,
       'entregado_en', p.entregado_en,
       -- Las credenciales SOLO de los que ya estan entregados.
@@ -1007,8 +1046,9 @@ begin
         where c.pedido_id = p.id and c.estado = 'entregada' limit 1
       ) else null end
     ) order by p.numero),
-    sum(p.precio)
-  into v_lineas, v_total
+    sum(p.precio),
+    sum(p.descuento)
+  into v_lineas, v_total, v_descuento
   from public.pedidos p
   where (v_pedido.grupo is not null and p.grupo = v_pedido.grupo)
      or (v_pedido.grupo is null     and p.id    = v_pedido.id);
@@ -1017,6 +1057,7 @@ begin
     'numero',    v_pedido.numero,          -- el primero, para nombrar la compra
     'grupo',     v_pedido.grupo,
     'total',     v_total,
+    'descuento', coalesce(v_descuento, 0),
     'moneda',    v_pedido.moneda,
     'vence_en',  v_pedido.vence_en,
     'creado_en', v_pedido.creado_en,

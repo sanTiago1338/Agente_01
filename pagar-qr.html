@@ -842,13 +842,22 @@
       document.getElementById('orderTotal').textContent = `${total.toFixed(2)} Bs`;
       document.getElementById('payRef').textContent = `Ref: ${ref}`;
 
+      // Descuento combo: los productos van a su precio normal y, si el total
+      // es menor que la suma, la diferencia sale en su propia linea. Asi la
+      // cuenta cierra a la vista: 15 + 120 - 4 = 131.
+      const sumaItems = items.reduce((s, i) => s + i.price * i.qty, 0);
+      const descuento = Math.round((sumaItems - total) * 100) / 100;
       const orderItems = document.getElementById('orderItems');
       orderItems.innerHTML = items.map(item => `
         <div class="pay-order-item">
           <span class="item-name">${item.qty}x ${item.name}</span>
           <span class="item-price">${(item.price * item.qty).toFixed(2)} Bs</span>
         </div>
-      `).join('');
+      `).join('') + (descuento > 0 ? `
+        <div class="pay-order-item" style="color:#14632f; font-weight:700;">
+          <span class="item-name">🎁 Descuento combo</span>
+          <span class="item-price" style="color:#14632f;">-${descuento.toFixed(2)} Bs</span>
+        </div>` : '');
 
       const needsPassword = items.some(i => i.needsPassword);
       const needsEmail = items.some(i => i.needsEmail);
@@ -1389,8 +1398,11 @@
   function dibujarDesdeCompra(compra) {
     const err = $('errorScreen');
     if (err) err.classList.remove('show');
+    // "precio" viene ya con el descuento combo: se le suma lo descontado
+    // para mostrar el precio normal, y renderPayment() pone el descuento
+    // en su propia linea (la diferencia contra compra.total).
     const items = (compra.lineas || []).map(l => ({
-      name: l.producto, price: Number(l.precio) || 0, qty: 1
+      name: l.producto, price: (Number(l.precio) || 0) + (Number(l.descuento) || 0), qty: 1
     }));
     renderPayment(items, Number(compra.total) || 0, 'Pedido #' + compra.numero);
   }

@@ -666,6 +666,12 @@ function pintarPedido(p, esPrimeroDelGrupo = true) {
 
       <div class="vt-der">
         <span class="vt-precio">${Number(p.precio).toFixed(2)} Bs</span>
+        ${Number(p.descuento) > 0
+          // El descuento combo va entero en el pedido más caro de la compra
+          // (ver crear_compra): sin esto, verías ese producto más barato
+          // que su precio y no sabrías por qué.
+          ? `<span class="vt-badge" style="color:#14632f;background:rgba(21,128,61,.10)" title="Descuento combo: la compra tenía 2 productos o más">combo −${Number(p.descuento).toFixed(2)}</span>`
+          : ''}
         <span class="vt-badge" style="color:${e.color};background:${e.bg}">${e.txt}</span>
         ${(esPrimeroDelGrupo && sePuedeConfirmar(p))
           // Con stock hay dos caminos y los dos tienen que estar a mano:

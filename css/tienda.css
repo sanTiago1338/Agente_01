@@ -868,12 +868,14 @@
        columnas y la guía de activación al final.
        ========================================================== */
 
-    /* Con el panel de planes abierto el modal usa todo el ancho de la
-       pantalla (menos 8 px a cada lado en la compu). Antes se frenaba en
-       940 px y en una pantalla ancha quedaba una franja angosta al medio. */
+    /* Con el panel de planes abierto el modal es más ancho que el de
+       siempre: el 70 % de la pantalla en la compu, sin bajar de 600 px.
+       Crece con la pantalla: frenado en 940 px, en una pantalla ancha
+       quedaba una franja angosta al medio; a todo el ancho se veía
+       demasiado amplio. */
     .modal-sheet.ancho { max-width: none; }
     @media (min-width: 600px) {
-      .modal-sheet.ancho { width: calc(100% - 1rem); }
+      .modal-sheet.ancho { width: calc(100% - 1rem); max-width: max(600px, 70%); }
     }
 
     .pl-cab {

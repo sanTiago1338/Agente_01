@@ -18,6 +18,8 @@
 
 import { sbAdmin } from '../../js/supabase-config.js';
 import { tengoPermiso, carteSinPermiso } from './admin-permiso.js';
+import { agruparCompras, numerosDeCompra, nombreDeCompra, estadoPrincipal,
+         cuantasCompras } from './admin-compras.js';
 
 const $ = id => document.getElementById(id);
 
@@ -222,6 +224,7 @@ css.textContent = `
   .ini-tabla .b { font-weight: 800; color: var(--tinta); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .ini-tabla .t { color: var(--tinta-tenue); white-space: nowrap; }
   .ini-tabla th.b { text-align: right; }
+  .ini-combo { font-size: 11px; }
 
   .ini-vacio { padding: 26px 8px; text-align: center; color: var(--tinta-suave); font-size: 13.5px; }
   .ini-vacio b { display: block; color: var(--tinta); font-size: 14.5px; margin-bottom: 3px; }
@@ -412,14 +415,16 @@ async function cargar() {
       // Cinco semanas alcanzan para "hoy", "7 días contra los 7 anteriores",
       // el gráfico de 14 días y lo más vendido del mes.
       sbAdmin.from('pedidos')
-        .select('id, numero, producto_nombre, precio, estado, cliente_nombre, creado_en, entregado_en')
+        .select('id, numero, producto_id, producto_nombre, precio, descuento, estado, grupo, cliente_nombre, creado_en, entregado_en')
         .gte('creado_en', hace35)
         .order('creado_en', { ascending: false })
         .limit(2000),
-      // Los pendientes, de cualquier fecha: uno viejo sin atender también cuenta
-      sbAdmin.from('pedidos').select('id', { count: 'exact', head: true })
+      // Los pendientes, de cualquier fecha: uno viejo sin atender también
+      // cuenta. Viene el grupo para contar compras y no cuentas: la de 3
+      // productos es un pago por confirmar, no tres (igual que en Ventas).
+      sbAdmin.from('pedidos').select('id, grupo')
         .eq('estado', 'esperando_pago'),
-      sbAdmin.from('pedidos').select('id', { count: 'exact', head: true })
+      sbAdmin.from('pedidos').select('id, grupo')
         .in('estado', ['sin_stock', 'pagado']),
       // Solo producto y estado: las credenciales no hacen falta acá
       sbAdmin.from('cuentas').select('producto_id, estado').neq('estado', 'anulada'),
@@ -429,7 +434,7 @@ async function cargar() {
     const error = [rPedidos, rEsperando, rAtender, rCuentas, rProductos].find(r => r.error)?.error;
     if (error) throw error;
 
-    pintarCifras(rPedidos.data, rEsperando.count ?? 0, rAtender.count ?? 0);
+    pintarCifras(rPedidos.data, cuantasCompras(rEsperando.data), cuantasCompras(rAtender.data));
     pintarGrafico(rPedidos.data);
     pintarStock(rCuentas.data, rProductos.data);
     pintarPedidos(rPedidos.data);
@@ -459,7 +464,8 @@ function pintarCifras(pedidos, esperando, atender) {
   const deHoy = entregados.filter(p => claveDia(p.entregado_en) === hoy);
   const bsHoy = deHoy.reduce((s, p) => s + Number(p.precio || 0), 0);
   $('iniHoy').innerHTML  = `${bs(bsHoy)}<small>Bs</small>`;
-  $('iniHoyS').textContent = deHoy.length === 1 ? '1 pedido entregado' : `${deHoy.length} pedidos entregados`;
+  const comprasHoy = cuantasCompras(deHoy);
+  $('iniHoyS').textContent = comprasHoy === 1 ? '1 pedido entregado' : `${comprasHoy} pedidos entregados`;
 
   // Últimos 7 días (hoy incluido) contra los 7 de antes
   const inicioDia = new Date(); inicioDia.setHours(0, 0, 0, 0);
@@ -510,14 +516,15 @@ function pintarGrafico(pedidos) {
   const dias = [];
   for (let i = DIAS - 1; i >= 0; i--) {
     const d = new Date(hoy.getTime() - i * 864e5);
-    dias.push({ fecha: d, clave: claveDia(d), bs: 0, pedidos: 0 });
+    dias.push({ fecha: d, clave: claveDia(d), bs: 0, pedidos: 0, compras: new Set() });
   }
   const porClave = new Map(dias.map(d => [d.clave, d]));
 
+  // "pedidos" cuenta compras: la de 3 productos es un pedido, no tres
   for (const p of pedidos) {
     if (p.estado !== 'entregado' || !p.entregado_en) continue;
     const d = porClave.get(claveDia(p.entregado_en));
-    if (d) { d.bs += Number(p.precio || 0); d.pedidos++; }
+    if (d) { d.bs += Number(p.precio || 0); d.compras.add(p.grupo || p.id); d.pedidos = d.compras.size; }
   }
 
   const total = dias.reduce((s, d) => s + d.bs, 0);
@@ -652,8 +659,10 @@ function pintarStock(cuentas, productos) {
 // ============================================================
 // 8. ÚLTIMOS PEDIDOS
 // ============================================================
+// Una fila por compra, con lo que se compró y el total que se cobra (ya
+// con el descuento combo), como en Ventas.
 function pintarPedidos(pedidos) {
-  const ultimos = pedidos.slice(0, 8);
+  const ultimos = agruparCompras(pedidos).slice(0, 8);
   if (ultimos.length === 0) {
     $('iniPedidos').innerHTML = `<div class="ini-vacio"><b>Todavía no hay pedidos este mes</b>
       Cuando alguien compre, aparece acá.</div>`;
@@ -664,15 +673,17 @@ function pintarPedidos(pedidos) {
     <table class="ini-tabla">
       <thead><tr><th>N°</th><th>Producto</th><th>Estado</th><th class="t">Cuándo</th><th class="b">Bs</th></tr></thead>
       <tbody>
-        ${ultimos.map(p => {
-          const e = ESTADOS[p.estado] || { txt: p.estado, color: '#767c88', bg: 'rgba(20,22,26,.06)' };
+        ${ultimos.map(c => {
+          const estado = estadoPrincipal(c.lineas);
+          const e = ESTADOS[estado] || { txt: estado, color: '#767c88', bg: 'rgba(20,22,26,.06)' };
+          const que = nombreDeCompra(c.lineas);
           return `
           <tr>
-            <td class="n">#${escapar(p.numero)}</td>
-            <td class="p" title="${escapar(p.producto_nombre)}">${escapar(p.producto_nombre)}</td>
+            <td class="n">${escapar(numerosDeCompra(c.lineas))}</td>
+            <td class="p" title="${escapar(que)}">${escapar(que)}</td>
             <td><span class="ini-pill" style="color:${e.color};background:${e.bg}">${e.txt}</span></td>
-            <td class="t">${haceCuanto(p.creado_en)}</td>
-            <td class="b">${bs(p.precio)}</td>
+            <td class="t">${haceCuanto(c.primera.creado_en)}</td>
+            <td class="b"${c.descuento > 0 ? ` title="Con ${bs(c.descuento)} Bs de descuento combo"` : ''}>${bs(c.total)}${c.descuento > 0 ? ' <span class="ini-combo">🎁</span>' : ''}</td>
           </tr>`;
         }).join('')}
       </tbody>

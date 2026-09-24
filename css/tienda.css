@@ -972,60 +972,70 @@
     }
     .pl-hero p b { color: #fff; }
 
-    /* ---------- Tarjetas de plan ---------- */
+    /* ---------- Tarjetas de plan ----------
+       Cada tarjeta se acomoda a SU ancho (container query), no al de la
+       pantalla: angosta, va apilada; ancha (dos planes en la compu), se
+       reparte en tres zonas —nombre, características, precio— en vez de
+       estirarse y dejar un hueco en el medio. */
     .pl-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: .8rem;
       margin-bottom: 1.25rem;
     }
-    /* Desde la tablet, tantas columnas como entren de 320 px, y los planes
-       se estiran para llenar el ancho: con 2 planes en una pantalla ancha
-       no queda una tercera columna vacía a la derecha. */
+    /* Desde la tablet, tantas columnas como entren de 340 px, estiradas
+       para llenar el ancho. */
     @media (min-width: 700px) {
-      .pl-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+      .pl-grid { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
     }
 
     .plan-item {
+      container-type: inline-size;
       border: 1px solid var(--borde);
-      border-radius: 14px;
-      padding: 1rem;
+      border-radius: 16px;
       background: #fff;
       box-shadow: var(--sombra);
-      display: flex;
-      flex-direction: column;
+      transition: border-color .15s, box-shadow .15s;
     }
+    .plan-item:hover { border-color: var(--separador-2); box-shadow: var(--sombra-alta); }
     .plan-item--agotado { opacity: .6; }
 
-    .plan-item-cab {
+    .plan-in {
+      height: 100%;
       display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: .6rem;
-      margin-bottom: .8rem;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.1rem;
     }
+
+    /* Nombre arriba y las etiquetas en UNA fila debajo (antes iban
+       apiladas a la derecha y cada tarjeta quedaba de un alto distinto) */
+    .plan-cab { display: flex; align-items: flex-start; gap: .8rem; min-width: 0; }
     .plan-logo {
-      width: 48px; height: 48px;
-      border-radius: 11px;
+      width: 52px; height: 52px;
+      border-radius: 12px;
       object-fit: cover;
       background: var(--superficie-2);
       flex-shrink: 0;
     }
-    .plan-chips {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: .3rem;
+    .plan-cab-txt { min-width: 0; }
+    .plan-item-nombre {
+      font-weight: 800;
+      font-size: 1.02rem;
+      color: var(--tinta);
+      line-height: 1.3;
+      margin-bottom: .45rem;
     }
+    .plan-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
     .plan-chip {
       display: inline-flex;
       align-items: center;
       gap: .3rem;
-      font-size: .6rem;
-      font-weight: 900;
+      font-size: .62rem;
+      font-weight: 800;
       letter-spacing: .05em;
       text-transform: uppercase;
-      padding: .22rem .55rem;
+      padding: .24rem .6rem;
       border-radius: 30px;
       white-space: nowrap;
     }
@@ -1033,56 +1043,76 @@
     .plan-chip.off  { background: rgba(229,9,20,.09);   color: var(--marca); }
     .plan-chip.zona { background: var(--superficie-2);  color: var(--tinta-suave); }
     .plan-chip.correo { background: rgba(154,116,0,.12); color: var(--oro); }
-    /* Sale solo cuando hay una cuenta comprada esperando. Verde fuerte y
-       con relieve para que gane la mirada: es el argumento de venta más
-       fuerte que tenemos, "la tenés en el momento". */
-    .plan-chip.ya {
-      background: #128C7E; color: #fff;
-      box-shadow: 0 1px 3px rgba(18,140,126,.35);
-    }
+    /* Sale solo cuando hay una cuenta comprada esperando. Verde fuerte:
+       es el argumento de venta más fuerte, "la tenés en el momento". */
+    .plan-chip.ya { background: #128C7E; color: #fff; box-shadow: 0 1px 3px rgba(18,140,126,.35); }
 
-    .plan-item-nombre {
-      font-weight: 900;
-      font-size: 1rem;
+    /* Características: cada una es un bloquecito (rótulo arriba, dato
+       abajo) y entran tantos por fila como permita la tarjeta. */
+    .plan-features {
+      list-style: none;
+      margin: 0;
+      padding: .85rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+      gap: .75rem 1rem;
+      background: var(--superficie-2);
+      border-radius: 12px;
+    }
+    .plan-features li { display: flex; align-items: flex-start; gap: .5rem; min-width: 0; }
+    .plan-features .ic { font-size: .95rem; line-height: 1.3; flex: none; }
+    .plan-features small {
+      display: block;
+      font-size: .62rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+    }
+    .plan-features b {
+      display: block;
+      font-size: .84rem;
+      font-weight: 700;
       color: var(--tinta);
       line-height: 1.3;
-      margin-bottom: .7rem;
     }
 
-    .plan-features { list-style: none; padding: 0; margin: 0 0 .9rem; }
-    .plan-features li {
-      display: flex;
-      align-items: center;
-      gap: .45rem;
-      font-size: .78rem;
-      color: var(--tinta-suave);
-      padding: .2rem 0;
-    }
-    .plan-features li b { color: var(--tinta); font-weight: 700; }
-
+    /* Precio y botón, siempre al pie aunque la vecina tenga más texto */
     .plan-item-pie {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .75rem;
-      padding-top: .85rem;
-      border-top: 1px solid var(--borde);
       margin-top: auto;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: .9rem;
       flex-wrap: wrap;
     }
     .plan-precio-lbl {
-      font-size: .58rem;
+      font-size: .6rem;
       letter-spacing: .13em;
       text-transform: uppercase;
       color: var(--tinta-suave);
-      font-weight: 900;
+      font-weight: 800;
+      margin-bottom: .2rem;
     }
     .plan-precio {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.85rem;
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
       color: var(--tinta);
       line-height: 1;
-      letter-spacing: .5px;
+      font-variant-numeric: tabular-nums;
+    }
+    .plan-precio small { font-size: .95rem; font-weight: 700; color: var(--tinta-suave); margin-left: .2rem; }
+    .plan-precio.consultar { font-size: 1.25rem; }
+    .plan-ahorro { display: flex; align-items: center; gap: .4rem; margin-top: .35rem; font-size: .78rem; color: var(--tinta-suave); }
+    .plan-ahorro s { text-decoration-thickness: 1.5px; }
+    .plan-desc {
+      background: rgba(229,9,20,.1);
+      color: var(--marca-oscura);
+      font-weight: 800;
+      font-size: .7rem;
+      padding: .12rem .45rem;
+      border-radius: 6px;
     }
     .plat-precio .antes,
     .plan-precio .antes {
@@ -1093,30 +1123,59 @@
       margin-left: .3rem;
       letter-spacing: 0;
     }
+
     .plan-comprar {
       background: linear-gradient(135deg, var(--marca), var(--marca-oscura));
       color: #fff;
       border: none;
-      border-radius: 30px;
-      padding: .65rem 1.3rem;
+      border-radius: 12px;
+      min-height: 46px;
+      padding: 0 1.5rem;
       font-family: inherit;
-      font-size: .8rem;
-      font-weight: 900;
-      letter-spacing: .06em;
-      text-transform: uppercase;
+      font-size: .88rem;
+      font-weight: 800;
+      letter-spacing: .03em;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: .4rem;
+      justify-content: center;
+      gap: .45rem;
       box-shadow: 0 4px 14px rgba(229,9,20,.24);
       transition: filter .15s, transform .15s;
+      text-decoration: none;
     }
-    .plan-comprar:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+    .plan-comprar:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
     .plan-comprar:disabled {
-      background: var(--separador);
+      background: var(--separador-2);
       color: var(--tinta-suave);
       cursor: not-allowed;
       box-shadow: none;
+    }
+    /* El de "Consultar" es un enlace a WhatsApp, no un botón */
+    a.plan-comprar { background: var(--verde-wa, #128C7E); box-shadow: 0 4px 14px rgba(18,140,126,.24); }
+
+    /* Tarjeta angosta (celular): el botón ocupa todo el ancho, al dedo */
+    @container (max-width: 380px) {
+      .plan-item-pie { flex-direction: column; align-items: stretch; }
+      .plan-comprar { width: 100%; }
+    }
+
+    /* Tarjeta ancha: tres zonas en una fila */
+    @container (min-width: 720px) {
+      .plan-in {
+        display: grid;
+        grid-template-columns: minmax(200px, 1fr) minmax(0, 1.7fr) auto;
+        align-items: center;
+        gap: 1.4rem;
+      }
+      .plan-item-pie {
+        margin: 0;
+        flex-direction: column;
+        align-items: stretch;
+        padding-left: 1.4rem;
+        border-left: 1px solid var(--borde);
+        min-width: 180px;
+      }
     }
 
     /* ---------- Guía de activación ---------- */
@@ -1547,102 +1606,6 @@
     }
     .ck-volver:hover { color: var(--marca); }
 
-
-    .plan-item {
-      border: 1px solid var(--borde);
-      border-radius: 12px;
-      padding: .9rem;
-      margin-bottom: .7rem;
-      background: #fff;
-    }
-    .plan-item--agotado { opacity: .6; }
-    .plan-item-top {
-      display: flex;
-      align-items: flex-start;
-      gap: .5rem;
-      margin-bottom: .6rem;
-    }
-    .plan-item-nombre {
-      font-weight: 700;
-      font-size: .92rem;
-      color: var(--tinta);
-      line-height: 1.3;
-      flex: 1;
-    }
-    .plan-estado {
-      font-size: .58rem;
-      font-weight: 900;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      padding: .18rem .45rem;
-      border-radius: 20px;
-      white-space: nowrap;
-    }
-    .plan-estado.ok  { background: rgba(18,140,126,.11); color: #0f7a6e; }
-    .plan-estado.off { background: rgba(229,9,20,.09);   color: var(--marca); }
-
-    .plan-features { list-style: none; padding: 0; margin: 0 0 .75rem; }
-    .plan-features li {
-      display: flex;
-      align-items: center;
-      gap: .45rem;
-      font-size: .76rem;
-      color: var(--tinta-suave);
-      padding: .16rem 0;
-    }
-    .plan-features li b { color: var(--tinta-media); font-weight: 600; }
-
-    .plan-item-pie {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .75rem;
-      padding-top: .7rem;
-      border-top: 1px solid var(--borde);
-      flex-wrap: wrap;
-    }
-    .plan-precio-lbl {
-      font-size: .58rem;
-      letter-spacing: .13em;
-      text-transform: uppercase;
-      color: var(--tinta-suave);
-      font-weight: 700;
-    }
-    .plan-precio {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.55rem;
-      color: var(--oro);
-      line-height: 1;
-      letter-spacing: .5px;
-    }
-    .plat-precio .antes,
-    .plan-precio .antes {
-      font-family: 'Outfit', sans-serif;
-      font-size: .72rem;
-      color: var(--tinta-suave);
-      text-decoration: line-through;
-      margin-left: .3rem;
-      letter-spacing: 0;
-    }
-    .plan-comprar {
-      background: var(--marca);
-      color: #fff;
-      border: none;
-      border-radius: 9px;
-      padding: .6rem 1.15rem;
-      font-family: inherit;
-      font-size: .82rem;
-      font-weight: 900;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      transition: filter .15s;
-    }
-    .plan-comprar:hover:not(:disabled) { filter: brightness(1.12); }
-    .plan-comprar:disabled { background: var(--separador-2); color: var(--tinta-suave); cursor: not-allowed; }
-    /* El de "Consultar" es un enlace a WhatsApp, no un botón */
-    a.plan-comprar { text-decoration: none; background: var(--verde-wa, #25d366); }
 
     @media (prefers-reduced-motion: reduce) {
       .plat-card { transition: none; }

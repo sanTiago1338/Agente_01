@@ -853,6 +853,16 @@
       border-radius: 999px;
       box-shadow: 0 3px 10px rgba(236,64,192,0.45), inset 0 1px 0 rgba(20,22,26,0.120);
     }
+    /* El precio nunca se parte en dos renglones ("Bs" arriba, "166,50"
+       abajo): en el celular, con tres paquetes por fila, se achica un
+       poco para entrar entero. */
+    .pkg-card-price { white-space: nowrap; }
+    @media (max-width: 420px) {
+      .pkg-card { padding: 0.75rem 0.35rem 0.65rem; }
+      .pkg-card-top { font-size: 0.8rem; gap: 0.25rem; }
+      .pkg-card-icon { font-size: 0.9rem; }
+      .pkg-card-price { font-size: 0.74rem; padding: 0.22rem 0.45rem; letter-spacing: 0; }
+    }
     .pkg-card.selected .pkg-card-price {
       background: linear-gradient(135deg, #ffd700, #ff9500);
       /* Tinta oscura sobre el dorado. Antes era #f4eefb, casi blanco:
@@ -1058,6 +1068,79 @@
     }
     .btn-comprar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(236,64,192,0.6); }
     .btn-comprar:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.3); }
+
+    /* ===== "TU RECARGA": el paquete elegido, siempre a la vista =====
+       Lo llena selectPkg(). En el celular va entre los paquetes y el ID;
+       en la compu encabeza la columna de la derecha. */
+    .pkg-resumen {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.8rem 0.9rem;
+      margin-bottom: 1rem;
+      background: #fff;
+      border: 1px solid var(--borde);
+      border-radius: 14px;
+      box-shadow: var(--sombra);
+    }
+    .pkg-resumen:empty { display: none; }
+    .pkg-res-ico {
+      width: 40px; height: 40px; flex: none;
+      display: grid; place-items: center;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #3a0f50, #1c082e);
+      font-size: 1.2rem;
+    }
+    .pkg-res-txt { flex: 1; min-width: 0; }
+    .pkg-res-txt small {
+      display: block;
+      font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--tinta-suave);
+    }
+    .pkg-res-txt b {
+      display: block;
+      font-size: 0.95rem; font-weight: 800; color: var(--tinta);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pkg-res-precio {
+      font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em;
+      color: var(--tinta); white-space: nowrap; font-variant-numeric: tabular-nums;
+    }
+
+    /* ===== VENTANA DE RECARGA EN LA COMPU: DOS COLUMNAS =====
+       A todo el ancho, una sola columna quedaba deforme: la casilla del ID
+       y el botón medían 1.300 px. Ahora los paquetes van a la izquierda y
+       a la derecha una columna fija con lo que elegiste, tu ID y Comprar.
+       Los botones de abajo (Cancelar / Consultar) caen debajo de ella. */
+    @media (min-width: 900px) {
+      .modal-box.with-pkgs {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        column-gap: 1.5rem;
+        align-content: start;
+        max-height: calc(100vh - 1rem);
+        overflow-y: auto;
+        padding: 1.5rem;
+      }
+      .modal-box.with-pkgs > h3,
+      .modal-box.with-pkgs > p,
+      .modal-box.with-pkgs > #modalPkgs { grid-column: 1 / -1; }
+      .modal-box.with-pkgs > .btn-row   { grid-column: 2; }
+
+      .pkg-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        gap: 1.5rem;
+        align-items: start;
+      }
+      .pkg-lado {
+        position: sticky; top: 0;
+        padding: 1rem;
+        background: var(--superficie-2);
+        border: 1px solid var(--borde);
+        border-radius: 16px;
+      }
+      .pkg-izq .pkg-grid { max-height: 58vh; margin-bottom: 0; }
+      .modal-box.with-pkgs .btn-row { margin-top: 0.75rem; }
+    }
 
     /* Esqueletos mientras llegan los juegos desde Supabase */
     @keyframes brilloJuego {
@@ -1421,8 +1504,29 @@
       if (btn && pkg) {
         btn.textContent = pkg.consult ? 'Consultar por WhatsApp' : 'Comprar Ahora';
       }
+      pintarResumen(pkg);
       checkComprar();
     }
+    // "Tu recarga": qué paquete elegiste y cuánto sale, arriba del ID.
+    // El texto va con textContent: la etiqueta la escribe el panel.
+    function pintarResumen(pkg) {
+      const caja = document.getElementById('pkgResumen');
+      if (!caja) return;
+      if (!pkg) { caja.innerHTML = ''; return; }
+
+      const unidad = CURRENT_GAME?.unit || '';
+      const etiqueta = pkg.label || `${(pkg.qty ?? '').toLocaleString('es-BO')} ${unidad}`.trim();
+      caja.innerHTML = `
+        <span class="pkg-res-ico"></span>
+        <span class="pkg-res-txt"><small>Tu recarga</small><b></b></span>
+        <span class="pkg-res-precio"></span>`;
+      caja.querySelector('.pkg-res-ico').textContent = pkg.icon || '💎';
+      caja.querySelector('.pkg-res-txt b').textContent = etiqueta;
+      caja.querySelector('.pkg-res-precio').textContent = pkg.consult
+        ? 'A consultar'
+        : 'Bs ' + Number(pkg.price).toFixed(2).replace('.', ',');
+    }
+
     function checkComprar() {
       const btn = document.getElementById('btnComprar');
       if (!btn) return;
@@ -1633,11 +1737,21 @@
           `;
         }
 
+        // Paquetes a la izquierda; lo elegido, el ID y Comprar a la derecha.
+        // En el celular las dos partes van una debajo de la otra (ver
+        // "VENTANA DE RECARGA EN LA COMPU" en el CSS).
         pkgsEl.innerHTML = `
-          ${tabsHtml}
-          <div class="pkg-grid">${cards}</div>
-          ${accountSection}
-          <button class="btn-comprar" id="btnComprar" disabled onclick="comprarAhora()">Comprar Ahora</button>
+          <div class="pkg-layout">
+            <div class="pkg-izq">
+              ${tabsHtml}
+              <div class="pkg-grid">${cards}</div>
+            </div>
+            <aside class="pkg-lado">
+              <div class="pkg-resumen" id="pkgResumen"></div>
+              ${accountSection}
+              <button class="btn-comprar" id="btnComprar" disabled onclick="comprarAhora()">Comprar Ahora</button>
+            </aside>
+          </div>
         `;
 
         // Auto-select first VISIBLE package (respeta el tab activo)

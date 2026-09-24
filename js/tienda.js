@@ -824,36 +824,47 @@
       const tarjetas = g.planes.map(pl => {
         const agotado = pl.soldOut === true;
         const urlPlan = getImageUrl(pl.name, pl.cat, pl.imgColor, pl.imagenUrl);
+        // Cada característica es un bloquecito: rótulo arriba, dato abajo
         const filas = caracteristicasDe(pl).map(([ic, et, val]) =>
-          `<li><span>${ic}</span> ${et} <b>${val}</b></li>`).join('');
+          `<li><span class="ic">${ic}</span><div><small>${et}</small><b>${val}</b></div></li>`).join('');
+
+        // "15 Bs" grande, y abajo lo que costaba tachado con el descuento
+        const precioHtml = sinPrecio(pl)
+          ? '<div class="plan-precio consultar">A consultar</div>'
+          : `<div class="plan-precio">${formatoBs(pl.price).replace(/Bs$/, '')}<small>Bs</small></div>
+             ${pl.precioAntes ? `<div class="plan-ahorro"><s>${pl.precioAntes}</s>${pl.descuento ? `<span class="plan-desc">-${pl.descuento}%</span>` : ''}</div>` : ''}`;
 
         return `
         <div class="plan-item${agotado ? ' plan-item--agotado' : ''}">
-          <div class="plan-item-cab">
-            <img class="plan-logo" src="${urlPlan}" alt="" loading="lazy"
-                 onerror="this.onerror=null;this.src=generateLogoSvg('${pl.name.replace(/'/g, "\\'")}','${pl.imgColor}');">
-            <div class="plan-chips">
-              <span class="plan-chip ${agotado ? 'off' : 'ok'}">${agotado ? '● Agotado' : '● Disponible'}</span>
-              ${!agotado && pl.entregaInmediata ? '<span class="plan-chip ya">⚡ Entrega inmediata</span>' : ''}
-              <span class="plan-chip zona">🌎 Global</span>
-              ${avisoDatos(pl).chip}
+          <div class="plan-in">
+            <div class="plan-cab">
+              <img class="plan-logo" src="${urlPlan}" alt="" loading="lazy"
+                   onerror="this.onerror=null;this.src=generateLogoSvg('${pl.name.replace(/'/g, "\\'")}','${pl.imgColor}');">
+              <div class="plan-cab-txt">
+                <div class="plan-item-nombre">${pl.name}</div>
+                <div class="plan-chips">
+                  <span class="plan-chip ${agotado ? 'off' : 'ok'}">${agotado ? '● Agotado' : '● Disponible'}</span>
+                  ${!agotado && pl.entregaInmediata ? '<span class="plan-chip ya">⚡ Entrega inmediata</span>' : ''}
+                  <span class="plan-chip zona">🌎 Global</span>
+                  ${avisoDatos(pl).chip}
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div class="plan-item-nombre">${pl.name}</div>
-          <ul class="plan-features">${filas}</ul>
+            <ul class="plan-features">${filas}</ul>
 
-          <div class="plan-item-pie">
-            <div>
-              <div class="plan-precio-lbl">Precio final</div>
-              <div class="plan-precio">${sinPrecio(pl) ? 'A consultar' : `${pl.bs}${pl.precioAntes ? `<span class="antes">${pl.precioAntes}</span>` : ''}`}</div>
+            <div class="plan-item-pie">
+              <div>
+                <div class="plan-precio-lbl">Precio final</div>
+                ${precioHtml}
+              </div>
+              ${sinPrecio(pl) && !agotado
+                ? `<a class="plan-comprar" href="${waConsulta(pl.name)}" target="_blank" rel="noopener">💬 Consultar</a>`
+                : `<button class="plan-comprar" ${agotado ? 'disabled' : ''}
+                           onclick="${agotado ? '' : `abrirCheckout(${pl.id})`}">
+                     🛒 ${agotado ? 'Agotado' : 'Comprar'}
+                   </button>`}
             </div>
-            ${sinPrecio(pl) && !agotado
-              ? `<a class="plan-comprar" href="${waConsulta(pl.name)}" target="_blank" rel="noopener">💬 Consultar</a>`
-              : `<button class="plan-comprar" ${agotado ? 'disabled' : ''}
-                         onclick="${agotado ? '' : `abrirCheckout(${pl.id})`}">
-                   🛒 Comprar
-                 </button>`}
           </div>
         </div>`;
       }).join('');

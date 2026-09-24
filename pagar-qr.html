@@ -606,7 +606,7 @@
           </div>
           <div class="step">
             <div class="step-num">4</div>
-            <div class="step-text">Confirma el pago y seras <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
+            <div class="step-text" id="paso4Texto">Confirma el pago y seras <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
           </div>
         </div>
 
@@ -1148,6 +1148,25 @@
               ', apenas verifiquemos el pago. ' +
               fuerte(`${cobertura.de - cobertura.hay > 1 ? 'Las otras' : 'La otra'} te ${cobertura.de - cobertura.hay > 1 ? 'las' : 'la'} mandamos por WhatsApp`) +
               ' hoy mismo.';
+
+      // ---- CON STOCK PARA TODO, SOBRA "YA PAGUE - ENVIAR COMPROBANTE" ----
+      // La cuenta aparece en esta misma pantalla cuando se confirma el pago:
+      // mandarlo a WhatsApp con el comprobante es sacarlo justo de donde le
+      // llega. El boton queda cuando falta algo (compra a medias o sin
+      // stock), cuando el pedido vencio y cuando no se pudo averiguar el
+      // stock (cobertura null): ahi el comprobante por WhatsApp es el camino.
+      const todoConStock = !vencido && cobertura !== null &&
+                           cobertura.de > 0 && cobertura.hay >= cobertura.de;
+      const btnYaPague = $('btnYaPague');
+      const ayudaYaPague = $('ayudaYaPague');
+      if (btnYaPague)   btnYaPague.style.display   = todoConStock ? 'none' : 'flex';
+      if (ayudaYaPague) ayudaYaPague.style.display = todoConStock ? 'none' : 'block';
+      const paso4 = $('paso4Texto');
+      if (paso4) paso4.innerHTML = !todoConStock
+        ? 'Confirma el pago y seras <strong>redirigido a WhatsApp</strong> para enviar tu comprobante'
+        : cobertura.de > 1
+          ? 'Confirma el pago: tus cuentas <strong>aparecen en esta pantalla</strong>, no la cierres'
+          : 'Confirma el pago: tu cuenta <strong>aparece en esta pantalla</strong>, no la cierres';
 
       const latido = $('pedidoLatido');
       if (latido) {

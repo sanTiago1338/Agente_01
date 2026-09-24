@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tiago Store | Recarga de Juegos</title>
 
+  <!-- Vista previa al compartir el link: ver el comentario en index.html -->
+  <meta name="description" content="Diamantes de Free Fire y Mobile Legends, Robux, UC de PUBG y más, en bolivianos. Pagás con QR y la recarga llega en 5 a 30 minutos.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Tiago Store">
+  <meta property="og:locale" content="es_BO">
+  <meta property="og:url" content="https://santiago1338.github.io/Agente_01/recarga-juegos.html">
+  <meta property="og:title" content="Recargas de juegos · Tiago Store">
+  <meta property="og:description" content="Diamantes de Free Fire y Mobile Legends, Robux, UC de PUBG y más, en bolivianos. Pagás con QR y la recarga llega en 5 a 30 minutos.">
+  <meta property="og:image" content="https://santiago1338.github.io/Agente_01/Img/compartir-recargas.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:alt" content="Tiago Store: recargas de Free Fire, Mobile Legends, Roblox y más">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#e50914">
+
   <!-- Icono de la pestana y de la pantalla de inicio del telefono.
        El SVG lo usan los navegadores modernos y se ve nitido en
        cualquier tamano; el PNG es para los que no entienden SVG.
@@ -542,7 +558,8 @@
       display: none;
       align-items: center; justify-content: center;
       z-index: 200;
-      padding: 1rem;
+      /* 8 px a los costados, igual que el resto de la tienda */
+      padding: 0.5rem;
     }
     .modal-overlay.show { display: flex; }
     .modal-box {
@@ -551,7 +568,7 @@
       border-radius: 16px;
       max-width: 380px;
       width: 100%;
-      padding: 1.5rem 1.25rem;
+      padding: 1.5rem 0.75rem;
       text-align: center;
       box-shadow: 0 20px 60px rgba(20,22,26,0.140);
     }
@@ -581,8 +598,11 @@
     .btn-wa:hover { background: #1ebe5a; }
 
     /* ===== PAQUETES DENTRO DEL MODAL ===== */
+    /* Con paquetes, la ventana usa todo el ancho de la pantalla y los
+       paquetes se acomodan en tantas columnas como entren (ver .pkg-grid).
+       Antes se frenaba en 420 px y en la compu quedaba una tira al medio. */
     .modal-box.with-pkgs {
-      max-width: 420px;
+      max-width: none;
       text-align: left;
     }
     .pkg-intro {
@@ -736,6 +756,11 @@
       max-height: 42vh;
       overflow-y: auto;
       padding: 0.4rem 0.35rem 0.4rem 0.25rem;
+    }
+    /* En el celular, 3 por fila; desde la tablet, las que entren de 150 px,
+       estiradas para llenar la fila si son pocas */
+    @media (min-width: 700px) {
+      .pkg-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
     }
     .pkg-grid::-webkit-scrollbar { width: 6px; }
     .pkg-grid::-webkit-scrollbar-thumb { background: var(--gris2); border-radius: 6px; }

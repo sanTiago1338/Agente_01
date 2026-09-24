@@ -56,7 +56,28 @@
     let currentSub = 'all';
     let currentSearch = '';
     let currentPage = 1;
-    const ITEMS_PER_PAGE = 12;
+    // Cuántas plataformas trae cada página: al menos 12, y siempre filas
+    // completas según las columnas que muestra la grilla (2 en el celular,
+    // hasta 6 en la compu; ver css/tienda.css). Con 5 columnas son 15 y
+    // no 12: si no, la última fila quedaba con dos tarjetas sueltas.
+    const MINIMO_POR_PAGINA = 12;
+    function itemsPorPagina() {
+      const grid = document.getElementById('5');
+      const cols = grid
+        ? getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length
+        : 0;
+      return cols > 0 ? cols * Math.ceil(MINIMO_POR_PAGINA / cols) : MINIMO_POR_PAGINA;
+    }
+
+    // Si al girar la tablet o achicar la ventana cambian las columnas,
+    // se rearma la página para que siga saliendo con filas completas.
+    let porPaginaActual = 0;
+    window.addEventListener('resize', () => {
+      const n = itemsPorPagina();
+      if (n === porPaginaActual) return;
+      porPaginaActual = n;
+      if (catalogoCargado) renderProducts();
+    });
     let cartCount = 0;
     let cart = [];
 
@@ -276,7 +297,7 @@
 
     // Redirige cualquier imagen de /Img a su versión liviana de /Img/opt.
     // Los originales pesaban hasta 3,7 MB (PNG de 1152x2048) para mostrarse
-    // en un cuadrito de 265 px. Las de /Img/opt son JPEG de 900 px: hasta 96%
+    // en un cuadrito de 265 px. Las de /Img/opt son JPEG de 720 px a q80: hasta 96%
     // más livianas y sin diferencia visible ni en un celular a 3x.
     // Se hace acá, en el código, y no renombrando los archivos, porque las
     // rutas viven en Supabase (campo "imagen" de cada producto): así no hay
@@ -433,7 +454,7 @@
     function renderSkeletons() {
       const grid = document.getElementById('5');
       if (!grid) return;
-      grid.innerHTML = Array.from({ length: ITEMS_PER_PAGE }, () => `
+      grid.innerHTML = Array.from({ length: itemsPorPagina() }, () => `
         <div class="product-card skeleton-card">
           <div class="skeleton-box" style="aspect-ratio:1/1; border-radius:12px;"></div>
           <div class="product-body">
@@ -531,6 +552,15 @@
         r = Math.round(r * 0.92); g = Math.round(g * 0.92); b = Math.round(b * 0.92);
       }
       return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+    }
+
+    // El color de marca rebajado con blanco: 0.08 da el fondo pastel del
+    // botón "Ver catálogo" y 0.25 su borde. Se calcula acá y no con
+    // color-mix() en el CSS porque hay celulares con navegadores viejos.
+    function pastel(hex, cuanto) {
+      const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+      return '#' + c.map(v => Math.round(v * cuanto + 255 * (1 - cuanto))
+                               .toString(16).padStart(2, '0')).join('');
     }
 
     // Lista de características de cada plan. Todo sale de datos que ya
@@ -728,11 +758,13 @@
       PLATAFORMAS_VISIBLES = grupos;
 
       const total = grupos.length;
-      const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+      const porPagina = itemsPorPagina();
+      porPaginaActual = porPagina;
+      const totalPages = Math.ceil(total / porPagina);
       if (currentPage > totalPages) currentPage = 1;
 
-      const start = (currentPage - 1) * ITEMS_PER_PAGE;
-      const pageItems = grupos.slice(start, start + ITEMS_PER_PAGE);
+      const start = (currentPage - 1) * porPagina;
+      const pageItems = grupos.slice(start, start + porPagina);
 
       const grid = document.getElementById('5');
 
@@ -761,7 +793,7 @@
 
         return `
         <button type="button" class="plat-card${g.agotada ? ' plat-card--agotada' : ''}"
-                style="--acento:${vivo}; --acento-txt:${legible}"
+                style="--acento:${vivo}; --acento-txt:${legible}; --acento-suave:${pastel(vivo, .08)}; --acento-borde:${pastel(vivo, .25)}"
                 onclick="abrirPlataforma('${g.clave.replace(/'/g, "\\'")}')">
           <div class="plat-img">
             <img src="${url}" alt="" loading="lazy" decoding="async"

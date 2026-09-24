@@ -5,8 +5,10 @@
 // su CSS y sus modales en la página. Por eso admin/index.html
 // solo necesita una línea para usarlo.
 //
-// Expone:  window.accionProducto(accion, producto)
-//   accion: 'nuevo' | 'editar' | 'agotar' | 'borrar'
+// Expone:  window.accionProducto(accion, producto, boton)
+//   accion: 'nuevo' | 'editar' | 'borrar' | 'descripcion'
+//         | 'precio'  (se edita en la misma celda de la tabla)
+//         | 'agotar' | 'oferta' | 'destacado' | 'planes'  (interruptores)
 // ============================================================
 
 // Todo sale de js/panel-datos.js, el puente que traduce estos nombres a
@@ -574,15 +576,200 @@ function llenarCategorias() {
 // ============================================================
 // 7. ACCIÓN PRINCIPAL (la llama admin/index.html)
 // ============================================================
-window.accionProducto = function (accion, producto) {
+window.accionProducto = function (accion, producto, boton) {
   if (accion === 'nuevo')   return abrirEditor(null);
   if (accion === 'editar')  return abrirEditor(producto);
-  if (accion === 'precio')  return abrirPrecio(producto);
+  if (accion === 'precio')  return boton ? editarPrecioEnLinea(producto, boton) : abrirPrecio(producto);
   if (accion === 'descripcion') return abrirDescripcion(producto);
-  if (accion === 'agotar')  return alternarDisponible(producto);
-  if (accion === 'planes')  return alternarPlanes(producto);
+  if (accion === 'agotar')    return conInterruptor(boton, () => alternarDisponible(producto));
+  if (accion === 'planes')    return conInterruptor(boton, () => alternarPlanes(producto));
+  if (accion === 'destacado') return conInterruptor(boton, () => alternarDestacado(producto));
+  if (accion === 'oferta')    return alternarOferta(producto, boton);
   if (accion === 'borrar')  return pedirConfirmacionBorrado(producto);
 };
+
+// ------------------------------------------------------------
+// Interruptores de la tabla
+// ------------------------------------------------------------
+// Se dan vuelta en el acto, sin esperar a la base: la respuesta tarda
+// medio segundo y un interruptor que no se mueve parece roto. Si la base
+// dice que no, vuelve a como estaba y sale el aviso de error. Si dice que
+// sí, el catálogo en vivo redibuja la fila con el dato ya guardado.
+async function conInterruptor(boton, guardar) {
+  if (!boton || boton.getAttribute('role') !== 'switch') return guardar();
+  if (boton.disabled) return;
+
+  const antes = boton.getAttribute('aria-checked') === 'true';
+  boton.setAttribute('aria-checked', String(!antes));
+  boton.disabled = true;
+
+  const salio = await guardar();
+
+  boton.disabled = false;
+  if (salio === false) boton.setAttribute('aria-checked', String(antes));
+}
+
+// Oferta: apagarla es un toque. Prenderla también, si ya tenía un precio de
+// oferta guardado (de la última vez que estuvo en oferta). Si nunca tuvo,
+// se abre el precio en la celda con el cursor en "Oferta" para escribirlo.
+//
+// Apagar NO borra el precio de oferta: la tienda, la página de Planes y la
+// base al cobrar (crear_pedido / crear_compra) solo lo usan con la oferta
+// prendida, así que guardado no molesta y prenderla de nuevo es inmediato.
+function alternarOferta(p, boton) {
+  const prendida = p.oferta === true && p.precioOferta > 0;
+  const tieneGuardado = p.precioOferta > 0 && p.precioOferta < p.precio;
+
+  if (!prendida && !tieneGuardado) {
+    const celda = boton?.closest('tr')?.querySelector('[data-accion="precio"]');
+    return celda ? editarPrecioEnLinea(p, celda, { enfocarOferta: true }) : abrirPrecio(p);
+  }
+
+  return conInterruptor(boton, async () => {
+    try {
+      await updateDoc(doc(db, 'productos', p.id), {
+        oferta: !prendida,
+        fechaActualizacion: serverTimestamp()
+      });
+      aviso(prendida
+        ? `"${recortar(p.nombre)}" vuelve a su precio normal: ${Number(p.precio).toFixed(2)} Bs`
+        : `🏷️ "${recortar(p.nombre)}" en oferta a ${Number(p.precioOferta).toFixed(2)} Bs`, 'ok');
+      return true;
+    } catch (err) {
+      console.error(err);
+      aviso(`No se pudo cambiar la oferta: ${err.message}`, 'error');
+      return false;
+    }
+  });
+}
+
+async function alternarDestacado(p) {
+  const nuevoEstado = p.destacado !== true;
+  try {
+    await updateDoc(doc(db, 'productos', p.id), {
+      destacado: nuevoEstado,
+      fechaActualizacion: serverTimestamp()
+    });
+    aviso(nuevoEstado
+      ? `★ "${recortar(p.nombre)}" ahora es destacado`
+      : `"${recortar(p.nombre)}" ya no es destacado`, 'ok');
+    return true;
+  } catch (err) {
+    console.error(err);
+    aviso(`No se pudo cambiar: ${err.message}`, 'error');
+    return false;
+  }
+}
+
+// ------------------------------------------------------------
+// Precio en la misma celda — tocar el precio de la tabla
+// ------------------------------------------------------------
+// La celda se vuelve dos casillas: el precio normal y el de oferta.
+// Enter o ✓ guarda, Esc o ✕ deja todo como estaba. Oferta vacía = sin
+// oferta. Tocar afuera no guarda ni cancela: la edición espera, para que
+// un toque de más en el celular no guarde un precio a medio escribir.
+//
+// Mientras la celda está abierta la tabla no se redibuja (ver render() en
+// admin/index.html); al terminar se le avisa con window.renderProductos.
+let edicionAbierta = null;   // { celda, htmlOriginal }
+
+function cerrarEdicionPrecio() {
+  if (!edicionAbierta) return;
+  // Primero sale la casilla (si queda en pantalla, render() sigue
+  // esperando) y después se redibuja con lo que haya llegado en vivo.
+  edicionAbierta.celda.innerHTML = edicionAbierta.htmlOriginal;
+  edicionAbierta = null;
+  window.renderProductos?.();
+}
+
+function editarPrecioEnLinea(p, boton, { enfocarOferta = false } = {}) {
+  // Una sola celda abierta a la vez
+  if (edicionAbierta) cerrarEdicionPrecio();
+
+  const celda = boton.closest('td');
+  if (!celda) return abrirPrecio(p);
+
+  const ofertaActual = (p.oferta === true && p.precioOferta > 0) ? p.precioOferta : '';
+  const htmlOriginal = celda.innerHTML;
+  celda.innerHTML = `
+    <form class="precio-edicion" novalidate>
+      <label>Precio
+        <input name="precio" type="number" inputmode="decimal" min="0" step="0.01"
+               value="${p.precio ?? ''}" aria-label="Precio normal en bolivianos">
+      </label>
+      <label>Oferta
+        <input name="oferta" type="number" inputmode="decimal" min="0" step="0.01"
+               value="${ofertaActual}" placeholder="—" aria-label="Precio de oferta (vacío = sin oferta)">
+      </label>
+      <div class="pe-botones">
+        <button type="submit" class="pe-ok" title="Guardar (Enter)">✓</button>
+        <button type="button" class="pe-no" title="Cancelar (Esc)">✕</button>
+      </div>
+      <small class="pe-ayuda">${enfocarOferta
+        ? 'Escribí el precio de oferta y apretá Enter'
+        : 'Enter guarda · Esc cancela'}</small>
+    </form>`;
+  edicionAbierta = { celda, htmlOriginal };
+
+  const form   = celda.querySelector('form');
+  const campoP = form.elements.precio;
+  const campoO = form.elements.oferta;
+  const ayuda  = form.querySelector('.pe-ayuda');
+  const enfocar = enfocarOferta ? campoO : campoP;
+  enfocar.focus();
+  enfocar.select();
+
+  form.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); cerrarEdicionPrecio(); }
+  });
+  form.querySelector('.pe-no').addEventListener('click', cerrarEdicionPrecio);
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    campoP.classList.remove('malo');
+    campoO.classList.remove('malo');
+
+    const precio = parseFloat(campoP.value);
+    const texto  = campoO.value.trim();
+    const oferta = texto === '' ? null : parseFloat(texto);
+
+    if (!(precio > 0)) {
+      campoP.classList.add('malo'); campoP.focus();
+      ayuda.textContent = 'El precio tiene que ser mayor a 0';
+      ayuda.classList.add('error');
+      return;
+    }
+    if (oferta !== null && !(oferta > 0 && oferta < precio)) {
+      campoO.classList.add('malo'); campoO.focus();
+      ayuda.textContent = 'La oferta tiene que ser menor al precio';
+      ayuda.classList.add('error');
+      return;
+    }
+
+    // Sin cambios: se cierra sin molestar a la base
+    const ofertaAntes = (p.oferta === true && p.precioOferta > 0) ? p.precioOferta : null;
+    if (precio === p.precio && oferta === ofertaAntes) { cerrarEdicionPrecio(); return; }
+
+    form.querySelectorAll('button, input').forEach(el => { el.disabled = true; });
+    ayuda.classList.remove('error');
+    ayuda.textContent = 'Guardando…';
+
+    try {
+      // Con la oferta vacía se apaga, pero el precio de oferta que tenía
+      // queda guardado (igual que con el interruptor).
+      await updateDoc(doc(db, 'productos', p.id), oferta === null
+        ? { precio, oferta: false, fechaActualizacion: serverTimestamp() }
+        : { precio, precioOferta: oferta, oferta: true, fechaActualizacion: serverTimestamp() });
+      aviso(`✓ "${recortar(p.nombre)}" ahora cuesta ${(oferta ?? precio).toFixed(2)} Bs`, 'ok');
+      cerrarEdicionPrecio();
+    } catch (err) {
+      console.error(err);
+      form.querySelectorAll('button, input').forEach(el => { el.disabled = false; });
+      ayuda.textContent = `No se pudo guardar: ${err.message}`;
+      ayuda.classList.add('error');
+    }
+  });
+}
 
 // ------------------------------------------------------------
 // Precio rápido — clic en el precio de la tabla
@@ -812,9 +999,11 @@ async function alternarPlanes(p) {
     aviso(nuevoEstado
       ? `📋 "${recortar(p.nombre)}" ahora sale en Planes`
       : `"${recortar(p.nombre)}" ya no sale en Planes`, 'ok');
+    return true;
   } catch (err) {
     console.error(err);
     aviso(`No se pudo cambiar: ${err.message}`, 'error');
+    return false;
   }
 }
 
@@ -974,9 +1163,11 @@ async function alternarDisponible(p) {
     aviso(nuevoEstado
       ? `📦 "${recortar(p.nombre)}" vuelve a estar disponible`
       : `🚫 "${recortar(p.nombre)}" marcado como agotado`, 'ok');
+    return true;
   } catch (err) {
     console.error(err);
     aviso(`No se pudo cambiar el estado: ${err.message}`, 'error');
+    return false;
   }
 }
 

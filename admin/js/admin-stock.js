@@ -410,6 +410,10 @@ function metricas() {
   $('stLibres').textContent   = libres.length;
   $('stDadas').textContent    = dadas.length;
   $('stSinStock').textContent = secos.length;
+
+  // Para que el contador rojo de "Stock" en el menú se ponga al día
+  // (lo calcula admin-inicio.js, con la misma regla de la lista del Inicio)
+  document.dispatchEvent(new CustomEvent('stock-cambiado'));
   $('stInvertido').textContent = invertido > 0 ? `${invertido.toFixed(0)} Bs` : '–';
 }
 

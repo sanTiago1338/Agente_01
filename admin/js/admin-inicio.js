@@ -589,7 +589,9 @@ function pintarGrafico(pedidos) {
 // ============================================================
 // 7. STOCK QUE SE ACABA
 // ============================================================
-function pintarStock(cuentas, productos) {
+// Los productos que se están quedando sin stock. La usan la lista del
+// Inicio y el contador rojo de "Stock" en el menú: los dos dicen lo mismo.
+function conPocoStock(cuentas, productos) {
   const libres = new Map();
   const conStock = new Set();          // productos que alguna vez tuvieron cuentas
   for (const c of cuentas) {
@@ -597,11 +599,36 @@ function pintarStock(cuentas, productos) {
     if (c.estado === 'libre') libres.set(c.producto_id, (libres.get(c.producto_id) || 0) + 1);
   }
 
-  const bajos = productos
+  return productos
     .filter(p => p.activo !== false && conStock.has(p.id))
     .map(p => ({ nombre: p.nombre, libres: libres.get(p.id) || 0 }))
     .filter(p => p.libres <= POCO_STOCK)
     .sort((a, b) => a.libres - b.libres || a.nombre.localeCompare(b.nombre));
+}
+
+function ponerContadorStock(bajos) {
+  window.ponerContador?.('stock', bajos.length, bajos.length === 1
+    ? `1 producto con ${POCO_STOCK} cuentas o menos`
+    : `${bajos.length} productos con ${POCO_STOCK} cuentas o menos`);
+}
+
+// El contador de Stock tiene que estar aunque no abras el Inicio (si
+// entrás directo a admin/#ventas, por ejemplo). Es una consulta chica:
+// producto y estado de cada cuenta, sin credenciales.
+async function contarStock() {
+  const permiso = await tengoPermiso();
+  if (!permiso.puede) return;
+  const [rCuentas, rProductos] = await Promise.all([
+    sbAdmin.from('cuentas').select('producto_id, estado').neq('estado', 'anulada'),
+    sbAdmin.from('productos').select('id, nombre, activo')
+  ]);
+  if (rCuentas.error || rProductos.error) return;   // se reintenta en la próxima vuelta
+  ponerContadorStock(conPocoStock(rCuentas.data, rProductos.data));
+}
+
+function pintarStock(cuentas, productos) {
+  const bajos = conPocoStock(cuentas, productos);
+  ponerContadorStock(bajos);
 
   if (bajos.length === 0) {
     $('iniStock').innerHTML = `<li class="ini-vacio" style="display:block;border:none">
@@ -698,6 +725,12 @@ $('iniRefrescar').addEventListener('click', cargar);
 setInterval(() => {
   if (!$('vistaInicio').hidden && document.visibilityState === 'visible') cargar();
 }, 60000);
+
+// Contador rojo de Stock: al abrir el panel, cada 2 minutos y cada vez
+// que la vista Stock cambia cuentas (carga, anula, entrega a mano).
+contarStock();
+setInterval(() => { if (document.visibilityState === 'visible') contarStock(); }, 120000);
+document.addEventListener('stock-cambiado', contarStock);
 
 // Las cifras y los "Ir a…" llevan a la vista donde se resuelve cada cosa
 $('vistaInicio').addEventListener('click', e => {

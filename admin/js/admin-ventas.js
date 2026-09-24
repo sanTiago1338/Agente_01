@@ -1273,6 +1273,9 @@ $('vtAvisos').addEventListener('click', async () => {
 // en window.pendientesAdmin para que admin/index.html lo conserve al
 // cambiar de vista.
 function actualizarTitulo(pendientes) {
+  // El mismo número, en rojo sobre "Ventas" en el menú
+  window.ponerContador?.('ventas', pendientes,
+    pendientes === 1 ? '1 pedido por atender' : `${pendientes} pedidos por atender`);
   window.pendientesAdmin = pendientes;
   const base = document.title.replace(/^\(\d+\)\s*/, '');
   document.title = pendientes > 0 ? `(${pendientes}) ${base}` : base;

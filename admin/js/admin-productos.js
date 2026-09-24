@@ -287,7 +287,7 @@ contenedor.innerHTML = `
             <div class="zv-campo zv-ancho">
               <label for="fDescripcion">Descripción</label>
               <textarea id="fDescripcion" placeholder="Netflix Premium 4K. Renovable mensualmente."></textarea>
-              <div class="zv-frases-lbl">Frases de siempre — tocá para agregarlas:</div>
+              <div class="zv-frases-lbl">Tus frases de siempre — tocá para agregarlas:</div>
               <div class="zv-frases" data-frases="fDescripcion"></div>
             </div>
 
@@ -419,7 +419,7 @@ contenedor.innerHTML = `
               Descripción <span class="ayuda">— es el texto que lee el cliente en la ficha</span>
             </label>
             <textarea id="fDescRapida" placeholder="1 mes Canva Pro a correo de cliente. 1 dispositivo."></textarea>
-            <div class="zv-frases-lbl">Frases de siempre — tocá para agregarlas:</div>
+            <div class="zv-frases-lbl">Tus frases de siempre — tocá para agregarlas:</div>
             <div class="zv-frases" data-frases="fDescRapida"></div>
           </div>
 
@@ -870,29 +870,74 @@ function sincronizarSwitchCorreo(campo) {
   pintarSwitches();
 }
 
-// Frases que se repiten en casi todas las fichas. Tocar una la pega al
-// final del texto; tocarla de nuevo la saca. Así no hay que reescribirlas
-// ni acordarse de la redacción exacta (sobre todo la del correo, que es
-// la que hace que la tienda le pida el correo al cliente al pagar).
-const FRASES = [
-  'Te pediremos tu correo al pagar.',
-  FRASE_CORREO,
-  'Renovable mensualmente.',
-  '1 dispositivo.',
-  'Entrega de 5 a 30 minutos.',
-  'Garantía durante todo el plan.',
-  'No se puede cambiar la contraseña ni el correo de la cuenta.',
-];
+// Frases que se repiten en tus fichas. Tocar una la pega al final del
+// texto; tocarla de nuevo la saca. Así no hay que reescribirlas ni
+// acordarse de la redacción exacta.
+//
+// Ya no son una lista fija: salen de tus propias descripciones. Son las
+// oraciones que escribiste en MIN_FRASE productos o más, de la más usada a
+// la menos. Si empezás a usar una frase nueva, aparece sola; la que dejás
+// de usar, se va. (La lista fija tenía frases que no usaba nadie y le
+// faltaban "Consultar disponibilidad." o "Entrega inmediata.".)
+const MIN_FRASE  = 4;
+const MAX_FRASES = 10;
+let FRASES = [];
+
+// "Uno. Dos.\nTres" -> ["Uno.", "Dos.", "Tres"]
+// Sin lookbehind en la expresión: los iPhone con Safari viejo no lo
+// entienden y el panel entero dejaría de cargar.
+function oracionesDe(texto) {
+  return String(texto || '')
+    .replace(/([.!?])\s+/g, '$1\n')
+    .split(/\n+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+function frasesFrecuentes() {
+  const cuenta = new Map();                  // minúsculas -> { texto, n }
+  for (const p of catalogo()) {
+    const yaContada = new Set();             // una vez por producto
+    for (const o of oracionesDe(p.descripcion)) {
+      const clave = o.toLowerCase();
+      if (o.length > 80 || yaContada.has(clave)) continue;
+      yaContada.add(clave);
+      const c = cuenta.get(clave) || { texto: o, n: 0 };
+      c.n++;
+      cuenta.set(clave, c);
+    }
+  }
+
+  // La del correo es la única frase que CAMBIA algo (la tienda pide el
+  // correo al pagar), y se escribe metida en otras oraciones ("Spotify a
+  // correo de cliente."). Se cuenta aparte, por producto que la tenga, y
+  // se ofrece siempre con la redacción de FRASE_CORREO.
+  const conCorreo = catalogo().filter(p => textoPideCorreo(p.descripcion)).length;
+  const lista = [...cuenta.values()]
+    .filter(c => c.n >= MIN_FRASE && !textoPideCorreo(c.texto));
+  if (conCorreo >= MIN_FRASE) lista.push({ texto: FRASE_CORREO, n: conCorreo });
+
+  return lista.sort((a, b) => b.n - a.n).slice(0, MAX_FRASES).map(c => c.texto);
+}
 
 function pintarFrases() {
+  FRASES = frasesFrecuentes();
   contenedor.querySelectorAll('[data-frases]').forEach(caja => {
     const campo = $(caja.dataset.frases);
     if (!campo) return;
     const actual = (campo.value || '').toLowerCase();
     caja.innerHTML = FRASES.map((f, i) =>
-      `<button type="button" class="zv-frase${actual.includes(f.toLowerCase()) ? ' puesta' : ''}" data-i="${i}">${f}</button>`
+      `<button type="button" class="zv-frase${actual.includes(f.toLowerCase()) ? ' puesta' : ''}" data-i="${i}">${escaparHtml(f)}</button>`
     ).join('');
+    // Si todavía no repetís ninguna, tampoco se muestra el rótulo
+    const rotulo = caja.previousElementSibling;
+    if (rotulo?.classList.contains('zv-frases-lbl')) rotulo.hidden = FRASES.length === 0;
   });
+}
+
+function escaparHtml(t) {
+  return String(t).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 function agregarFrase(texto, frase) {

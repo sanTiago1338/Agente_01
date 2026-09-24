@@ -21,6 +21,8 @@
 
 import { sbAdmin } from '../../js/supabase-config.js';
 import { tengoPermiso, carteSinPermiso } from './admin-permiso.js';
+import { agruparCompras, numerosDeCompra, productosDeCompra, nombreDeCompra,
+         estadoPrincipal, cuantasCompras } from './admin-compras.js';
 
 const $ = id => document.getElementById(id);
 const aviso = (t, tipo) => (window.avisoAdmin ? window.avisoAdmin(t, tipo) : console.log(t));
@@ -54,52 +56,40 @@ const CONFIRMABLES = ['esperando_pago', 'pagado', 'sin_stock', 'vencido'];
 let STOCK = new Map();
 
 /**
- * ¿Tiene sentido ofrecer el botón "Confirmar pago" en este pedido?
+ * Cuántas de las cuentas que faltan entregar de una compra salen solas al
+ * confirmar, con el stock de ahora.
  *
- * No alcanza con que el estado lo permita: tiene que HABER una cuenta
- * para entregar. Confirmar un pedido sin stock no entrega nada — lo deja
- * en sin_stock y te obliga a resolverlo por WhatsApp igual. O sea que el
- * botón te hacía dar una vuelta para terminar en el mismo lugar.
+ * De esto depende el botón "Confirmar pago": tiene que HABER una cuenta
+ * para entregar. Confirmar sin stock no entrega nada — deja el pedido en
+ * sin_stock y te obliga a resolverlo por WhatsApp igual. Así que sin
+ * cuentas cargadas se muestra directamente "Entrega por WhatsApp", y si
+ * más tarde cargás stock, el botón aparece solo.
  *
- * Con esto, los pedidos de productos sin cuentas cargadas muestran
- * directamente "Entrega por WhatsApp", que es lo que realmente va a pasar.
- * Y si más tarde cargás stock de ese producto, el botón aparece solo.
+ * En una compra de varios productos alcanza con que haya para UNA: el
+ * botón confirma la compra entera y entrega lo que pueda. Negarte el botón
+ * porque falta una sería dejarte sin entregar las otras dos.
+ *
+ * Dos unidades del mismo producto piden dos cuentas: con una sola libre,
+ * se entrega una.
  */
-function sePuedeConfirmar(p) {
-  if (!CONFIRMABLES.includes(p.estado)) return false;
+function cobertura(c) {
+  const pendientes = c.lineas.filter(o => CONFIRMABLES.includes(o.estado));
 
-  // En una compra de varios productos, el botón confirma la compra ENTERA
-  // y entrega lo que pueda. Así que alcanza con que UNA de sus líneas
-  // tenga stock: negarte el botón porque falta una sería dejarte sin
-  // entregar las otras dos.
-  if (p.grupo) {
-    return PEDIDOS.some(o =>
-      o.grupo === p.grupo &&
-      CONFIRMABLES.includes(o.estado) &&
-      (STOCK.get(o.producto_id) || 0) > 0);
+  let hay = 0;
+  const faltan = [];              // "Disney ×1": lo que queda sin stock
+  for (const x of productosDeCompra(pendientes)) {
+    const libres = STOCK.get(x.lineas[0].producto_id) || 0;
+    const salen  = Math.min(x.cant, libres);
+    hay += salen;
+    if (salen < x.cant) faltan.push(`${x.nombre} ×${x.cant - salen}`);
   }
-
-  return (STOCK.get(p.producto_id) || 0) > 0;
+  return { hay, de: pendientes.length, faltan, pendientes };
 }
 
-/**
- * El primer pedido de cada compra agrupada.
- *
- * Una compra de 3 productos son 3 filas en la tabla, pero UNA sola venta:
- * se pagó con una transferencia y se confirma con un botón. Mostrar tres
- * botones haría pensar que son tres pagos distintos.
- *
- * Así que el botón va solo en la primera fila del grupo, y las demás
- * quedan marcadas como parte de la misma compra.
- */
-function primerosDeGrupo(lista) {
-  const vistos = new Set();
-  const primeros = new Set();
-  for (const p of lista) {
-    if (!p.grupo) { primeros.add(p.id); continue; }
-    if (!vistos.has(p.grupo)) { vistos.add(p.grupo); primeros.add(p.id); }
-  }
-  return primeros;
+/** La compra entera de un pedido: él y los que se compraron con él. */
+function compraDe(p) {
+  const clave = p.grupo || p.id;
+  return agruparCompras(PEDIDOS.filter(o => (o.grupo || o.id) === clave))[0];
 }
 
 // El orden importa: es el orden en que te tenés que ocupar de las cosas.
@@ -147,7 +137,7 @@ css.textContent = `
     padding: 15px 17px;
     margin-bottom: 10px;
     display: grid;
-    grid-template-columns: 62px 1fr auto;
+    grid-template-columns: 86px 1fr auto;
     gap: 14px;
     align-items: center;
   }
@@ -294,6 +284,44 @@ css.textContent = `
   }
   .vt-renov-fila strong { color: #14532d; }
 
+  /* ---------- Lo que se compró ----------
+     Renglón por renglón, con el descuento combo y el total: la misma
+     cuenta que el cliente vio en el carrito y en el QR. El total es lo que
+     se compara con la transferencia. */
+  .vt-lineas {
+    grid-column: 1 / -1;
+    border: 1px solid var(--borde); border-radius: 10px;
+    padding: 2px 13px;
+    font-size: 13px; font-variant-numeric: tabular-nums;
+  }
+  .vt-linea {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 0; border-bottom: 1px dashed var(--borde);
+  }
+  .vt-linea:last-child, .vt-linea:has(+ .total) { border-bottom: none; }
+  .vt-l-cant { flex: none; min-width: 24px; font-weight: 700; color: var(--gris); }
+  .vt-l-nom  { flex: 1; min-width: 0; font-weight: 600; color: var(--tinta); }
+  .vt-l-nom small { font-weight: 400; font-size: 11.5px; color: var(--gris-dim); margin-left: 6px; }
+  .vt-l-bs   { flex: none; font-weight: 700; color: var(--tinta); white-space: nowrap; }
+  .vt-linea.desc .vt-l-nom, .vt-linea.desc .vt-l-bs { color: #15803d; }
+  .vt-linea.total { border-top: 1px solid var(--borde); }
+  .vt-linea.total .vt-l-nom { font-weight: 800; }
+  .vt-linea.total .vt-l-bs  { font-weight: 800; font-size: 15px; }
+  .vt-modal .vt-lineas { margin-bottom: 16px; }
+
+  /* Cuántas cuentas salen solas al confirmar. En azul si alcanza para
+     todo; en naranja si algo va a quedar sin stock. */
+  .vt-stock-fila {
+    grid-column: 1 / -1;
+    font-size: 12.5px; padding: 7px 11px; border-radius: 8px;
+    background: rgba(29,78,216,.07); color: #1e3a8a;
+  }
+  .vt-stock-fila.parcial { background: rgba(180,83,9,.09); color: #7c3d06; }
+
+  /* De qué producto es cada cuenta, cuando la compra tiene varias */
+  .vt-cred-de { font-family: 'Outfit', system-ui, sans-serif; font-weight: 700; color: var(--tinta); }
+  .vt-cred-todas { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
+
   /* ---------- Celular ----------
      La fila deja de ser una grilla de tres columnas y pasa a ser una sola,
      en tres renglones: número, producto y cliente, y abajo plata y botones.
@@ -355,10 +383,12 @@ $('vistaVentas').innerHTML = `
       <h3>Confirmar el pago</h3>
       <p class="sub" id="vtSub"></p>
 
-      <div class="vt-alerta ojo">
-        Confirmá solo si <strong>ya viste la plata en tu cuenta</strong>.
-        Al confirmar, la cuenta se entrega sola y no se puede deshacer.
-      </div>
+      <!-- Lo que se compró y el total. Es contra este número que mirás la
+           transferencia: con el descuento combo, ya no es el precio de
+           ningún producto suelto. -->
+      <div id="vtDetalle"></div>
+
+      <div class="vt-alerta ojo" id="vtAlerta"></div>
 
       <!-- El nombre y no el número de comprobante: en la transferencia lo
            que ves es quién te pagó, y ese es el dato con el que después
@@ -383,6 +413,7 @@ $('vistaVentas').innerHTML = `
     <div class="vt-modal" role="alertdialog" aria-modal="true">
       <h3 id="vtManoTitulo"></h3>
       <p class="sub" id="vtManoSub"></p>
+      <div id="vtManoDetalle"></div>
       <div class="vt-alerta ojo" id="vtManoAviso"></div>
 
       <!-- La cuenta que le pasaste por el chat. Guardarla acá es lo que
@@ -504,6 +535,9 @@ async function cargarCredenciales() {
 // ============================================================
 // 4. MÉTRICAS
 // ============================================================
+// Se cuentan COMPRAS, no filas: la de 3 productos es un pago por
+// confirmar, no tres. La plata sí sale de las filas, y como "precio" ya
+// trae el descuento combo, la suma es lo que entró de verdad.
 function metricas() {
   const hoy = new Date().toDateString();
 
@@ -515,10 +549,10 @@ function metricas() {
 
   const bsHoy = dadosHoy.reduce((s, p) => s + Number(p.precio || 0), 0);
 
-  $('vtEsperando').textContent = esperando.length;
-  $('vtHoy').textContent       = dadosHoy.length;
+  $('vtEsperando').textContent = cuantasCompras(esperando);
+  $('vtHoy').textContent       = cuantasCompras(dadosHoy);
   $('vtHoyBs').textContent     = bsHoy > 0 ? `${bsHoy.toFixed(0)} Bs` : '–';
-  $('vtProblemas').textContent = problemas.length;
+  $('vtProblemas').textContent = cuantasCompras(problemas);
 }
 
 
@@ -527,17 +561,22 @@ function metricas() {
 // ============================================================
 // "Para atender" es la vista por defecto a propósito: al abrir la pestaña
 // tenés adelante lo que hay que hacer, no un historial que ya resolviste.
-function pedidosDelFiltro() {
-  if (filtro === 'atencion') {
-    return PEDIDOS.filter(p =>
-      p.estado === 'sin_stock' || p.estado === 'pagado' || p.estado === 'esperando_pago');
-  }
-  if (filtro === 'entregado') return PEDIDOS.filter(p => p.estado === 'entregado');
+//
+// Se filtran compras: una entra si ALGUNA de sus líneas cumple. Una con
+// una cuenta entregada y otra sin stock sale en "Para atender" y en
+// "Entregados", porque las dos cosas son ciertas.
+const EN_ATENCION = ['sin_stock', 'pagado', 'esperando_pago'];
+
+const algunaEn = (c, estados) => c.lineas.some(o => estados.includes(o.estado));
+
+function comprasDelFiltro(compras) {
+  if (filtro === 'atencion')  return compras.filter(c => algunaEn(c, EN_ATENCION));
+  if (filtro === 'entregado') return compras.filter(c => algunaEn(c, ['entregado']));
   if (filtro === 'fecha') {
     const dia = $('vtFecha').value;
-    return dia ? PEDIDOS.filter(p => diaLocal(p.creado_en) === dia) : [];
+    return dia ? compras.filter(c => diaLocal(c.primera.creado_en) === dia) : [];
   }
-  return PEDIDOS;
+  return compras;
 }
 
 // El día de un timestamp, en TU hora y con el formato del <input type=date>.
@@ -594,17 +633,17 @@ async function cargarDia(dia) {
 }
 
 function listar() {
-  const pendientes = PEDIDOS.filter(p =>
-    ['sin_stock','pagado','esperando_pago'].includes(p.estado)).length;
+  const compras = agruparCompras(PEDIDOS);
+  const pendientes = compras.filter(c => algunaEn(c, EN_ATENCION)).length;
 
   // En la pestaña se lee "(2) Panel Tiago Store" sin tener que entrar
   actualizarTitulo(pendientes);
 
   $('nAtencion').textContent  = pendientes || '';
-  $('nEntregado').textContent = PEDIDOS.filter(p => p.estado === 'entregado').length || '';
-  $('nTodos').textContent     = PEDIDOS.length || '';
+  $('nEntregado').textContent = compras.filter(c => algunaEn(c, ['entregado'])).length || '';
+  $('nTodos').textContent     = compras.length || '';
 
-  const lista = pedidosDelFiltro();
+  const lista = comprasDelFiltro(compras);
 
   $('nFecha').textContent = filtro === 'fecha' ? (lista.length || '') : '';
 
@@ -625,114 +664,223 @@ function listar() {
     return;
   }
 
-  const primeros = primerosDeGrupo(lista);
-  $('vtLista').innerHTML = lista.map(p => pintarPedido(p, primeros.has(p.id))).join('');
+  $('vtLista').innerHTML = lista.map(pintarCompra).join('');
 }
 
-function pintarPedido(p, esPrimeroDelGrupo = true) {
-  const e = ESTADOS[p.estado] || ESTADOS.cancelado;
-  const cred = CREDS[p.id];
+const bsTxt = n => `${Number(n || 0).toFixed(2)} Bs`;
 
-  const clase = p.estado === 'sin_stock' ? 'urgente'
-              : p.estado === 'esperando_pago' || p.estado === 'pagado' ? 'espera' : '';
+const badgeEstado = (estado, txt) => {
+  const e = ESTADOS[estado] || ESTADOS.cancelado;
+  return `<span class="vt-badge" style="color:${e.color};background:${e.bg}">${txt || e.txt}</span>`;
+};
+
+/**
+ * Lo que se compró, renglón por renglón: cada producto con su cantidad y
+ * su precio normal, el descuento combo aparte y el total. Es la misma
+ * cuenta que el cliente vio en el carrito y en la página del QR.
+ *
+ * Con porEstado, las unidades de un mismo producto se separan si quedaron
+ * en estados distintos (una entregada y otra sin stock), cada una con su
+ * cartel.
+ */
+function detalleCompra(c, { porEstado = false } = {}) {
+  const filas = productosDeCompra(c.lineas, porEstado).map(x => `
+    <div class="vt-linea">
+      <span class="vt-l-cant">${x.cant}×</span>
+      <span class="vt-l-nom">${escapar(x.nombre)}<small>${x.lineas.map(o => '#' + o.numero).join(' · ')}</small></span>
+      ${porEstado ? badgeEstado(x.estado) : ''}
+      <span class="vt-l-bs">${bsTxt(x.unitario * x.cant)}</span>
+    </div>`).join('');
+
+  const descuento = c.descuento > 0 ? `
+    <div class="vt-linea desc">
+      <span class="vt-l-cant">🎁</span>
+      <span class="vt-l-nom">Descuento combo</span>
+      <span class="vt-l-bs">−${bsTxt(c.descuento)}</span>
+    </div>` : '';
+
+  const rotulo = c.lineas.some(o => o.estado === 'esperando_pago' || o.estado === 'vencido') ? 'Total a cobrar'
+               : c.lineas.every(o => o.estado === 'cancelado') ? 'Total'
+               : 'Total pagado';
+
+  return `
+    <div class="vt-lineas">
+      ${filas}${descuento}
+      <div class="vt-linea total">
+        <span class="vt-l-cant"></span>
+        <span class="vt-l-nom">${rotulo}</span>
+        <span class="vt-l-bs">${bsTxt(c.total)}</span>
+      </div>
+    </div>`;
+}
+
+/**
+ * Una tarjeta por compra.
+ *
+ * Una compra de 3 productos son 3 filas en la tabla, pero UNA sola venta:
+ * se pagó con una transferencia y se confirma con un botón. Antes se veían
+ * tres tarjetas, cada una con su precio, y el total que tenía que coincidir
+ * con la transferencia no estaba en ningún lado. Con el descuento combo ni
+ * siquiera se podía sacar a ojo: el descuento va en una sola de las filas.
+ *
+ * Arriba queda como siempre: número, qué se compró, cliente, total, estado
+ * y botones. Abajo, si hay más de una cuenta o hubo descuento, el detalle.
+ */
+function pintarCompra(c) {
+  const L = c.lineas;
+  const p = c.primera;
+  const n = L.length;
+
+  const principal = estadoPrincipal(L);
+  const mixto = new Set(L.map(o => o.estado)).size > 1;
+
+  const clase = principal === 'sin_stock' ? 'urgente'
+              : principal === 'esperando_pago' || principal === 'pagado' ? 'espera' : '';
+
+  // Con estados mezclados, el cartel dice cuánto va entregado. El color
+  // sigue siendo el de lo que falta: es lo que te pide algo.
+  const entregadas = L.filter(o => o.estado === 'entregado');
+  const cartel = mixto && entregadas.length
+    ? badgeEstado(principal, `${entregadas.length} de ${n} entregadas`)
+    : badgeEstado(principal);
 
   const wa = (p.cliente_whatsapp || '').replace(/[^0-9]/g, '');
+  const comprobante = L.find(o => o.referencia_pago)?.referencia_pago;
+  // Entregada, manda el momento de la entrega (la última, si fue de a
+  // partes): es el dato que se busca cuando alguien reclama.
+  const entregadaEn = L.map(o => o.entregado_en).filter(Boolean).sort().pop();
+
+  const cob  = cobertura(c);
+  const pend = cob.pendientes;
+
+  let acciones = '';
+  if (pend.length && cob.hay > 0) {
+    // Con stock hay dos caminos y los dos tienen que estar a mano:
+    // confirmar, o rechazar. Sin la ✕, el que nunca pagó se quedaba en
+    // "Para atender" hasta que venciera solo.
+    const txt = pend.some(o => o.estado === 'sin_stock') ? 'Reintentar'
+              : pend.every(o => o.estado === 'vencido')   ? 'Pagó tarde: entregar'
+              : n > 1                                      ? 'Confirmar compra'
+              :                                              'Confirmar pago';
+    acciones = `
+      <button class="btn btn-primario" data-confirmar="${pend[0].id}">${txt}</button>
+      <button class="vt-mini no" data-cancelar="${pend[0].id}"
+              title="Rechazar ${n > 1 ? 'esta compra' : 'este pedido'}">✕</button>`;
+  } else if (pend.length) {
+    // Sin cuentas cargadas no hay nada que entregar, así que no se ofrece
+    // un botón que solo daría una vuelta para terminar en WhatsApp igual.
+    // Se dice de una qué hay que hacer, y van los dos botones para cerrar
+    // la compra cuando ya lo hiciste: si no, se queda en "Esperando" para
+    // siempre, tapando la lista de lo que de verdad falta.
+    acciones = `
+      <span class="vt-wa-only">Entrega por WhatsApp</span>
+      <button class="vt-mini" data-listo="${pend[0].id}"
+              title="Ya se lo entregaste por WhatsApp">Listo</button>
+      <button class="vt-mini no" data-cancelar="${pend[0].id}"
+              title="Rechazar ${n > 1 ? 'esta compra' : 'este pedido'}">✕</button>`;
+  } else if (entregadas.some(entregadoAMano)) {
+    // Ya cerrada a mano: se dice cómo se entregó, porque no tiene
+    // credenciales que mostrar abajo.
+    acciones = `<span class="vt-wa-only">${entregadas.every(entregadoAMano)
+      ? '✓ Entregado por WhatsApp' : '✓ Una parte por WhatsApp'}</span>`;
+  }
+
+  // Cuántas salen solas al confirmar. Con una sola cuenta el botón ya lo
+  // dice; con varias, hace falta saber si alcanza para todas.
+  let stock = '';
+  if (pend.length > 1 && cob.hay > 0) {
+    stock = cob.hay >= cob.de
+      ? `<div class="vt-stock-fila">⚡ Hay stock para todo: al confirmar se entregan solas las ${cob.de} cuentas.</div>`
+      : `<div class="vt-stock-fila parcial">⚡ Hay stock para ${cob.hay} de ${cob.de}: al confirmar se
+           ${cob.hay === 1 ? 'entrega esa' : 'entregan esas'}, y lo demás (<strong>${escapar(cob.faltan.join(', '))}</strong>)
+           queda sin stock hasta que cargues cuentas o lo entregues por WhatsApp.</div>`;
+  }
+
+  // Una fila por cuenta entregada, por si hay que reenviarla. Con varias,
+  // cada una dice de qué producto es, y hay un botón que las copia todas
+  // en un solo mensaje.
+  const conCuenta = L.filter(o => CREDS[o.id]);
+  const cuentas = conCuenta.map(o => {
+    const cred = CREDS[o.id];
+    return `
+      <div class="vt-cred">
+        ${n > 1 ? `<span class="vt-cred-de">${escapar(o.producto_nombre)} · #${o.numero}</span>` : ''}
+        <span>👤 ${escapar(cred.usuario || '')}</span>
+        ${cred.clave  ? `<span>🔑 ${escapar(cred.clave)}</span>`   : ''}
+        ${cred.perfil ? `<span>👥 ${escapar(cred.perfil)}</span>`  : ''}
+        ${cred.pin    ? `<span># ${escapar(cred.pin)}</span>`      : ''}
+        <button data-copiar="${o.id}">Copiar para mandar</button>
+      </div>`;
+  }).join('') + (conCuenta.length > 1 ? `
+      <div class="vt-cred-todas">
+        <button class="vt-mini" data-copiar-compra="${c.clave}">📋 Copiar las ${conCuenta.length} en un solo mensaje</button>
+      </div>` : '');
+
+  const sinStock  = L.filter(o => o.estado === 'sin_stock');
+  const rechazada = L.find(o => o.estado === 'cancelado' && o.motivo);
+
+  // El aviso de renovación es de la compra entera, pero cada producto
+  // vence cuando vence su plan: con varios, va la fecha de cada uno.
+  const renov = productosDeCompra(L.filter(o => o.renovar));
+  const cuandoVence = o => o.suscripcion_vence_en
+    ? `se le vence el <strong>${fechaCorta(o.suscripcion_vence_en)}</strong>`
+    : o.plan_dias ? `plan de ${o.plan_dias} días, la fecha se anota al entregar` : '';
+  // Mientras no se entregó ninguna, con varias alcanza con decirlo una vez.
+  const sinFechas = renov.length > 1 && renov.every(x => x.lineas.every(o => !o.suscripcion_vence_en));
+  const vencimientos = sinFechas ? ['las fechas se anotan al entregar'] : renov.map(x => {
+    // La que vence primero, que es la que hay que avisar antes
+    const o = [...x.lineas].sort((a, b) =>
+      String(a.suscripcion_vence_en || '9').localeCompare(String(b.suscripcion_vence_en || '9')))[0];
+    const q = cuandoVence(o);
+    return renov.length > 1 ? `${escapar(x.nombre)}${q ? ': ' + q : ''}` : q;
+  }).filter(Boolean);
 
   return `
     <div class="vt-pedido ${clase}">
       <div class="vt-num-caja">
-        <div class="vt-num">#${p.numero}</div>
-        <!-- Solo qué tan reciente es. La fecha exacta, y la de la entrega,
-             van completas abajo junto al producto: acá repetidas ocupaban
-             dos renglones para decir lo mismo. -->
+        <div class="vt-num">${numerosDeCompra(L)}</div>
+        <!-- Solo qué tan reciente es. La fecha exacta va completa abajo,
+             junto a lo que se compró. -->
         <div class="vt-fecha">${cuandoFue(p.creado_en)}</div>
       </div>
 
       <div class="vt-medio">
-        <div class="vt-prod">${escapar(p.producto_nombre)}</div>
+        <div class="vt-prod">${escapar(nombreDeCompra(L))}</div>
         <!-- Una sola fecha, con el mismo formato que le queda al cliente en
-             su mensaje de WhatsApp. Entregado, manda el momento de la
-             entrega: es el dato que se busca cuando alguien reclama. Y
-             mientras no lo esté, la de cuando armó el pedido, que es lo
-             único que pasó hasta ahora. -->
-        <div class="vt-orden">Fecha de orden: ${fechaOrden(p.entregado_en || p.creado_en)}</div>
+             su mensaje de WhatsApp. Entregada, la de la entrega; mientras
+             no, la de cuando armó el pedido. -->
+        <div class="vt-orden">Fecha de orden: ${fechaOrden(entregadaEn || p.creado_en)}${n > 1 ? ` · ${n} cuentas` : ''}</div>
         <div class="vt-cliente">
           ${escapar(p.cliente_nombre || 'Sin nombre')}
           ${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">📲 ${escapar(p.cliente_whatsapp)}</a>` : ''}
           ${p.cliente_email ? ` · ${escapar(p.cliente_email)}` : ''}
-          ${p.referencia_pago ? ` · comprobante ${escapar(p.referencia_pago)}` : ''}
+          ${comprobante ? ` · comprobante ${escapar(comprobante)}` : ''}
         </div>
       </div>
 
       <div class="vt-der">
-        <span class="vt-precio">${Number(p.precio).toFixed(2)} Bs</span>
-        ${Number(p.descuento) > 0
-          // El descuento combo va entero en el pedido más caro de la compra
-          // (ver crear_compra): sin esto, verías ese producto más barato
-          // que su precio y no sabrías por qué.
-          ? `<span class="vt-badge" style="color:#14632f;background:rgba(21,128,61,.10)" title="Descuento combo: la compra tenía 2 productos o más">combo −${Number(p.descuento).toFixed(2)}</span>`
-          : ''}
-        <span class="vt-badge" style="color:${e.color};background:${e.bg}">${e.txt}</span>
-        ${(esPrimeroDelGrupo && sePuedeConfirmar(p))
-          // Con stock hay dos caminos y los dos tienen que estar a mano:
-          // confirmar, o rechazar. Sin la ✕, el que nunca pagó se quedaba
-          // en "Para atender" hasta que venciera solo.
-          ? `<button class="btn btn-primario" data-confirmar="${p.id}">
-               ${p.estado === 'sin_stock' ? 'Reintentar'
-                 : p.estado === 'vencido' ? 'Pagó tarde: entregar'
-                 : p.grupo               ? 'Confirmar compra'
-                 : 'Confirmar pago'}
-             </button>
-             <button class="vt-mini no" data-cancelar="${p.id}"
-                     title="Rechazar este pedido">✕</button>`
-          : (!esPrimeroDelGrupo)
-            // Parte de una compra que ya tiene su botón más arriba. Se dice
-            // para que no parezca un pedido olvidado sin acción.
-            ? `<span class="vt-wa-only">↑ misma compra</span>`
-            : CONFIRMABLES.includes(p.estado)
-            // Sin cuentas cargadas no hay nada que entregar, así que no se
-            // ofrece un botón que solo daría una vuelta para terminar en
-            // WhatsApp igual. Se dice de una qué hay que hacer, y van los
-            // dos botones para cerrar la fila cuando ya lo hiciste: si no,
-            // el pedido se queda en "Esperando" para siempre, tapando la
-            // lista de lo que de verdad falta.
-            ? `<span class="vt-wa-only">Entrega por WhatsApp</span>
-               <button class="vt-mini" data-listo="${p.id}"
-                       title="Ya se lo entregaste por WhatsApp">Listo</button>
-               <button class="vt-mini no" data-cancelar="${p.id}"
-                       title="Rechazar este pedido">✕</button>`
-            // Ya cerrado a mano: se dice cómo se entregó, porque este no
-            // tiene credenciales que mostrar abajo.
-            : entregadoAMano(p)
-            ? `<span class="vt-wa-only">✓ Entregado por WhatsApp</span>`
-            : ''}
+        <span class="vt-precio" title="Lo que paga el cliente${c.descuento > 0 ? ', ya con el descuento combo' : ''}">${bsTxt(c.total)}</span>
+        ${cartel}
+        ${acciones}
       </div>
 
-      ${cred ? `
-        <div class="vt-cred">
-          <span>👤 ${escapar(cred.usuario || '')}</span>
-          ${cred.clave  ? `<span>🔑 ${escapar(cred.clave)}</span>`   : ''}
-          ${cred.perfil ? `<span>👥 ${escapar(cred.perfil)}</span>`  : ''}
-          ${cred.pin    ? `<span># ${escapar(cred.pin)}</span>`      : ''}
-          <button data-copiar="${p.id}">Copiar para mandar</button>
+      ${n > 1 || c.descuento > 0 ? detalleCompra(c, { porEstado: mixto }) : ''}
+      ${stock}
+      ${cuentas}
+
+      ${sinStock.length ? `
+        <div class="vt-cred" style="background:rgba(220,38,38,.06);color:#8f1616;font-family:inherit;">
+          <span>Pagó y no había cuentas libres${n > 1 ? ` de <strong>${escapar(nombreDeCompra(sinStock))}</strong>` : ''}.
+          Cargá stock y tocá <strong>Reintentar</strong>, o resolvelo por WhatsApp.</span>
         </div>` : ''}
 
-      ${p.estado === 'sin_stock' ? `
-        <div class="vt-cred" style="background:rgba(220,38,38,.06);color:#8f1616;">
-          Pagó y no había cuentas libres. Cargá stock de este producto y tocá
-          <strong>Reintentar</strong>, o resolvelo por WhatsApp.
-        </div>` : ''}
+      ${rechazada ? `
+        <div class="vt-motivo-fila">✕ Rechazado: ${escapar(rechazada.motivo)}</div>` : ''}
 
-      ${p.estado === 'cancelado' && p.motivo ? `
-        <div class="vt-motivo-fila">✕ Rechazado: ${escapar(p.motivo)}</div>` : ''}
-
-      ${p.renovar ? `
+      ${renov.length ? `
         <div class="vt-renov-fila">
-          🔁 Pidió que le avisemos para renovar${
-            p.suscripcion_vence_en
-              ? ` · se le vence el <strong>${fechaCorta(p.suscripcion_vence_en)}</strong>`
-              : p.plan_dias ? ` · plan de ${p.plan_dias} días, la fecha se anota al entregar` : ''
-          }${p.suscripcion_avisada_en ? ' · ya te avisé por Telegram' : ''}
+          🔁 Pidió que le avisemos para renovar${vencimientos.length ? ' · ' + vencimientos.join(' · ') : ''}${
+            L.some(o => o.renovar && o.suscripcion_avisada_en) ? ' · ya te avisé por Telegram' : ''}
         </div>` : ''}
     </div>`;
 }
@@ -809,6 +957,9 @@ $('vtLista').addEventListener('click', async e => {
   const copiar = e.target.closest('[data-copiar]');
   if (copiar) { await copiarParaMandar(copiar.dataset.copiar); return; }
 
+  const copiarCompra = e.target.closest('[data-copiar-compra]');
+  if (copiarCompra) { await copiarCompraEntera(copiarCompra.dataset.copiarCompra); return; }
+
   const listo = e.target.closest('[data-listo]');
   if (listo) { abrirCierreAMano(listo.dataset.listo, 'entregar'); return; }
 
@@ -836,6 +987,36 @@ async function copiarParaMandar(pedidoId) {
     `¡Gracias por tu compra!`
   ].filter(l => l !== '').join('\n');
 
+  await copiarTexto(texto);
+}
+
+// Todas las cuentas de una compra en un solo mensaje: el que compró tres
+// recibe uno, no tres seguidos.
+async function copiarCompraEntera(clave) {
+  const c = agruparCompras(PEDIDOS.filter(o => (o.grupo || o.id) === clave))[0];
+  if (!c) return;
+
+  const bloques = c.lineas.filter(o => CREDS[o.id]).map(o => {
+    const cred = CREDS[o.id];
+    return [
+      `*${o.producto_nombre}* (#${o.numero})`,
+      `👤 Usuario: ${cred.usuario || ''}`,
+      cred.clave  ? `🔑 Clave: ${cred.clave}`   : '',
+      cred.perfil ? `👥 Perfil: ${cred.perfil}` : '',
+      cred.pin    ? `🔢 PIN: ${cred.pin}`       : '',
+      cred.notas  ? `📌 ${cred.notas}`          : ''
+    ].filter(Boolean).join('\n');
+  });
+  if (!bloques.length) return;
+
+  await copiarTexto([
+    `🦁 *TIAGO STORE* · Pedido ${numerosDeCompra(c.lineas)}`,
+    ...bloques,
+    `¡Gracias por tu compra!`
+  ].join('\n\n'));
+}
+
+async function copiarTexto(texto) {
   try {
     await navigator.clipboard.writeText(texto);
     aviso('Mensaje copiado, pegalo en WhatsApp', 'ok');
@@ -852,10 +1033,30 @@ function abrirConfirmacion(pedidoId) {
   const p = PEDIDOS.find(x => x.id === pedidoId);
   if (!p) return;
 
+  // Se muestra la compra entera y su total: es lo que se pagó con una
+  // transferencia, y lo que confirmar_compra entrega de una vez.
+  const c   = compraDe(p);
+  const cob = cobertura(c);
+  const varias = c.lineas.length > 1;
+
   confirmando = p;
   $('vtSub').innerHTML =
-    `Pedido <strong>#${p.numero}</strong> · ${escapar(p.producto_nombre)}<br>` +
-    `<strong>${Number(p.precio).toFixed(2)} Bs</strong> de ${escapar(p.cliente_nombre || 'cliente sin nombre')}`;
+    `${varias ? 'Compra' : 'Pedido'} <strong>${numerosDeCompra(c.lineas)}</strong> ` +
+    `de ${escapar(p.cliente_nombre || 'cliente sin nombre')}`;
+  $('vtDetalle').innerHTML = detalleCompra(c);
+
+  // Ya pagó (sin stock que se reintenta) o todavía no se sabe: en el
+  // segundo caso, lo que hay que ver en la cuenta es el total exacto.
+  const yaPago = cob.pendientes.every(o => o.estado === 'sin_stock' || o.estado === 'pagado');
+  const entrega = cob.hay >= cob.de
+    ? (cob.de > 1 ? `las ${cob.de} cuentas se entregan solas` : 'la cuenta se entrega sola')
+    : `se ${cob.hay === 1 ? 'entrega sola 1' : `entregan solas ${cob.hay}`} de las ${cob.de} cuentas ` +
+      `y lo demás (${escapar(cob.faltan.join(', '))}) queda sin stock`;
+  $('vtAlerta').innerHTML = yaPago
+    ? `Este pago ya estaba registrado. Al confirmar, ${entrega}, y no se puede deshacer.`
+    : `Confirmá solo si <strong>ya te entraron ${bsTxt(c.total)}</strong> en tu cuenta. ` +
+      `Al confirmar, ${entrega}, y no se puede deshacer.`;
+
   $('vtCliente').value = p.cliente_nombre || '';
   $('vtFondo').classList.add('abierto');
   $('vtCliente').focus();
@@ -986,23 +1187,30 @@ function abrirCierreAMano(pedidoId, accion) {
   if (!p) return;
 
   const filas = filasDeLaCompra(p);
-  const cuantas = filas.length > 1 ? ` · <strong>${filas.length} productos</strong> de la misma compra` : '';
+  const c = compraDe(p);
+  const varias = c.lineas.length > 1;
 
   cerrandoAMano = { pedido: p, accion };
 
   $('vtManoTitulo').textContent = accion === 'entregar'
     ? '¿Ya se lo entregaste?'
-    : '¿Rechazar este pedido?';
+    : `¿Rechazar ${varias ? 'esta compra' : 'este pedido'}?`;
 
+  // Lo que se cierra, con su total. Si una parte ya estaba entregada, esa
+  // no se toca: se dice, para que no parezca que se deshace.
+  const quedan = c.lineas.length - filas.length;
   $('vtManoSub').innerHTML =
-    `Pedido <strong>#${p.numero}</strong> · ${escapar(p.producto_nombre)}${cuantas}<br>` +
-    `<strong>${Number(p.precio).toFixed(2)} Bs</strong> de ${escapar(p.cliente_nombre || 'cliente sin nombre')}`;
+    `${varias ? 'Compra' : 'Pedido'} <strong>${numerosDeCompra(c.lineas)}</strong> ` +
+    `de ${escapar(p.cliente_nombre || 'cliente sin nombre')}` +
+    (quedan > 0 ? `<br>Se ${filas.length === 1 ? 'cierra' : 'cierran'} ${filas.length} de ${c.lineas.length}: ` +
+                  'las ya entregadas quedan como están.' : '');
+  $('vtManoDetalle').innerHTML = detalleCompra(quedan > 0 ? agruparCompras(filas)[0] : c);
 
   $('vtManoAviso').innerHTML = accion === 'entregar'
     ? 'Se marca como <strong>entregado por WhatsApp</strong> y suma a lo vendido hoy. ' +
       'Tocalo solo si ya le pasaste la cuenta.'
-    : 'El pedido queda <strong>rechazado</strong> y desaparece de lo pendiente. ' +
-      'No se entrega nada y después no vas a poder confirmarlo desde acá.';
+    : `${varias ? 'La compra' : 'El pedido'} queda <strong>rechazad${varias ? 'a' : 'o'}</strong> y desaparece de lo pendiente. ` +
+      `No se entrega nada y después no vas a poder confirmarl${varias ? 'a' : 'o'} desde acá.`;
 
   // Los datos de la cuenta solo tienen sentido al entregar, y solo en una
   // compra de un producto: con tres, un solo usuario y clave no alcanza —
@@ -1101,7 +1309,8 @@ $('vtManoOk').addEventListener('click', async () => {
   const { pedido, accion } = cerrandoAMano;
   const btn   = $('vtManoOk');
   const texto = btn.textContent;
-  const ids   = filasDeLaCompra(pedido).map(o => o.id);
+  const filas = filasDeLaCompra(pedido);
+  const ids   = filas.map(o => o.id);
 
   btn.disabled = true;
   btn.textContent = 'Guardando…';
@@ -1160,11 +1369,14 @@ $('vtManoOk').addEventListener('click', async () => {
     return;
   }
 
+  const cual = ids.length > 1
+    ? `Compra ${numerosDeCompra(filas)}`
+    : `Pedido #${pedido.numero}`;
   aviso(accion !== 'entregar'
-    ? `Pedido #${pedido.numero} rechazado`
+    ? `${cual} rechazad${ids.length > 1 ? 'a' : 'o'}`
     : cred
-      ? `✓ Pedido #${pedido.numero} entregado. El cliente ya ve su cuenta en la página`
-      : `✓ Pedido #${pedido.numero} entregado por WhatsApp`, 'ok');
+      ? `✓ ${cual} entregado. El cliente ya ve su cuenta en la página`
+      : `✓ ${cual} entregad${ids.length > 1 ? 'a' : 'o'} por WhatsApp`, 'ok');
 
   cerrarMano();
   await cargarTodo();

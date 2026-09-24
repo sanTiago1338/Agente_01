@@ -1267,12 +1267,15 @@ $('vtAvisos').addEventListener('click', async () => {
   } catch { /* nada: el botón se queda como estaba */ }
 });
 
-// Los pendientes en el título de la pestaña: "(2) Panel Tiago Store".
+// Los pendientes en el título de la pestaña: "(2) Inicio · Panel Tiago Store".
 // Es lo único que se ve del panel cuando está en otra pestaña.
-const TITULO_ORIGINAL = document.title;
-
+// Van adelante del título de la vista que esté abierta, y el número queda
+// en window.pendientesAdmin para que admin/index.html lo conserve al
+// cambiar de vista.
 function actualizarTitulo(pendientes) {
-  document.title = pendientes > 0 ? `(${pendientes}) ${TITULO_ORIGINAL}` : TITULO_ORIGINAL;
+  window.pendientesAdmin = pendientes;
+  const base = document.title.replace(/^\(\d+\)\s*/, '');
+  document.title = pendientes > 0 ? `(${pendientes}) ${base}` : base;
 }
 
 

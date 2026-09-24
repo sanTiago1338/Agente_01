@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Productos · Panel Tiago Store</title>
+<title>Panel Tiago Store</title>
 
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../favicon.png" sizes="32x32">
@@ -114,49 +114,210 @@
   #verificando p { color: var(--gris-dim); font-size: 13px; margin: 0; }
   @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.5s; } }
 
-  /* ================= BARRA SUPERIOR ================= */
-  header {
+  /* ================= ESTRUCTURA =================
+     Compu (900 px o más): menú fijo a la izquierda y el contenido al lado.
+     Celular: barra arriba con la marca, y abajo una barra con las vistas,
+     al alcance del pulgar.
+
+     Cada vista tiene su botón [data-vista] en los DOS menús; el script de
+     abajo los marca a la par, así da igual cuál se toque. */
+  .lateral { display: none; }
+  .contenido { min-width: 0; padding-bottom: 78px; }   /* aire para la barra de abajo */
+
+  /* Íconos dibujados (trazos, no emojis): heredan el color del texto */
+  .ico {
+    width: 20px; height: 20px; flex: none;
+    fill: none; stroke: currentColor; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  /* ---- Barra de arriba ---- */
+  .barra {
     position: sticky;
     top: 0;
     z-index: 30;
-    background: rgba(255,255,255,.86);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    padding: 9px 12px;
+    background: rgba(255,255,255,.88);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--borde);
   }
-  .header-in {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  .logo {
+  .barra-marca {
     font-family: 'Bebas Neue', Impact, sans-serif;
-    font-size: 26px;
+    font-size: 23px;
     letter-spacing: .05em;
     line-height: 1;
-    margin: 0;
+    color: var(--tinta);
+    text-decoration: none;
   }
-  .logo .zona { color: var(--rojo); }
-  .logo .adm  { color: var(--gris-dim); font-size: 12px; letter-spacing: .2em; display: block; font-family: 'Outfit', sans-serif; }
+  .barra-marca .zona { color: var(--rojo); }
+  .barra-titulo { display: none; min-width: 0; }
+  .barra-titulo h2 {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    color: var(--tinta);
+  }
+  .barra-titulo p { margin: 2px 0 0; font-size: 13px; color: var(--tinta-suave); }
+  .barra-acciones { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+  .barra-fecha { display: none; font-size: 13px; color: var(--tinta-suave); }
+  .barra-fecha::first-letter { text-transform: uppercase; }
 
-  .header-derecha {
-    margin-left: auto;
+  .icono-btn {
+    width: 38px; height: 38px;
+    display: inline-grid; place-items: center;
+    border: 1px solid var(--borde-2);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--tinta-media);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .icono-btn:hover { color: var(--tinta); background: var(--superficie-2); }
+
+  /* ---- Barra de abajo (celular) ---- */
+  .menu-movil {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--borde);
+  }
+  .menu-movil .vista-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 7px 2px;
+    border: none;
+    border-radius: 10px;
+    background: none;
+    font: 600 11px 'Outfit', sans-serif;
+    color: var(--tinta-suave);
+    cursor: pointer;
+  }
+  .menu-movil .vista-tab.activa { color: var(--rojo); }
+  .menu-movil .vista-tab.activa .ico { stroke-width: 2.4; }
+
+  /* ---- Menú lateral (compu) ---- */
+  @media (min-width: 900px) {
+    #app:not([hidden]) {
+      display: grid;
+      grid-template-columns: 236px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+    .contenido { padding-bottom: 0; }
+    .menu-movil { display: none; }
+    .lateral {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 18px 12px 14px;
+      background: var(--superficie);
+      border-right: 1px solid var(--borde);
+    }
+    .barra { min-height: 70px; padding: 14px 24px; }
+    .barra-marca, .barra-acciones .icono-btn { display: none; }
+    .barra-titulo, .barra-fecha { display: block; }
+  }
+
+  .marca {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
+    padding: 4px 8px 20px;
+    text-decoration: none;
+  }
+  .marca-ico {
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    border-radius: 11px;
+    background: linear-gradient(135deg, var(--marca), var(--marca-oscura));
+    color: #fff;
+    font: 400 24px/1 'Bebas Neue', Impact, sans-serif;
+    box-shadow: 0 4px 12px rgba(229,9,20,.28);
+  }
+  .marca-txt b {
+    display: block;
+    font: 400 23px/1 'Bebas Neue', Impact, sans-serif;
+    letter-spacing: .05em;
+    color: var(--tinta);
+  }
+  .marca-txt b .zona { color: var(--rojo); }
+  .marca-txt small {
+    display: block;
+    margin-top: 3px;
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--tinta-tenue);
+  }
+  .menu-titulo {
+    padding: 8px 12px 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--tinta-tenue);
+  }
+  .lateral .vista-tab, .menu-link {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 10px;
+    background: none;
+    font: 600 14px 'Outfit', sans-serif;
+    color: var(--tinta-media);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .lateral .vista-tab:hover, .menu-link:hover { background: var(--superficie-3); color: var(--tinta); }
+  .lateral .vista-tab.activa { background: #fff; color: var(--rojo); box-shadow: var(--sombra); }
+
+  .lateral-pie {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--borde);
+  }
+  .cuenta { display: flex; align-items: center; gap: 10px; padding: 4px 4px 0 8px; }
+  .avatar {
+    width: 34px; height: 34px; flex: none;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--superficie-3);
+    color: var(--tinta);
+    font-weight: 800;
+    text-transform: uppercase;
   }
   .usuario {
+    flex: 1;
+    min-width: 0;
     font-size: 12.5px;
-    color: var(--gris-dim);
-    max-width: 200px;
+    color: var(--tinta-suave);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .cuenta .icono-btn { width: 34px; height: 34px; }
 
   /* ================= BOTONES ================= */
   .btn {
@@ -192,94 +353,35 @@
   .btn-icono:hover { color: var(--tinta); background: #e2e5ea; }
   .btn-icono.peligro:hover { color: #fff; background: var(--error); border-color: var(--error); }
 
-  /* ================= LAYOUT ================= */
-  main {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 24px 20px 80px;
+  /* ================= ANCHO DE LAS VISTAS =================
+     Todas usan el ancho entero del área de contenido. Juegos, Ventas y
+     Stock traen su propio contenedor con tope (1180-1280 px) desde su
+     módulo; con #app adelante esta regla les gana sin tocar esos archivos. */
+  #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap {
+    max-width: none;
+    margin: 0;
+    padding: 22px 24px 40px;
   }
-
-  /* ================= CAMBIO DE VISTA ================= */
-  .vistas {
-    border-bottom: 1px solid var(--borde);
-    background: var(--negro);
-    position: sticky;
-    top: 57px;
-    z-index: 25;
-  }
-  .vistas-in {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 20px;
-    display: flex;
-    gap: 4px;
-  }
-  .vista-tab {
-    padding: 12px 18px;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: var(--gris-dim);
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .vista-tab:hover { color: var(--texto); }
-  .vista-tab.activa {
-    color: var(--texto);
-    border-bottom-color: var(--rojo);
-  }
-  /* En celular la cabecera deja de estar pegada arriba y las pestañas
-     pasan a estar pegadas ellas, en top: 0.
-
-     POR QUÉ. La cabecera envuelve en dos renglones (logo arriba, botones
-     abajo) y mide 116 px, pero las pestañas estaban clavadas en top: 53px,
-     un número escrito a mano que solo servía para la cabecera de una
-     línea. Al scrollear quedaban montadas sobre ella.
-
-     Se podría recalcular ese número, pero en una pantalla chica lo que
-     conviene es lo otro: que el logo y los botones se vayan al scrollear
-     —no los necesitás mientras trabajás— y que quede fija la única barra
-     que sí se usa todo el tiempo, la de las cuatro pestañas. */
-  @media (max-width: 820px) {
-    header { position: static; }
-    .vistas { top: 0; }
-
-    /* Cuatro pestañas repartidas en el ancho: entran siempre, y cada una
-       queda lo bastante grande para tocarla con el dedo. */
-    .vistas-in { padding: 0 6px; gap: 2px; }
-    .vista-tab {
-      flex: 1 1 0;
-      min-width: 0;
-      padding: 12px 4px;
-      font-size: 12.5px;
-      text-overflow: ellipsis;
-      overflow: hidden;
+  @media (max-width: 899px) {
+    #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap {
+      padding: 14px 10px 24px;
     }
   }
 
-  /* En los teléfonos más angostos (360 px y menos) "🛒 Productos" no
-     entraba y quedaba en "🛒 Produ…". Un punto menos de letra y menos aire
-     a los costados alcanzan para que las cuatro se lean enteras. */
-  @media (max-width: 360px) {
-    .vista-tab { font-size: 11.5px; padding: 12px 2px; }
-  }
-
   /* ================= TARJETAS DE RESUMEN ================= */
+  /* Tarjetas sueltas, iguales a las del Inicio: blancas, con borde fino
+     y una sombra apenas. Las usan las cuatro vistas. */
   .resumen {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
-    gap: 1px;
-    background: var(--borde);
-    border: 1px solid var(--borde);
-    border-radius: 12px;
-    overflow: hidden;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
     margin-bottom: 22px;
   }
   .metrica {
-    background: var(--panel);
+    background: #fff;
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    box-shadow: var(--sombra);
     padding: 15px 16px;
   }
   .metrica-n {
@@ -372,9 +474,10 @@
 
   /* ================= TABLA ================= */
   .tabla-caja {
-    background: var(--panel);
+    background: #fff;
     border: 1px solid var(--borde);
-    border-radius: 12px;
+    border-radius: 14px;
+    box-shadow: var(--sombra);
     overflow: hidden;
   }
   .tabla-scroll { overflow-x: auto; }
@@ -582,18 +685,6 @@
 
   /* ================= CELULAR: tabla -> tarjetas ================= */
   @media (max-width: 820px) {
-    .header-in { padding: 11px 15px; gap: 10px; }
-    main { padding: 18px 14px 70px; }
-    .usuario { display: none; }
-
-    /* La cabecera entra en un solo renglón: logo a la izquierda y los dos
-       botones a la derecha, más chicos. Antes envolvía y ocupaba 116 px
-       de una pantalla de 812. */
-    .logo { font-size: 21px; }
-    .logo .adm { font-size: 10px; letter-spacing: .16em; }
-    .header-derecha { gap: 7px; }
-    .header-derecha .btn { padding: 7px 11px; font-size: 12.5px; }
-
     /* Las cuatro vistas usan esta misma tira de números, pero Productos
        tiene seis y las otras tres tienen cuatro. Con un número fijo de
        columnas alguna quedaba con un hueco al costado: cuatro en tres
@@ -602,7 +693,7 @@
        Así, los cuatro van de a dos y los seis de a tres, y ninguna fila
        queda coja. Si el navegador no entiende :has(), quedan todas de a
        dos, que es correcto igual. */
-    .resumen { grid-template-columns: repeat(2, 1fr); }
+    .resumen { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .resumen:has(> .metrica:nth-child(5)) { grid-template-columns: repeat(3, 1fr); }
     .metrica { padding: 11px 10px; }
     .metrica-n { font-size: 21px; }
@@ -623,9 +714,10 @@
     thead { display: none; }
     table, tbody, tr, td { display: block; width: 100%; }
     tbody tr {
-      background: var(--panel-2);
+      background: #fff;
+      box-shadow: var(--sombra);
       border: 1px solid var(--borde);
-      border-radius: 11px;
+      border-radius: 14px;
       margin-bottom: 10px;
       padding: 13px;
       position: relative;
@@ -665,39 +757,83 @@
   <p>Verificando sesión…</p>
 </div>
 
+<!-- Los íconos se dibujan una sola vez acá y se reusan con <use href="#i-...">.
+     Son trazos de 24x24 del estilo de Lucide (licencia ISC). -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-inicio" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></symbol>
+  <symbol id="i-productos" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
+  <symbol id="i-juegos" viewBox="0 0 24 24"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.98 3.59C2.6 9.42 2 14.46 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.41-1.41A2 2 0 0 1 9.83 16h4.34a2 2 0 0 1 1.41.59L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.55-.6-6.58-.69-7.26A4 4 0 0 0 17.32 5z"/></symbol>
+  <symbol id="i-ventas" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><line x1="6" x2="10" y1="15" y2="15"/></symbol>
+  <symbol id="i-stock" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></symbol>
+  <symbol id="i-tienda" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-salir" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></symbol>
+</svg>
+
 <div id="app" hidden>
 
-  <header>
-    <div class="header-in">
-      <h1 class="logo">
-        <span class="zona">TIAGO</span> STORE
-        <span class="adm">Administración</span>
-      </h1>
-      <div class="header-derecha">
+  <!-- ===== MENÚ LATERAL (compu) =====
+       El valor de data-vista tiene que coincidir con el id del contenedor:
+       data-vista="stock" -> <div id="vistaStock">. El mismo botón está
+       repetido en la barra de abajo del celular. -->
+  <aside class="lateral" aria-label="Menú del panel">
+    <div class="marca">
+      <span class="marca-ico" aria-hidden="true">T</span>
+      <span class="marca-txt"><b><span class="zona">TIAGO</span> STORE</b><small>Administración</small></span>
+    </div>
+
+    <div class="menu-titulo">General</div>
+    <button class="vista-tab" data-vista="inicio"><svg class="ico"><use href="#i-inicio"/></svg>Inicio</button>
+    <div class="menu-titulo">Catálogo</div>
+    <button class="vista-tab" data-vista="productos"><svg class="ico"><use href="#i-productos"/></svg>Productos</button>
+    <button class="vista-tab" data-vista="juegos"><svg class="ico"><use href="#i-juegos"/></svg>Juegos</button>
+    <div class="menu-titulo">Negocio</div>
+    <button class="vista-tab" data-vista="ventas"><svg class="ico"><use href="#i-ventas"/></svg>Ventas</button>
+    <button class="vista-tab" data-vista="stock"><svg class="ico"><use href="#i-stock"/></svg>Stock</button>
+
+    <div class="lateral-pie">
+      <a class="menu-link" href="../index.html" target="_blank" rel="noopener">
+        <svg class="ico"><use href="#i-tienda"/></svg>Ver tienda
+      </a>
+      <div class="cuenta">
+        <span class="avatar" id="avatar" aria-hidden="true"></span>
         <span class="usuario" id="usuarioEmail"></span>
-        <a class="btn btn-fantasma" href="../index.html" target="_blank" rel="noopener">Ver tienda ↗</a>
-        <button class="btn btn-fantasma" id="btnSalir">Cerrar sesión</button>
+        <button class="icono-btn js-salir" id="btnSalir" title="Cerrar sesión" aria-label="Cerrar sesión">
+          <svg class="ico"><use href="#i-salir"/></svg>
+        </button>
       </div>
     </div>
-  </header>
+  </aside>
 
-  <!-- Cambiar de vista. El valor de data-vista tiene que coincidir con el
-       id del contenedor: data-vista="stock" -> <div id="vistaStock"> -->
-  <nav class="vistas">
-    <div class="vistas-in">
-      <button class="vista-tab activa" data-vista="productos">🛒 Productos</button>
-      <button class="vista-tab" data-vista="juegos">🎮 Juegos</button>
-      <button class="vista-tab" data-vista="ventas">💳 Ventas</button>
-      <button class="vista-tab" data-vista="stock">🔑 Stock</button>
-    </div>
-  </nav>
+  <div class="contenido">
+    <!-- ===== BARRA DE ARRIBA =====
+         En la compu: el nombre de la vista y la fecha.
+         En el celular: la marca y los botones de tienda y salir. -->
+    <header class="barra">
+      <span class="barra-marca"><span class="zona">TIAGO</span> STORE</span>
+      <div class="barra-titulo">
+        <h2 id="tituloVista">Inicio</h2>
+        <p id="subtituloVista"></p>
+      </div>
+      <div class="barra-acciones">
+        <span class="barra-fecha" id="fechaHoy"></span>
+        <a class="icono-btn" href="../index.html" target="_blank" rel="noopener" title="Ver tienda" aria-label="Ver tienda">
+          <svg class="ico"><use href="#i-tienda"/></svg>
+        </a>
+        <button class="icono-btn js-salir" title="Cerrar sesión" aria-label="Cerrar sesión">
+          <svg class="ico"><use href="#i-salir"/></svg>
+        </button>
+      </div>
+    </header>
 
-  <!-- Estas tres las construyen sus módulos al final del archivo -->
+  <!-- Inicio, Juegos, Ventas y Stock las construyen sus módulos al final
+       del archivo. La que se ve al entrar la decide el script (Inicio, o la
+       que diga la dirección: admin/#ventas abre directo en Ventas). -->
+  <div id="vistaInicio" class="vista" hidden></div>
   <div id="vistaJuegos" class="vista" hidden></div>
   <div id="vistaVentas" class="vista" hidden></div>
   <div id="vistaStock"  class="vista" hidden></div>
 
-  <main id="vistaProductos" class="vista">
+  <main id="vistaProductos" class="vista" hidden>
     <!-- ===== Resumen ===== -->
     <section class="resumen" aria-label="Resumen del catálogo">
       <div class="metrica"><div class="metrica-n"          id="mTotal">–</div><div class="metrica-l">Productos</div></div>
@@ -763,6 +899,16 @@
       <div id="paginacion"></div>
     </section>
   </main>
+  </div><!-- /contenido -->
+
+  <!-- ===== BARRA DE ABAJO (celular) ===== -->
+  <nav class="menu-movil" aria-label="Menú del panel">
+    <button class="vista-tab" data-vista="inicio"><svg class="ico"><use href="#i-inicio"/></svg>Inicio</button>
+    <button class="vista-tab" data-vista="productos"><svg class="ico"><use href="#i-productos"/></svg>Productos</button>
+    <button class="vista-tab" data-vista="juegos"><svg class="ico"><use href="#i-juegos"/></svg>Juegos</button>
+    <button class="vista-tab" data-vista="ventas"><svg class="ico"><use href="#i-ventas"/></svg>Ventas</button>
+    <button class="vista-tab" data-vista="stock"><svg class="ico"><use href="#i-stock"/></svg>Stock</button>
+  </nav>
 </div>
 
 <div id="avisos" aria-live="polite"></div>
@@ -787,9 +933,17 @@ let cargado = false;
 onAuthStateChanged(auth, async usuario => {
   if (!usuario) { location.replace('login.html'); return; }
   $('usuarioEmail').textContent = usuario.email;
+  $('usuarioEmail').title = usuario.email;
+  $('avatar').textContent = (usuario.email || '?').charAt(0);
   $('verificando').remove();
   $('app').hidden = false;
   escucharCatalogo();
+
+  // La vista de entrada se abre recién cuando todos los módulos de abajo
+  // ya corrieron: cada uno carga sus datos al recibir 'vista-cambiada', y
+  // si el aviso sale antes de que estén escuchando, la vista queda vacía.
+  await modulosListos;
+  abrirVista(vistaDeLaDireccion() || 'inicio', { reemplazar: true });
 
   // Con Supabase, estar logueado no alcanza para escribir: hay que estar
   // en la tabla "admins" (ver supabase/02-seguridad.sql). Las políticas RLS
@@ -802,10 +956,14 @@ onAuthStateChanged(auth, async usuario => {
   }
 });
 
-$('btnSalir').addEventListener('click', async () => {
+// Hay dos botones de salir: el del menú lateral y el de la barra del celular
+document.querySelectorAll('.js-salir').forEach(b => b.addEventListener('click', async () => {
   await signOut(auth);
   location.replace('login.html');
-});
+}));
+
+$('fechaHoy').textContent = new Date().toLocaleDateString('es-BO',
+  { weekday: 'long', day: 'numeric', month: 'long' });
 
 // ===========================================================
 // AVISOS
@@ -1135,34 +1293,76 @@ $('btnNuevo').addEventListener('click', () => {
 window.catalogoAdmin = () => TODOS;
 
 // ===========================================================
-// CAMBIO ENTRE PRODUCTOS Y JUEGOS
+// CAMBIO DE VISTA
 // ===========================================================
-// Antes esto era un booleano: "¿es juegos? sí o no". Con cuatro vistas
-// eso ya no da, así que ahora se esconden todas y se muestra la elegida.
-// Agregar una vista nueva es agregar el botón y su contenedor: acá no se
-// toca nada.
-document.querySelector('.vistas-in').addEventListener('click', e => {
-  const btn = e.target.closest('[data-vista]');
-  if (!btn) return;
+// Se esconden todas y se muestra la elegida. Agregar una vista nueva es
+// agregar su botón en los dos menús, su contenedor y su renglón en
+// VISTAS: el resto no se toca.
+//
+// La vista abierta queda en la dirección (admin/#ventas), así al recargar
+// seguís donde estabas y podés guardar un acceso directo a Ventas.
+const VISTAS = {
+  inicio:    { titulo: 'Inicio',    sub: 'Cómo viene la tienda' },
+  productos: { titulo: 'Productos', sub: 'Plataformas, planes y precios de la tienda' },
+  juegos:    { titulo: 'Juegos',    sub: 'Juegos de recarga y sus paquetes' },
+  ventas:    { titulo: 'Ventas',    sub: 'Pedidos, pagos y entregas' },
+  stock:     { titulo: 'Stock',     sub: 'Cuentas cargadas para la entrega automática' }
+};
 
-  document.querySelectorAll('.vista-tab').forEach(t => t.classList.remove('activa'));
-  btn.classList.add('activa');
+// Los módulos (type="module") corren todos antes de DOMContentLoaded
+const modulosListos = new Promise(listo =>
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', listo, { once: true })
+    : listo());
+
+function vistaDeLaDireccion() {
+  const v = location.hash.slice(1);
+  return VISTAS[v] ? v : null;
+}
+
+function abrirVista(vista, { reemplazar = false } = {}) {
+  if (!VISTAS[vista]) return;
+
+  document.querySelectorAll('.vista-tab').forEach(t =>
+    t.classList.toggle('activa', t.dataset.vista === vista));
 
   // productos -> vistaProductos
-  const idElegido = 'vista' + btn.dataset.vista.charAt(0).toUpperCase()
-                            + btn.dataset.vista.slice(1);
-
+  const idElegido = 'vista' + vista.charAt(0).toUpperCase() + vista.slice(1);
   document.querySelectorAll('.vista').forEach(v => { v.hidden = v.id !== idElegido; });
+
+  $('tituloVista').textContent    = VISTAS[vista].titulo;
+  $('subtituloVista').textContent = VISTAS[vista].sub;
+  // Con los pedidos pendientes adelante, si Ventas ya los contó
+  const pendientes = window.pendientesAdmin || 0;
+  document.title = `${pendientes > 0 ? `(${pendientes}) ` : ''}${VISTAS[vista].titulo} · Panel Tiago Store`;
+
+  if (location.hash !== '#' + vista) {
+    history[reemplazar ? 'replaceState' : 'pushState'](null, '', '#' + vista);
+  }
 
   // Para que un módulo pueda refrescar sus datos justo cuando lo abrís,
   // en vez de estar consultando todo el tiempo en segundo plano.
-  document.dispatchEvent(new CustomEvent('vista-cambiada', {
-    detail: { vista: btn.dataset.vista }
-  }));
+  document.dispatchEvent(new CustomEvent('vista-cambiada', { detail: { vista } }));
 
   window.scrollTo({ top: 0 });
+}
+// Para que un módulo pueda mandar a otra vista (Inicio -> "Ver ventas")
+window.abrirVistaAdmin = abrirVista;
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.vista-tab[data-vista]');
+  if (btn) abrirVista(btn.dataset.vista);
+});
+
+// Atrás / adelante del navegador
+window.addEventListener('popstate', () => {
+  const v = vistaDeLaDireccion();
+  if (v) abrirVista(v, { reemplazar: true });
 });
 </script>
+
+<!-- Inicio: el resumen de ventas, pendientes y stock -->
+<script type="module" src="js/admin-inicio.js"></script>
 
 <!-- CRUD de productos: se trae su propia interfaz (modales + estilos) -->
 <script type="module" src="js/admin-productos.js"></script>

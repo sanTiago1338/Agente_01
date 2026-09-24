@@ -45,7 +45,16 @@ export async function tengoPermiso() {
     return recordado;
   }
 
-  const { data, error } = await sbAdmin.rpc('es_admin');
+  let { data, error } = await sbAdmin.rpc('es_admin');
+
+  // "JWT issued at future" (PGRST303): la sesión se acaba de renovar y el
+  // reloj de la base quedó un par de segundos atrás del que firmó el token.
+  // Se arregla solo esperando: un reintento corto y el panel entra normal,
+  // en vez de mostrar "no se pudo comprobar tu permiso" al abrir.
+  if (error && error.code === 'PGRST303') {
+    await new Promise(r => setTimeout(r, 2000));
+    ({ data, error } = await sbAdmin.rpc('es_admin'));
+  }
 
   if (error) {
     // No se recuerda un error: puede ser un corte de internet momentáneo

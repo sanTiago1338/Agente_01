@@ -868,14 +868,29 @@
        columnas y la guía de activación al final.
        ========================================================== */
 
-    /* Con el panel de planes abierto el modal es más ancho que el de
-       siempre: el 70 % de la pantalla en la compu, sin bajar de 600 px.
-       Crece con la pantalla: frenado en 940 px, en una pantalla ancha
+    /* El panel de planes (paso 1) y la compra (pasos 2 y 3) usan la
+       MISMA ventana: al tocar "Comprar" no cambia de tamaño, solo lo de
+       adentro. En el celular ocupa casi toda la pantalla; en la compu, el
+       85 % del ancho (sin bajar de 600 px) y hasta 800 px de alto.
+       Crece con la pantalla: frenada en 940 px, en una pantalla ancha
        quedaba una franja angosta al medio; a todo el ancho se veía
-       demasiado amplio. */
-    .modal-sheet.ancho { max-width: none; }
+       demasiado amplia. */
+    .modal-sheet.ancho,
+    .modal-sheet.compra {
+      max-width: none;
+      height: 94vh;
+      height: 94dvh;
+      max-height: none;
+    }
     @media (min-width: 600px) {
-      .modal-sheet.ancho { width: calc(100% - 1rem); max-width: max(600px, 70%); }
+      .modal-sheet.ancho,
+      .modal-sheet.compra {
+        width: calc(100% - 1rem);
+        max-width: max(600px, 85%);
+        height: min(800px, calc(100vh - 2rem));
+        height: min(800px, calc(100dvh - 2rem));
+        margin-bottom: 0;
+      }
     }
 
     .pl-cab {
@@ -1617,18 +1632,14 @@
        ========================================================== */
 
     /* ---- La ventana de la compra ----
-       Más grande que la de siempre y de alto fijo, así no cambia de
-       tamaño al pasar del carrito al pago. Arriba el título y la guía;
-       en el medio lo del paso, con su propio scroll; abajo el total y
-       los botones, siempre a la vista. En el celular ocupa casi toda
-       la pantalla; en la compu, hasta 880 × 800 px. */
+       Mide lo mismo que el panel de planes (ver .modal-sheet.ancho) y es
+       de alto fijo, así no cambia de tamaño al pasar del carrito al pago.
+       Arriba el título y la guía; en el medio lo del paso, con su propio
+       scroll; abajo el total y los botones, siempre a la vista. */
     .modal-sheet.compra {
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      height: 94vh;
-      height: 94dvh;
-      max-height: none;
       padding: .75rem 1rem 0;
     }
     .modal-sheet.compra .modal-handle { flex: none; margin-bottom: .6rem; }
@@ -1645,14 +1656,7 @@
        pantalla). No es un botón: no lleva recuadro. */
     .ck-cab h3:focus { outline: none; }
     @media (min-width: 600px) {
-      .modal-sheet.compra {
-        width: calc(100% - 2rem);
-        max-width: 880px;
-        height: min(800px, calc(100vh - 2rem));
-        height: min(800px, calc(100dvh - 2rem));
-        margin-bottom: 0;
-        padding: 1rem 2rem 0;
-      }
+      .modal-sheet.compra { padding: 1rem 2rem 0; }
       .modal-sheet.compra .ck-cab h3 { font-size: 1.45rem; }
     }
 

@@ -35,6 +35,7 @@
       renderCategorias();   // pestañas según lo que haya en Supabase
       renderSubfiltros();
       renderProducts();
+      actualizarFotosDePlataforma();   // banners y Tops, con la foto de su plataforma
       // El carrito se rearma con los precios frescos que acaban de llegar.
       reconstruirCarrito();
     };
@@ -1944,6 +1945,92 @@
 
     // Init
     renderProducts();
+
+    // ===== FOTOS DEL CARRUSEL =====
+    // Cada banner muestra la misma imagen que la tarjeta de su plataforma
+    // (data-plataforma) o de su juego (data-juego). Corre cada vez que
+    // llega el catálogo, así que cambiar la foto desde /admin cambia
+    // también el banner, sin tocar este archivo.
+    function ponerFotoBanner(slide, url) {
+      const img = slide.querySelector('.hero-slide-img');
+      if (!img || !url) return;
+      // La que vino escrita en el HTML queda de reserva: si la foto de la
+      // plataforma no carga, el banner no se queda con un cuadro roto.
+      if (!img.dataset.reserva) img.dataset.reserva = img.getAttribute('src') || img.dataset.src;
+      img.onerror = () => { img.onerror = null; img.src = img.dataset.reserva; };
+      // Todavía no le tocó salir: se cambia la que va a pedir, sin bajarla.
+      if ('src' in img.dataset) { img.dataset.src = url; return; }
+      if (img.src !== new URL(url, location.href).href) img.src = url;
+    }
+
+    // "Spotify" tiene que dar la tarjeta Spotify Premium y no un combo que
+    // lo nombra de pasada: gana el nombre igual, después el que empieza
+    // así, y recién después cualquiera que lo contenga. A igual puntaje,
+    // la que tiene planes disponibles.
+    function plataformaPorNombre(grupos, buscada) {
+      const b = sinTildes(buscada);
+      let mejor = null, mejorPts = 0;
+      for (const g of grupos) {
+        const n = sinTildes(g.nombre);
+        const pts = n === b ? 3 : n.startsWith(b) ? 2 : empiezaCon(g.nombre, buscada) ? 1 : 0;
+        if (pts === 0) continue;
+        const total = pts + (g.agotada ? 0 : 0.5);
+        if (total > mejorPts) { mejor = g; mejorPts = total; }
+      }
+      return mejor;
+    }
+
+    // La foto de una plataforma: la misma que muestra su tarjeta.
+    function fotoDePlataforma(grupos, buscada) {
+      const g = plataformaPorNombre(grupos, buscada);
+      if (!g) return null;
+      const p = g.base;
+      return getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
+    }
+
+    function actualizarCarrusel(grupos) {
+      document.querySelectorAll('#heroTrack .hero-slide[data-plataforma]').forEach(slide => {
+        ponerFotoBanner(slide, fotoDePlataforma(grupos, slide.dataset.plataforma));
+      });
+    }
+
+    // ===== FONDO DE LAS TARJETAS DE TOPS =====
+    // Cada tarjeta de Tops lleva de fondo la foto de la plataforma que
+    // busca (data-search), en vez del color liso. El color (--c1/--c2)
+    // queda debajo: se ve mientras la foto carga, si no carga, o si la
+    // plataforma ya no está en el catálogo.
+    function actualizarTops(grupos) {
+      document.querySelectorAll('.tops-card[data-search]').forEach(card => {
+        const url = fotoDePlataforma(grupos, card.dataset.search);
+        if (!url) {
+          card.classList.remove('tops-card--foto');
+          card.style.removeProperty('--foto');
+          return;
+        }
+        // Absoluta: una ruta relativa dentro de una variable CSS se
+        // resolvería contra css/tienda.css y no contra la página.
+        const absoluta = new URL(url, location.href).href.replace(/"/g, '%22');
+        card.style.setProperty('--foto', `url("${absoluta}")`);
+        card.classList.add('tops-card--foto');
+      });
+    }
+
+    // Corre cada vez que llega el catálogo (también en tiempo real).
+    function actualizarFotosDePlataforma() {
+      const grupos = agruparEnPlataformas(PRODUCTS);
+      actualizarCarrusel(grupos);
+      actualizarTops(grupos);
+    }
+
+    // Los juegos no son parte del catálogo: los manda aparte
+    // js/tienda-catalogo.js, solo para los banners de recargas.
+    window.__aplicarJuegosCarrusel = function (juegos) {
+      document.querySelectorAll('#heroTrack .hero-slide[data-juego]').forEach(slide => {
+        const buscado = sinTildes(slide.dataset.juego);
+        const j = juegos.find(x => sinTildes(x.nombre) === buscado);
+        if (j && j.logo) ponerFotoBanner(slide, imgOptimizada(j.logo));
+      });
+    };
 
     // ===== HERO CAROUSEL =====
     (function() {

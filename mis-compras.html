@@ -77,7 +77,19 @@
     color: var(--marca);
   }
 
-  .caja { max-width: 520px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+  /* Todo el ancho, a 8 px del borde. En pantallas anchas las compras
+     se acomodan en columnas en vez de quedar en una tira angosta. */
+  .caja { padding: 1.5rem 0.5rem 3rem; }
+  @media (min-width: 700px) {
+    #lista {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+    #lista .compra { margin-bottom: 0; }
+    #lista .vacio  { grid-column: 1 / -1; }
+  }
 
   h1 {
     font-size: 1.35rem;

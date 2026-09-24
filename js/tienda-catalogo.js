@@ -11,6 +11,7 @@
 
     import { subscribeProductos, precioFinal, formatBs, porcentajeDescuento }
       from './productos-service.js';
+    import { subscribeJuegos } from './juegos-service.js';
     import { mapaDeStock } from './stock-tienda.js';
 
     // Los IDs de la base son texto (un uuid), pero la tienda usa números
@@ -83,6 +84,12 @@
       },
       error => window.__errorCatalogo(error.message)
     );
+
+    // ---------- JUEGOS ----------
+    // La tienda no vende juegos, pero el carrusel tiene banners de
+    // recargas (Free Fire) que usan el logo del juego. También en vivo:
+    // si le cambiás el logo desde /admin → Juegos, el banner lo sigue.
+    subscribeJuegos(juegos => window.__aplicarJuegosCarrusel(juegos));
 
     mapaDeStock().then(mapa => {
       if (mapa.size === 0) return;          // nada en stock: no hay nada que repintar

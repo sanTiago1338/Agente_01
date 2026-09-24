@@ -76,11 +76,18 @@
     </div>
   </div>
 
-  <!-- HERO CAROUSEL -->
+  <!-- HERO CAROUSEL
+       La foto de cada banner sale de la plataforma que nombra: la misma
+       imagen que muestra su tarjeta en el catalogo. Si le cambias la foto
+       a la plataforma desde /admin, el banner cambia solo.
+         data-plataforma = el nombre (o el comienzo) de la plataforma
+         data-juego      = el nombre del juego, para los de recargas
+       La imagen escrita aca es solo la de reserva, mientras carga la base
+       o si la plataforma deja de existir. -->
   <div class="hero-carousel" id="heroCarousel">
     <div class="hero-track" id="heroTrack">
       <!-- Slide 1: Free Fire -->
-      <div class="hero-slide" style="--bg: linear-gradient(135deg,#4a0080 0%, #1a0033 60%, #0d0d0d 100%);">
+      <div class="hero-slide" data-juego="Free Fire" style="--bg: linear-gradient(135deg,#4a0080 0%, #1a0033 60%, #0d0d0d 100%);">
         <img src="Img/opt/Free fire.jpg" alt="Free Fire" class="hero-slide-img" fetchpriority="high">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">NEW</span>
@@ -90,8 +97,8 @@
         </div>
       </div>
       <!-- Slide 2: Paramount+ -->
-      <div class="hero-slide" style="--bg: linear-gradient(135deg,#003087 0%, #001a4d 60%, #0d0d0d 100%);">
-        <img data-src="Img/opt/Paramount+.jpg" alt="Paramount+" class="hero-slide-img" decoding="async" style="object-fit:contain;background:#001a4d;padding:1rem;">
+      <div class="hero-slide" data-plataforma="Paramount+ UFC" style="--bg: linear-gradient(135deg,#003087 0%, #001a4d 60%, #0d0d0d 100%);">
+        <img data-src="Img/opt/Paramount%2B.jpg" alt="Paramount+" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag">🥊 UFC INCLUIDO</span>
           <div class="hero-title">PARAMOUNT+ <span>PREMIUM</span></div>
@@ -100,7 +107,7 @@
         </div>
       </div>
       <!-- Slide 3: Spotify Renovable -->
-      <div class="hero-slide" style="--bg: linear-gradient(135deg,#1DB954 0%, #0a5d2a 60%, #0d0d0d 100%);">
+      <div class="hero-slide" data-plataforma="Spotify" style="--bg: linear-gradient(135deg,#1DB954 0%, #0a5d2a 60%, #0d0d0d 100%);">
         <img data-src="Img/opt/Spotyfi.jpg" alt="Spotify Renovable" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">♻️ RENOVABLE</span>
@@ -110,7 +117,7 @@
         </div>
       </div>
       <!-- Slide 5: Magis TV PRO -->
-      <div class="hero-slide" style="--bg: linear-gradient(135deg,#1a0533 0%, #7b1fa2 50%, #0d0d0d 100%);">
+      <div class="hero-slide" data-plataforma="Magis TV" style="--bg: linear-gradient(135deg,#1a0533 0%, #7b1fa2 50%, #0d0d0d 100%);">
         <img data-src="Img/opt/Magis%20TV.jpg" alt="Magis TV PRO" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">🏆 LIGA BOLIVIANA</span>
@@ -120,7 +127,7 @@
         </div>
       </div>
       <!-- Slide: IPTV Smarters PRO -->
-      <div class="hero-slide" style="--bg: linear-gradient(135deg,#003300 0%, #1a6600 60%, #0d0d0d 100%);">
+      <div class="hero-slide" data-plataforma="IPTV Smarters" style="--bg: linear-gradient(135deg,#003300 0%, #1a6600 60%, #0d0d0d 100%);">
         <img data-src="Img/opt/IPTV.jpg" alt="IPTV Smarters PRO" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">🏆 LIGA BOLIVIANA</span>
@@ -130,7 +137,7 @@
         </div>
       </div>
       <!-- Slide 4: IA -->
-      <div class="hero-slide" style="--bg: linear-gradient(135deg,#7c3aed 0%, #2e1065 60%, #0d0d0d 100%);">
+      <div class="hero-slide" data-plataforma="Claude IA" style="--bg: linear-gradient(135deg,#7c3aed 0%, #2e1065 60%, #0d0d0d 100%);">
         <img data-src="Img/opt/Claude.jpg" alt="Claude IA" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag">🤖 NUEVO</span>
@@ -157,8 +164,8 @@
         <div class="tops-card-head"><span class="tops-icon">🌀</span><span class="tops-name">MAGIS TV-PRO<br><small>→ OLEADA TV</small></span></div>
         <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
       </a>
-      <a href="#" class="tops-card" style="--c1:#003366;--c2:#00509e;" data-search="PRO Z TV">
-        <div class="tops-card-head"><span class="tops-icon">📺</span><span class="tops-name">IPTV SMARTER<br><small>PRO Z TV</small></span></div>
+      <a href="#" class="tops-card" style="--c1:#003366;--c2:#00509e;" data-search="IPTV SMTREAM-MASTERS">
+        <div class="tops-card-head"><span class="tops-icon">📺</span><span class="tops-name">IPTV SMTREAM-MASTERS</span></div>
         <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
       </a>
       <a href="#" class="tops-card" style="--c1:#5a0000;--c2:#a30000;" data-search="Tele Latino">
@@ -266,8 +273,8 @@
           <li><a href="https://chat.whatsapp.com/CMFw2QKU8Pn4Tl2LFnG0uk"
                  target="_blank" rel="noopener">
             <span class="pie-ico">🌐</span> Comunidad</a></li>
-          <li><a href="mailto:zonavip@gmail.com">
-            <span class="pie-ico">✉️</span> zonavip@gmail.com</a></li>
+          <li><a href="mailto:alfredomendita1011@gmail.com">
+            <span class="pie-ico">✉️</span> alfredomendita1011@gmail.com</a></li>
         </ul>
 
         <h3 class="pie-titulo pie-titulo--sep">Atención</h3>
@@ -301,7 +308,7 @@
          ningun lado, y el de WhatsApp repetia el boton flotante, que
          ademas lo tapaba. -->
     <div class="pie-abajo">
-      <span>© 2026 Tiago Store Bolivia · Todos los derechos reservados</span>
+      <span>© 2024 Tiago Store Bolivia · Todos los derechos reservados</span>
     </div>
   </footer>
 

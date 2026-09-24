@@ -105,6 +105,9 @@
       padding: 1.5rem 1rem;
       flex: 1;
     }
+    @media (max-width: 599px) {
+      .pay-container { padding-left: 0.5rem; padding-right: 0.5rem; }
+    }
 
     .pay-status-bar {
       display: flex;
@@ -570,17 +573,17 @@
 
       <!-- Datos de cliente (correo / usuario) - aparece solo si el producto lo requiere -->
       <div id="customerDataBox" style="display:none; background:rgba(255,215,0,0.06); border:1px solid rgba(255,215,0,0.25); border-radius:12px; padding:1rem; margin-bottom:0.75rem;">
-        <div style="font-weight:700; font-size:0.9rem; color:#ffd700; margin-bottom:0.25rem;">Datos para activar tu cuenta</div>
-        <div style="font-size:0.75rem; color:#aaa; margin-bottom:0.75rem;" id="customerDataHint">Estos datos se enviaran junto al comprobante por WhatsApp.</div>
+        <div style="font-weight:700; font-size:0.9rem; color:var(--oro); margin-bottom:0.25rem;">Datos para activar tu cuenta</div>
+        <div style="font-size:0.75rem; color:var(--tinta-suave); margin-bottom:0.75rem;" id="customerDataHint">Estos datos se enviaran junto al comprobante por WhatsApp.</div>
 
         <div id="emailField" style="display:none; margin-bottom:0.6rem;">
-          <label for="customerEmail" style="display:block; font-size:0.78rem; color:#e0e0e0; margin-bottom:0.3rem; font-weight:600;">CORREO:</label>
-          <input id="customerEmail" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" style="width:100%; padding:0.7rem 0.8rem; background:#0a0a0a; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:8px; font-size:0.9rem; font-family:'Outfit',sans-serif;">
+          <label for="customerEmail" style="display:block; font-size:0.78rem; color:var(--tinta-media); margin-bottom:0.3rem; font-weight:600;">CORREO:</label>
+          <input id="customerEmail" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" style="width:100%; padding:0.7rem 0.8rem; background:#fff; color:var(--tinta); border:1px solid var(--separador-2); border-radius:8px; font-size:0.9rem; font-family:'Outfit',sans-serif;">
         </div>
 
         <div id="usernameField" style="display:none;">
-          <label for="customerUsername" style="display:block; font-size:0.78rem; color:#e0e0e0; margin-bottom:0.3rem; font-weight:600;">USUARIO / NOMBRE:</label>
-          <input id="customerUsername" type="text" placeholder="Nombre o usuario" autocomplete="name" style="width:100%; padding:0.7rem 0.8rem; background:#0a0a0a; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:8px; font-size:0.9rem; font-family:'Outfit',sans-serif;">
+          <label for="customerUsername" style="display:block; font-size:0.78rem; color:var(--tinta-media); margin-bottom:0.3rem; font-weight:600;">USUARIO / NOMBRE:</label>
+          <input id="customerUsername" type="text" placeholder="Nombre o usuario" autocomplete="name" style="width:100%; padding:0.7rem 0.8rem; background:#fff; color:var(--tinta); border:1px solid var(--separador-2); border-radius:8px; font-size:0.9rem; font-family:'Outfit',sans-serif;">
         </div>
 
         <div id="customerDataError" style="display:none; color:#e50914; font-size:0.78rem; margin-top:0.5rem; font-weight:600;"></div>

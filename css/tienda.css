@@ -607,6 +607,26 @@
       transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       cursor: pointer;
     }
+    /* Con la foto de la plataforma de fondo (la pone js/tienda.js).
+       Arriba y abajo se oscurece un poco para que el nombre y la franja
+       de Liga Boliviana se lean sobre cualquier foto. El degradé de
+       color queda al fondo, por si la foto tarda o no carga. */
+    .tops-card--foto {
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.25) 38%,
+                                rgba(0,0,0,0.25) 62%, rgba(0,0,0,0.75) 100%),
+        var(--foto) center / cover no-repeat,
+        linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+    }
+    /* Las fotos suelen traer letras propias: sombra fuerte al nombre y
+       franja más opaca, así no se mezclan con lo que dice el afiche. */
+    .tops-card--foto .tops-name {
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7);
+    }
+    .tops-card--foto .tops-liga {
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(3px);
+    }
     .tops-card:hover {
       transform: translateY(-4px);
       border-color: rgba(255,215,0,0.5);
@@ -618,9 +638,11 @@
       gap: 0.5rem;
       padding-top: 0.25rem;
     }
+    /* Las tarjetas de Tops son de color fuerte (--c1/--c2), así que todo
+       lo de adentro va en claro, igual que en los banners. */
     .tops-icon {
       font-size: 1.4rem;
-      background: rgba(20,22,26,0.120);
+      background: rgba(255,255,255,0.14);
       border-radius: 8px;
       width: 32px; height: 32px;
       display: inline-flex;
@@ -634,17 +656,17 @@
       font-size: 1.05rem;
       letter-spacing: 1px;
       line-height: 1.05;
-      color: var(--tinta);
-      text-shadow: 0 2px 6px rgba(20,22,26,0.140);
+      color: #fff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.35);
     }
     .tops-name small {
       font-size: 0.85rem;
       opacity: 0.95;
     }
     .tops-liga {
-      background: rgba(20,22,26,0.140);
-      border: 1px solid rgba(20,22,26,0.120);
-      color: var(--tinta);
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #fff;
       font-size: 0.6rem;
       font-weight: 900;
       letter-spacing: 0.5px;
@@ -661,7 +683,7 @@
     }
     .tops-ribbon {
       background: linear-gradient(90deg, #e50914 0%, #ff1a26 50%, #e50914 100%);
-      color: var(--tinta);
+      color: #fff;
       font-size: 0.65rem;
       font-weight: 900;
       letter-spacing: 0.5px;
@@ -2386,15 +2408,16 @@
     .cat-section { display: none; }
     .cat-section.visible { display: contents; }
 
-    /* ===== HERO CAROUSEL ===== */
+    /* ===== HERO CAROUSEL =====
+       De borde a borde: sin margen a los costados ni esquinas redondas.
+       El alto crece con el ancho de la pantalla y se frena en 420 px,
+       para que en la compu no se coma toda la primera vista. */
     .hero-carousel {
       position: relative;
-      margin: 0.75rem 1rem;
-      border-radius: 18px;
+      margin: 0.75rem 0;
       overflow: hidden;
-      aspect-ratio: 16 / 7;
-      background: linear-gradient(135deg, #f3edff 0%, var(--fondo) 100%);
-      box-shadow: 0 8px 28px rgba(20,22,26,0.140), 0 0 0 1px rgba(229,9,20,0.15);
+      height: clamp(190px, 48vw, 420px);
+      background: #1a0033;
       user-select: none;
       touch-action: pan-y;
     }
@@ -2407,14 +2430,16 @@
       will-change: transform;
     }
 
+    /* Los banners son oscuros aunque la tienda sea clara: cada slide
+       trae su --bg de color fuerte, y todo lo de adentro (titulo,
+       etiqueta, puntos, flechas) va en claro para leerse encima. */
     .hero-slide {
       flex: 0 0 100%;
       position: relative;
       display: flex;
       align-items: center;
-      padding: 1rem 1.25rem;
       overflow: hidden;
-      background: var(--bg, linear-gradient(135deg, #f0e6fb 0%, #f3edff 100%));
+      background: var(--bg, linear-gradient(135deg, #4a0080 0%, #1a0033 60%, #0d0d0d 100%));
     }
 
     .hero-slide::before {
@@ -2422,44 +2447,47 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at 80% 30%, rgba(20,22,26,0.090) 0%, transparent 55%),
+        radial-gradient(circle at 80% 30%, rgba(255,255,255,0.08) 0%, transparent 55%),
         radial-gradient(circle at 20% 80%, rgba(229,9,20,0.18) 0%, transparent 60%);
       pointer-events: none;
     }
 
+    /* La foto va pegada al borde, a todo el alto, y se funde con el
+       fondo del lado del texto en vez de cortar en seco. */
     .hero-slide-img {
-      flex: 0 0 38%;
-      max-width: 38%;
+      flex: 0 0 auto;
+      height: 100%;
       aspect-ratio: 1/1;
+      max-width: 46%;
       object-fit: cover;
-      border-radius: 14px;
-      box-shadow: 0 8px 24px rgba(20,22,26,0.140);
       position: relative;
       z-index: 2;
-      border: 2px solid rgba(20,22,26,0.108);
+      -webkit-mask-image: linear-gradient(to right, #000 72%, transparent);
+              mask-image: linear-gradient(to right, #000 72%, transparent);
     }
 
     .hero-slide-info {
       flex: 1;
-      padding-left: 1rem;
+      min-width: 0;
+      padding: 0.75rem 0.75rem 1.4rem 0.5rem;
       position: relative;
       z-index: 2;
-      color: var(--tinta);
+      color: #fff;
     }
 
     .hero-tag {
       display: inline-block;
-      background: rgba(20,22,26,0.120);
+      background: rgba(255,255,255,0.14);
       backdrop-filter: blur(6px);
-      color: var(--tinta);
-      font-size: 0.6rem;
+      color: #fff;
+      font-size: clamp(0.6rem, 1vw, 0.78rem);
       font-weight: 900;
       letter-spacing: 1.5px;
       padding: 0.25rem 0.65rem;
       border-radius: 50px;
       margin-bottom: 0.5rem;
       text-transform: uppercase;
-      border: 1px solid rgba(20,22,26,0.120);
+      border: 1px solid rgba(255,255,255,0.22);
     }
 
     .hero-tag--new {
@@ -2470,19 +2498,19 @@
 
     .hero-title {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.55rem;
+      font-size: clamp(1.5rem, 5.5vw, 4.2rem);
       letter-spacing: 1.5px;
       line-height: 1;
       margin-bottom: 0.35rem;
-      color: var(--tinta);
-      text-shadow: 0 2px 12px rgba(20,22,26,0.140);
+      color: #fff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.45);
     }
 
-    .hero-title span { color: var(--dorado); }
+    .hero-title span { color: var(--oro-claro); }
 
     .hero-sub {
-      font-size: 0.72rem;
-      color: rgba(20,22,26,0.120);
+      font-size: clamp(0.72rem, 1.7vw, 1.25rem);
+      color: rgba(255,255,255,0.85);
       line-height: 1.3;
       margin-bottom: 0.6rem;
     }
@@ -2493,9 +2521,9 @@
       gap: 0.35rem;
       background: #fff;
       color: var(--tinta);
-      font-size: 0.7rem;
+      font-size: clamp(0.7rem, 1.2vw, 0.95rem);
       font-weight: 900;
-      padding: 0.45rem 0.85rem;
+      padding: 0.65em 1.2em;
       border-radius: 50px;
       text-decoration: none;
       letter-spacing: 0.5px;
@@ -2523,7 +2551,7 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: rgba(20,22,26,0.120);
+      background: rgba(255,255,255,0.40);
       border: none;
       cursor: pointer;
       padding: 0;
@@ -2544,9 +2572,9 @@
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: rgba(20,22,26,0.140);
-      color: var(--tinta);
-      border: 1px solid rgba(20,22,26,0.120);
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.25);
       display: none;
       align-items: center;
       justify-content: center;
@@ -2562,10 +2590,39 @@
     .hero-arrow--next { right: 0.5rem; }
 
     @media (min-width: 600px) {
-      .hero-carousel { aspect-ratio: 21 / 8; }
-      .hero-title { font-size: 2rem; }
-      .hero-sub { font-size: 0.85rem; }
+      /* Lugar para la flecha de la derecha, que si no tapa el texto */
+      .hero-slide-info { padding: 1.5rem 3.5rem 1.5rem 1rem; }
       .hero-arrow { display: flex; }
+    }
+
+    /* ===== TODO EL ANCHO =====
+       Cada bloque tenia 12-16 px de aire a cada lado, y el pie se
+       frenaba en 1100 px. Ahora todo llega a 8 px del borde, en
+       cualquier pantalla. Va al final para pisar los valores de arriba,
+       incluidos los de @media (min-width: 600px). */
+    .promo-banner  { margin-left: 0.5rem; margin-right: 0.5rem; }
+    .search-bar,
+    .breadcrumb,
+    .page-header,
+    .sort-row,
+    .cat-tabs-wrap,
+    .sub-pills,
+    .pagination    { padding-left: 0.5rem; padding-right: 0.5rem; }
+    .tops-section  { padding-left: 0.25rem; padding-right: 0.25rem; }
+    .products-grid { padding: 0 0.5rem; gap: 0.5rem; }
+    .pie           { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .pie-cols,
+    .pie-abajo     { max-width: none; }
+
+    @media (min-width: 600px) {
+      .products-grid { gap: 0.75rem; }
+    }
+
+    /* En pantallas anchas, mas columnas en vez de tarjetas gigantes.
+       6 y no 5: la pagina trae 12 plataformas (ITEMS_PER_PAGE en
+       js/tienda.js), y 12 / 6 son dos filas completas. */
+    @media (min-width: 1200px) {
+      .products-grid { grid-template-columns: repeat(6, 1fr); }
     }
 
 /* ============================================================

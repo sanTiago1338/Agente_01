@@ -304,11 +304,11 @@ nav {
   letter-spacing: 1.5px;
 }
 
-/* ===== MAIN ===== */
+/* ===== MAIN =====
+   Sin tope de ancho y a 8 px del borde, igual que la tienda: antes se
+   frenaba en 1100 px y en la compu quedaban franjas vacias a los lados. */
 main {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
+  padding: 3rem 0.5rem;
 }
 
 /* ===== SECTION TITLE ===== */
@@ -705,7 +705,7 @@ footer strong { color: var(--dorado); font-family: 'Bebas Neue', sans-serif; fon
   font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(3rem, 7vw, 5rem);
   letter-spacing: 4px;
-  background: linear-gradient(135deg, #fff, var(--dorado));
+  background: linear-gradient(135deg, var(--tinta) 25%, var(--dorado));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -729,12 +729,17 @@ footer strong { color: var(--dorado); font-family: 'Bebas Neue', sans-serif; fon
   .hero h1 { font-size: clamp(3rem, 15vw, 5rem); }
   .contact-grid { grid-template-columns: 1fr; }
   .stats-bar { gap: 2rem; }
-  main { padding: 2rem 1rem; }
+  main { padding-top: 2rem; padding-bottom: 2rem; }
 }
 
 @media (max-width: 480px) {
   .catalog-grid { grid-template-columns: 1fr; }
   .planes-grid { grid-template-columns: 1fr; }
+}
+
+/* En el celular, el titulo de arriba tambien pierde aire a los costados */
+@media (max-width: 599px) {
+  .hero-inner { padding-left: 1rem; padding-right: 1rem; }
 }
 
 /* ===== BURBUJAS DECORATIVAS =====

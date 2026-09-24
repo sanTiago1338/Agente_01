@@ -105,7 +105,7 @@
       font-weight: 900;
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      color: var(--superficie-2);
+      color: var(--tinta);
     }
 
     /* ===== HEADER ===== */
@@ -159,17 +159,16 @@
     .header-user .saldo { color: var(--dorado); font-weight: 700; font-size: 0.7rem; }
 
     /* ===== HERO BANNER (CARRUSEL) ===== */
-    .hero-wrap { padding: 1rem; }
+    /* De borde a borde, igual que en la tienda: sin margen a los
+       costados y con un alto que crece con la pantalla hasta 420 px. */
+    .hero-wrap { padding: 0.75rem 0; }
     .hero {
       position: relative;
-      border-radius: 18px;
       overflow: hidden;
-      aspect-ratio: 16/7;
-      border: 1px solid var(--borde-dorado);
-      box-shadow: 0 8px 30px rgba(229,9,20,0.25);
+      height: clamp(190px, 48vw, 420px);
       user-select: none;
       touch-action: pan-y;
-      background: var(--fondo);
+      background: #1a0000;
     }
     .hero-track {
       position: absolute; inset: 0;
@@ -181,27 +180,27 @@
       flex: 0 0 100%;
       position: relative;
       display: flex; align-items: center;
-      padding: 1.25rem 1.75rem;
       overflow: hidden;
-      background: var(--bg, linear-gradient(135deg, #fdeeee, var(--fondo)));
+      background: var(--bg, linear-gradient(135deg, #ff4500 0%, #8b0000 60%, #1a0000 100%));
     }
     .hero-slide::before {
       content: '';
       position: absolute; inset: 0;
       background-image:
-        repeating-linear-gradient(45deg, transparent 0 18px, rgba(20,22,26,0.030) 18px 19px),
-        radial-gradient(circle at 75% 30%, rgba(20,22,26,0.090) 0%, transparent 55%);
+        repeating-linear-gradient(45deg, transparent 0 18px, rgba(255,255,255,0.04) 18px 19px),
+        radial-gradient(circle at 75% 30%, rgba(255,255,255,0.08) 0%, transparent 55%);
       pointer-events: none;
     }
+    /* Pegada al borde, a todo el alto, y fundida con el fondo */
     .hero-slide-img {
-      flex: 0 0 38%;
-      max-width: 38%;
+      flex: 0 0 auto;
+      height: 100%;
       aspect-ratio: 1/1;
+      max-width: 46%;
       object-fit: cover;
-      border-radius: 14px;
-      box-shadow: 0 8px 24px rgba(20,22,26,0.140);
       position: relative; z-index: 2;
-      border: 2px solid rgba(20,22,26,0.120);
+      -webkit-mask-image: linear-gradient(to right, #000 72%, transparent);
+              mask-image: linear-gradient(to right, #000 72%, transparent);
     }
     .hero-icon {
       flex: 0 0 38%;
@@ -224,15 +223,16 @@
     }
     .hero-content {
       flex: 1;
-      padding-left: 1rem;
+      min-width: 0;
+      padding: 0.75rem 0.75rem 1.4rem 0.5rem;
       position: relative; z-index: 2;
     }
     .hero-tag {
       display: inline-block;
-      font-size: 0.62rem; font-weight: 900; letter-spacing: 1.5px;
+      font-size: clamp(0.62rem, 1vw, 0.78rem); font-weight: 900; letter-spacing: 1.5px;
       padding: 0.25rem 0.65rem; border-radius: 50px;
       background: rgba(255,215,0,0.18);
-      color: var(--dorado);
+      color: var(--oro-claro);
       border: 1px solid var(--borde-dorado);
       text-transform: uppercase;
       margin-bottom: 0.5rem;
@@ -245,30 +245,30 @@
     }
     .hero-title {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(1.3rem, 4.8vw, 2.4rem);
+      font-size: clamp(1.5rem, 5.5vw, 4.2rem);
       line-height: 0.95;
-      color: var(--blanco);
+      color: #fff;
       letter-spacing: 1px;
-      text-shadow: 0 4px 14px rgba(20,22,26,0.140);
+      text-shadow: 0 4px 14px rgba(0,0,0,0.45);
       margin-bottom: 0.3rem;
     }
     .hero-title .gold {
-      background: linear-gradient(135deg, var(--dorado), #ff8800);
+      background: linear-gradient(135deg, var(--oro-claro), #ff8800);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .hero-sub {
-      font-size: 0.72rem;
-      color: rgba(20,22,26,0.120);
+      font-size: clamp(0.72rem, 1.7vw, 1.25rem);
+      color: rgba(255,255,255,0.85);
       line-height: 1.3;
       margin-bottom: 0.55rem;
     }
     .hero-cta {
       display: inline-flex; align-items: center; gap: 0.35rem;
-      background: var(--dorado);
-      color: var(--negro);
-      font-size: 0.7rem; font-weight: 900;
-      padding: 0.45rem 0.85rem;
+      background: var(--oro-claro);
+      color: var(--tinta);
+      font-size: clamp(0.7rem, 1.2vw, 0.95rem); font-weight: 900;
+      padding: 0.65em 1.2em;
       border-radius: 50px;
       text-decoration: none;
       letter-spacing: 0.5px;
@@ -286,12 +286,12 @@
     }
     .hero-dot {
       width: 8px; height: 8px; border-radius: 50%;
-      background: rgba(20,22,26,0.120);
+      background: rgba(255,255,255,0.40);
       border: none; padding: 0; cursor: pointer;
       transition: background 0.25s, width 0.25s;
     }
     .hero-dot.active {
-      background: var(--dorado);
+      background: var(--oro-claro);
       width: 22px;
       border-radius: 50px;
     }
@@ -311,16 +311,18 @@
       backdrop-filter: blur(4px);
       transition: background 0.2s;
     }
-    .hero-arrow:hover { background: rgba(229,9,20,0.85); }
+    .hero-arrow:hover { background: rgba(229,9,20,0.85); color: #fff; }
     .hero-arrow--prev { left: 0.5rem; }
     .hero-arrow--next { right: 0.5rem; }
     @media (min-width: 600px) {
-      .hero { aspect-ratio: 21/8; }
+      /* Lugar para la flecha de la derecha, que si no tapa el texto */
+      .hero-content { padding: 1.5rem 3.5rem 1.5rem 1rem; }
       .hero-arrow { display: flex; }
     }
 
     /* ===== SECTION ===== */
-    .section { padding: 0.5rem 1rem 0.75rem; }
+    /* 8 px a cada lado en cualquier pantalla: todo el ancho para las tarjetas */
+    .section { padding: 0.5rem 0.5rem 0.75rem; }
     .section-title {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 1.3rem;
@@ -345,6 +347,7 @@
     @media (min-width: 560px)  { .games-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (min-width: 820px)  { .games-grid { grid-template-columns: repeat(4, 1fr); } }
     @media (min-width: 1100px) { .games-grid { grid-template-columns: repeat(5, 1fr); } }
+    @media (min-width: 1400px) { .games-grid { grid-template-columns: repeat(6, 1fr); } }
 
     /* ===== GAME CARD ===== */
     .game-card {
@@ -1081,12 +1084,15 @@
     </div>
   </header>
 
-  <!-- HERO BANNER (CARRUSEL DINÁMICO) -->
+  <!-- HERO BANNER (CARRUSEL DINÁMICO)
+       La foto de cada banner es el logo del juego que nombra data-juego:
+       el mismo de su tarjeta. Si le cambias el logo desde /admin → Juegos,
+       el banner cambia solo. La imagen escrita aca es la de reserva. -->
   <div class="hero-wrap">
     <div class="hero" id="heroCarousel">
       <div class="hero-track" id="heroTrack">
         <!-- Free Fire -->
-        <div class="hero-slide" style="--bg: linear-gradient(135deg,#ff4500 0%, #8b0000 60%, #1a0000 100%);">
+        <div class="hero-slide" data-juego="Free Fire" style="--bg: linear-gradient(135deg,#ff4500 0%, #8b0000 60%, #1a0000 100%);">
           <img src="Img/opt/Free fire.jpg" alt="Free Fire" class="hero-slide-img" fetchpriority="high">
           <div class="hero-content">
             <span class="hero-tag hero-tag--promo">🔥 PROMO</span>
@@ -1096,7 +1102,7 @@
           </div>
         </div>
         <!-- Mobile Legends -->
-        <div class="hero-slide" style="--bg: linear-gradient(135deg,#0d47a1 0%, #1976d2 60%, #0a1f3d 100%);">
+        <div class="hero-slide" data-juego="Mobile Legends" style="--bg: linear-gradient(135deg,#0d47a1 0%, #1976d2 60%, #0a1f3d 100%);">
           <img data-src="Img/opt/Mobile Legends.jpg" alt="Mobile Legends" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">⚔️ MOBA</span>
@@ -1106,7 +1112,7 @@
           </div>
         </div>
         <!-- Brawl Stars -->
-        <div class="hero-slide" style="--bg: linear-gradient(135deg,#4a0080 0%, #9b00ff 60%, #1a0033 100%);">
+        <div class="hero-slide" data-juego="Brawl Stars" style="--bg: linear-gradient(135deg,#4a0080 0%, #9b00ff 60%, #1a0033 100%);">
           <img data-src="Img/opt/Brawl Stars.jpg" alt="Brawl Stars" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">💎 GEMAS</span>
@@ -1116,7 +1122,7 @@
           </div>
         </div>
         <!-- Roblox -->
-        <div class="hero-slide" style="--bg: linear-gradient(135deg,#e60023 0%, #8b0000 60%, #1a1a1a 100%);">
+        <div class="hero-slide" data-juego="Roblox" style="--bg: linear-gradient(135deg,#e60023 0%, #8b0000 60%, #1a1a1a 100%);">
           <img data-src="Img/opt/Roblox.jpg" alt="Roblox" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">🎮 ROBUX</span>
@@ -1126,7 +1132,7 @@
           </div>
         </div>
         <!-- PUBG Mobile -->
-        <div class="hero-slide" style="--bg: linear-gradient(135deg,#665200 0%, #332900 60%, #0d0d0d 100%);">
+        <div class="hero-slide" data-juego="PUBG Mobile" style="--bg: linear-gradient(135deg,#665200 0%, #332900 60%, #0d0d0d 100%);">
           <img data-src="Img/opt/Pug Mobile.jpg" alt="PUBG Mobile" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">🪙 UC</span>
@@ -1212,6 +1218,7 @@
       GAMES = juegos;
       juegosCargados = true;
       render();
+      actualizarCarrusel();
       // Si el modal estaba abierto, lo refrescamos con los precios nuevos
       if (CURRENT_GAME) {
         const actualizado = GAMES.find(g => g.name === CURRENT_GAME.name);
@@ -1240,6 +1247,29 @@
       if (/^Img\/opt\//i.test(url)) return url;
       const m = url.match(/^Img\/(.+)\.(png|jpe?g)$/i);
       return m ? `Img/opt/${m[1]}.jpg` : url;
+    }
+
+    // ===== FOTOS DEL CARRUSEL =====
+    // Cada banner usa el logo de su juego (data-juego), el mismo de la
+    // tarjeta. Corre cada vez que llegan los juegos, así un cambio de
+    // logo en /admin llega también al banner.
+    function ponerFotoBanner(slide, url) {
+      const img = slide.querySelector('.hero-slide-img');
+      if (!img || !url) return;
+      // La que vino escrita en el HTML queda de reserva por si esta no carga.
+      if (!img.dataset.reserva) img.dataset.reserva = img.getAttribute('src') || img.dataset.src;
+      img.onerror = () => { img.onerror = null; img.src = img.dataset.reserva; };
+      // Todavía no le tocó salir: se cambia la que va a pedir, sin bajarla.
+      if ('src' in img.dataset) { img.dataset.src = url; return; }
+      if (img.src !== new URL(url, location.href).href) img.src = url;
+    }
+
+    function actualizarCarrusel() {
+      document.querySelectorAll('#heroTrack .hero-slide[data-juego]').forEach(slide => {
+        const buscado = slide.dataset.juego.toLowerCase();
+        const g = GAMES.find(x => x.name.toLowerCase() === buscado);
+        if (g && g.logo) ponerFotoBanner(slide, imgOptimizada(g.logo));
+      });
     }
 
     function cardHtml(g) {

@@ -1396,12 +1396,48 @@ function escuchar() {
   canal = sbAdmin
     .channel('pedidos-panel')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, payload => {
-      if (payload.eventType === 'INSERT') avisarPedidoNuevo(payload.new);
+      if (payload.eventType === 'INSERT') anotarParaAvisar(payload.new, true);
+      if (payload.eventType === 'UPDATE') anotarParaAvisar(payload.new, false);
       // Si todavía no abriste Ventas no hay nada que refrescar: el aviso
       // ya salió, y los datos se cargan cuando entres.
-      if (yaCargado) cargarTodo();
+      if (yaCargado) recargarPronto();
     })
     .subscribe();
+}
+
+// Una compra de 3 cuentas llega como 3 INSERT y un UPDATE (el del
+// descuento combo), todos casi juntos. Recargar con cada uno eran cuatro
+// consultas seguidas para terminar mostrando lo mismo: se espera un
+// momento y se recarga una vez.
+let esperaRecarga = null;
+function recargarPronto() {
+  clearTimeout(esperaRecarga);
+  esperaRecarga = setTimeout(cargarTodo, 400);
+}
+
+// Y lo mismo con el aviso: uno por compra, no uno por cuenta. Se juntan
+// las filas nuevas un momento, y los UPDATE de esas mismas filas las
+// pisan: así el total del aviso ya trae el descuento combo, que se aplica
+// después de insertarlas.
+const porAvisar = new Map();     // id del pedido -> la fila más reciente
+let esperaAviso = null;
+
+function anotarParaAvisar(p, esNuevo) {
+  if (!p?.id) return;
+  if (!esNuevo && !porAvisar.has(p.id)) return;   // un cambio de algo viejo
+  porAvisar.set(p.id, p);
+  if (esNuevo) {
+    clearTimeout(esperaAviso);
+    esperaAviso = setTimeout(avisarComprasNuevas, 1200);
+  }
+}
+
+function avisarComprasNuevas() {
+  const compras = agruparCompras([...porAvisar.values()]);
+  porAvisar.clear();
+  if (!compras.length) return;
+  sonarCampana();
+  compras.forEach(avisarCompraNueva);
 }
 
 
@@ -1445,17 +1481,18 @@ function sonarCampana() {
   } catch { /* el navegador puede no dejar sonar todavía: no es grave */ }
 }
 
-function avisarPedidoNuevo(p) {
-  const plata = `${Number(p.precio || 0).toFixed(2)} Bs`;
-  aviso(`🛒 Pedido nuevo #${p.numero}: ${p.producto_nombre} · ${plata}`, 'ok');
-  sonarCampana();
+function avisarCompraNueva(c) {
+  const num   = numerosDeCompra(c.lineas);
+  const que   = nombreDeCompra(c.lineas);
+  const plata = bsTxt(c.total) + (c.descuento > 0 ? ` (combo −${Number(c.descuento).toFixed(0)})` : '');
+  aviso(`🛒 Pedido nuevo ${num}: ${que} · ${plata}`, 'ok');
 
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
-    const n = new Notification(`🛒 Pedido nuevo #${p.numero}`, {
-      body: `${p.producto_nombre} · ${plata}\nEsperando que lo apruebes`,
-      // Con el tag, dos avisos del mismo pedido no se apilan
-      tag: 'pedido-' + p.id
+    const n = new Notification(`🛒 Pedido nuevo ${num}`, {
+      body: `${que} · ${plata}\nEsperando que lo apruebes`,
+      // Con el tag, dos avisos de la misma compra no se apilan
+      tag: 'pedido-' + c.clave
     });
     n.onclick = () => { window.focus(); n.close(); };
   } catch { /* algunos navegadores la niegan en segundo plano */ }

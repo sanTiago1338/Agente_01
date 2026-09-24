@@ -1016,12 +1016,15 @@
     // ---------- Términos del servicio ----------
     // El mismo bloque se usa en el checkout de un plan y en el carrito:
     // el cliente confirma que sabe qué compra antes de habilitar el pago.
+    // En primera persona: es lo que el cliente dice que sabe al tildar
+    // "Acepto". Son las mismas cinco condiciones de siempre; si se agrega
+    // una regla nueva, va acá.
     const TERMINOS = [
       'Soy consciente de lo que estoy comprando: revisé el plan, el precio y la duración, y es exactamente el servicio que quiero.',
-      'Sé que es un producto digital y que la entrega llega por WhatsApp de 5 a 30 minutos después del pago.',
-      'Entiendo que, una vez entregados los datos de acceso, no corresponde devolución del dinero.',
-      'Me comprometo a no cambiar la contraseña, el correo ni los datos de la cuenta.',
-      'Si el servicio falla, aviso por WhatsApp y Tiago Store lo repone o lo soluciona.'
+      'Sé que es un producto digital: recibo los datos de acceso en esta página o por WhatsApp, entre 5 y 30 minutos después de que se confirme mi pago.',
+      'Entiendo que, una vez que recibo los datos de acceso, no hay devolución del dinero.',
+      'Me comprometo a usar la cuenta tal como me la entregan, sin cambiar la contraseña, el correo ni ningún otro dato.',
+      'Si el servicio deja de funcionar durante el plan, aviso por WhatsApp y Tiago Store lo repone o lo soluciona.'
     ];
 
     function bloqueTerminos(id) {

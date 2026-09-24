@@ -1607,89 +1607,185 @@
     .ck-volver:hover { color: var(--marca); }
 
     /* ==========================================================
-       CARRITO (paso 2 de 3)
+       COMPRA PASO A PASO
+       ==========================================================
+       1. Elegir (panel de planes) · 2. Carrito · 3. Pagar con QR.
+       Cada paso es su propia pantalla, con la guía de los tres
+       arriba. El 2 y el 3 comparten la ventana de la compra.
        ========================================================== */
-    /* Los tres pasos, arriba: dónde está el cliente y qué sigue */
+
+    /* ---- La ventana de la compra ----
+       Más grande que la de siempre y de alto fijo, así no cambia de
+       tamaño al pasar del carrito al pago. Arriba el título y la guía;
+       en el medio lo del paso, con su propio scroll; abajo el total y
+       los botones, siempre a la vista. En el celular ocupa casi toda
+       la pantalla; en la compu, hasta 880 × 800 px. */
+    .modal-sheet.compra {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      height: 94vh;
+      height: 94dvh;
+      max-height: none;
+      padding: .75rem 1rem 0;
+    }
+    .modal-sheet.compra .modal-handle { flex: none; margin-bottom: .6rem; }
+    /* #10, donde se dibuja el paso */
+    .modal-sheet.compra > [id="10"] {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-sheet.compra .ck-cab { padding-bottom: .8rem; margin-bottom: 1rem; }
+    .modal-sheet.compra .ck-cab h3 { font-size: 1.3rem; }
+    /* El título toma el foco al cambiar de paso (para el lector de
+       pantalla). No es un botón: no lleva recuadro. */
+    .ck-cab h3:focus { outline: none; }
+    @media (min-width: 600px) {
+      .modal-sheet.compra {
+        width: calc(100% - 2rem);
+        max-width: 880px;
+        height: min(800px, calc(100vh - 2rem));
+        height: min(800px, calc(100dvh - 2rem));
+        margin-bottom: 0;
+        padding: 1rem 2rem 0;
+      }
+      .modal-sheet.compra .ck-cab h3 { font-size: 1.45rem; }
+    }
+
+    /* ---- Cada paso ---- */
+    .cr-paso {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .cr-paso[hidden] { display: none; }
+    /* Al cambiar de paso entra deslizándose (--desde lo pone irAPaso) */
+    .cr-paso.entra { animation: crEntra .28s ease; }
+    @keyframes crEntra {
+      from { opacity: 0; transform: translateX(var(--desde, 18px)); }
+    }
+    @media (prefers-reduced-motion: reduce) { .cr-paso.entra { animation: none; } }
+    /* Lo del paso: si no entra, scrollea solo esto */
+    .cr-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: .1rem .1rem 1rem;
+    }
+    /* Abajo, siempre a la vista */
+    .cr-pie {
+      padding: .85rem 0 calc(.9rem + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--borde);
+    }
+
+    /* ---- La guía de los tres pasos ---- */
     .cr-pasos {
       list-style: none;
       display: flex;
       align-items: center;
-      gap: .4rem;
+      gap: .5rem;
       margin: 0 0 1rem;
       padding: 0;
-      counter-reset: none;
     }
     .cr-pasos li {
       flex: 1;
       display: flex;
       align-items: center;
-      gap: .45rem;
-      font-size: .76rem;
+      gap: .5rem;
+      font-size: .84rem;
       font-weight: 700;
       color: var(--tinta-suave);
       white-space: nowrap;
     }
+    /* El último no lleva raya: que ocupe solo su nombre */
+    .cr-pasos li:last-child { flex: none; }
     .cr-pasos li:not(:last-child)::after {
       content: '';
       flex: 1;
+      min-width: .75rem;
       height: 2px;
       border-radius: 2px;
       background: var(--separador-2);
-      margin-left: .2rem;
+      margin-left: .25rem;
     }
     .cr-pasos li.hecho::after { background: var(--marca); }
     .cr-pasos span {
-      width: 24px; height: 24px; flex: none;
+      width: 30px; height: 30px; flex: none;
       display: grid; place-items: center;
       border-radius: 50%;
       background: var(--superficie-2);
       border: 1.5px solid var(--separador-2);
-      font-size: .72rem; font-weight: 800;
+      font-size: .8rem; font-weight: 800;
       color: var(--tinta-suave);
     }
     .cr-pasos li.hecho span  { background: var(--marca); border-color: var(--marca); color: #fff; }
     .cr-pasos li.actual      { color: var(--tinta); }
-    .cr-pasos li.actual span { border-color: var(--marca); color: var(--marca); background: #fff; box-shadow: 0 0 0 3px rgba(229,9,20,.12); }
+    .cr-pasos li.actual span { border-color: var(--marca); color: var(--marca); background: #fff; box-shadow: 0 0 0 4px rgba(229,9,20,.12); }
+    /* Los pasos hechos son botones para volver */
+    .cr-pasos button {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: 0;
+      border: none;
+      border-radius: 8px;
+      background: none;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+    }
+    .cr-pasos button:hover { color: var(--marca); }
+    .cr-pasos button:focus-visible { outline: 2px solid var(--marca); outline-offset: 3px; }
+    @media (min-width: 600px) {
+      .cr-pasos li { font-size: .95rem; }
+      .cr-pasos span { width: 34px; height: 34px; font-size: .88rem; }
+    }
+    /* En el panel de planes (paso 1) la guía no se estira a todo el ancho */
+    .pl-pasos { max-width: 640px; margin: 0 auto; }
 
     .cr-agregado {
-      margin-bottom: .8rem;
-      padding: .6rem .8rem;
-      border-radius: 10px;
+      margin-bottom: .9rem;
+      padding: .7rem .95rem;
+      border-radius: 12px;
       background: rgba(21,128,61,.09);
       color: #14632f;
-      font-size: .82rem;
+      font-size: .9rem;
     }
 
-    /* ---- Productos ---- */
+    /* ---- Paso 2: los productos ---- */
     .cr-items { list-style: none; margin: 0 0 1rem; padding: 0; }
     .cr-item {
       display: grid;
-      grid-template-columns: 56px minmax(0, 1fr) auto;
-      gap: .8rem;
+      grid-template-columns: 72px minmax(0, 1fr) auto;
+      gap: 1rem;
       align-items: center;
-      padding: .85rem 0;
+      padding: 1rem 0;
       border-bottom: 1px solid var(--borde);
     }
-    .cr-item:first-child { padding-top: .2rem; }
+    .cr-item:first-child { padding-top: .25rem; }
     .cr-img {
-      width: 56px; height: 56px;
-      border-radius: 12px;
+      width: 72px; height: 72px;
+      border-radius: 14px;
       object-fit: cover;
       background: var(--superficie-2);
     }
-    .cr-nombre { font-weight: 800; font-size: .9rem; color: var(--tinta); line-height: 1.3; }
-    .cr-meta { font-size: .72rem; color: var(--tinta-suave); margin-top: .2rem; }
+    .cr-nombre { font-weight: 800; font-size: 1.05rem; color: var(--tinta); line-height: 1.3; }
+    .cr-meta { font-size: .8rem; color: var(--tinta-suave); margin-top: .25rem; }
     .cr-ya { color: #0f7a6e; font-weight: 700; }
-    .cr-unit { font-size: .76rem; color: var(--tinta-media); margin-top: .25rem; }
+    .cr-unit { font-size: .85rem; color: var(--tinta-media); margin-top: .3rem; }
     .cr-unit s { color: var(--tinta-suave); margin-left: .25rem; }
     .cr-aviso {
       display: inline-block;
       margin-top: .4rem;
-      padding: .2rem .55rem;
+      padding: .25rem .6rem;
       border-radius: 7px;
       background: rgba(229,9,20,.09);
       color: var(--marca-oscura);
-      font-size: .72rem;
+      font-size: .78rem;
       font-weight: 800;
     }
     .cr-aviso[hidden] { display: none; }
@@ -1701,102 +1797,180 @@
     }
     @media (prefers-reduced-motion: reduce) { .cr-tope .cr-cant { animation: none; } }
 
-    .cr-der { display: flex; flex-direction: column; align-items: flex-end; gap: .45rem; }
+    .cr-der { display: flex; flex-direction: column; align-items: flex-end; gap: .5rem; }
     .cr-cant {
       display: inline-flex;
       align-items: center;
       border: 1px solid var(--separador-2);
-      border-radius: 10px;
+      border-radius: 12px;
       background: #fff;
       overflow: hidden;
     }
     .cr-cant button {
-      width: 34px; height: 34px;
+      width: 40px; height: 40px;
       border: none;
       background: none;
-      font: 700 1.05rem/1 'Outfit', sans-serif;
+      font: 700 1.15rem/1 'Outfit', sans-serif;
       color: var(--tinta);
       cursor: pointer;
     }
     .cr-cant button:hover { background: var(--superficie-2); }
     .cr-qty {
-      min-width: 28px;
+      min-width: 34px;
       text-align: center;
       font-weight: 800;
-      font-size: .9rem;
+      font-size: 1rem;
       color: var(--tinta);
       font-variant-numeric: tabular-nums;
     }
-    .cr-sub { font-weight: 800; font-size: .95rem; color: var(--tinta); font-variant-numeric: tabular-nums; }
+    .cr-sub { font-weight: 800; font-size: 1.1rem; color: var(--tinta); font-variant-numeric: tabular-nums; }
     .cr-quitar {
-      width: 30px; height: 30px;
+      width: 34px; height: 34px;
       display: grid; place-items: center;
-      border: none; border-radius: 8px;
+      border: none; border-radius: 9px;
       background: none;
       color: var(--tinta-suave);
       cursor: pointer;
     }
-    .cr-quitar svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .cr-quitar svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .cr-quitar:hover { color: var(--marca); background: rgba(229,9,20,.07); }
 
-    /* ---- Total y paso 3 ---- */
+    /* La otra forma de pedir, al pie de la lista */
+    .cr-wa-fila { margin: .25rem 0 0; text-align: center; }
+    .cr-wa { font-size: .88rem; font-weight: 700; color: #0f7a6e; text-decoration: none; }
+    .cr-wa:hover { text-decoration: underline; }
+
+    /* ---- Paso 3: lo que va a pagar ---- */
+    .cr-resumen-cab {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: .5rem;
+    }
+    .cr-resumen-cab b {
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+    }
+    .cr-editar {
+      padding: .2rem 0;
+      border: none;
+      background: none;
+      font: 700 .88rem 'Outfit', sans-serif;
+      color: var(--marca);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .cr-resumen-lista { list-style: none; margin: 0; padding: 0; }
+    .cr-resumen-lista li {
+      display: flex;
+      align-items: baseline;
+      gap: .6rem;
+      padding: .45rem 0;
+      font-size: .98rem;
+      color: var(--tinta);
+    }
+    .cr-resumen-lista li + li { border-top: 1px dashed var(--separador-2); }
+    .cr-resumen-cant { font-weight: 800; color: var(--marca); font-variant-numeric: tabular-nums; }
+    .cr-resumen-nombre { flex: 1; min-width: 0; font-weight: 600; }
+    .cr-resumen-lista b { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    /* Las cajas del paso 3, con letra más grande que la de siempre */
+    .compra .ck-caja { padding: 1.1rem 1.2rem; border-radius: 16px; margin-bottom: .9rem; }
+    .compra .ck-renovar-txt b,
+    .compra .ck-correo b { font-size: .95rem; }
+    .compra .ck-renovar-txt p,
+    .compra .ck-correo p { font-size: .85rem; }
+    .compra .ck-renovar-tel > label { font-size: .88rem; }
+    .compra .ck-tel-error { font-size: .82rem; }
+    .compra .ck-terminos { font-size: 1rem; }
+    .compra .ck-terminos input { width: 21px; height: 21px; }
+    .compra .ck-ver-terminos,
+    .compra .ck-lista-terminos { font-size: .86rem; margin-left: 1.9rem; }
+
+    /* ---- Abajo: total y botones ---- */
     .cr-total {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      margin: 1rem 0 .8rem;
-      padding: .9rem 1rem;
+      margin: 0 0 .7rem;
+      padding: .65rem 1.1rem;
       border-radius: 14px;
       background: var(--superficie-2);
     }
-    .cr-total-lbl { display: block; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-suave); }
-    .cr-total small { font-size: .78rem; color: var(--tinta-suave); }
-    .cr-total b { font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; color: var(--tinta); font-variant-numeric: tabular-nums; }
+    .cr-total-lbl { display: block; font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-suave); }
+    .cr-total small { font-size: .84rem; color: var(--tinta-suave); }
+    .cr-total b { font-size: 1.9rem; font-weight: 800; letter-spacing: -.02em; color: var(--tinta); font-variant-numeric: tabular-nums; }
 
-    .cr-pagar { gap: .55rem; }
-    .cr-pagar-paso {
-      width: 22px; height: 22px;
-      display: inline-grid; place-items: center;
-      border-radius: 50%;
-      background: rgba(255,255,255,.22);
-      font-size: .75rem;
+    /* En el celular: el total, abajo el botón principal a todo el ancho
+       y abajo de todo "volver". Con lugar, todo en una fila: volver a la
+       izquierda, el total y el botón a la derecha. */
+    .cr-acciones { display: flex; flex-direction: column-reverse; gap: .35rem; }
+    .compra .ck-pagar { padding: 1.05rem 1.25rem; font-size: 1rem; border-radius: 14px; }
+    .cr-atras {
+      padding: .6rem .9rem;
+      border: none;
+      border-radius: 10px;
+      background: none;
+      font: 700 .92rem 'Outfit', sans-serif;
+      color: var(--tinta-media);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .cr-atras:hover { color: var(--marca); background: var(--superficie-2); }
+    @media (min-width: 760px) {
+      .cr-pie {
+        display: grid;
+        grid-template-columns: minmax(max-content, 1fr) auto minmax(200px, 340px);
+        grid-template-areas: "atras total boton"
+                             "aviso aviso aviso";
+        align-items: center;
+        column-gap: 1.25rem;
+      }
+      /* Sus dos botones pasan a ser celdas de la fila */
+      .cr-acciones { display: contents; }
+      .cr-atras { grid-area: atras; justify-self: start; }
+      .cr-pie .cr-total {
+        grid-area: total;
+        margin: 0;
+        padding: 0;
+        background: none;
+        text-align: right;
+        white-space: nowrap;
+      }
+      .cr-pie .ck-pagar { grid-area: boton; }
+      .cr-pie .ck-aviso { grid-area: aviso; }
     }
     .cr-pagar-monto { opacity: .9; font-weight: 700; }
 
-    .cr-otros {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: .75rem;
-      flex-wrap: wrap;
-      margin-top: .9rem;
-      padding-top: .8rem;
-      border-top: 1px solid var(--borde);
+    /* Pantalla bajita (el celular acostado, una ventana chica): menos
+       aire arriba, para que le quede lugar a lo del paso */
+    @media (max-height: 560px) {
+      .modal-sheet.compra { padding-top: .6rem; }
+      .modal-sheet.compra .modal-handle { display: none; }
+      .modal-sheet.compra .ck-cab { padding-bottom: .5rem; margin-bottom: .6rem; }
+      .modal-sheet.compra .ck-cab h3 { font-size: 1.15rem; }
+      .modal-sheet.compra .cr-pasos { margin-bottom: .6rem; }
     }
-    .cr-seguir {
-      border: none; background: none; padding: .3rem 0;
-      font: 700 .82rem 'Outfit', sans-serif;
-      color: var(--tinta-media);
-      cursor: pointer;
-    }
-    .cr-seguir:hover { color: var(--marca); }
-    .cr-wa { font-size: .8rem; font-weight: 700; color: #0f7a6e; text-decoration: none; }
-    .cr-wa:hover { text-decoration: underline; }
 
     .cr-vacio { text-align: center; padding: 1.5rem .5rem 1rem; }
     .cr-vacio-ico { font-size: 2.6rem; margin-bottom: .5rem; }
-    .cr-vacio b { display: block; font-size: 1.05rem; color: var(--tinta); margin-bottom: .35rem; }
+    .cr-vacio > b { display: block; font-size: 1.05rem; color: var(--tinta); margin-bottom: .35rem; }
     .cr-vacio p { font-size: .85rem; color: var(--tinta-suave); margin: 0 0 1.1rem; }
 
     @media (max-width: 420px) {
-      .cr-item { grid-template-columns: 48px minmax(0, 1fr); }
-      .cr-img { width: 48px; height: 48px; }
+      .cr-item { grid-template-columns: 56px minmax(0, 1fr); gap: .8rem; }
+      .cr-img { width: 56px; height: 56px; }
       /* Cantidad, subtotal y quitar pasan abajo, en una fila */
       .cr-der { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; }
-      .cr-pasos li { font-size: .7rem; }
+      .cr-pasos { gap: .35rem; }
+      .cr-pasos li { font-size: .76rem; gap: .35rem; }
+      .cr-pasos span { width: 26px; height: 26px; font-size: .74rem; }
     }
-
 
     @media (prefers-reduced-motion: reduce) {
       .plat-card { transition: none; }

@@ -38,6 +38,8 @@
       actualizarFotosDePlataforma();   // banners y Tops, con la foto de su plataforma
       // El carrito se rearma con los precios frescos que acaban de llegar.
       reconstruirCarrito();
+      // Si volvió con "atrás" a una pantalla de la ventana, se la abre
+      restaurarPantalla();
     };
 
     // Si Supabase falla, lo mostramos en la grilla en vez de dejarla vacía.
@@ -916,6 +918,7 @@
       document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
       document.getElementById('9').scrollTop = 0;
+      anotarPantalla('planes', clave);
     }
 
 
@@ -1637,13 +1640,116 @@
       document.body.style.overflow = 'hidden';
     }
 
-    function closeModal(e) {
-      if(!e || e.target === document.getElementById('8')) {
-        document.getElementById('8').classList.remove('open');
-        // El panel de planes y la compra agrandan el modal: vuelve a su ancho
-        document.getElementById('9').classList.remove('ancho', 'compra');
-        document.body.style.overflow = '';
+    // ==========================================================
+    // EL "ATRÁS" DEL CELULAR DENTRO DE LA VENTANA
+    // ==========================================================
+    // Cada pantalla de la ventana (planes, carrito, pago) es una entrada
+    // del historial del navegador. Así el "atrás" del celular vuelve a la
+    // pantalla anterior, en vez de sacar al cliente de la tienda en medio
+    // de una compra. Cerrar la ventana (✕, tocar afuera, Esc) es volver
+    // hasta antes de abrirla.
+    //
+    // history.state = { tienda: 'planes' | 'carrito' | 'pago', clave, nivel }
+    //   clave: de qué plataforma son los planes
+    //   nivel: cuántas pantallas de la ventana hay hasta esta (1 = la primera)
+    //
+    // Hacia atrás nunca se dibuja a mano: los botones de volver llaman a
+    // atras(), que va por el historial, y la pantalla la dibuja el popstate.
+    // Si no, lo que se ve y el historial se desfasan, y el "atrás" del
+    // celular lleva a cualquier lado.
+    // ==========================================================
+    let restaurando = false;       // el popstate está redibujando: no anotar
+    let yendo = false;             // hay un history.go pedido que no llegó
+    let despuesDeCerrar = null;    // qué hacer cuando termine de cerrarse
+    let pantallaRestaurada = false;
+
+    const nivelActual = () => (history.state && history.state.tienda) ? history.state.nivel : 0;
+    const ventanaAbierta = () => document.getElementById('8').classList.contains('open');
+
+    // Anota la pantalla que se acaba de abrir. Si es la misma que ya está
+    // (dos toques seguidos a "Comprar"), no la apila dos veces.
+    function anotarPantalla(pantalla, clave = null) {
+      if (restaurando) return;
+      const s = history.state;
+      if (s && s.tienda === pantalla && s.clave === clave) return;
+      history.pushState({ tienda: pantalla, clave, nivel: nivelActual() + 1 }, '');
+    }
+
+    // Vuelve n pantallas por el historial. Si el historial no las tiene
+    // (se recargó la página en el medio), hace "alternativa" a mano.
+    function atras(n, alternativa) {
+      if (yendo) return;                       // dos toques rápidos: uno solo
+      if (nivelActual() < n) { alternativa(); return; }
+      yendo = true;
+      setTimeout(() => { yendo = false; }, 1000);   // por si el popstate no llega
+      history.go(-n);
+    }
+
+    // despues: qué hacer una vez cerrada (el "Ver productos" del carrito
+    // vacío lleva al inicio, y eso tiene que pasar DESPUÉS de volver).
+    function closeModal(e, despues = null) {
+      if (e && e.target !== document.getElementById('8')) return;
+      if (nivelActual() === 0) {
+        cerrarVentana();
+        if (despues) despues();
+        return;
       }
+      if (yendo) return;
+      despuesDeCerrar = despues;
+      atras(nivelActual(), cerrarVentana);
+    }
+
+    function cerrarVentana() {
+      document.getElementById('8').classList.remove('open');
+      // El panel de planes ensancha el modal y la compra lo agranda:
+      // lo devolvemos a su tamaño
+      document.getElementById('9').classList.remove('ancho', 'compra');
+      document.body.style.overflow = '';
+    }
+
+    // Dibuja la pantalla que dice el historial (null = ventana cerrada).
+    function mostrarPantalla(s) {
+      if (!s) { if (ventanaAbierta()) cerrarVentana(); return; }
+
+      if (s.tienda === 'planes') {
+        if (PLATAFORMAS_VISIBLES.some(g => g.clave === s.clave)) abrirPlataforma(s.clave);
+        else cerrarVentana();
+        return;
+      }
+
+      // Carrito o pago. Si la compra ya está dibujada solo se cambia de
+      // paso: así no se pierden los términos tildados ni el número.
+      if (!ventanaAbierta() || !document.getElementById('crPaso2')) openCart();
+      irAPaso(s.tienda === 'pago' ? 3 : 2);
+    }
+
+    window.addEventListener('popstate', e => {
+      yendo = false;
+      const s = e.state && e.state.tienda ? e.state : null;
+      restaurando = true;
+      try { mostrarPantalla(s); } finally { restaurando = false; }
+      if (!s && despuesDeCerrar) {
+        const f = despuesDeCerrar;
+        despuesDeCerrar = null;
+        f();
+      }
+    });
+
+    // Esc cierra la ventana, en la compu
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && ventanaAbierta()) closeModal();
+    });
+
+    // Volvió con "atrás" desde la página del QR (o recargó con la ventana
+    // abierta) y el navegador dibujó la tienda de cero: se le abre la
+    // pantalla donde estaba. Lo llama __aplicarCatalogo la primera vez,
+    // porque sin catálogo no hay planes ni carrito que mostrar.
+    function restaurarPantalla() {
+      if (pantallaRestaurada) return;
+      pantallaRestaurada = true;
+      if (!history.state || !history.state.tienda) return;
+      restaurando = true;
+      try { mostrarPantalla(history.state); } finally { restaurando = false; }
     }
 
     // ==========================================================
@@ -1669,7 +1775,7 @@
     // ellos; hacia adelante no se salta desde acá (hay que pasar por el
     // botón de cada pantalla, que es el que controla lo que falta).
     const PASOS = ['Elegir', 'Carrito', 'Pagar con QR'];
-    const VOLVER_A_PASO = ['seguirComprando()', 'irAPaso(2)'];
+    const VOLVER_A_PASO = ['seguirComprando()', 'volverAlCarrito()'];
 
     function pasosHtml(actual) {
       return `
@@ -1686,7 +1792,12 @@
     let pasoActual   = 0;      // 2 o 3 mientras el carrito está abierto
     let planDeVuelta = null;   // el plan que se acaba de agregar, para "Seguir comprando"
 
-    function openCart({ agregado = null } = {}) {
+    // redibujar: se llama para rearmar el carrito que ya está a la vista
+    // (se quitó el último producto, se perdió una fila); no es una
+    // pantalla nueva y no va al historial.
+    function openCart({ agregado = null, redibujar = false } = {}) {
+      if (!redibujar) anotarPantalla('carrito');
+
       // Si bajó el stock desde que lo agregó, se ajusta la cantidad
       const ajustados = [];
       cart.forEach(item => {
@@ -1712,7 +1823,7 @@
             <div class="cr-vacio-ico">🛒</div>
             <b>Tu carrito está vacío</b>
             <p>Elegí un plan y tocá <b>Comprar</b>: aparece acá para pagarlo con QR.</p>
-            <button class="ck-pagar" onclick="closeModal(); goHome();">Ver productos</button>
+            <button class="ck-pagar" onclick="closeModal(null, goHome)">Ver productos</button>
           </div>`;
         abrirModalCarrito(false);
         return;
@@ -1763,7 +1874,7 @@
             <div class="ck-caja cr-pedido">
               <div class="cr-pedido-cab">
                 <b>Tu pedido</b>
-                <button type="button" class="cr-editar" onclick="irAPaso(2)">Editar</button>
+                <button type="button" class="cr-editar" onclick="volverAlCarrito()">Editar</button>
               </div>
               <ul class="cr-resumen" id="crResumen"></ul>
             </div>
@@ -1808,7 +1919,7 @@
           <div class="cr-pie">
             ${totalHtml}
             <div class="cr-acciones">
-              <button type="button" class="cr-atras" onclick="irAPaso(2)">← Volver al carrito</button>
+              <button type="button" class="cr-atras" onclick="volverAlCarrito()">← Volver al carrito</button>
               <button type="button" class="ck-pagar" id="cartPagarQR" disabled onclick="payWithQR()">
                 Pagar con QR <span class="cr-pagar-monto" id="crPagarMonto"></span>
               </button>
@@ -1851,14 +1962,24 @@
         entra.classList.add('entra');
         // El botón que se tocó quedó escondido: el foco pasa al título
         titulo.focus({ preventScroll: true });
+        if (n === 3) anotarPantalla('pago');
       }
     }
 
     // "Seguir comprando" y "✓ Elegir": a los planes del producto recién
-    // agregado, o se cierra si el carrito se abrió desde el ícono.
+    // agregado, o se cierra si el carrito se abrió desde el ícono. Por el
+    // historial, igual que el "atrás" del celular: una pantalla desde el
+    // carrito, dos desde el pago.
     function seguirComprando() {
-      if (planDeVuelta !== null && PRODUCTS.some(p => p.id === planDeVuelta)) volverAPlanes(planDeVuelta);
-      else closeModal();
+      atras(pasoActual === 3 ? 2 : 1, () => {
+        if (planDeVuelta !== null && PRODUCTS.some(p => p.id === planDeVuelta)) volverAPlanes(planDeVuelta);
+        else closeModal();
+      });
+    }
+
+    // Del paso 3 al 2
+    function volverAlCarrito() {
+      atras(1, () => irAPaso(2));
     }
 
     // "Tu pedido" del paso 3: lo que se va a pagar, de solo lectura
@@ -2016,7 +2137,7 @@
       updateCartCount();
       guardarCarrito();
 
-      if (!fila) { openCart(); return; }
+      if (!fila) { openCart({ redibujar: true }); return; }
       fila.querySelector('.cr-qty').textContent = item.qty;
       fila.querySelector('.cr-sub').textContent = fmtBsCarrito(item.price * item.qty);
       if (aviso && item.qty < topeDe(item)) aviso.hidden = true;
@@ -2032,7 +2153,7 @@
       // Sin redibujar todo (los términos y el número quedan como estaban):
       // se saca la fila y se renumeran las que siguen.
       const fila = document.querySelector(`.cr-item[data-idx="${idx}"]`);
-      if (!fila || cart.length === 0) { openCart(); return; }
+      if (!fila || cart.length === 0) { openCart({ redibujar: true }); return; }
       fila.remove();
       document.querySelectorAll('.cr-item').forEach((f, i) => {
         f.dataset.idx = i;

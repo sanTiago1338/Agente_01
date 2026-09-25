@@ -193,6 +193,16 @@
   <script type="module">
     import { subscribeProductos, precioFinal, formatBs, porcentajeDescuento }
       from './js/productos-service.js';
+    import { mapaDeRebajas } from './js/stock-tienda.js';
+
+    // La rebaja automática del stock que no se vende: la misma que muestra
+    // la tienda y que cobra la base (ver mapaDeRebajas). Sin ella, esta
+    // tabla diría un precio y el QR otro.
+    let REBAJAS = new Map();
+    const precioVenta = p => Math.max(0, precioFinal(p) - (REBAJAS.get(p.id) || 0));
+    const descuentoDe = p => REBAJAS.get(p.id) > 0 && p.precio > 0
+      ? Math.round((1 - precioVenta(p) / p.precio) * 100)
+      : porcentajeDescuento(p);
 
     const $ = id => document.getElementById(id);
 
@@ -266,7 +276,7 @@
         const individual = items.find(p => tiposDe(p).some(t => t === '1-pantalla' || t === '1-dispositivo'));
         const completa   = items.find(p => tiposDe(p).includes('completa'));
         const disponible = items.some(p => p.activo !== false);
-        const minimo     = Math.min(...items.map(precioFinal).filter(n => n > 0));
+        const minimo     = Math.min(...items.map(precioVenta).filter(n => n > 0));
 
         return {
           categoria, plataforma, individual, completa, disponible,
@@ -280,10 +290,10 @@
     // Celda de precio, con badge si está en oferta
     function celdaPrecio(p) {
       if (!p) return '<td style="padding:0.85rem 1rem; text-align:center; color:var(--texto-dim);">—</td>';
-      const desc = porcentajeDescuento(p);
+      const desc = descuentoDe(p);
       const agotado = p.activo === false;
       return `<td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;${agotado ? ' opacity:.45; text-decoration:line-through;' : ''}">
-        Bs. ${formatBs(precioFinal(p)).replace('Bs', '')}
+        Bs. ${formatBs(precioVenta(p)).replace('Bs', '')}
         ${desc > 0 ? `<span style="background:var(--rojo); color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:4px; margin-left:4px; vertical-align:middle;">-${desc}%</span>` : ''}
       </td>`;
     }
@@ -356,6 +366,13 @@
     $('buscarPlan').addEventListener('input', () => {
       clearTimeout(debounce);
       debounce = setTimeout(render, 180);
+    });
+
+    // Las rebajas llegan aparte: si hay alguna, se vuelve a dibujar
+    mapaDeRebajas().then(mapa => {
+      if (mapa.size === 0) return;
+      REBAJAS = mapa;
+      if (TODOS.length) render();
     });
 
     subscribeProductos(

@@ -22,6 +22,9 @@ import {
 import { prepararImagen, esFotoPegada, borrarSiQuedoHuerfana }
   from '../../js/subir-imagen.js';
 
+// Para mostrar en el editor la rebaja automática de hoy
+import { sbAdmin } from '../../js/supabase-config.js';
+
 const productosRef = collection(db, 'productos');
 
 // Avisos tipo toast — los define admin/index.html
@@ -150,6 +153,18 @@ estilos.textContent = `
   .zv-sw input { width: 15px; height: 15px; accent-color: var(--rojo); cursor: pointer; }
   .zv-sw.on { color: var(--tinta); border-color: rgba(229,9,20,.35); background: rgba(229,9,20,.06); }
 
+  /* Qué hace la rebaja automática, y cuánto le toca hoy a este producto */
+  .zv-rebaja {
+    padding: 11px 13px;
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    background: var(--panel-2);
+    font-size: 12.5px; line-height: 1.5; color: var(--gris);
+  }
+  .zv-rebaja p { margin: 0; }
+  .zv-rebaja b { color: var(--tinta); }
+  .zv-rebaja-hoy { margin-top: 6px !important; font-weight: 600; color: var(--tinta); }
+
   /* Frases que se repiten en casi todas las descripciones. Un clic las
      pega al final del texto, así no hay que escribirlas de nuevo ni
      acordarse de la redacción exacta. */
@@ -275,7 +290,19 @@ contenedor.innerHTML = `
                 <label class="zv-sw" id="swCorreo" title="Escribe «A correo de cliente.» en la descripción — es lo que hace que la tienda le pida el correo al cliente al pagar">
                   <input type="checkbox" id="fCorreo"> 📧 Pide correo
                 </label>
+                <label class="zv-sw" id="swRebaja" title="Mientras quede stock sin vender, el precio baja solo: 2 Bs cada 3 días">
+                  <input type="checkbox" id="fRebaja"> 📉 Rebaja automática
+                </label>
               </div>
+            </div>
+
+            <div class="zv-campo zv-ancho zv-rebaja" id="cRebaja" style="display:none">
+              <p>Mientras quede stock sin vender, el precio baja <b>2 Bs cada 3 días</b>,
+                 contados desde la cuenta más vieja. Cuando esas se venden, vuelve al
+                 precio normal. Nunca baja del costo que anotás en Stock; si no
+                 anotaste el costo, no baja de la mitad del precio. En la tienda se ve
+                 como oferta, con el precio normal tachado.</p>
+              <p class="zv-rebaja-hoy" id="fRebajaHoy"></p>
             </div>
 
             <div class="zv-campo zv-ancho" id="cOferta" style="display:none">
@@ -529,13 +556,36 @@ function limpiarErrores() {
 
 function pintarSwitches() {
   [['swActivo','fActivo'], ['swDestacado','fDestacado'],
-   ['swOferta','fOferta'], ['swPlanes','fPlanes'], ['swCorreo','fCorreo']]
+   ['swOferta','fOferta'], ['swPlanes','fPlanes'], ['swCorreo','fCorreo'],
+   ['swRebaja','fRebaja']]
     .forEach(([sw, chk]) => $(sw).classList.toggle('on', $(chk).checked));
   $('cOferta').style.display = $('fOferta').checked ? '' : 'none';
+  $('cRebaja').style.display = $('fRebaja').checked ? '' : 'none';
+  pintarRebajaDeHoy();
 }
 
-['fActivo','fDestacado','fOferta','fPlanes'].forEach(id =>
+['fActivo','fDestacado','fOferta','fPlanes','fRebaja'].forEach(id =>
   $(id).addEventListener('change', pintarSwitches));
+
+// Cuánto le toca hoy al producto que se está editando. La cuenta la hace
+// la base (rebajas_vigentes en supabase/05-cobros.sql), que es la que cobra.
+// Recién aparece con la rebaja ya guardada: antes de guardar no corre.
+async function pintarRebajaDeHoy() {
+  const hoy = $('fRebajaHoy');
+  const p = editando;
+  if (!$('fRebaja').checked) { hoy.textContent = ''; return; }
+  if (!p || p.rebajaAuto !== true) { hoy.textContent = 'Empieza a correr cuando guardes.'; return; }
+
+  hoy.textContent = 'Calculando la rebaja de hoy…';
+  const { data, error } = await sbAdmin.rpc('rebajas_vigentes');
+  if (editando !== p) return;                     // se abrió otro producto mientras tanto
+  if (error) { hoy.textContent = ''; return; }
+  const fila = (data || []).find(f => f.producto_id === p.id);
+  const base = (p.oferta === true && p.precioOferta > 0) ? p.precioOferta : p.precio;
+  hoy.textContent = fila
+    ? `Hoy: −${Number(fila.rebaja).toFixed(2)} Bs → se vende a ${(base - Number(fila.rebaja)).toFixed(2)} Bs.`
+    : 'Hoy: sin rebaja (no hay stock, o la cuenta más vieja tiene menos de 3 días).';
+}
 
 // "📧 Pide correo" es el único switch que además toca la descripción:
 // pone o saca la frase, que es lo que mira la tienda para pedir el correo.
@@ -1082,6 +1132,7 @@ function abrirEditor(p) {
   $('fOferta').checked     = p?.oferta === true;
   $('fPlanes').checked     = p?.mostrarEnPlanes === true;
   $('fCorreo').checked     = textoPideCorreo(p?.descripcion);
+  $('fRebaja').checked     = p?.rebajaAuto === true;
 
   pintarSwitches();
   actualizarPrevia();
@@ -1149,6 +1200,8 @@ $('zvForm').addEventListener('submit', async e => {
     destacado:    $('fDestacado').checked,
     // Controla si el producto aparece en la tabla de planes.html
     mostrarEnPlanes: $('fPlanes').checked,
+    // Baja sola mientras haya stock sin vender (ver 05-cobros.sql, sección 13)
+    rebajaAuto:   $('fRebaja').checked,
     fechaActualizacion: serverTimestamp()
   };
 

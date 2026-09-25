@@ -81,6 +81,7 @@ const CAMPOS_PRODUCTO = [
   ['activo',            'activo'],
   ['destacado',         'destacado'],
   ['mostrar_en_planes', 'mostrarEnPlanes'],
+  ['rebaja_auto',       'rebajaAuto'],
   ['orden',             'orden'],
   ['id_legacy',         'idLegacy']
 ];

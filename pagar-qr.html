@@ -1395,14 +1395,23 @@
   // Cuando la pagina se abre SIN carrito (por el link del pedido, o a
   // secas), la pantalla de arriba no dibujo nada. Se arma con lo que dice
   // la compra: mismo QR y mismo boton de WhatsApp de siempre.
-  function dibujarDesdeCompra(compra) {
+  // desdeCarrito: lo que se dibujo con el carrito, cuando se redibuja
+  // encima (ver arrancar). Los datos que hay que pedirle al cliente y la
+  // guia de pasos no cambian porque cambie el precio: se conservan.
+  function dibujarDesdeCompra(compra, desdeCarrito = null) {
     const err = $('errorScreen');
     if (err) err.classList.remove('show');
     // "precio" viene ya con el descuento combo: se le suma lo descontado
     // para mostrar el precio normal, y renderPayment() pone el descuento
     // en su propia linea (la diferencia contra compra.total).
     const items = (compra.lineas || []).map(l => ({
-      name: l.producto, price: (Number(l.precio) || 0) + (Number(l.descuento) || 0), qty: 1
+      name: l.producto, price: (Number(l.precio) || 0) + (Number(l.descuento) || 0), qty: 1,
+      ...(desdeCarrito ? {
+        fid: l.producto_id,
+        needsEmail:    !!desdeCarrito.needsEmail,
+        needsUsername: !!desdeCarrito.needsUsername,
+        needsPassword: !!desdeCarrito.needsPassword
+      } : {})
     }));
     renderPayment(items, Number(compra.total) || 0, 'Pedido #' + compra.numero);
   }
@@ -1476,6 +1485,13 @@
     // demas caminos, y no hay dos maneras de construir lo mismo.
     const completa = await mirarPedido(compra.token);
     if (!completa) return;
+
+    // El que cobra es la base. Si su total no es el que se mostro (cambio un
+    // precio o la rebaja automatica mientras el carrito estaba abierto), se
+    // muestra el suyo: es el que figura en el pedido y el que hay que pagar.
+    if (Math.abs((Number(completa.total) || 0) - (Number(s.total) || 0)) >= 0.01) {
+      dibujarDesdeCompra(completa, s);
+    }
 
     engancharCompra(compra.token, completa);
   })();

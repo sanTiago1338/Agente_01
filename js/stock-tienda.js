@@ -55,3 +55,32 @@ export async function mapaDeStock() {
     return new Map();
   }
 }
+
+/**
+ * Qué productos tienen rebaja automática hoy y de cuántos Bs.
+ *
+ * La rebaja es del stock que no se vende: 2 Bs cada 3 días desde la cuenta
+ * más vieja sin vender, en los productos que tienen prendido el interruptor
+ * "Rebaja automática" del panel (ver rebaja_de_stock en
+ * supabase/05-cobros.sql). La cuenta la hace la base, que es la que cobra:
+ * la tienda solo la muestra, para que el cliente vea el mismo precio que
+ * después le va a figurar en el QR.
+ *
+ * Solo vienen los productos con alguna rebaja. Si falla, la tienda muestra
+ * los precios sin rebaja; al pagar, el QR dice el precio que vale.
+ *
+ * @returns {Promise<Map<string, number>>} id del producto -> Bs de rebaja
+ */
+export async function mapaDeRebajas() {
+  try {
+    const { data, error } = await sb.rpc('rebajas_vigentes');
+    if (error) {
+      console.warn('No se pudieron leer las rebajas:', error.message);
+      return new Map();
+    }
+    return new Map((data || []).map(f => [f.producto_id, Number(f.rebaja) || 0]));
+  } catch (e) {
+    console.warn('No se pudieron leer las rebajas:', e.message);
+    return new Map();
+  }
+}

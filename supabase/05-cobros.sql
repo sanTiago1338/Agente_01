@@ -297,13 +297,10 @@ begin
     raise exception 'Ese producto está agotado';
   end if;
 
-  -- El precio real: respeta la oferta si está activa. Es la misma regla
-  -- que precioFinal() en el front, pero acá es la que vale.
-  v_precio := case
-    when v_producto.oferta and coalesce(v_producto.precio_oferta, 0) > 0
-      then v_producto.precio_oferta
-    else v_producto.precio
-  end;
+  -- El precio real: la oferta si está activa, menos la rebaja por stock
+  -- que no se vende (ver precio_de_venta, sección 13). La tienda muestra
+  -- lo mismo, pero el que vale es este.
+  v_precio := public.precio_de_venta(v_producto);
 
   -- 64 caracteres hexadecimales de aleatoriedad. Dos uuid pegados evitan
   -- depender de pgcrypto y alcanzan de sobra: adivinarlo es imposible.
@@ -934,11 +931,9 @@ begin
 
     v_cant := greatest(1, least(10, coalesce((v_item->>'cantidad')::integer, 1)));
 
-    v_precio := case
-      when v_producto.oferta and coalesce(v_producto.precio_oferta, 0) > 0
-        then v_producto.precio_oferta
-      else v_producto.precio
-    end;
+    -- La oferta si está activa, menos la rebaja por stock que no se vende
+    -- (sección 13). El que cobra es este, no el que mandó el navegador.
+    v_precio := public.precio_de_venta(v_producto);
 
     -- Cuánto le dura. Se calcula acá y no en el navegador: el cliente
     -- podría mandar cualquier número, y de esta fecha depende cuándo le
@@ -1131,3 +1126,111 @@ grant execute on function public.confirmar_compra(uuid, text, text)    to authen
 -- todos los pedidos uno por uno.
 create index if not exists pedidos_producto_idx
   on public.pedidos (producto_id);
+
+
+-- ============================================================
+-- 13. REBAJA AUTOMÁTICA DEL STOCK QUE NO SE VENDE
+-- ============================================================
+-- Una cuenta cargada que no se vende pierde valor: los días que pasa en el
+-- stock son días que se le vencen sin que nadie la use. Con la rebaja
+-- prendida, el precio baja solo mientras la cuenta siga ahí:
+--
+--   · 2 Bs cada 3 días, contados desde la cuenta MÁS VIEJA sin vender.
+--     Cuando esas se venden y quedan solo las nuevas, vuelve al precio
+--     normal: el reloj es de la mercadería, no del producto.
+--   · Nunca por debajo del costo. Si ninguna cuenta libre tiene el costo
+--     anotado (Panel → Stock), el piso es la mitad del precio de venta.
+--   · Solo en los productos que tengan el interruptor "Rebaja automática"
+--     (Panel → Productos). Por defecto está apagado: nada cambia solo.
+--
+-- La tienda muestra la rebaja como una oferta, con el precio normal
+-- tachado (ver rebajas_vigentes y js/tienda-catalogo.js). Pero el precio
+-- que se cobra lo calcula esta base al crear el pedido, nunca el navegador.
+alter table public.productos
+  add column if not exists rebaja_auto boolean not null default false;
+
+-- Cuántos Bs se le descuentan hoy a un producto. 0 si no corresponde.
+create or replace function public.rebaja_de_stock(p_producto public.productos)
+returns numeric(10,2)
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  c_cada_dias constant integer       := 3;      -- cada cuántos días baja
+  c_cuanto    constant numeric(10,2) := 2.00;   -- cuánto baja cada vez, en Bs
+  v_desde  timestamptz;
+  v_costo  numeric(10,2);
+  v_base   numeric(10,2);
+  v_piso   numeric(10,2);
+  v_tramos integer;
+begin
+  if not coalesce(p_producto.rebaja_auto, false) then
+    return 0;
+  end if;
+
+  -- La cuenta libre más vieja, y el costo más alto de las libres: el piso
+  -- tiene que cubrir la que haya costado más, sea cual sea la que se entregue.
+  select min(c.creada_en), max(c.costo)
+    into v_desde, v_costo
+  from public.cuentas c
+  where c.producto_id = p_producto.id and c.estado = 'libre';
+
+  -- Sin stock no hay nada que liquidar
+  if v_desde is null then
+    return 0;
+  end if;
+
+  v_base := case
+    when p_producto.oferta and coalesce(p_producto.precio_oferta, 0) > 0
+      then p_producto.precio_oferta
+    else p_producto.precio
+  end;
+  v_piso   := coalesce(v_costo, round(v_base * 0.5, 2));
+  v_tramos := floor(extract(epoch from now() - v_desde) / 86400 / c_cada_dias);
+
+  return greatest(0, least(v_tramos * c_cuanto, v_base - v_piso));
+end;
+$$;
+
+-- El precio al que se vende hoy: la oferta si está activa, menos la rebaja.
+-- Lo usan crear_pedido() y crear_compra() para cobrar.
+create or replace function public.precio_de_venta(p_producto public.productos)
+returns numeric(10,2)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select (case
+            when p_producto.oferta and coalesce(p_producto.precio_oferta, 0) > 0
+              then p_producto.precio_oferta
+            else p_producto.precio
+          end) - public.rebaja_de_stock(p_producto);
+$$;
+
+-- Para la tienda: qué productos tienen rebaja hoy y de cuánto. Solo vienen
+-- los que tienen alguna, así que la respuesta es chica. No dice nada de las
+-- cuentas: ni cuántas hay ni desde cuándo.
+create or replace function public.rebajas_vigentes()
+returns table (producto_id uuid, rebaja numeric)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select r.id, r.rebaja
+  from (
+    select p.id, public.rebaja_de_stock(p) as rebaja
+    from public.productos p
+    where p.rebaja_auto and p.activo is not false
+  ) r
+  where r.rebaja > 0;
+$$;
+
+revoke execute on function public.rebaja_de_stock(public.productos) from public, anon, authenticated;
+revoke execute on function public.precio_de_venta(public.productos) from public, anon, authenticated;
+revoke execute on function public.rebajas_vigentes()                 from public, anon, authenticated;
+
+grant execute on function public.rebajas_vigentes() to anon, authenticated;

@@ -83,7 +83,7 @@ correr de nuevo sin romper nada.
 | `02-seguridad.sql` | Quién puede leer y escribir cada cosa |
 | `03-realtime.sql` | Que la tienda se actualice sola al editar |
 | `04-storage.sql` | El bucket `imagenes` y sus permisos |
-| `05-cobros.sql` | `pedidos`, `cuentas` y la entrega automática |
+| `05-cobros.sql` | `pedidos`, `cuentas`, la entrega automática y la rebaja del stock viejo |
 | `06-avisos.sql` | Los avisos de pedido nuevo por Telegram |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 

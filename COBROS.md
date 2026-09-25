@@ -74,6 +74,28 @@ WhatsApp, y el pedido queda marcado `sin_stock` para que lo atiendas.
 
 ---
 
+## Rebaja automática del stock que no se vende
+
+**Panel → Productos → editar → `📉 Rebaja automática`**
+
+Una cuenta cargada que no se vende pierde valor: cada día que pasa en el
+stock es un día que se le vence sin que nadie la use. Con el interruptor
+prendido, el precio baja solo:
+
+- **2 Bs cada 3 días**, contados desde la cuenta **más vieja** sin vender.
+  Cuando esas se venden y quedan solo las nuevas, vuelve al precio normal.
+- **Nunca por debajo del costo** que anotaste al cargar las cuentas. Si
+  ninguna tiene el costo anotado, no baja de la mitad del precio. Anotá el
+  costo: es lo que te protege de vender a pérdida.
+- En la tienda se ve como una oferta: el precio normal tachado y el %.
+
+Viene apagado en todos los productos: nada cambia hasta que lo prendas.
+El precio que se cobra lo calcula la base al crear el pedido, así que el
+cliente no puede pagar menos tocando el navegador. La regla está en
+`supabase/05-cobros.sql`, sección 13.
+
+---
+
 ## Lo que falta: que el pago se detecte solo
 
 Tu QR de hoy es una **imagen fija**. No lleva monto ni referencia de pedido, y

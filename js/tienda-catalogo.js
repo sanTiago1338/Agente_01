@@ -12,7 +12,7 @@
     import { subscribeProductos, precioFinal, formatBs, porcentajeDescuento }
       from './productos-service.js';
     import { subscribeJuegos } from './juegos-service.js';
-    import { mapaDeStock } from './stock-tienda.js';
+    import { mapaDeStock, mapaDeRebajas } from './stock-tienda.js';
 
     // Los IDs de la base son texto (un uuid), pero la tienda usa números
     // en los onclick: abrirCheckout(12). Para productos migrados usamos idLegacy;
@@ -27,7 +27,11 @@
     // Adaptador: traduce el producto de Supabase a la forma que la tienda ya usa.
     // Gracias a esto no hubo que reescribir el render, el carrito ni el pago QR.
     function aFormaTienda(p) {
-      const precio = precioFinal(p);
+      // La rebaja automática del stock que no se vende (la calcula la base,
+      // ver mapaDeRebajas en js/stock-tienda.js) se muestra como una oferta
+      // más: el precio normal tachado y el % contra ese precio.
+      const rebaja = REBAJAS.get(p.id) || 0;
+      const precio = Math.max(0, Math.round((precioFinal(p) - rebaja) * 100) / 100);
       return {
         id:          idNumerico(p),
         fid:         p.id,                       // ID real del producto
@@ -35,8 +39,11 @@
         name:        p.nombre       || '',
         price:       precio,
         bs:          formatBs(precio),
-        precioAntes: (p.oferta && p.precioOferta > 0) ? formatBs(p.precio) : '',
-        descuento:   porcentajeDescuento(p),
+        precioAntes: ((p.oferta && p.precioOferta > 0) || rebaja > 0) ? formatBs(p.precio) : '',
+        descuento:   rebaja > 0 && p.precio > 0
+                       ? Math.round((1 - precio / p.precio) * 100)
+                       : porcentajeDescuento(p),
+        rebaja,
         stars:       p.estrellas ?? 5,
         img:         p.imagenTexto  || p.nombre || '',
         imagenUrl:   p.imagen       || '',
@@ -72,6 +79,7 @@
     // mostrar los productos enseguida sin el cartel, que dejar la tienda en
     // blanco esperando un dato que es un adorno.
     let STOCK = new Map();
+    let REBAJAS = new Map();
     let ultimoCatalogo = null;
 
     function aplicar(productos) {
@@ -100,4 +108,13 @@
       if (ultimoCatalogo) aplicar(ultimoCatalogo);
       console.log(`%c⚡ Entrega inmediata en ${mapa.size} producto(s)`,
                   'color:#128C7E;font-weight:bold');
+    });
+
+    // ---------- REBAJAS ----------
+    // Igual que el stock: llegan aparte y, si hay alguna, se repinta. El
+    // carrito toma los precios nuevos solo (reconstruirCarrito en tienda.js).
+    mapaDeRebajas().then(mapa => {
+      if (mapa.size === 0) return;
+      REBAJAS = mapa;
+      if (ultimoCatalogo) aplicar(ultimoCatalogo);
     });

@@ -1764,7 +1764,13 @@
       atarCarrito();
       abrirModalCarrito(true);
       irAPaso(2);
+      anotarPaso('carrito');
     }
+
+    // Anota un paso de la compra para el embudo del panel (ver
+    // __anotarPaso en js/tienda-catalogo.js). Si ese módulo no cargó,
+    // la compra sigue igual: es solo estadística.
+    const anotarPaso = paso => { if (window.__anotarPaso) window.__anotarPaso(paso); };
 
     // Muestra el paso 2 o el 3. Los dos ya están dibujados: solo se
     // esconde uno y se muestra el otro.
@@ -1783,7 +1789,7 @@
       document.getElementById('crPasos').innerHTML = pasosHtml(n);
       const titulo = document.getElementById('crTitulo');
       titulo.textContent = n === 3 ? 'Pagar con QR' : 'Tu carrito';
-      if (n === 3) pintarResumen();
+      if (n === 3) { pintarResumen(); anotarPaso('pago'); }
 
       pasoActual = n;
       if (antes && antes !== n) {
@@ -2076,6 +2082,7 @@
         params.set('recordar', '1');
         params.set('wa', normalizarTel(campoTel.value));
       }
+      anotarPaso('qr');
       window.location.href = `pagar-qr.html?${params.toString()}`;
     }
 

@@ -13,6 +13,7 @@
       from './productos-service.js';
     import { subscribeJuegos } from './juegos-service.js';
     import { mapaDeStock, mapaDeRebajas } from './stock-tienda.js';
+    import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-base.js';
 
     // Los IDs de la base son texto (un uuid), pero la tienda usa números
     // en los onclick: abrirCheckout(12). Para productos migrados usamos idLegacy;
@@ -109,6 +110,44 @@
       console.log(`%c⚡ Entrega inmediata en ${mapa.size} producto(s)`,
                   'color:#128C7E;font-weight:bold');
     });
+
+    // ---------- DÓNDE SE CAE LA VENTA ----------
+    // La tienda anota tres pasos de la compra: abrió el carrito, llegó al
+    // paso 3 y fue al QR (ver supabase/07-embudo.sql; el panel los muestra
+    // en Inicio). Por navegador va un número al azar, que no dice quién es.
+    //
+    // Va con fetch y keepalive, no con sb.rpc: el último paso se anota
+    // justo cuando la página se va a pagar-qr.html, y keepalive es lo que
+    // deja que el pedido termine aunque la página ya no esté.
+    const SESION = (() => {
+      const nueva = () => (crypto.randomUUID ? crypto.randomUUID()
+        : Date.now().toString(36) + Math.random().toString(36).slice(2));
+      try {
+        let s = localStorage.getItem('embudo_sesion');
+        if (!s) { s = nueva(); localStorage.setItem('embudo_sesion', s); }
+        return s;
+      } catch (e) {
+        return nueva();   // modo incógnito: cuenta igual, solo por esta visita
+      }
+    })();
+    const anotados = new Set();   // cada paso una vez por visita: la base igual lo filtra por día
+
+    window.__anotarPaso = paso => {
+      if (anotados.has(paso)) return;
+      anotados.add(paso);
+      try {
+        fetch(`${SUPABASE_URL}/rest/v1/rpc/anotar_paso`, {
+          method: 'POST',
+          keepalive: true,
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ p_sesion: SESION, p_paso: paso })
+        }).catch(() => {});   // si no llega, no se entera nadie: es estadística
+      } catch (e) { /* idem */ }
+    };
 
     // ---------- REBAJAS ----------
     // Igual que el stock: llegan aparte y, si hay alguna, se repinta. El

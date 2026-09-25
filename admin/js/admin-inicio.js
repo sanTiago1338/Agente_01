@@ -7,6 +7,7 @@
 //   · Lo que te espera: pagos por confirmar y pedidos para entregar a mano
 //   · Ventas por día de las últimas dos semanas
 //   · Productos a los que se les acaba el stock
+//   · Dónde se cae la venta: cuántos llegan a cada paso de la compra
 //   · Últimos pedidos y lo más vendido del mes
 //
 // "Vendido" se cuenta igual que en Ventas: pedidos ENTREGADOS, en el día
@@ -252,6 +253,36 @@ css.textContent = `
     #vistaInicio .ini-tabla td.p   { width: 100%; }
   }
 
+  /* ---- Dónde se cae la venta ----
+     Una fila por paso: la barra mide contra el primero (el 100 %), y a
+     la derecha cuántos siguieron desde el paso anterior. */
+  .ini-embudo { margin-bottom: 12px; }
+  .ini-caja-cab > .ini-rango { display: inline-flex; border: 1px solid var(--borde-2); border-radius: 9px; overflow: hidden; flex: none; }
+  .ini-rango button {
+    border: none; background: #fff; padding: 6px 11px;
+    font: 600 12.5px 'Outfit', sans-serif; color: var(--tinta-media); cursor: pointer;
+  }
+  .ini-rango button + button { border-left: 1px solid var(--borde-2); }
+  .ini-rango button.on { background: var(--tinta); color: #fff; }
+  .ini-pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .ini-paso {
+    display: grid;
+    grid-template-columns: minmax(150px, 210px) minmax(0, 1fr) 64px 110px;
+    align-items: center; gap: 12px;
+    font-size: 13.5px;
+  }
+  .ini-paso-nom { color: var(--tinta); font-weight: 600; }
+  .ini-paso-nom small { display: block; font-weight: 400; font-size: 12px; color: var(--tinta-suave); }
+  .ini-paso-riel { height: 14px; border-radius: 7px; background: var(--superficie-2); overflow: hidden; }
+  .ini-paso-barra { height: 100%; border-radius: 7px; background: var(--marca); min-width: 2px; }
+  .ini-paso:last-child .ini-paso-barra { background: #15803d; }
+  .ini-paso-n { font-size: 18px; font-weight: 800; color: var(--tinta); text-align: right; font-variant-numeric: tabular-nums; }
+  .ini-paso-pc { font-size: 12.5px; color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
+  .ini-paso-pc b { color: var(--tinta); }
+  .ini-paso-pc.peor b { color: #dc2626; }
+  .ini-embudo-nota { margin: 14px 0 0; font-size: 12.5px; color: var(--tinta-suave); }
+  .ini-embudo-nota b { color: var(--tinta); }
+
   @media (max-width: 1100px) {
     .ini-cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ini-fila { grid-template-columns: minmax(0, 1fr); }
@@ -264,6 +295,9 @@ css.textContent = `
     #vistaInicio .ini-tabla .t { display: none; }
     .ini-dia.impar { display: none; }
     .ini-graf-plot { left: 36px; }
+    .ini-paso { grid-template-columns: minmax(0, 1fr) auto; row-gap: 5px; }
+    .ini-paso-riel { grid-column: 1 / -1; grid-row: 2; }
+    .ini-paso-pc { grid-column: 1 / -1; grid-row: 3; }
   }
 `;
 document.head.appendChild(css);
@@ -328,6 +362,21 @@ $('vistaInicio').innerHTML = `
         <ul class="ini-lista" id="iniStock"><li><div class="ini-esq" style="height:90px;flex:1"></div></li></ul>
       </section>
     </div>
+
+    <section class="ini-caja ini-embudo">
+      <div class="ini-caja-cab">
+        <div>
+          <h3>Dónde se cae la venta</h3>
+          <p class="ini-sub">Cuántos llegaron a cada paso de la compra</p>
+        </div>
+        <div class="ini-rango" role="group" aria-label="Período">
+          <button type="button" data-dias="7" class="on" aria-pressed="true">7 días</button>
+          <button type="button" data-dias="30" aria-pressed="false">30 días</button>
+        </div>
+      </div>
+      <ol class="ini-pasos" id="iniEmbudo"><li><div class="ini-esq" style="height:120px;flex:1"></div></li></ol>
+      <p class="ini-embudo-nota" id="iniEmbudoNota" hidden></p>
+    </section>
 
     <div class="ini-fila">
       <section class="ini-caja">
@@ -439,6 +488,7 @@ async function cargar() {
     pintarStock(rCuentas.data, rProductos.data);
     pintarPedidos(rPedidos.data);
     pintarTop(rPedidos.data);
+    pintarEmbudo();   // aparte: si falla, el resto del Inicio igual se ve
 
     $('iniActualizado').textContent = 'Actualizado ' +
       new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
@@ -720,6 +770,79 @@ function pintarTop(pedidos) {
       <span class="bar"><i style="width:${Math.max(4, p.n / max * 100)}%"></i></span>
     </li>`).join('');
 }
+
+
+// ============================================================
+// 9b. DÓNDE SE CAE LA VENTA
+// ============================================================
+// Los tres primeros pasos los anota la tienda (supabase/07-embudo.sql):
+// cada navegador cuenta una vez por paso y por día. "Pagaron" sale de los
+// pedidos: compras con el pago confirmado, una por compra.
+const PASOS_EMBUDO = [
+  ['carrito', 'Abrieron el carrito', 'con algo adentro'],
+  ['pago',    'Llegaron a pagar',    'el paso 3, términos y total'],
+  ['qr',      'Fueron al QR',        'tocaron "Pagar con QR"'],
+  ['pagaron', 'Pagaron',             'pago confirmado']
+];
+// El día que la tienda empezó a anotar los pasos: antes no hay datos de
+// los tres primeros, y los pagos sí. Si el período lo incluye, se avisa.
+const EMBUDO_DESDE = '2026-09-25';
+let diasEmbudo = 7;
+
+async function pintarEmbudo() {
+  const dias = diasEmbudo;
+  const { data, error } = await sbAdmin.rpc('resumen_embudo', { p_dias: dias });
+  if (dias !== diasEmbudo) return;                  // cambió el período mientras tanto
+  if (error) {
+    $('iniEmbudo').innerHTML = `<li class="ini-vacio" style="display:block">No se pudo leer: ${escapar(error.message)}</li>`;
+    return;
+  }
+
+  const n = Object.fromEntries((data || []).map(f => [f.paso, f.cantidad]));
+  const cant = PASOS_EMBUDO.map(([clave]) => n[clave] || 0);
+  const tope = Math.max(cant[0], 1);
+
+  // De cada paso al siguiente, qué parte siguió. El que pierde más se marca.
+  const siguieron = cant.map((c, i) => (i === 0 || !cant[i - 1]) ? null : Math.min(100, Math.round(c / cant[i - 1] * 100)));
+  const conDato = siguieron.filter(v => v !== null);
+  const peor = conDato.length ? Math.min(...conDato) : null;
+
+  $('iniEmbudo').innerHTML = PASOS_EMBUDO.map(([, nombre, detalle], i) => `
+    <li class="ini-paso">
+      <div class="ini-paso-nom">${nombre}<small>${detalle}</small></div>
+      <div class="ini-paso-riel"><div class="ini-paso-barra" style="width:${Math.min(100, cant[i] / tope * 100)}%"></div></div>
+      <div class="ini-paso-n">${cant[i]}</div>
+      <div class="ini-paso-pc${siguieron[i] !== null && siguieron[i] === peor && peor < 100 ? ' peor' : ''}">
+        ${i === 0 ? '' : siguieron[i] === null ? '—' : `<b>${siguieron[i]}%</b> siguió`}
+      </div>
+    </li>`).join('');
+
+  // Una línea que diga qué mirar, y el aviso de cuándo empezó a contar
+  const nota = [];
+  if (cant[0] === 0) {
+    nota.push('Todavía no hay datos: se empiezan a juntar con las visitas a la tienda.');
+  } else if (peor !== null && peor < 100) {
+    const i = siguieron.indexOf(peor);
+    nota.push(`La mayor caída es entre <b>«${PASOS_EMBUDO[i - 1][1]}»</b> y <b>«${PASOS_EMBUDO[i][1]}»</b>: sigue ${peor} de cada 100.`);
+  }
+  const desde = new Date(Date.now() - (dias - 1) * 864e5).toISOString().slice(0, 10);
+  if (desde < EMBUDO_DESDE) {
+    nota.push('Los pasos se cuentan desde el 25/09/2026; los pagos, desde siempre.');
+  }
+  $('iniEmbudoNota').innerHTML = nota.join(' ');
+  $('iniEmbudoNota').hidden = nota.length === 0;
+}
+
+document.querySelector('.ini-rango').addEventListener('click', e => {
+  const b = e.target.closest('button[data-dias]');
+  if (!b) return;
+  diasEmbudo = Number(b.dataset.dias);
+  document.querySelectorAll('.ini-rango button').forEach(x => {
+    x.classList.toggle('on', x === b);
+    x.setAttribute('aria-pressed', String(x === b));
+  });
+  pintarEmbudo();
+});
 
 
 // ============================================================

@@ -85,6 +85,7 @@ correr de nuevo sin romper nada.
 | `04-storage.sql` | El bucket `imagenes` y sus permisos |
 | `05-cobros.sql` | `pedidos`, `cuentas`, la entrega automática y la rebaja del stock viejo |
 | `06-avisos.sql` | Los avisos de pedido nuevo por Telegram |
+| `07-embudo.sql` | Cuántos llegan a cada paso de la compra (lo muestra Inicio) |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 
 ---

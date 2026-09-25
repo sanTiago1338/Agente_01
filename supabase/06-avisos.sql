@@ -378,14 +378,13 @@ create index if not exists pedidos_renovacion_idx
 -- ------------------------------------------------------------
 -- 6.2 Cuantos dias dura un plan
 -- ------------------------------------------------------------
--- Misma regla que diasDelPlan() en js/tienda.js, para que lo que el
--- cliente ve en el checkout ("3 meses (90 dias)") sea exactamente lo que
--- queda guardado. Mira primero el nombre y despues la suscripcion,
--- porque 192 de los 225 productos tienen la suscripcion vacia y la
--- duracion solo esta escrita en el nombre del plan.
+-- Mira primero el nombre y despues la suscripcion, porque 192 de los
+-- 225 productos tienen la suscripcion vacia y la duracion solo esta
+-- escrita en el nombre del plan.
 --
--- SI TOCAS UNA, TOCA LA OTRA. Si no, el cliente ve una duracion y
--- nosotros tenemos anotada otra.
+-- Antes habia una copia de esta regla en js/tienda.js (diasDelPlan),
+-- para el checkout de un solo plan. Ese checkout ya no existe y la copia
+-- se borro: la unica regla es esta.
 create or replace function public.dias_del_plan(p_nombre text, p_suscripcion text default '')
 returns integer
 language plpgsql

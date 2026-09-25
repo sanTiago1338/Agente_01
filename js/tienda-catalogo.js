@@ -15,7 +15,7 @@
     import { mapaDeStock } from './stock-tienda.js';
 
     // Los IDs de la base son texto (un uuid), pero la tienda usa números
-    // en los onclick: openProduct(12). Para productos migrados usamos idLegacy;
+    // en los onclick: abrirCheckout(12). Para productos migrados usamos idLegacy;
     // para los que crees desde el admin, derivamos un número estable del ID.
     function idNumerico(p) {
       if (typeof p.idLegacy === 'number') return p.idLegacy;

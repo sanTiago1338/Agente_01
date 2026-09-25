@@ -1096,7 +1096,7 @@ function siguienteOrden() {
 }
 
 // Los productos nuevos necesitan un idLegacy numérico:
-// la tienda lo usa en onclick="openProduct(12)".
+// la tienda lo usa en onclick="abrirCheckout(12)".
 function siguienteIdLegacy() {
   const ids = catalogo().map(p => p.idLegacy).filter(n => typeof n === 'number');
   return ids.length ? Math.max(...ids) + 1 : 1;

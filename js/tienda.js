@@ -4,7 +4,7 @@
 // Estaba dentro de index.html, en un <script> de 1.890 lineas.
 //
 // Es un script CLASICO, no un modulo, y tiene que seguir siendolo:
-// las funciones que define (openProduct, filterProducts, addToCart...)
+// las funciones que define (abrirPlataforma, filterProducts, openCart...)
 // las llaman los onclick escritos en el HTML, y para eso tienen que
 // vivir en el scope global. Un modulo las encerraria y los botones
 // dejarian de responder.
@@ -136,59 +136,10 @@
       if (e.key === CART_KEY && catalogoCargado) reconstruirCarrito();
     });
 
-    function getStars(n) {
-      let s = '';
-      for(let i=1;i<=5;i++) s += `<span class="star ${i<=n?'on':'off'}">★</span>`;
-      return s;
-    }
-
-    function addToCart(id) {
-      const product = PRODUCTS.find(p => p.id === id);
-      if(!product) return;
-      if(product.soldOut) { showToast(`✖ ${product.name.substring(0, 30)} está agotado`); return; }
-
-      const existingItem = cart.find(item => item.id === id);
-      if(existingItem) {
-        // Lo mismo que el + del carrito: no más de lo que se puede entregar
-        if (existingItem.qty >= topeDe(existingItem)) {
-          showToast(`✖ ${mensajeTope(existingItem)}`);
-          return;
-        }
-        existingItem.qty += 1;
-      } else {
-        cart.push({ ...product, qty: 1 });
-      }
-      
-      updateCartCount();
-      guardarCarrito();
-      showToast(`✓ ${product.name.substring(0, 30)}... agregado al carrito`);
-    }
-
     function updateCartCount() {
       cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
       document.getElementById('1').textContent = cartCount;
       document.getElementById('7').textContent = cartCount;
-    }
-
-    function showToast(msg) {
-      const toast = document.createElement('div');
-      toast.style.cssText = `
-        position: fixed;
-        bottom: 80px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: var(--verde);
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        z-index: 300;
-        animation: slideUp 0.3s ease;
-      `;
-      toast.textContent = msg;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
     }
 
 
@@ -817,7 +768,7 @@
     // ==========================================================
     // PANEL DE PLANES DE UNA PLATAFORMA
     // ==========================================================
-    // Reutiliza el mismo modal que ya usaba openProduct(), así el
+    // Usa el mismo modal que el carrito (#8, #9 y #10), así el
     // cierre, el fondo y el scroll se comportan igual que siempre.
     function abrirPlataforma(clave) {
       const g = PLATAFORMAS_VISIBLES.find(x => x.clave === clave);
@@ -853,7 +804,7 @@
                   <span class="plan-chip ${agotado ? 'off' : 'ok'}">${agotado ? '● Agotado' : '● Disponible'}</span>
                   ${!agotado && pl.entregaInmediata ? '<span class="plan-chip ya">⚡ Entrega inmediata</span>' : ''}
                   <span class="plan-chip zona">🌎 Global</span>
-                  ${avisoDatos(pl).chip}
+                  ${chipDatos(pl)}
                 </div>
               </div>
             </div>
@@ -923,56 +874,11 @@
 
 
     // ==========================================================
-    // CHECKOUT DE UN PLAN
+    // AYUDAS DE LA COMPRA
     // ==========================================================
-    // Se abre desde el botón "Comprar" de cada plan. Muestra el
-    // resumen, exige aceptar los términos y recién ahí habilita
-    // el botón que lleva al pago con QR.
+    // El número de WhatsApp, los productos sin precio, los términos...
+    // Las usan el panel de planes y el carrito.
     // ==========================================================
-
-    // Rubro del encabezado. Para seguidores y combos no corresponde
-    // hablar de suscripción, así que se dice "Servicio".
-    const RUBRO = {
-      streaming: 'Suscripción Streaming',
-      musica:    'Suscripción Música',
-      ia:        'Suscripción IA & Tools',
-      vpn:       'Suscripción VPN',
-      combos:    'Servicio Combo',
-      seguidores:'Servicio Seguidores',
-      juegos:    'Recarga de Juegos'
-    };
-    const rubroDe = p => RUBRO[p.cat] || 'Servicio Digital';
-
-    // Cuántos días dura el plan. Mira primero el nombre y después el campo
-    // suscripción, porque casi todos los productos tienen la suscripción
-    // vacía y la duración solo está escrita en el nombre del plan.
-    //
-    // Esta misma regla está copiada en la base, en dias_del_plan(): de ahí
-    // sale la fecha de vencimiento que se guarda con el pedido. Si tocás
-    // una, tocá la otra, o el cliente va a ver una duración y nosotros
-    // vamos a tener anotada otra.
-    function diasDelPlan(p) {
-      for (const parte of [(p.name || ''), (p.suscripcion || '')]) {
-        const t = parte.toLowerCase();
-        if (!t) continue;
-
-        const meses   = t.match(/(\d+)\s*mes/);
-        if (meses)   return Math.min(730, Math.max(1, Number(meses[1]) * 30));
-        const dias    = t.match(/(\d+)\s*d[ií]a/);
-        if (dias)    return Math.min(730, Math.max(1, Number(dias[1])));
-        const semanas = t.match(/(\d+)\s*semana/);
-        if (semanas) return Math.min(730, Math.max(1, Number(semanas[1]) * 7));
-
-        if (/\banual\b|1\s*a[ñn]o/.test(t)) return 365;
-        if (/semestral/.test(t))            return 180;
-        if (/trimestral/.test(t))           return 90;
-        if (/mensual/.test(t))              return 30;
-        if (/quincenal/.test(t))            return 15;
-        if (/semanal/.test(t))              return 7;
-      }
-      // Lo más común del catálogo. Es una estimación, no un dato.
-      return 30;
-    }
 
     // Los celulares de Bolivia son 8 números que empiezan con 6 o con 7.
     // No se acepta menos: un número mal escrito es un aviso que nunca
@@ -984,26 +890,6 @@
     // Como lo necesita wa.me: código de país pegado, sin nada más.
     function normalizarTel(v) {
       return '591' + String(v || '').replace(/\D/g, '');
-    }
-
-    // Cuándo se le vencería si compra hoy. Es una cuenta aproximada: el
-    // plan le empieza a correr cuando se le entrega la cuenta, no cuando
-    // toca pagar. La fecha buena la anota la base al entregar.
-    function fechaDeVencimiento(p) {
-      const d = new Date();
-      d.setDate(d.getDate() + diasDelPlan(p));
-      return d.toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
-    }
-
-    // Lo mismo, escrito para que lo lea una persona.
-    function duracionDe(p) {
-      const d = diasDelPlan(p);
-      if (d === 365) return '1 año (365 días)';
-      if (d % 30 === 0) {
-        const meses = d / 30;
-        return meses === 1 ? '1 mes (30 días)' : `${meses} meses (${d} días)`;
-      }
-      return `${d} días`;
     }
 
     // Grupo (plataforma) al que pertenece un plan dentro de la vista actual.
@@ -1020,8 +906,8 @@
     }
 
     // ---------- Términos del servicio ----------
-    // El mismo bloque se usa en el checkout de un plan y en el carrito:
-    // el cliente confirma que sabe qué compra antes de habilitar el pago.
+    // Van en el paso 3 del carrito: el cliente confirma que sabe qué
+    // compra antes de habilitar el pago.
     // En primera persona: es lo que el cliente dice que sabe al tildar
     // "Acepto". Son las mismas cinco condiciones de siempre; si se agrega
     // una regla nueva, va acá.
@@ -1108,7 +994,7 @@
     }
 
 
-    // Vuelve del checkout al panel de planes de la misma plataforma.
+    // Vuelve del carrito al panel de planes de la misma plataforma.
     //
     // Busca el grupo que contiene ese plan en vez de rearmar la clave
     // desde el nombre: con la fusión por prefijo, "Netflix Premium 4K
@@ -1584,60 +1470,6 @@
     function toggleFilter() {
       const row = document.getElementById('3');
       row.style.display = row.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function openProduct(id) {
-      const p = PRODUCTS.find(x => x.id === id);
-      if(!p) return;
-
-      const imageUrl = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
-
-      const stars = '★'.repeat(p.stars) + '☆'.repeat(5 - p.stars);
-      const whatsappMsg = `🦁 *TIAGO STORE BOLIVIA* 🦁\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nMe permito solicitar el siguiente servicio:\n\n📌 *SERVICIO SOLICITADO*\n──────────────────────────\n🎯 *${p.name}*\n💵 Precio: *${p.bs}*\n⭐ Valoración: ${stars}\n\n📝 _Descripción:_\n_${p.desc}_\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n📋 *CONSULTAS*\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n✔️ ¿Disponibilidad del servicio?\n✔️ ¿Métodos de pago aceptados?\n\nQuedo atento/a a su respuesta.\n*Muchas gracias.* 🙏`;
-      const whatsappUrl = `https://wa.me/59157707335?text=${encodeURIComponent(whatsappMsg)}`;
-
-      const isGeneratedModal = imageUrl.startsWith('data:');
-      document.getElementById('10').innerHTML = `
-        <div class="product-img" style="height:160px; border-radius:10px; margin-bottom:1rem; overflow:hidden;">
-          <img class="${isGeneratedModal ? 'product-logo-generated' : 'product-logo-img'}" src="${imageUrl}" alt="${p.name}" ${isGeneratedModal ? '' : 'style="width:100px; height:100px; border-radius:18px;"'} onerror="this.onerror=null;this.src=generateLogoSvg('${p.name.replace(/'/g,"\\'")}','${p.imgColor}');this.className='product-logo-generated';">
-        </div>
-        <div class="modal-price"${p.soldOut ? ' style="text-decoration:line-through; opacity:0.55;"' : ''}>${p.bs}${p.precioAntes ? `<span class="product-price-antes" style="font-size:0.95rem;">${p.precioAntes}</span><span class="product-badge-desc" style="position:static; margin-left:0.5rem; display:inline-block;">-${p.descuento}%</span>` : ''}</div>
-        <div class="modal-stars">${getStars(p.stars)}</div>
-        <div class="modal-name">${p.name}</div>
-        <div class="modal-seller">Tiago Store</div>
-        <div class="modal-desc">${p.desc}</div>
-        ${p.soldOut ? `
-        <div style="background:linear-gradient(135deg,#8b0000,#e50914); color:#fff; padding:0.85rem; border-radius:10px; text-align:center; font-weight:900; letter-spacing:2px; font-size:1.1rem; border:2px solid #fff; margin-bottom:0.5rem;">✖ PRODUCTO AGOTADO</div>
-        ` : `
-        <button onclick="addToCart(${p.id})" class="modal-btn" style="background:var(--rojo); color:white; width:100%;">
-          🛒 Agregar al Carrito
-        </button>
-
-        ${p.price > 0 ? `<button onclick="abrirCheckout(${p.id})" class="modal-btn" style="background:linear-gradient(135deg, #ffd700, #ffb300); color:#000; width:100%; font-weight:900; margin-top:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
-          <span style="font-size:1.2rem;">QR</span> Comprar con QR — ${p.bs}
-        </button>` : ''}
-        `}
-
-        <div class="wa-order-box">
-          <div class="wa-order-box-title">
-            <svg class="btn-wa-icon" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            Pedir por WhatsApp
-          </div>
-          <div class="wa-order-summary">
-            <span class="wa-order-summary-name">${p.name}</span>
-            <span class="wa-order-summary-price">${p.bs}</span>
-          </div>
-          <a href="${whatsappUrl}" target="_blank" class="btn-wa-premium">
-            <svg class="btn-wa-icon" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            Enviar Pedido Ahora
-          </a>
-          <div class="wa-note">⚡ Respuesta inmediata · Entrega garantizada</div>
-        </div>
-
-        <button class="modal-btn modal-btn-close" onclick="closeModal()" style="width:100%; margin-top:0.5rem;">✕ Cerrar</button>
-      `;
-      document.getElementById('8').classList.add('open');
-      document.body.style.overflow = 'hidden';
     }
 
     // ==========================================================
@@ -2179,30 +2011,16 @@
       document.querySelector('.cat-tabs-wrap').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Aviso para que el cliente sepa ANTES de pagar que le vamos a pedir
-    // el correo, y no se sorprenda recién en la pantalla del QR.
-    // Sale de productFlags(), así que cualquier producto que pida datos lo
-    // muestra solo, sin tener que escribirlo a mano en la descripción.
-    function avisoDatos(producto) {
+    // Cartelito del plan para que el cliente sepa ANTES de pagar que le
+    // vamos a pedir el correo, y no se sorprenda recién en la pantalla del
+    // QR. Sale de productFlags(), así que cualquier producto que pida datos
+    // lo muestra solo, sin tener que escribirlo a mano en la descripción.
+    // (En el carrito, el aviso completo está en el paso 3.)
+    function chipDatos(producto) {
       const f = productFlags(producto);
-      if (!f.needsEmail && !f.needsUsername) return { chip: '', caja: '' };
-
-      const titulo = f.needsUsername
-        ? 'Te pediremos tu correo y tu usuario al pagar'
-        : 'Te pediremos tu correo al pagar';
-
-      return {
-        chip: '<span class="plan-chip correo">📧 Pide tu correo</span>',
-        caja: `
-          <div class="ck-caja ck-correo">
-            <span class="ck-correo-ico">📧</span>
-            <div>
-              <b>${titulo}</b>
-              <p>Este servicio se activa sobre tu propia cuenta. Cuando toques
-                 pagar vas a ver el campo para escribirlo.</p>
-            </div>
-          </div>`
-      };
+      return f.needsEmail || f.needsUsername
+        ? '<span class="plan-chip correo">📧 Pide tu correo</span>'
+        : '';
     }
 
     // Qué datos extra hay que pedirle al cliente en la pantalla de pago.
@@ -2217,21 +2035,6 @@
         flags.needsEmail = true;
       }
       return flags;
-    }
-
-    function payProductQR(id) {
-      const p = PRODUCTS.find(x => x.id === id);
-      if (!p || p.price <= 0) return;
-      // fid = el id real del producto en la base. Va para que la página de
-      // pago pueda crear un pedido de verdad y entregar la cuenta sola.
-      // Si el producto todavía no está migrado, viaja igual y la página de
-      // pago lo ignora: sigue con el camino de WhatsApp de siempre.
-      const cartData = [{ fid: p.fid, name: p.name.substring(0, 80), price: p.price, qty: 1, ...productFlags(p) }];
-      const params = new URLSearchParams({
-        cart: encodeURIComponent(JSON.stringify(cartData)),
-        total: p.price.toFixed(2),
-      });
-      window.location.href = `pagar-qr.html?${params.toString()}`;
     }
 
     // Paso 3: del carrito a la pantalla del QR, con todo lo que tiene.

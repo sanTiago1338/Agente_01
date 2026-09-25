@@ -698,10 +698,6 @@
       box-shadow: inset 0 1px 0 rgba(20,22,26,0.120), 0 -2px 8px rgba(229,9,20,0.4);
       border-top: 1px solid rgba(20,22,26,0.120);
     }
-    .tops-ribbon--off {
-      background: linear-gradient(90deg, var(--tinta-suave) 0%, var(--tinta-suave) 50%, var(--tinta-suave) 100%);
-      box-shadow: inset 0 1px 0 rgba(20,22,26,0.120), 0 -2px 8px rgba(20,22,26,0.105);
-    }
     .tops-trophy {
       font-size: 0.85rem;
       filter: drop-shadow(0 1px 2px rgba(20,22,26,0.140));
@@ -789,30 +785,6 @@
       pointer-events: none;
     }
 
-    .plat-badge {
-      position: absolute;
-      top: .45rem; left: .45rem;
-      background: linear-gradient(135deg, var(--marca), var(--marca-oscura));
-      color: #fff;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: .78rem;
-      letter-spacing: .5px;
-      padding: .12rem .42rem;
-      border-radius: 5px;
-      box-shadow: 0 2px 8px rgba(20,22,26,.2);
-    }
-    .plat-planes {
-      position: absolute;
-      top: .45rem; right: .45rem;
-      background: rgba(255,255,255,.94);
-      color: var(--tinta-media);
-      font-size: .62rem;
-      font-weight: 700;
-      letter-spacing: .03em;
-      padding: .18rem .45rem;
-      border-radius: 20px;
-      box-shadow: 0 1px 4px rgba(20,22,26,.12);
-    }
 
     /* Nombre de la plataforma, en su color de marca */
     .plat-nombre {
@@ -1148,7 +1120,6 @@
       padding: .12rem .45rem;
       border-radius: 6px;
     }
-    .plat-precio .antes,
     .plan-precio .antes {
       font-family: 'Outfit', sans-serif;
       font-size: .72rem;
@@ -1294,46 +1265,6 @@
       background: var(--superficie);
     }
 
-    /* ---------- Resumen del plan ---------- */
-    .ck-resumen { display: flex; align-items: flex-start; gap: .9rem; }
-    .ck-logo {
-      width: 54px; height: 54px;
-      border-radius: 13px;
-      object-fit: cover;
-      background: var(--superficie-2);
-      flex-shrink: 0;
-    }
-    .ck-rubro {
-      font-size: .62rem;
-      font-weight: 900;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      color: var(--acento, var(--marca));
-      margin-bottom: .2rem;
-    }
-    .ck-titulo {
-      font-size: 1.05rem;
-      font-weight: 900;
-      color: var(--tinta);
-      margin: 0 0 .45rem;
-      line-height: 1.3;
-    }
-    .ck-meta {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: .3rem .55rem;
-    }
-    .ck-meta span {
-      font-size: .71rem;
-      color: var(--tinta-suave);
-      white-space: nowrap;
-    }
-    .ck-meta i {
-      font-style: normal;
-      color: var(--separador-2);
-      user-select: none;
-    }
 
     /* ---------- Recordatorio de renovación ---------- */
     /* La caja ya no es una sola fila: adentro está el interruptor arriba y
@@ -1420,13 +1351,6 @@
       color: #e50914;
       line-height: 1.45;
     }
-    .ck-tel-nota {
-      margin: .5rem 0 0;
-      font-size: .72rem;
-      color: var(--tinta-suave);
-      line-height: 1.5;
-    }
-    .ck-tel-nota b { color: var(--tinta); }
 
     /* Aviso de los datos que le vamos a pedir al cliente en el pago */
     .ck-correo {
@@ -1560,38 +1484,6 @@
       cursor: not-allowed;
     }
 
-    /* ---------- Total y pago ---------- */
-    .ck-pago { padding: 1.1rem; }
-    .ck-total-fila {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .75rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-    .ck-total-lbl {
-      font-size: .64rem;
-      font-weight: 900;
-      letter-spacing: .15em;
-      text-transform: uppercase;
-      color: var(--tinta-suave);
-    }
-    .ck-total-val {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.3rem;
-      color: var(--marca);
-      line-height: 1;
-      letter-spacing: 1px;
-    }
-    .ck-total-val .antes {
-      font-family: 'Outfit', sans-serif;
-      font-size: .78rem;
-      color: var(--tinta-suave);
-      text-decoration: line-through;
-      margin-left: .4rem;
-      letter-spacing: 0;
-    }
 
     .ck-pagar {
       width: 100%;
@@ -1627,18 +1519,6 @@
       color: var(--tinta-suave);
     }
 
-    .ck-volver {
-      width: 100%;
-      margin-top: .5rem;
-      padding: .6rem;
-      background: none;
-      border: none;
-      color: var(--tinta-suave);
-      font-family: inherit;
-      font-size: .8rem;
-      cursor: pointer;
-    }
-    .ck-volver:hover { color: var(--marca); }
 
     /* ==========================================================
        COMPRA EN TRES PASOS: 1 Elegir · 2 Carrito · 3 Pagar con QR
@@ -2032,169 +1912,6 @@
 
     .product-card:active { transform: scale(0.98); }
 
-    /* Image area */
-    .product-img {
-      width: 100%;
-      aspect-ratio: 1/1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
-      background: linear-gradient(135deg, #f2f4f7 0%, #eceff4 50%, #eef2f5 100%);
-    }
-
-    .product-img::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 30% 50%, rgba(20,22,26,0.090) 0%, transparent 50%),
-                  radial-gradient(circle at 70% 30%, rgba(20,22,26,0.072) 0%, transparent 50%),
-                  radial-gradient(ellipse at 50% 100%, rgba(20,22,26,0.052) 0%, transparent 60%);
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 1;
-    }
-
-    .product-card:hover .product-img::before {
-      opacity: 1;
-    }
-
-    .product-logo-img {
-      width: 99%;
-      height: 99%;
-      max-width: 99%;
-      max-height: 99%;
-      object-fit: contain;
-      object-position: center;
-      position: relative;
-      z-index: 2;
-      border-radius: 8px;
-      filter: drop-shadow(0 4px 16px rgba(20,22,26,0.140));
-      transition: transform 0.3s ease, filter 0.3s ease;
-    }
-
-    .product-logo-img--fill {
-      width: 100%;
-      height: 100%;
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: cover;
-      border-radius: 0;
-      filter: none;
-    }
-
-
-
-
-    .product-card:hover .product-logo-img {
-      transform: scale(1.08);
-      filter: drop-shadow(0 6px 24px rgba(20,22,26,0.140));
-    }
-
-    .product-card:hover .product-logo-img--fill {
-      transform: scale(1.05);
-      filter: none;
-    }
-
-    .product-logo-generated {
-      width: 99%;
-      height: 99%;
-      object-fit: contain;
-      object-position: center;
-      position: relative;
-      z-index: 2;
-      transition: transform 0.3s ease;
-    }
-
-    .product-card:hover .product-logo-generated {
-      transform: scale(1.04);
-    }
-
-    .product-badge-img {
-      position: absolute;
-      top: 0.4rem; right: 0.4rem;
-      background: linear-gradient(135deg, var(--dorado) 0%, #e6c200 100%);
-      color: #000;
-      font-size: 0.55rem;
-      font-weight: 900;
-      padding: 0.2rem 0.55rem;
-      border-radius: 50px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      box-shadow: 0 4px 12px rgba(255,215,0,0.4), 0 0 15px rgba(255,215,0,0.2);
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(20,22,26,0.120);
-      animation: float 3s ease-in-out infinite;
-      z-index: 5;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-3px); }
-    }
-
-    /* SOLD OUT (AGOTADO) */
-    .product-card--soldout .product-logo-img,
-    .product-card--soldout .product-logo-generated {
-      filter: grayscale(1) brightness(0.45);
-    }
-    .product-card--soldout .product-img::after {
-      content: 'AGOTADO';
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%) rotate(-12deg);
-      background: linear-gradient(135deg, #fdecec, #e50914);
-      color: var(--tinta);
-      font-family: 'Arial Black', Impact, sans-serif;
-      font-size: 1.35rem;
-      font-weight: 900;
-      letter-spacing: 2px;
-      padding: 0.4rem 1.1rem;
-      border-radius: 6px;
-      border: 2px solid #fff;
-      box-shadow: 0 4px 20px rgba(20,22,26,0.140);
-      z-index: 6;
-      pointer-events: none;
-    }
-    .product-card--soldout .product-price {
-      text-decoration: line-through;
-      opacity: 0.55;
-    }
-    .product-btn--disabled,
-    .product-btn--disabled:hover {
-      background: var(--separador-2) !important;
-      color: var(--tinta-suave) !important;
-      cursor: not-allowed !important;
-      opacity: 0.7;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    .product-badge-new {
-      position: absolute;
-      top: 0.4rem; left: 0.4rem;
-      background: linear-gradient(135deg, var(--rojo) 0%, #ff1a26 100%);
-      color: white;
-      font-size: 0.55rem;
-      font-weight: 900;
-      padding: 0.2rem 0.55rem;
-      border-radius: 50px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      box-shadow: 0 4px 12px rgba(229,9,20,0.5), 0 0 15px rgba(229,9,20,0.3);
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(20,22,26,0.120);
-      animation: pulse-badge 2s ease-in-out infinite;
-      z-index: 5;
-    }
-
-    @keyframes pulse-badge {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); box-shadow: 0 6px 16px rgba(229,9,20,0.6); }
-    }
 
     /* Body */
     .product-body {
@@ -2204,142 +1921,6 @@
       flex-direction: column;
     }
 
-    .product-price {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.3rem;
-      letter-spacing: 1px;
-      color: var(--dorado);
-      margin-bottom: 0.2rem;
-    }
-
-    /* ===== OFERTAS ===== */
-    /* Precio viejo tachado, al lado del de oferta */
-    .product-price-antes {
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.78rem;
-      letter-spacing: 0;
-      color: var(--gris-texto);
-      text-decoration: line-through;
-      margin-left: 0.4rem;
-      font-weight: 400;
-      vertical-align: middle;
-    }
-    /* El descuento va arriba a la IZQUIERDA (la etiqueta ocupa la derecha) */
-    .product-badge-desc {
-      position: absolute;
-      top: 0.4rem; left: 0.4rem;
-      background: linear-gradient(135deg, var(--rojo) 0%, #a00610 100%);
-      color: #fff;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 0.82rem;
-      letter-spacing: 0.5px;
-      padding: 0.15rem 0.45rem;
-      border-radius: 5px;
-      z-index: 5;
-      box-shadow: 0 2px 8px rgba(20,22,26,0.140);
-    }
-
-
-    .product-stars {
-      display: flex;
-      gap: 1px;
-      margin-bottom: 0.3rem;
-    }
-
-    .star { font-size: 0.7rem; }
-    /* Ámbar cálido: el oro claro se lava sobre blanco */
-    .star.on { color: #f0a500; }
-    .star.off { color: #d8dade; }
-
-    .product-name {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--rojo);
-      line-height: 1.35;
-      margin-bottom: 0.35rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-decoration: underline;
-      text-decoration-color: transparent;
-      transition: text-decoration-color 0.2s;
-    }
-
-    .product-card:hover .product-name { text-decoration-color: var(--rojo); }
-
-    .product-seller {
-      font-size: 0.72rem;
-      color: var(--texto-dim);
-      line-height: 1.4;
-      margin-top: auto;
-    }
-
-    .product-seller strong {
-      color: var(--tinta-media);
-      display: block;
-      margin-bottom: 0.05rem;
-    }
-
-    .product-btn {
-      display: block;
-      width: 100%;
-      background: linear-gradient(135deg, var(--rojo) 0%, var(--rojo2) 100%);
-      color: white;
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-align: center;
-      padding: 0.65rem 0.5rem;
-      border: none;
-      cursor: pointer;
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      margin-top: auto;
-      box-shadow: 0 4px 12px rgba(229,9,20,0.3);
-      border-radius: 0 0 12px 12px;
-    }
-
-    .product-btn:hover { 
-      background: linear-gradient(135deg, var(--rojo2) 0%, #ff0010 100%);
-      box-shadow: 0 6px 16px rgba(229,9,20,0.5);
-      transform: translateY(-2px);
-    }
-
-    .product-btn:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 8px rgba(229,9,20,0.3);
-    }
-
-    .product-btn-wa {
-      background: var(--verde);
-    }
-
-    .product-btn-wa:hover { background: #1ebe5a; }
-
-    /* ===== SECTION DIVIDER ===== */
-    .section-divider {
-      padding: 1.25rem 1rem 0.6rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .section-divider h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.2rem;
-      letter-spacing: 2px;
-      color: var(--blanco);
-      white-space: nowrap;
-    }
-
-    .section-divider .sd-line {
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, rgba(229,9,20,0.4), transparent);
-    }
 
     /* ===== PAGINATION ===== */
     .pagination {
@@ -2587,165 +2168,6 @@
       margin: 0 auto 1.25rem;
     }
 
-    .modal-price {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 2.5rem;
-      color: var(--dorado);
-      letter-spacing: 2px;
-    }
-
-    .modal-name {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--blanco);
-      margin: 0.5rem 0 0.25rem;
-      line-height: 1.4;
-    }
-
-    .modal-seller { font-size: 0.82rem; color: var(--texto-dim); margin-bottom: 1rem; }
-
-    .modal-desc {
-      font-size: 0.88rem;
-      color: var(--texto-dim);
-      line-height: 1.7;
-      margin-bottom: 1.25rem;
-      background: var(--negro3);
-      border-radius: 10px;
-      padding: 0.85rem 1rem;
-    }
-
-    .modal-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .modal-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      padding: 0.85rem;
-      border-radius: 10px;
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 700;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    .modal-btn:hover { opacity: 0.88; }
-    .modal-btn-wa { background: var(--verde); color: white; }
-    .modal-btn-close { background: var(--negro3); color: var(--texto-dim); border: 1px solid var(--borde); }
-
-    /* ===== WHATSAPP ORDER SECTION ===== */
-    .wa-order-box {
-      background: linear-gradient(135deg, #eef7ef 0%, #e7f4e9 100%);
-      border: 1px solid rgba(37,211,102,0.3);
-      border-radius: 14px;
-      padding: 1rem 1.1rem;
-      margin: 0.75rem 0 0;
-    }
-
-    .wa-order-box-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #25D366;
-      margin-bottom: 0.65rem;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .wa-order-summary {
-      background: rgba(20,22,26,0.087);
-      border-radius: 9px;
-      padding: 0.65rem 0.85rem;
-      margin-bottom: 0.85rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .wa-order-summary-name {
-      font-size: 0.8rem;
-      color: var(--texto);
-      font-weight: 600;
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .wa-order-summary-price {
-      font-size: 1rem;
-      font-weight: 900;
-      color: var(--dorado);
-      white-space: nowrap;
-      font-family: 'Bebas Neue', sans-serif;
-      letter-spacing: 1px;
-    }
-
-    .btn-wa-premium {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-      color: white;
-      font-family: 'Outfit', sans-serif;
-      font-weight: 900;
-      font-size: 0.95rem;
-      padding: 0.85rem 1.2rem;
-      border-radius: 11px;
-      text-decoration: none;
-      width: 100%;
-      letter-spacing: 0.3px;
-      box-shadow: 0 4px 20px rgba(37,211,102,0.35), 0 0 0 0 rgba(37,211,102,0.4);
-      transition: transform 0.2s, box-shadow 0.2s;
-      position: relative;
-      overflow: hidden;
-      animation: wa-pulse 2.5s ease-in-out infinite;
-    }
-
-    @keyframes wa-pulse {
-      0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.35), 0 0 0 0 rgba(37,211,102,0.3); }
-      50% { box-shadow: 0 4px 20px rgba(37,211,102,0.5), 0 0 0 6px rgba(37,211,102,0); }
-    }
-
-    .btn-wa-premium::before {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(20,22,26,0.120), transparent);
-      transition: left 0.45s ease;
-    }
-
-    .btn-wa-premium:hover::before { left: 100%; }
-    .btn-wa-premium:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(37,211,102,0.55);
-      animation: none;
-    }
-
-    .btn-wa-icon {
-      width: 22px; height: 22px;
-      flex-shrink: 0;
-    }
-
-    .wa-note {
-      text-align: center;
-      font-size: 0.68rem;
-      color: rgba(37,211,102,0.6);
-      margin-top: 0.5rem;
-      letter-spacing: 0.3px;
-    }
 
     /* ===== RESPONSIVE ===== */
     /* Las columnas de la grilla de plataformas estan mas abajo, en
@@ -2757,8 +2179,6 @@
 
     /* ===== UTILITY ===== */
     .hidden { display: none !important; }
-    .cat-section { display: none; }
-    .cat-section.visible { display: contents; }
 
     /* ===== HERO CAROUSEL =====
        De borde a borde: sin margen a los costados ni esquinas redondas.

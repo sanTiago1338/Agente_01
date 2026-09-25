@@ -881,6 +881,7 @@
       height: 94vh;
       height: 94dvh;
       max-height: none;
+      padding: .75rem 1rem 0;
     }
     @media (min-width: 600px) {
       .modal-sheet.ancho,
@@ -890,8 +891,24 @@
         height: min(800px, calc(100vh - 2rem));
         height: min(800px, calc(100dvh - 2rem));
         margin-bottom: 0;
+        padding: 1rem 2rem 0;
       }
     }
+    /* Y adentro también son iguales: el mismo aire a los costados y
+       arriba, y la cabecera del mismo alto. Así, al pasar de los planes al
+       carrito, lo de abajo de la cabecera arranca a la misma altura y lo
+       único que cambia es el contenido. */
+    .modal-sheet.ancho .modal-handle,
+    .modal-sheet.compra .modal-handle { flex: none; margin-bottom: .8rem; }
+    .modal-sheet.ancho .pl-cab,
+    .modal-sheet.compra .ck-cab {
+      box-sizing: border-box;
+      min-height: 2.9rem;
+      padding-bottom: .8rem;
+      margin-bottom: .9rem;
+    }
+    /* Los planes scrollean enteros: un poco de aire al final */
+    .modal-sheet.ancho { padding-bottom: 1.5rem; }
 
     .pl-cab {
       display: flex;
@@ -1689,10 +1706,6 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      padding: .75rem 1rem 0;
-    }
-    @media (min-width: 600px) {
-      .modal-sheet.compra { padding: 1rem 2rem 0; }
     }
     .modal-sheet.compra > [id="10"],
     .cr-paso {
@@ -1702,8 +1715,6 @@
       flex-direction: column;
     }
     .cr-paso[hidden] { display: none; }
-    .modal-sheet.compra .modal-handle { margin-bottom: .8rem; }
-    .modal-sheet.compra .ck-cab { margin-bottom: .9rem; padding-bottom: .8rem; }
     .modal-sheet.compra .ck-cab h3 { font-size: 1.3rem; }
     .ck-cab h3:focus { outline: none; }
     @media (min-width: 600px) {
@@ -1937,8 +1948,10 @@
 
     /* Pantallas bajitas (compu chica, celular acostado): menos aire arriba */
     @media (max-height: 560px) {
+      .modal-sheet.ancho .modal-handle,
       .modal-sheet.compra .modal-handle { display: none; }
-      .modal-sheet.compra .ck-cab { margin-bottom: .5rem; padding-bottom: .5rem; }
+      .modal-sheet.ancho .pl-cab,
+      .modal-sheet.compra .ck-cab { min-height: 2.5rem; margin-bottom: .5rem; padding-bottom: .5rem; }
       .modal-sheet.compra .cr-pasos { margin-bottom: .5rem; }
       .cr-total-num { font-size: 1.5rem; }
     }

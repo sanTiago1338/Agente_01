@@ -407,6 +407,21 @@
     }
     .game-card:hover .game-img img { transform: scale(1.07); }
 
+    /* La foto se funde con el nombre en vez de cortar en seco: la misma
+       fundida que las tarjetas de plataformas (css/tienda.css, .plat-img).
+       Solo el borde de abajo, para no tapar la foto. Va por encima del
+       logo (z-index 2) y por debajo de los carteles (5 y 6). */
+    .game-img::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 14%;
+      background: linear-gradient(to bottom,
+        rgba(251,251,252,0), rgba(251,251,252,.55) 55%, var(--negro2));
+      pointer-events: none;
+      z-index: 3;
+    }
+
     .game-img .placeholder {
       width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
@@ -527,7 +542,7 @@
       font-weight: 600;
       color: var(--blanco);
       background: linear-gradient(180deg, var(--negro2), var(--negro));
-      border-top: 1px solid var(--borde);
+      /* Sin raya arriba: la foto ya se funde con el nombre (.game-img::after) */
     }
 
     /* ===== BOTTOM NAV ===== */

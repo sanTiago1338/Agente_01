@@ -1452,9 +1452,9 @@
 
     /* Botón de pago del carrito: gris mientras no se acepten los términos */
     #cartPagarQR:disabled {
-      background: var(--separador) !important;
+      background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,.1)) !important;
       color: var(--tinta-suave) !important;
-      box-shadow: none !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 0 0 .5px rgba(20,22,26,.12) !important;
       cursor: not-allowed;
     }
 
@@ -2560,6 +2560,12 @@
       .nav-menu { gap: .2rem; }
       .nav-menu .nav-link { padding: .32rem .5rem; }
     }
+    /* Tablet y compu chica: con las cápsulas, los cuatro enlaces ya no
+       entraban al lado de la marca y "Contacto" bajaba a otro renglón */
+    @media (min-width: 641px) and (max-width: 900px) {
+      .nav-menu { gap: .4rem; flex-wrap: nowrap; }
+      .nav-menu .nav-link { padding: .36rem .7rem; }
+    }
 
     /* ---------- Buscador ---------- */
     .search-bar { background: transparent; border-bottom: none; }
@@ -2774,6 +2780,78 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
     }
     .cr-pie { background: transparent; border-top-color: rgba(20,22,26,.07); }
+
+    /* ---------- Lo que faltaba (revisión completa) ---------- */
+
+    /* Etiqueta NEW del carrusel: vidrio rojo, no un bloque */
+    .hero-tag--new {
+      background: linear-gradient(180deg, rgba(240,40,50,.62), rgba(196,8,18,.5));
+      -webkit-backdrop-filter: blur(10px) saturate(180%);
+      backdrop-filter: blur(10px) saturate(180%);
+      border-color: rgba(255,255,255,.45);
+      box-shadow: 0 4px 12px rgba(229,9,20,.3), inset 0 1px 0 rgba(255,255,255,.5);
+    }
+
+    /* La cinta de las tarjetas Tops: vidrio oscuro sobre la foto */
+    .tops-ribbon {
+      background: linear-gradient(180deg, rgba(20,22,26,.28), rgba(20,22,26,.5));
+      -webkit-backdrop-filter: blur(12px) saturate(170%);
+      backdrop-filter: blur(12px) saturate(170%);
+      border-top: 1px solid rgba(255,255,255,.35);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+    }
+
+    /* Etiquetas de los planes: vidrio */
+    .plan-chip.zona {
+      background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,.2));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 0 0 .5px rgba(20,22,26,.1);
+    }
+    .plan-chip.ya {
+      background: var(--vidrio-verde);
+      -webkit-backdrop-filter: blur(10px) saturate(180%);
+      backdrop-filter: blur(10px) saturate(180%);
+      box-shadow: 0 2px 8px rgba(18,140,126,.25), inset 0 1px 0 rgba(255,255,255,.5);
+    }
+
+    /* Los pasos del carrito: círculos de vidrio. Los hechos y el actual
+       son la lente, con el número o el tilde en negro. */
+    .cr-pasos span {
+      background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.15));
+      border: 1px solid rgba(255,255,255,.8);
+      box-shadow: inset 0 1px 0 #fff, 0 0 0 .5px rgba(20,22,26,.1);
+    }
+    .cr-pasos li.hecho span,
+    .cr-pasos li.actual span {
+      background: var(--vidrio-lente);
+      border-color: rgba(255,255,255,.9);
+      color: #0b0c0e;
+      box-shadow: inset 0 1.5px 0 #fff, 0 4px 12px rgba(20,22,26,.12), 0 0 0 .5px rgba(20,22,26,.1);
+    }
+
+    /* Cantidad (− 1 +) y "Editar": píldoras de vidrio */
+    .cr-cant,
+    .cr-editar {
+      background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,.2));
+      border-color: rgba(255,255,255,.85);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(20,22,26,.1),
+                  0 2px 8px rgba(20,22,26,.06);
+    }
+    .cr-editar { border-radius: 999px; }
+
+    /* El total a pagar, al pie del carrito: vidrio */
+    .cr-total {
+      background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.18));
+      border: 1px solid rgba(255,255,255,.8);
+      box-shadow: inset 0 1px 0 #fff, 0 0 0 .5px rgba(20,22,26,.08), 0 4px 12px rgba(20,22,26,.06);
+    }
+
+    /* El interruptor de "renovar": riel de vidrio; encendido, vidrio verde */
+    .ck-switch-pista {
+      background: linear-gradient(180deg, rgba(20,22,26,.12), rgba(20,22,26,.06));
+      box-shadow: inset 0 1px 3px rgba(20,22,26,.15), 0 0 0 .5px rgba(255,255,255,.6);
+    }
+    .ck-switch input:checked + .ck-switch-pista { background: var(--vidrio-verde); }
+    .ck-switch input:checked + .ck-switch-pista .ck-switch-bola { color: #0f7a6e; }
 
     /* ---------- El botón de WhatsApp, un poco más arriba ----------
        La barra de abajo ahora flota y es más alta: sin esto la burbuja

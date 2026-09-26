@@ -894,3 +894,68 @@ footer {
   border-top: 1px solid rgba(255,255,255,.85);
   box-shadow: 0 -1px 0 rgba(20,22,26,.05), inset 0 1px 0 #fff;
 }
+
+/* contacto.html: los números de "¿Cómo pedir?" como lentes de vidrio
+   (antes círculos rojos), y el cartel "Ver nuestro catálogo" como
+   tarjeta de vidrio (antes un bloque rojo) */
+.paso-num {
+  width: 2.5rem; height: 2.5rem; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem;
+  color: #0b0c0e;
+  background: var(--vidrio-lente);
+  border: 1px solid rgba(255,255,255,.9);
+  box-shadow: inset 0 1.5px 0 #fff, 0 4px 12px rgba(20,22,26,.12), 0 0 0 .5px rgba(20,22,26,.1);
+}
+.cta-vidrio {
+  border-radius: 24px;
+  background: var(--vidrio-transparente);
+  -webkit-backdrop-filter: var(--vidrio-blur);
+  backdrop-filter: var(--vidrio-blur);
+  border: 1px solid rgba(255,255,255,.75);
+  box-shadow: 0 10px 30px rgba(20,22,26,.06), 0 0 0 .5px rgba(20,22,26,.08),
+              inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+/* planes.html: la etiqueta "⭐ RECOMENDADO", de vidrio dorado (antes un
+   bloque dorado macizo) */
+.etiqueta-vidrio-oro {
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;
+  padding: 0.2rem 0.65rem; border-radius: 50px;
+  color: #3d2c00;
+  background: linear-gradient(180deg, rgba(255,226,120,.75), rgba(214,168,20,.55));
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.6);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 2px 8px rgba(154,116,0,.2);
+}
+
+/* Etiquetas chicas de vidrio: "COMUNIDAD Y GRUPO" (contacto.html), y el
+   "-X %" y "AGOTADO" de las tablas de planes.html. Antes eran bloques
+   de color macizo escritos en el HTML. */
+.etiqueta-vidrio-verde,
+.etiqueta-vidrio-desc,
+.etiqueta-vidrio-agotado {
+  display: inline-block;
+  border-radius: 999px;
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.55);
+}
+.etiqueta-vidrio-verde {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.7rem; font-weight: 800; letter-spacing: 2px;
+  color: #fff;
+  background: var(--vidrio-verde);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 3px 10px rgba(18,140,126,.25);
+}
+.etiqueta-vidrio-desc,
+.etiqueta-vidrio-agotado {
+  padding: 2px 7px;
+  font-size: 0.62rem; font-weight: 700;
+  vertical-align: middle;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+}
+.etiqueta-vidrio-desc { margin-left: 4px; color: #fff; background: linear-gradient(180deg, rgba(240,40,50,.7), rgba(196,8,18,.58)); }
+.etiqueta-vidrio-agotado { margin-left: 6px; color: var(--marca-oscura); background: linear-gradient(180deg, rgba(255,236,236,.7), rgba(253,210,212,.5)); }

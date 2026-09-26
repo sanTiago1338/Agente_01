@@ -1373,6 +1373,62 @@
     border: 1px solid var(--vidrio-borde);
     box-shadow: 0 4px 14px rgba(20,22,26,.06), var(--vidrio-brillo);
   }
+  /* ---- Lo que faltaba (revisión completa) ---- */
+  /* Etiquetas: PROMO del carrusel, y PROMO / NUEVO de las tarjetas */
+  .hero-tag--promo,
+  .badge-promo,
+  .badge-nuevo {
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid rgba(255,255,255,.45);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 3px 10px rgba(20,22,26,.18);
+  }
+  .hero-tag--promo { background: linear-gradient(180deg, rgba(240,40,50,.62), rgba(196,8,18,.5)); }
+  /* El tilde de "disponible" de cada juego: vidrio verde */
+  .badge-check {
+    background: var(--vidrio-verde);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid rgba(255,255,255,.5);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 8px rgba(18,140,126,.35);
+  }
+  .badge-promo     { background: linear-gradient(180deg, rgba(255,140,30,.7), rgba(255,70,0,.55)); }
+  .badge-nuevo     { background: linear-gradient(180deg, rgba(236,70,140,.7), rgba(216,27,96,.55)); }
+
+  /* El círculo del saldo, en la cabecera */
+  .header-user .avatar {
+    background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(253,226,228,.45));
+    box-shadow: inset 0 1px 0 #fff, 0 0 0 .5px rgba(20,22,26,.12);
+  }
+
+  /* Los paquetes: vidrio violeta (antes casi opaco), el elegido vidrio
+     claro; el precio, una pastilla de vidrio fucsia (o dorada, elegido) */
+  .pkg-card {
+    background: linear-gradient(150deg, rgba(58,15,80,.62) 0%, rgba(28,8,46,.62) 60%, rgba(15,5,30,.66) 100%);
+    -webkit-backdrop-filter: blur(14px) saturate(170%);
+    backdrop-filter: blur(14px) saturate(170%);
+    border-color: rgba(255,255,255,.18);
+    box-shadow: 0 6px 16px rgba(20,22,26,.18), inset 0 1px 0 rgba(255,255,255,.22);
+  }
+  .pkg-card.selected {
+    background: linear-gradient(150deg, rgba(246,236,253,.7), rgba(242,235,249,.5));
+    box-shadow: 0 8px 22px rgba(236,64,192,.25), inset 0 1px 0 #fff, 0 0 0 1px #ec40c0;
+  }
+  .pkg-card-price {
+    background: var(--vidrio-fucsia);
+    border: 1px solid rgba(255,255,255,.35);
+    box-shadow: 0 3px 10px rgba(236,64,192,.35), inset 0 1px 0 rgba(255,255,255,.45);
+  }
+  .pkg-card.selected .pkg-card-price {
+    background: var(--vidrio-reflejo), linear-gradient(180deg, rgba(255,215,0,.8), rgba(255,149,0,.7));
+  }
+  .pkg-res-ico {
+    background: linear-gradient(135deg, rgba(58,15,80,.62), rgba(28,8,46,.62));
+    -webkit-backdrop-filter: blur(10px) saturate(170%);
+    backdrop-filter: blur(10px) saturate(170%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+  }
+
   /* La pestaña elegida y "Comprar ahora" son vidrio fucsia, y el de
      WhatsApp vidrio verde (css/vidrio.css) */
   .pkg-resumen {

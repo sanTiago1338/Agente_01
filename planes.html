@@ -89,7 +89,7 @@
         <div class="plan-header">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
             <div class="plan-name" style="color: var(--dorado);">COMPLETA</div>
-            <span style="background:var(--dorado); color:#000; font-size:0.65rem; font-weight:800; padding:0.2rem 0.6rem; border-radius:50px; letter-spacing:1px;">⭐ RECOMENDADO</span>
+            <span class="etiqueta-vidrio-oro">⭐ RECOMENDADO</span>
           </div>
           <div style="font-size:0.9rem; color:var(--texto-dim); margin-top:0.1rem;">El mejor valor</div>
         </div>
@@ -294,7 +294,7 @@
       const agotado = p.activo === false;
       return `<td style="padding:0.85rem 1rem; text-align:center; color:var(--dorado); font-weight:700;${agotado ? ' opacity:.45; text-decoration:line-through;' : ''}">
         Bs. ${formatBs(precioVenta(p)).replace('Bs', '')}
-        ${desc > 0 ? `<span style="background:var(--rojo); color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:4px; margin-left:4px; vertical-align:middle;">-${desc}%</span>` : ''}
+        ${desc > 0 ? `<span class="etiqueta-vidrio-desc">-${desc}%</span>` : ''}
       </td>`;
     }
 
@@ -349,7 +349,7 @@
                 <tr style="border-top:1px solid rgba(20,22,26,.06);${i % 2 ? ' background:rgba(20,22,26,.025);' : ''}">
                   <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;${g.disponible ? '' : ' opacity:.5;'}">
                     ${escapar(g.plataforma)}
-                    ${!g.disponible ? '<span style="background:#fdecec; color:var(--marca-oscura); font-weight:700; font-size:0.6rem; padding:2px 6px; border-radius:4px; margin-left:6px;">AGOTADO</span>' : ''}
+                    ${!g.disponible ? '<span class="etiqueta-vidrio-agotado">AGOTADO</span>' : ''}
                     ${g.planes > 2 ? `<span style="display:block; color:var(--texto-dim); font-size:0.72rem; font-weight:400; margin-top:2px;">${g.planes} planes disponibles</span>` : ''}
                   </td>
                   ${(!g.individual && !g.completa)

@@ -1243,7 +1243,115 @@
   }
   body > * { position: relative; z-index: 1; }
   @media (max-width: 600px) { body::before { display: none; } }
-  
+
+  /* ============================================================
+     LIQUID GLASS
+     ============================================================
+     El mismo vidrio que la tienda (css/tienda.css, al final, está
+     explicado): fondos translúcidos esmerilados, brillo arriba, bordes
+     claros. Pisa solo fondos, bordes, brillos y sombras; los textos y
+     los nombres quedan como estaban.
+     ============================================================ */
+  :root {
+    --vidrio:        linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.58));
+    --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
+    --vidrio-lente:  linear-gradient(180deg, #fff, rgba(255,255,255,.78));
+    --vidrio-borde:  rgba(255,255,255,.85);
+    --vidrio-blur:   blur(20px) saturate(170%);
+    --vidrio-brillo: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
+    --vidrio-sombra: 0 10px 30px rgba(20,22,26,.08), 0 1px 3px rgba(20,22,26,.05),
+                     0 0 0 .5px rgba(20,22,26,.07);
+  }
+
+  /* El fondo con manchas de color, también en el celular */
+  body { background-color: #f7f8fa; }
+  body::before {
+    display: block;
+    background:
+      radial-gradient(38rem 30rem at 6% 4%,   rgba(245,197,24,.18), transparent 62%),
+      radial-gradient(34rem 28rem at 96% 16%, rgba(229,9,20,.10),   transparent 62%),
+      radial-gradient(30rem 26rem at 88% 80%, rgba(110,145,255,.10), transparent 62%),
+      radial-gradient(32rem 28rem at 4% 88%,  rgba(255,110,150,.10), transparent 62%),
+      linear-gradient(180deg, #fbfbfd, #f5f6f9);
+  }
+
+  .banner-top {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 -1px 0 rgba(0,0,0,.08);
+  }
+  .banner-top::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0));
+    pointer-events: none;
+  }
+
+  .header {
+    background: var(--vidrio);
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    border-bottom: 1px solid rgba(255,255,255,.7);
+    box-shadow: 0 1px 0 rgba(20,22,26,.06), 0 8px 24px rgba(20,22,26,.05),
+                inset 0 1px 0 rgba(255,255,255,.9);
+  }
+  .header-icon-btn:hover { background: rgba(255,255,255,.6); }
+  .header-user {
+    background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,244,214,.7));
+    border: 1px solid var(--vidrio-borde);
+    box-shadow: 0 2px 10px rgba(20,22,26,.07), 0 0 0 .5px rgba(154,116,0,.25), var(--vidrio-brillo);
+  }
+
+  .hero-dots {
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.2);
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    backdrop-filter: blur(10px) saturate(160%);
+    border: 1px solid rgba(255,255,255,.35);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 4px 14px rgba(0,0,0,.15);
+  }
+  .hero-dot { background: rgba(255,255,255,.65); }
+  .hero-cta {
+    box-shadow: 0 6px 18px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.7),
+                inset 0 -1px 1px rgba(20,22,26,.08);
+  }
+  .hero-arrow {
+    background: rgba(255,255,255,.3);
+    color: #fff;
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid rgba(255,255,255,.45);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 4px 12px rgba(0,0,0,.15);
+  }
+
+  /* Tarjetas de juego: canto de vidrio, brillo arriba y sombra suave */
+  .game-card {
+    background: var(--vidrio-denso);
+    border: 1px solid var(--vidrio-borde);
+    box-shadow: 0 8px 24px rgba(20,22,26,.07), 0 1px 2px rgba(20,22,26,.05),
+                0 0 0 .5px rgba(154,116,0,.22), inset 0 1px 0 #fff;
+  }
+  .game-card:hover {
+    box-shadow: 0 18px 38px rgba(20,22,26,.12), 0 0 0 1px rgba(245,197,24,.6), inset 0 1px 0 #fff;
+  }
+
+  /* La ventana de paquetes: fondo esmerilado y hoja de vidrio */
+  .modal-overlay {
+    background: rgba(20,22,26,.2);
+    -webkit-backdrop-filter: blur(6px) saturate(140%);
+    backdrop-filter: blur(6px) saturate(140%);
+  }
+  .modal-box {
+    background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.88));
+    -webkit-backdrop-filter: blur(28px) saturate(170%);
+    backdrop-filter: blur(28px) saturate(170%);
+    border: 1px solid rgba(255,255,255,.9);
+    box-shadow: 0 24px 60px rgba(20,22,26,.2), 0 0 0 .5px rgba(154,116,0,.25), inset 0 1px 0 #fff;
+  }
+
+  /* La burbuja de WhatsApp, arriba de la barra que ahora flota */
+  body .wa-bubble.has-bottom-nav { bottom: calc(var(--barra-h) + 10px); }
+
   </style>
 </head>
 <body>

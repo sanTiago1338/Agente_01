@@ -2475,3 +2475,259 @@
     .nav-link:hover { color: var(--rojo); }
     .nav-link--activo { color: var(--rojo); font-weight: 700; }
     .nav-link--oro    { color: var(--dorado); font-weight: 700; }
+
+
+/* ============================================================
+   LIQUID GLASS
+   ============================================================
+   Toda la tienda con el mismo vidrio de la barra de abajo: fondos
+   translúcidos y esmerilados, un brillo arriba como el canto de un
+   vidrio, bordes claros y sombras suaves. Detrás va un fondo con
+   manchas de color muy suaves, porque el vidrio necesita algo que
+   dejar ver: sobre blanco liso no se nota.
+
+   Va al final a propósito: pisa solo fondos, bordes, brillos, sombras
+   y redondeos de lo de arriba. Textos y nombres quedan como estaban.
+   ============================================================ */
+    :root {
+      --vidrio:        linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.58));
+      --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
+      --vidrio-lente:  linear-gradient(180deg, #fff, rgba(255,255,255,.78));
+      --vidrio-borde:  rgba(255,255,255,.85);
+      --vidrio-blur:   blur(20px) saturate(170%);
+      --vidrio-brillo: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
+      --vidrio-sombra: 0 10px 30px rgba(20,22,26,.08), 0 1px 3px rgba(20,22,26,.05),
+                       0 0 0 .5px rgba(20,22,26,.07);
+    }
+
+    /* ---------- El fondo ----------
+       Antes eran puntitos casi invisibles y se apagaban en el celular.
+       Ahora son manchas grandes y suaves en toda pantalla: una sola capa
+       fija, que no cuesta nada al hacer scroll. */
+    body { background: #f7f8fa; }
+    body::before {
+      display: block;
+      background:
+        radial-gradient(38rem 30rem at 6% 4%,   rgba(229,9,20,.10),   transparent 62%),
+        radial-gradient(34rem 28rem at 96% 16%, rgba(245,197,24,.17), transparent 62%),
+        radial-gradient(30rem 26rem at 88% 80%, rgba(110,145,255,.10), transparent 62%),
+        radial-gradient(32rem 28rem at 4% 88%,  rgba(255,110,150,.10), transparent 62%),
+        linear-gradient(180deg, #fbfbfd, #f5f6f9);
+    }
+
+    /* ---------- Franja roja de arriba: con brillo de vidrio ---------- */
+    .banner-top {
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.08);
+    }
+    .banner-top::after {
+      content: '';
+      position: absolute;
+      inset: 0 0 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,0));
+      pointer-events: none;
+    }
+
+    /* ---------- Menú de arriba ---------- */
+    .nav-principal {
+      background: var(--vidrio);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border-bottom: 1px solid rgba(255,255,255,.7);
+      box-shadow: 0 1px 0 rgba(20,22,26,.06), 0 8px 24px rgba(20,22,26,.05),
+                  inset 0 1px 0 rgba(255,255,255,.9);
+    }
+    /* Cada enlace es una pastilla; la de la página en la que estás lleva
+       la misma lente que la pestaña activa de la barra de abajo. */
+    .nav-link {
+      padding: .38rem .8rem;
+      border-radius: 999px;
+      transition: color .2s, background .2s, box-shadow .2s;
+    }
+    .nav-link:hover { background: rgba(255,255,255,.6); }
+    .nav-link--activo {
+      background: var(--vidrio-lente);
+      box-shadow: 0 1px 4px rgba(20,22,26,.09), 0 0 0 .5px rgba(20,22,26,.07),
+                  inset 0 1px 0 #fff;
+    }
+    @media (max-width: 640px) {
+      .nav-menu { gap: .15rem; }
+      .nav-menu .nav-link { padding: .32rem .5rem; }
+    }
+
+    /* ---------- Buscador ---------- */
+    .search-bar { background: transparent; border-bottom: none; }
+    .search-input-wrap {
+      background: var(--vidrio);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border: 1px solid var(--vidrio-borde);
+      border-radius: 999px;
+      box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .search-input-wrap:focus-within {
+      border-color: rgba(229,9,20,.4);
+      box-shadow: 0 0 0 4px rgba(229,9,20,.10), var(--vidrio-sombra), var(--vidrio-brillo);
+    }
+    .search-sug {
+      background: var(--vidrio-denso);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border: 1px solid var(--vidrio-borde);
+      border-radius: 18px;
+      box-shadow: 0 18px 44px rgba(20,22,26,.14), 0 0 0 .5px rgba(20,22,26,.08),
+                  inset 0 1px 0 #fff;
+    }
+
+    /* ---------- Cartel de agentes ---------- */
+    .promo-banner {
+      background: var(--vidrio);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border: 1px solid var(--vidrio-borde);
+      border-radius: 20px;
+      box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+    }
+    .promo-banner::before {
+      background: radial-gradient(circle, rgba(229,9,20,.20), rgba(229,9,20,0) 70%);
+    }
+    .promo-wa {
+      border-radius: 999px;
+      background: linear-gradient(180deg, #1aa896, var(--verde));
+      box-shadow: 0 4px 12px rgba(18,140,126,.28), inset 0 1px 0 rgba(255,255,255,.35);
+    }
+
+    /* ---------- Carrusel ---------- */
+    .hero-dots {
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.2);
+      -webkit-backdrop-filter: blur(10px) saturate(160%);
+      backdrop-filter: blur(10px) saturate(160%);
+      border: 1px solid rgba(255,255,255,.35);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 4px 14px rgba(0,0,0,.15);
+    }
+    .hero-dot { background: rgba(255,255,255,.65); }
+    .hero-cta {
+      background: var(--vidrio-lente);
+      box-shadow: 0 6px 18px rgba(0,0,0,.2), inset 0 1px 0 #fff, inset 0 -1px 1px rgba(20,22,26,.06);
+    }
+    .hero-arrow {
+      background: rgba(255,255,255,.2);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      backdrop-filter: blur(12px) saturate(160%);
+      border: 1px solid rgba(255,255,255,.45);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 4px 12px rgba(0,0,0,.15);
+    }
+
+    /* ---------- Tops: el mismo canto de vidrio sobre su color ---------- */
+    .tops-card {
+      border-color: rgba(255,255,255,.5);
+      box-shadow: 0 10px 26px rgba(20,22,26,.14), inset 0 1px 0 rgba(255,255,255,.45),
+                  inset 0 0 0 1px rgba(255,255,255,.1);
+    }
+
+    /* ---------- Orden, filtro, pestañas y subcategorías ---------- */
+    .sort-select,
+    .filter-btn {
+      background: var(--vidrio);
+      border: 1px solid var(--vidrio-borde);
+      border-radius: 999px;
+      box-shadow: 0 2px 10px rgba(20,22,26,.06), 0 0 0 .5px rgba(20,22,26,.07), var(--vidrio-brillo);
+    }
+
+    /* Las pestañas de categoría pasan a ser un control de vidrio: la
+       activa es una lente blanca, como en la barra de abajo. El margen de
+       arriba y abajo es para que la sombra no quede cortada por el scroll. */
+    .cat-tabs-wrap { padding: 4px 1rem 10px; margin-bottom: .3rem; }
+    .cat-tabs {
+      gap: 2px;
+      padding: 4px;
+      border-bottom: none;
+      border-radius: 999px;
+      background: var(--vidrio);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: 0 6px 18px rgba(20,22,26,.07), 0 0 0 .5px rgba(20,22,26,.07), var(--vidrio-brillo);
+    }
+    .cat-tab {
+      padding: .55rem 1.1rem;
+      margin-bottom: 0;
+      border-bottom: none;
+      border-radius: 999px;
+      transition: color .2s, background .25s, box-shadow .25s;
+    }
+    .cat-tab:hover { background: rgba(255,255,255,.55); }
+    .cat-tab.active {
+      background: var(--vidrio-lente);
+      box-shadow: 0 1px 4px rgba(20,22,26,.1), 0 0 0 .5px rgba(20,22,26,.06), inset 0 1px 0 #fff;
+    }
+
+    .sub-pills { padding-top: 3px; padding-bottom: calc(.75rem + 3px); }
+    .sub-pill {
+      background: var(--vidrio);
+      border: 1px solid var(--vidrio-borde);
+      color: var(--tinta-media);
+      box-shadow: 0 1px 4px rgba(20,22,26,.05), 0 0 0 .5px rgba(20,22,26,.08), var(--vidrio-brillo);
+    }
+    .sub-pill:hover,
+    .sub-pill.active {
+      background: linear-gradient(180deg, rgba(255,240,241,.96), rgba(253,222,224,.85));
+      border-color: rgba(229,9,20,.35);
+      color: var(--rojo);
+      box-shadow: 0 2px 8px rgba(229,9,20,.12), inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    /* ---------- Tarjetas de plataforma ----------
+       Casi opacas: la foto se funde con el blanco de abajo, y con vidrio
+       muy transparente esa unión se notaría. El vidrio va en el canto, el
+       brillo de arriba y la sombra. */
+    .plat-card {
+      background: var(--vidrio-denso);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: 0 8px 24px rgba(20,22,26,.07), 0 1px 2px rgba(20,22,26,.05),
+                  0 0 0 .5px rgba(20,22,26,.08), inset 0 1px 0 #fff;
+    }
+    .plat-card:hover {
+      box-shadow: 0 18px 38px rgba(20,22,26,.12), 0 0 0 .5px rgba(20,22,26,.08), inset 0 1px 0 #fff;
+    }
+    .plat-cta {
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.9), var(--acento-suave));
+      box-shadow: 0 2px 8px rgba(20,22,26,.06), inset 0 1px 0 rgba(255,255,255,.95);
+    }
+
+    /* ---------- Pie de página ---------- */
+    .pie {
+      background: var(--vidrio);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border-top: 1px solid rgba(255,255,255,.85);
+      box-shadow: 0 -1px 0 rgba(20,22,26,.05), inset 0 1px 0 #fff;
+    }
+
+    /* ---------- Ventanas (planes y carrito) ----------
+       El fondo de atrás se esmerila en vez de solo oscurecerse, y la hoja
+       es vidrio casi blanco, para que se lea todo lo de adentro. */
+    .modal-overlay {
+      background: rgba(20,22,26,.2);
+      -webkit-backdrop-filter: blur(6px) saturate(140%);
+      backdrop-filter: blur(6px) saturate(140%);
+    }
+    .modal-sheet {
+      background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.88));
+      -webkit-backdrop-filter: blur(28px) saturate(170%);
+      backdrop-filter: blur(28px) saturate(170%);
+      border: 1px solid rgba(255,255,255,.9);
+      box-shadow: 0 -12px 40px rgba(20,22,26,.18), inset 0 1px 0 #fff;
+    }
+
+    /* ---------- El botón de WhatsApp, un poco más arriba ----------
+       La barra de abajo ahora flota y es más alta: sin esto la burbuja
+       quedaba pegada a ella (su regla viene de wa-bubble.js). */
+    body .wa-bubble.has-bottom-nav { bottom: calc(var(--barra-h) + 10px); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .nav-link, .cat-tab, .search-input-wrap { transition: none; }
+    }

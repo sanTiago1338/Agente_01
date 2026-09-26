@@ -261,28 +261,27 @@ css.textContent = `
      Se prende desde acá porque depende del stock: baja el precio mientras
      queden cuentas sin vender (ver supabase/05-cobros.sql, sección 13). */
   .st-rebaja {
-    display: inline-flex; align-items: center; gap: 6px; flex: none;
+    flex: none;
     background: none; border: 1px solid var(--borde); color: var(--gris);
-    border-radius: 99px; padding: 3px 10px 3px 4px;
+    border-radius: 99px; padding: 3px 11px;
     font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
-    font-variant-numeric: tabular-nums;
   }
   .st-rebaja:hover { border-color: rgba(21,128,61,.45); }
-  .st-rebaja.on { color: #15803d; border-color: rgba(21,128,61,.35); background: rgba(21,128,61,.08); }
+  .st-rebaja.on { color: #15803d; border-color: rgba(21,128,61,.35); background: rgba(21,128,61,.1); }
   .st-rebaja:disabled { opacity: .6; cursor: wait; }
-  .st-rebaja .knob, .st-switch .knob {
+  .st-switch .knob {
     position: relative; flex: none;
     width: 24px; height: 14px; border-radius: 99px;
     background: rgba(20,22,26,.2); transition: background .15s;
   }
-  .st-rebaja .knob::after, .st-switch .knob::after {
+  .st-switch .knob::after {
     content: ''; position: absolute; top: 2px; left: 2px;
     width: 10px; height: 10px; border-radius: 50%;
     background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25);
     transition: transform .15s;
   }
-  .st-rebaja.on .knob, .st-switch input:checked + .knob { background: #16a34a; }
-  .st-rebaja.on .knob::after, .st-switch input:checked + .knob::after { transform: translateX(10px); }
+  .st-switch input:checked + .knob { background: #16a34a; }
+  .st-switch input:checked + .knob::after { transform: translateX(10px); }
 
   .st-rebaja-fila {
     padding: 10px 16px 10px 68px;
@@ -301,7 +300,6 @@ css.textContent = `
 
   @media (max-width: 640px) {
     .st-rebaja-fila { padding-left: 16px; }
-    .st-rebaja .largo { display: none; }
     .st-acciones { flex-wrap: wrap; row-gap: 8px; }
     .st-costo-fila { padding-left: 16px; }
     .st-sug { flex-wrap: wrap; gap: 6px 12px; }
@@ -403,7 +401,7 @@ $('vistaStock').innerHTML = `
           <label class="st-switch" for="stRebaja">
             <input type="checkbox" id="stRebaja">
             <span class="knob"></span>
-            📉 Rebaja automática para este producto
+            Rebaja automática para este producto
           </label>
           <div class="st-ayuda">
             Mientras queden cuentas sin vender, el precio baja <strong>2 Bs cada 3 días</strong>
@@ -696,13 +694,12 @@ function filasDeCuentas(cuentas, productoId) {
 function botonRebaja(p) {
   const on  = p.rebaja_auto === true;
   const hoy = REBAJAS.get(p.id) || 0;
+  // Solo la palabra: prendida se pone verde. Lo de hoy va en el título
+  // y en la franja que aparece al desplegar el producto.
   const titulo = on
-    ? 'Rebaja automática prendida: tocá para apagarla y volver al precio normal'
+    ? `Rebaja automática prendida${hoy ? ` (hoy baja ${fmtBs(hoy)} Bs)` : ''}: tocá para apagarla y volver al precio normal`
     : 'Rebaja automática: mientras queden cuentas sin vender, el precio baja 2 Bs cada 3 días. Tocá para prenderla';
-  return `
-    <button class="st-rebaja ${on ? 'on' : ''}" data-rebaja="${p.id}" title="${titulo}" aria-pressed="${on}">
-      <span class="knob"></span><span>📉 Rebaja<span class="largo"> automática</span>${on && hoy ? ` −${fmtBs(hoy)} Bs` : ''}</span>
-    </button>`;
+  return `<button class="st-rebaja ${on ? 'on' : ''}" data-rebaja="${p.id}" title="${titulo}" aria-pressed="${on}">Rebaja</button>`;
 }
 
 // Al desplegar un producto con la rebaja prendida: cuánto baja hoy, a
@@ -715,7 +712,7 @@ function filaDeRebaja(p, cuentas) {
   const costos = libres.filter(c => c.costo != null).map(c => Number(c.costo));
   const hoy    = REBAJAS.get(p.id) || 0;
 
-  let texto = '📉 <strong>Rebaja automática prendida.</strong> ';
+  let texto = '<strong>Rebaja automática prendida.</strong> ';
   if (!libres.length) {
     texto += 'Sin cuentas libres no baja nada: se vende a su precio.';
   } else if (hoy) {
@@ -766,7 +763,7 @@ async function alternarRebaja(productoId, boton) {
   const sinCosto = CUENTAS.some(c => c.producto_id === productoId && c.estado === 'libre')
                 && !CUENTAS.some(c => c.producto_id === productoId && c.estado === 'libre' && c.costo != null);
   aviso(prender
-    ? `📉 Rebaja automática prendida en "${p.nombre}"` +
+    ? `Rebaja automática prendida en "${p.nombre}"` +
       (sinCosto ? '. Anotá el costo: sin él puede bajar hasta la mitad del precio' : '')
     : `Rebaja automática apagada en "${p.nombre}": vuelve a su precio`, 'ok');
   await cargarTodo();
@@ -1199,7 +1196,7 @@ $('stGuardar').addEventListener('click', async () => {
   const conRebaja = $('stRebaja').checked;
   if (producto && conRebaja !== (producto.rebaja_auto === true)
       && await guardarRebaja(productoId, conRebaja)) {
-    mensaje += conRebaja ? ' · 📉 rebaja automática prendida' : ' · rebaja automática apagada';
+    mensaje += conRebaja ? ' · rebaja automática prendida' : ' · rebaja automática apagada';
   }
   aviso(mensaje, 'ok');
   cerrarModal();

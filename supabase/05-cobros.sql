@@ -346,6 +346,14 @@ declare
   v_cuenta  public.cuentas%rowtype;
   v_vence   date;
 begin
+  -- Solo el admin (el panel) o el servidor (el webhook con service_role,
+  -- pg_cron, el editor SQL, que no traen sesión). Tener una cuenta en
+  -- Supabase no alcanza: sin esto, cualquiera que se registrara podía
+  -- confirmarse su propio pedido y llevarse la cuenta gratis.
+  if coalesce(auth.role(), '') in ('anon', 'authenticated') and not public.es_admin() then
+    raise exception 'Solo el administrador puede confirmar pagos' using errcode = '42501';
+  end if;
+
   -- Bloquea la fila del pedido: si llegan dos confirmaciones a la vez
   -- (tocaste el botón y encima entró el webhook), la segunda espera acá.
   select * into v_pedido from public.pedidos where id = p_pedido_id for update;
@@ -546,19 +554,31 @@ grant  execute on function public.stock_disponible() to anon, authenticated;
 -- ============================================================
 -- El que entra, arma un pedido y nunca paga, deja basura. Esto la barre.
 -- Se puede llamar desde el panel o programar con pg_cron más adelante.
+-- Es plpgsql y no sql solo para poder rechazar a quien no es admin, igual
+-- que confirmar_pago(). pg_cron no trae sesión, así que pasa.
 create or replace function public.vencer_pedidos()
 returns integer
-language sql
+language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  v_n integer;
+begin
+  if coalesce(auth.role(), '') in ('anon', 'authenticated') and not public.es_admin() then
+    raise exception 'Solo el administrador puede vencer pedidos' using errcode = '42501';
+  end if;
+
   with vencidos as (
     update public.pedidos
     set estado = 'vencido'
     where estado = 'esperando_pago' and vence_en < now()
     returning 1
   )
-  select count(*)::integer from vencidos;
+  select count(*)::integer into v_n from vencidos;
+
+  return v_n;
+end;
 $$;
 
 
@@ -648,13 +668,19 @@ select cron.schedule(
 --   crear_pedido    anon la NECESITA — es el checkout
 --   ver_mi_pedido   anon la NECESITA — es como el cliente ve lo que compró
 --   hay_stock       anon la NECESITA — para decir "entrega al instante"
---   confirmar_pago  solo admin (anon ya tiene el permiso revocado)
---   vencer_pedidos  solo admin
+--   confirmar_pago  solo admin: anon no tiene permiso, y adentro revisa
+--                   es_admin() para cualquier otra sesión
+--   vencer_pedidos  solo admin (misma revisión adentro)
 --
 -- La seguridad no está en que no se puedan llamar: está en lo que hacen
 -- ADENTRO. crear_pedido lee el precio de la base y no del cliente;
 -- ver_mi_pedido exige el token y solo suelta credenciales si está
--- entregado; confirmar_pago está fuera del alcance de anon.
+-- entregado; confirmar_pago rechaza a todo el que no sea admin.
+--
+-- ⚠️ "authenticated" NO quiere decir "admin": es cualquiera con sesión, y
+--    si el registro de usuarios está abierto, cualquiera puede tener una.
+--    Por eso el permiso de abajo no alcanza y cada función de admin revisa
+--    es_admin() adentro (el webhook y pg_cron no traen sesión y pasan).
 --
 -- Lo que SÍ conviene vigilar algún día: un anónimo puede crear pedidos en
 -- masa y llenarte la tabla de basura. No cuesta plata ni entrega nada
@@ -1085,6 +1111,11 @@ declare
   v_sin_stock  integer := 0;
   v_ya         integer := 0;
 begin
+  -- Lo mismo que confirmar_pago(): solo el admin o el servidor.
+  if coalesce(auth.role(), '') in ('anon', 'authenticated') and not public.es_admin() then
+    raise exception 'Solo el administrador puede confirmar pagos' using errcode = '42501';
+  end if;
+
   for v_id in
     select p.id from public.pedidos p where p.grupo = p_grupo order by p.numero
   loop

@@ -389,6 +389,8 @@ create or replace function public.dias_del_plan(p_nombre text, p_suscripcion tex
 returns integer
 language plpgsql
 immutable
+-- Fijo, como las demas: el revisor de Supabase lo marcaba como riesgo
+set search_path = public
 as $$
 declare
   v_partes text[] := array[lower(coalesce(p_nombre, '')), lower(coalesce(p_suscripcion, ''))];

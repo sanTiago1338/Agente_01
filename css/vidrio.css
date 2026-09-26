@@ -17,6 +17,13 @@
    ============================================================ */
 
 :root {
+  /* Los grises del texto, más oscuros. Con el vidrio casi transparente,
+     el gris claro de antes (#767c88 y #9aa0ab) se perdía sobre el fondo:
+     "TOTAL A PAGAR", las bajadas, las fechas. Pisan los de cada página
+     porque este archivo se carga después. */
+  --tinta-suave:   #4b515c;
+  --tinta-tenue:   #656b77;
+
   --vidrio:        linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.02));
   --vidrio-claro:  linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
   --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.36), rgba(255,255,255,.24));
@@ -165,6 +172,13 @@ body::before {
               0 0 0 .5px rgba(20,22,26,.08),
               inset 0 1.5px 0 #fff, inset 0 -2px 5px rgba(20,22,26,.06);
   text-shadow: none;
+}
+/* El del carrusel va sobre fotos oscuras: con el vidrio claro de los
+   demás quedaba gris y la letra negra no se leía. Acá, bastante más
+   blanco. */
+.hero-cta, .hero-cta:hover {
+  background: var(--vidrio-reflejo),
+              linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.72));
 }
 /* El borde tornasolado, el mismo de la lente (ver LA LENTE) */
 .plan-comprar:not(:disabled)::after,

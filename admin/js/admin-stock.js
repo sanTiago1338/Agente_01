@@ -261,27 +261,28 @@ css.textContent = `
      Se prende desde acá porque depende del stock: baja el precio mientras
      queden cuentas sin vender (ver supabase/05-cobros.sql, sección 13). */
   .st-rebaja {
-    flex: none;
+    display: inline-flex; align-items: center; gap: 6px; flex: none;
     background: none; border: 1px solid var(--borde); color: var(--gris);
-    border-radius: 99px; padding: 3px 11px;
+    border-radius: 99px; padding: 3px 11px 3px 4px;
     font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
   }
   .st-rebaja:hover { border-color: rgba(21,128,61,.45); }
   .st-rebaja.on { color: #15803d; border-color: rgba(21,128,61,.35); background: rgba(21,128,61,.1); }
   .st-rebaja:disabled { opacity: .6; cursor: wait; }
-  .st-switch .knob {
+  /* El interruptor, a la izquierda de la palabra: gris apagado, verde prendido */
+  .st-rebaja .knob, .st-switch .knob {
     position: relative; flex: none;
     width: 24px; height: 14px; border-radius: 99px;
     background: rgba(20,22,26,.2); transition: background .15s;
   }
-  .st-switch .knob::after {
+  .st-rebaja .knob::after, .st-switch .knob::after {
     content: ''; position: absolute; top: 2px; left: 2px;
     width: 10px; height: 10px; border-radius: 50%;
     background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25);
     transition: transform .15s;
   }
-  .st-switch input:checked + .knob { background: #16a34a; }
-  .st-switch input:checked + .knob::after { transform: translateX(10px); }
+  .st-rebaja.on .knob, .st-switch input:checked + .knob { background: #16a34a; }
+  .st-rebaja.on .knob::after, .st-switch input:checked + .knob::after { transform: translateX(10px); }
 
   .st-rebaja-fila {
     padding: 10px 16px 10px 68px;
@@ -694,12 +695,12 @@ function filasDeCuentas(cuentas, productoId) {
 function botonRebaja(p) {
   const on  = p.rebaja_auto === true;
   const hoy = REBAJAS.get(p.id) || 0;
-  // Solo la palabra: prendida se pone verde. Lo de hoy va en el título
-  // y en la franja que aparece al desplegar el producto.
+  // El interruptor y la palabra, nada más. Lo de hoy va en el título y
+  // en la franja que aparece al desplegar el producto.
   const titulo = on
     ? `Rebaja automática prendida${hoy ? ` (hoy baja ${fmtBs(hoy)} Bs)` : ''}: tocá para apagarla y volver al precio normal`
     : 'Rebaja automática: mientras queden cuentas sin vender, el precio baja 2 Bs cada 3 días. Tocá para prenderla';
-  return `<button class="st-rebaja ${on ? 'on' : ''}" data-rebaja="${p.id}" title="${titulo}" aria-pressed="${on}">Rebaja</button>`;
+  return `<button class="st-rebaja ${on ? 'on' : ''}" data-rebaja="${p.id}" title="${titulo}" aria-pressed="${on}"><span class="knob"></span>Rebaja</button>`;
 }
 
 // Al desplegar un producto con la rebaja prendida: cuánto baja hoy, a

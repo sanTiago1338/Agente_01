@@ -90,6 +90,10 @@ css.textContent = `
   }
   .ini-cifra-n small { font-size: 15px; font-weight: 700; color: var(--tinta-suave); margin-left: 3px; }
   .ini-cifra-s { margin-top: 6px; font-size: 12.5px; color: var(--tinta-suave); }
+  /* La ganancia, debajo de lo vendido (sale del costo anotado en Stock) */
+  .ini-cifra-g { margin-top: 4px; font-size: 12.5px; font-weight: 700; color: var(--ok); }
+  .ini-cifra-g:empty { display: none; }
+  .ini-cifra-g .falta { font-weight: 600; color: var(--tinta-suave); }
   .ini-sube  { color: var(--ok); font-weight: 700; }
   .ini-baja  { color: var(--error); font-weight: 700; }
   /* Lo que espera por vos: la raya de color dice "hay algo", el número
@@ -324,11 +328,13 @@ $('vistaInicio').innerHTML = `
         <div class="ini-cifra-l">${ICO('ventas')} Vendido hoy</div>
         <div class="ini-cifra-n" id="iniHoy">–</div>
         <div class="ini-cifra-s" id="iniHoyS">&nbsp;</div>
+        <div class="ini-cifra-g" id="iniHoyG"></div>
       </div>
       <div class="ini-cifra">
         <div class="ini-cifra-l">${ICO('inicio')} Últimos 7 días</div>
         <div class="ini-cifra-n" id="iniSemana">–</div>
         <div class="ini-cifra-s" id="iniSemanaS">&nbsp;</div>
+        <div class="ini-cifra-g" id="iniSemanaG"></div>
       </div>
       <button class="ini-cifra" id="iniCajaEsperando" data-ir="ventas">
         <span class="ini-ir" aria-hidden="true">→</span>
@@ -475,15 +481,16 @@ async function cargar() {
         .eq('estado', 'esperando_pago'),
       sbAdmin.from('pedidos').select('id, grupo')
         .in('estado', ['sin_stock', 'pagado']),
-      // Solo producto y estado: las credenciales no hacen falta acá
-      sbAdmin.from('cuentas').select('producto_id, estado').neq('estado', 'anulada'),
+      // Sin credenciales: producto y estado para el stock, y pedido, costo
+      // y fecha para la ganancia
+      sbAdmin.from('cuentas').select('producto_id, estado, pedido_id, costo, creada_en').neq('estado', 'anulada'),
       sbAdmin.from('productos').select('id, nombre, activo')
     ]);
 
     const error = [rPedidos, rEsperando, rAtender, rCuentas, rProductos].find(r => r.error)?.error;
     if (error) throw error;
 
-    pintarCifras(rPedidos.data, cuantasCompras(rEsperando.data), cuantasCompras(rAtender.data));
+    pintarCifras(rPedidos.data, cuantasCompras(rEsperando.data), cuantasCompras(rAtender.data), rCuentas.data);
     pintarGrafico(rPedidos.data);
     pintarStock(rCuentas.data, rProductos.data);
     pintarPedidos(rPedidos.data);
@@ -505,7 +512,49 @@ async function cargar() {
 // ============================================================
 // 5. CIFRAS DE ARRIBA
 // ============================================================
-function pintarCifras(pedidos, esperando, atender) {
+// ------------------------------------------------------------
+// Ganancia: lo cobrado menos lo que costó cada cuenta entregada.
+// ------------------------------------------------------------
+// El costo sale de la cuenta que se entregó. Si esa cuenta no lo tiene
+// anotado (o la venta fue por WhatsApp, sin cuenta en el stock), se usa el
+// último costo anotado de ese producto. Si ni eso, la venta no entra en la
+// cuenta, y se dice cuántas quedaron afuera.
+function calculadoraDeGanancia(cuentas) {
+  const porPedido   = new Map();
+  const porProducto = new Map();
+  [...cuentas]
+    .sort((a, b) => String(b.creada_en).localeCompare(String(a.creada_en)))   // la más nueva primero
+    .forEach(c => {
+      if (c.costo == null) return;
+      if (c.pedido_id && !porPedido.has(c.pedido_id)) porPedido.set(c.pedido_id, Number(c.costo));
+      if (!porProducto.has(c.producto_id)) porProducto.set(c.producto_id, Number(c.costo));
+    });
+
+  return lista => {
+    let bs = 0, con = 0, sin = 0;
+    for (const p of lista) {
+      const costo = porPedido.has(p.id) ? porPedido.get(p.id) : porProducto.get(p.producto_id);
+      if (costo == null) { sin++; continue; }
+      bs += Number(p.precio || 0) - costo;
+      con++;
+    }
+    return { bs, con, sin };
+  };
+}
+
+function pintarGanancia(id, g) {
+  const el = $(id);
+  if (g.con + g.sin === 0) { el.innerHTML = ''; return; }        // no hubo ventas
+  if (g.con === 0) {
+    el.innerHTML = `<span class="falta">Ganancia:</span> <button class="ini-link" data-ir="stock">anotá el costo en Stock</button>`;
+    return;
+  }
+  el.innerHTML = `💰 Ganaste ${bs(g.bs)} Bs` +
+    (g.sin ? ` <span class="falta">· ${g.sin} sin costo</span>` : '');
+}
+
+function pintarCifras(pedidos, esperando, atender, cuentas = []) {
+  const ganancia = calculadoraDeGanancia(cuentas);
   $('iniHola').innerHTML = `${saludo()} 👋 <b>Así viene la tienda hoy.</b>`;
 
   const entregados = pedidos.filter(p => p.estado === 'entregado' && p.entregado_en);
@@ -516,6 +565,7 @@ function pintarCifras(pedidos, esperando, atender) {
   $('iniHoy').innerHTML  = `${bs(bsHoy)}<small>Bs</small>`;
   const comprasHoy = cuantasCompras(deHoy);
   $('iniHoyS').textContent = comprasHoy === 1 ? '1 pedido entregado' : `${comprasHoy} pedidos entregados`;
+  pintarGanancia('iniHoyG', ganancia(deHoy));
 
   // Últimos 7 días (hoy incluido) contra los 7 de antes
   const inicioDia = new Date(); inicioDia.setHours(0, 0, 0, 0);
@@ -528,6 +578,7 @@ function pintarCifras(pedidos, esperando, atender) {
   const semana   = suma(corte7, Infinity);
   const anterior = suma(corte14, corte7);
   $('iniSemana').innerHTML = `${bs(semana)}<small>Bs</small>`;
+  pintarGanancia('iniSemanaG', ganancia(entregados.filter(p => new Date(p.entregado_en).getTime() >= corte7)));
 
   if (anterior > 0) {
     const cambio = Math.round((semana - anterior) / anterior * 100);

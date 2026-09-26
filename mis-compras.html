@@ -228,7 +228,55 @@
     text-underline-offset: 3px;
   }
   .link-suave:hover { color: var(--marca); }
+
+  /* ---------- LIQUID GLASS ----------
+     El mismo vidrio que la tienda. Los tonos y el fondo con manchas de
+     color están en css/vidrio.css (se carga después). Pisa solo fondos,
+     bordes, brillos y sombras: los textos quedan como estaban. */
+  header {
+    position: sticky;
+    top: .5rem;
+    z-index: 50;
+    margin: .6rem .6rem 0;
+    border-radius: 22px;
+    background: var(--vidrio-claro);
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    border: 1px solid rgba(255,255,255,.8);
+    box-shadow: 0 10px 30px rgba(20,22,26,.10), 0 1px 3px rgba(20,22,26,.06),
+                0 0 0 .5px rgba(20,22,26,.08),
+                inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
+  }
+  .compra {
+    background: var(--vidrio);
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: 20px;
+    box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+  }
+  .compra-faltan { box-shadow: inset 0 1px 0 rgba(255,255,255,.7); }
+  .btn-abrir {
+    border-radius: 999px;
+    background: linear-gradient(180deg, #1aa896, var(--verde-wa));
+    box-shadow: 0 6px 16px rgba(18,140,126,.25), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .btn-tienda {
+    border-radius: 999px;
+    background: linear-gradient(180deg, #f0262f, var(--marca));
+    box-shadow: 0 8px 20px rgba(229,9,20,.25), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .aviso {
+    background: var(--vidrio);
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(20,22,26,.06), var(--vidrio-brillo);
+  }
 </style>
+  <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
+  <link rel="stylesheet" href="css/vidrio.css">
 </head>
 <body>
 

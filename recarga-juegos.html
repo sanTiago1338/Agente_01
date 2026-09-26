@@ -558,7 +558,7 @@
       display: flex; align-items: stretch; gap: 2px;
       padding: 5px;
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,255,255,.5));
+      background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.6));
       -webkit-backdrop-filter: blur(22px) saturate(180%);
       backdrop-filter: blur(22px) saturate(180%);
       border: 1px solid rgba(255,255,255,.8);
@@ -1251,50 +1251,48 @@
      explicado): fondos translúcidos esmerilados, brillo arriba, bordes
      claros. Pisa solo fondos, bordes, brillos y sombras; los textos y
      los nombres quedan como estaban.
+     Los tonos del vidrio, el fondo y la lente de lo activo están en
+     css/vidrio.css, que se carga después de este <style>.
      ============================================================ */
-  :root {
-    --vidrio:        linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.58));
-    --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
-    --vidrio-lente:  linear-gradient(180deg, #fff, rgba(255,255,255,.78));
-    --vidrio-borde:  rgba(255,255,255,.85);
-    --vidrio-blur:   blur(20px) saturate(170%);
-    --vidrio-brillo: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
-    --vidrio-sombra: 0 10px 30px rgba(20,22,26,.08), 0 1px 3px rgba(20,22,26,.05),
-                     0 0 0 .5px rgba(20,22,26,.07);
-  }
 
-  /* El fondo con manchas de color, también en el celular */
-  body { background-color: #f7f8fa; }
-  body::before {
-    display: block;
-    background:
-      radial-gradient(38rem 30rem at 6% 4%,   rgba(245,197,24,.18), transparent 62%),
-      radial-gradient(34rem 28rem at 96% 16%, rgba(229,9,20,.10),   transparent 62%),
-      radial-gradient(30rem 26rem at 88% 80%, rgba(110,145,255,.10), transparent 62%),
-      radial-gradient(32rem 28rem at 4% 88%,  rgba(255,110,150,.10), transparent 62%),
-      linear-gradient(180deg, #fbfbfd, #f5f6f9);
-  }
-
+  /* Franja dorada de arriba: vidrio dorado, con brillo arriba */
   .banner-top {
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 -1px 0 rgba(0,0,0,.08);
+    background: linear-gradient(90deg, rgba(184,134,11,.88), rgba(255,215,0,.84) 50%, rgba(184,134,11,.88));
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(255,255,255,.25),
+                0 4px 14px rgba(184,134,11,.2);
   }
   .banner-top::after {
     content: '';
     position: absolute;
-    inset: 0 0 50%;
-    background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0));
+    inset: 0 0 45%;
+    background: linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0));
     pointer-events: none;
   }
 
+  /* La cabecera: una píldora de vidrio que flota, como en la tienda */
   .header {
-    background: var(--vidrio);
+    top: .5rem;
+    margin: .6rem .6rem 0;
+    border-radius: 22px;
+    background: var(--vidrio-claro);
     -webkit-backdrop-filter: var(--vidrio-blur);
     backdrop-filter: var(--vidrio-blur);
-    border-bottom: 1px solid rgba(255,255,255,.7);
-    box-shadow: 0 1px 0 rgba(20,22,26,.06), 0 8px 24px rgba(20,22,26,.05),
-                inset 0 1px 0 rgba(255,255,255,.9);
+    border: 1px solid rgba(255,255,255,.8);
+    box-shadow: 0 10px 30px rgba(20,22,26,.10), 0 1px 3px rgba(20,22,26,.06),
+                0 0 0 .5px rgba(20,22,26,.08),
+                inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
   }
-  .header-icon-btn:hover { background: rgba(255,255,255,.6); }
+  @media (max-width: 640px) {
+    .header { margin: .5rem .5rem 0; border-radius: 20px; }
+  }
+  .header-icon-btn {
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.25));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(20,22,26,.07);
+  }
+  .header-icon-btn:hover { background: rgba(255,255,255,.75); }
   .header-user {
     background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,244,214,.7));
     border: 1px solid var(--vidrio-borde);
@@ -1353,6 +1351,8 @@
   body .wa-bubble.has-bottom-nav { bottom: calc(var(--barra-h) + 10px); }
 
   </style>
+  <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
+  <link rel="stylesheet" href="css/vidrio.css">
 </head>
 <body>
 

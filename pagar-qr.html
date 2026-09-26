@@ -532,8 +532,75 @@
   }
   body > * { position: relative; z-index: 1; }
   @media (max-width: 600px) { body::before { display: none; } }
-  
+
+  /* ---------- LIQUID GLASS ----------
+     El mismo vidrio que la tienda. Los tonos y el fondo con manchas de
+     color están en css/vidrio.css (se carga después). Pisa solo fondos,
+     bordes, brillos y sombras: los textos quedan como estaban.
+     El recuadro del QR se queda blanco y opaco a propósito: un QR sobre
+     vidrio se escanea peor. */
+  .pay-header {
+    width: calc(100% - 1.2rem);
+    margin: .6rem .6rem 0;
+    border-radius: 22px;
+    background: var(--vidrio-claro);
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    border: 1px solid rgba(255,255,255,.8);
+    box-shadow: 0 10px 30px rgba(20,22,26,.10), 0 1px 3px rgba(20,22,26,.06),
+                0 0 0 .5px rgba(20,22,26,.08),
+                inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
+  }
+  .pay-card,
+  .pay-order-summary {
+    background: var(--vidrio);
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: 24px;
+    box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+  }
+  .pay-card-header { border-bottom-color: rgba(20,22,26,.06); }
+  .pay-qr-wrap {
+    border-radius: 18px;
+    box-shadow: 0 6px 18px rgba(20,22,26,.08), 0 0 0 .5px rgba(20,22,26,.08);
+  }
+  .pay-status-bar {
+    border-radius: 16px;
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    box-shadow: 0 4px 14px rgba(20,22,26,.06), inset 0 1px 0 rgba(255,255,255,.7);
+  }
+  .pay-notice {
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,245,246,.85), rgba(253,228,230,.65));
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    box-shadow: 0 4px 14px rgba(229,9,20,.07), inset 0 1px 0 rgba(255,255,255,.8);
+  }
+  #customerDataBox {
+    border-radius: 18px !important;
+    background: linear-gradient(180deg, rgba(255,251,235,.85), rgba(255,244,205,.6)) !important;
+    border: 1px solid rgba(255,255,255,.85) !important;
+    box-shadow: 0 6px 18px rgba(154,116,0,.10), 0 0 0 .5px rgba(154,116,0,.25),
+                inset 0 1px 0 rgba(255,255,255,.95);
+  }
+  .btn-back {
+    border-radius: 999px;
+    background: var(--vidrio);
+    border: 1px solid var(--vidrio-borde);
+    box-shadow: 0 4px 14px rgba(20,22,26,.07), var(--vidrio-brillo);
+  }
+  .btn-back:hover { background: rgba(255,255,255,.92); }
+  .btn-wa-help {
+    border-radius: 999px;
+    background: linear-gradient(180deg, #1aa896, var(--verde));
+    box-shadow: 0 8px 20px rgba(18,140,126,.25), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+
   </style>
+  <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
+  <link rel="stylesheet" href="css/vidrio.css">
 </head>
 <body>
 

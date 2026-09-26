@@ -29,6 +29,8 @@
   <link rel="icon" href="favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css">
+  <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
+  <link rel="stylesheet" href="css/vidrio.css">
 </head>
 <body>
 
@@ -53,7 +55,7 @@
   <main>
 
     <!-- AVISO -->
-    <div style="background: rgba(255,215,0,0.06); border: 1px solid rgba(255,215,0,0.2); border-radius:10px; padding:1rem 1.5rem; margin-bottom:2.5rem; display:flex; align-items:center; gap:1rem;">
+    <div class="aviso-precios" style="padding:1rem 1.5rem; margin-bottom:2.5rem; display:flex; align-items:center; gap:1rem;">
       <span style="font-size:1.5rem;">💡</span>
       <p style="margin:0; color:var(--texto); font-size:0.9rem;">Todos los precios están en <strong style="color:var(--dorado);">bolivianos (Bs.)</strong>. Para consultas de servicios específicos, escríbenos directamente al WhatsApp.</p>
     </div>
@@ -140,9 +142,7 @@
          ========================================================== -->
 
     <div style="position:relative; margin-bottom:1.5rem;">
-      <input type="search" id="buscarPlan" placeholder="🔍 Buscar plataforma…" autocomplete="off"
-             style="width:100%; padding:0.85rem 1rem; background:var(--negro2); border:1px solid var(--separador-2);
-                    border-radius:10px; color:var(--blanco); font-size:0.95rem; font-family:inherit;">
+      <input type="search" id="buscarPlan" class="buscar-plan" placeholder="🔍 Buscar plataforma…" autocomplete="off">
     </div>
 
     <div id="tablasPrecios">
@@ -335,10 +335,10 @@
           ${TITULOS[cat] || '🏷️ ' + escapar(cat).toUpperCase()}
           <span style="color:var(--texto-dim); font-size:0.8rem; font-family:'Outfit',sans-serif; letter-spacing:0;">${filas.length}</span>
         </h3>
-        <div style="background:var(--negro2); border:1px solid var(--separador); border-radius:12px; overflow-x:auto; margin-bottom:2rem;">
+        <div class="tabla-precios">
           <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
             <thead>
-              <tr style="background:rgba(229,9,20,0.15);">
+              <tr style="background:rgba(229,9,20,0.08);">
                 <th style="padding:1rem; text-align:left; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Plataforma</th>
                 <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">1 Pantalla</th>
                 <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Cuenta Completa</th>
@@ -346,7 +346,7 @@
             </thead>
             <tbody>
               ${filas.map((g, i) => `
-                <tr style="border-top:1px solid var(--separador);${i % 2 ? ' background:var(--superficie-2);' : ''}">
+                <tr style="border-top:1px solid rgba(20,22,26,.06);${i % 2 ? ' background:rgba(20,22,26,.025);' : ''}">
                   <td style="padding:0.85rem 1rem; color:var(--blanco); font-weight:600;${g.disponible ? '' : ' opacity:.5;'}">
                     ${escapar(g.plataforma)}
                     ${!g.disponible ? '<span style="background:#fdecec; color:var(--marca-oscura); font-weight:700; font-size:0.6rem; padding:2px 6px; border-radius:4px; margin-left:6px;">AGOTADO</span>' : ''}

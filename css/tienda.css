@@ -2080,7 +2080,7 @@
       gap: 2px;
       padding: 5px;
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,255,255,.5));
+      background: linear-gradient(180deg, rgba(255,255,255,.8), rgba(255,255,255,.6));
       -webkit-backdrop-filter: blur(22px) saturate(180%);
       backdrop-filter: blur(22px) saturate(180%);
       border: 1px solid rgba(255,255,255,.8);
@@ -2488,69 +2488,61 @@
 
    Va al final a propósito: pisa solo fondos, bordes, brillos, sombras
    y redondeos de lo de arriba. Textos y nombres quedan como estaban.
+
+   Los tonos del vidrio, el fondo con manchas de color y la lente de lo
+   activo están en css/vidrio.css, que es común a todas las páginas y
+   se carga después de este archivo.
    ============================================================ */
-    :root {
-      --vidrio:        linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.58));
-      --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
-      --vidrio-lente:  linear-gradient(180deg, #fff, rgba(255,255,255,.78));
-      --vidrio-borde:  rgba(255,255,255,.85);
-      --vidrio-blur:   blur(20px) saturate(170%);
-      --vidrio-brillo: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
-      --vidrio-sombra: 0 10px 30px rgba(20,22,26,.08), 0 1px 3px rgba(20,22,26,.05),
-                       0 0 0 .5px rgba(20,22,26,.07);
-    }
 
-    /* ---------- El fondo ----------
-       Antes eran puntitos casi invisibles y se apagaban en el celular.
-       Ahora son manchas grandes y suaves en toda pantalla: una sola capa
-       fija, que no cuesta nada al hacer scroll. */
-    body { background: #f7f8fa; }
-    body::before {
-      display: block;
-      background:
-        radial-gradient(38rem 30rem at 6% 4%,   rgba(229,9,20,.10),   transparent 62%),
-        radial-gradient(34rem 28rem at 96% 16%, rgba(245,197,24,.17), transparent 62%),
-        radial-gradient(30rem 26rem at 88% 80%, rgba(110,145,255,.10), transparent 62%),
-        radial-gradient(32rem 28rem at 4% 88%,  rgba(255,110,150,.10), transparent 62%),
-        linear-gradient(180deg, #fbfbfd, #f5f6f9);
-    }
-
-    /* ---------- Franja roja de arriba: con brillo de vidrio ---------- */
+    /* ---------- Franja roja de arriba: vidrio rojo ----------
+       Translúcida y esmerilada, con el brillo arriba y una línea de luz
+       abajo. Queda lo bastante roja para que el blanco se lea. */
     .banner-top {
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.08);
+      background: linear-gradient(90deg, rgba(229,9,20,.9), rgba(184,7,15,.86) 50%, rgba(229,9,20,.9));
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      backdrop-filter: blur(16px) saturate(180%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(255,255,255,.18),
+                  0 4px 14px rgba(229,9,20,.18);
+      text-shadow: 0 1px 1px rgba(120,0,6,.35);
     }
     .banner-top::after {
       content: '';
       position: absolute;
-      inset: 0 0 50%;
-      background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,0));
+      inset: 0 0 45%;
+      background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,0));
       pointer-events: none;
     }
 
-    /* ---------- Menú de arriba ---------- */
+    /* ---------- Menú de arriba: una píldora de vidrio que flota ----------
+       Como la barra de la Mac y la del iPhone: separada de los bordes,
+       redondeada, esmerilada. Sigue pegada arriba al hacer scroll. */
     .nav-principal {
-      background: var(--vidrio);
+      top: .5rem;
+      margin: .6rem .6rem 0;
+      border-radius: 22px;
+      background: var(--vidrio-claro);
       -webkit-backdrop-filter: var(--vidrio-blur);
       backdrop-filter: var(--vidrio-blur);
-      border-bottom: 1px solid rgba(255,255,255,.7);
-      box-shadow: 0 1px 0 rgba(20,22,26,.06), 0 8px 24px rgba(20,22,26,.05),
-                  inset 0 1px 0 rgba(255,255,255,.9);
+      border: 1px solid rgba(255,255,255,.8);
+      box-shadow: 0 10px 30px rgba(20,22,26,.10), 0 1px 3px rgba(20,22,26,.06),
+                  0 0 0 .5px rgba(20,22,26,.08),
+                  inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
     }
-    /* Cada enlace es una pastilla; la de la página en la que estás lleva
-       la misma lente que la pestaña activa de la barra de abajo. */
+    /* Cada enlace es una cápsula de vidrio; el de la página en la que
+       estás es la lente (css/vidrio.css). */
     .nav-link {
-      padding: .38rem .8rem;
+      padding: .38rem .85rem;
       border-radius: 999px;
-      transition: color .2s, background .2s, box-shadow .2s;
+      background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.25));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(20,22,26,.07),
+                  0 1px 3px rgba(20,22,26,.05);
+      transition: color .2s, background .2s, box-shadow .2s, transform .15s;
     }
-    .nav-link:hover { background: rgba(255,255,255,.6); }
-    .nav-link--activo {
-      background: var(--vidrio-lente);
-      box-shadow: 0 1px 4px rgba(20,22,26,.09), 0 0 0 .5px rgba(20,22,26,.07),
-                  inset 0 1px 0 #fff;
-    }
+    .nav-link:hover { background: rgba(255,255,255,.75); }
+    .nav-link:active { transform: scale(.95); }
     @media (max-width: 640px) {
-      .nav-menu { gap: .15rem; }
+      .nav-principal { margin: .5rem .5rem 0; border-radius: 20px; }
+      .nav-menu { gap: .2rem; }
       .nav-menu .nav-link { padding: .32rem .5rem; }
     }
 
@@ -2609,7 +2601,7 @@
     }
     .hero-dot { background: rgba(255,255,255,.65); }
     .hero-cta {
-      background: var(--vidrio-lente);
+      background: linear-gradient(180deg, #fff, rgba(255,255,255,.88));
       box-shadow: 0 6px 18px rgba(0,0,0,.2), inset 0 1px 0 #fff, inset 0 -1px 1px rgba(20,22,26,.06);
     }
     .hero-arrow {
@@ -2659,10 +2651,7 @@
       transition: color .2s, background .25s, box-shadow .25s;
     }
     .cat-tab:hover { background: rgba(255,255,255,.55); }
-    .cat-tab.active {
-      background: var(--vidrio-lente);
-      box-shadow: 0 1px 4px rgba(20,22,26,.1), 0 0 0 .5px rgba(20,22,26,.06), inset 0 1px 0 #fff;
-    }
+    /* La activa es la lente de css/vidrio.css */
 
     .sub-pills { padding-top: 3px; padding-bottom: calc(.75rem + 3px); }
     .sub-pill {

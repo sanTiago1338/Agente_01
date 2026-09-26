@@ -1,0 +1,128 @@
+/* ============================================================
+   TIAGO STORE · LIQUID GLASS (lo común a todas las páginas)
+   ============================================================
+   El vidrio de la tienda, como el del iPhone y el de la Mac: fondos
+   translúcidos y esmerilados, un brillo arriba como el canto de un
+   vidrio, bordes claros, y la pestaña activa como una lente que junta
+   la luz y deja un borde tornasolado.
+
+   Acá está lo que comparten todas las páginas:
+     1. los tonos del vidrio (variables)
+     2. el fondo con manchas de color, que es lo que el vidrio deja ver
+     3. la lente de lo que está activo (pestañas, menú, barra de abajo)
+
+   Lo propio de cada página está en su hoja (css/tienda.css,
+   styles.css) o en su <style>, al final, en un bloque "LIQUID GLASS".
+   Este archivo va DESPUÉS de esos estilos en cada página.
+   ============================================================ */
+
+:root {
+  --vidrio:        linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.58));
+  --vidrio-claro:  linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.38));
+  --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
+  --vidrio-lente:  radial-gradient(120% 90% at 50% 0%, #fff 0%, rgba(255,255,255,.72) 55%, rgba(255,255,255,.5) 100%);
+  --vidrio-borde:  rgba(255,255,255,.85);
+  --vidrio-blur:   blur(20px) saturate(170%);
+  --vidrio-brillo: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
+  --vidrio-sombra: 0 10px 30px rgba(20,22,26,.08), 0 1px 3px rgba(20,22,26,.05),
+                   0 0 0 .5px rgba(20,22,26,.07);
+  /* El borde tornasolado de la lente: la luz que se separa en colores
+     en el canto del vidrio, como en el iPhone */
+  --vidrio-tornasol: conic-gradient(from 210deg,
+                       rgba(255,90,170,.75), rgba(255,205,90,.75), rgba(110,230,255,.8),
+                       rgba(150,120,255,.75), rgba(255,90,170,.75));
+}
+
+
+/* ============================================================
+   EL FONDO
+   ============================================================
+   Manchas de color grandes y suaves, en una sola capa fija (no cuesta
+   nada al hacer scroll). Todas las páginas ya tenían esta capa
+   (body::before) con puntitos casi invisibles, apagada en el celular:
+   se la reemplaza y se la prende en toda pantalla. */
+body { background-color: #f7f8fa; }
+/* z-index -1: detrás de todo el contenido sin tener que tocar el de
+   cada página (las que ya la tenían usaban 0 y subían todo a 1) */
+body::before {
+  content: '';
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38rem 30rem at 6% 4%,   rgba(229,9,20,.10),   transparent 62%),
+    radial-gradient(34rem 28rem at 96% 16%, rgba(245,197,24,.17), transparent 62%),
+    radial-gradient(30rem 26rem at 88% 80%, rgba(110,145,255,.11), transparent 62%),
+    radial-gradient(32rem 28rem at 4% 88%,  rgba(255,110,150,.10), transparent 62%),
+    linear-gradient(180deg, #fbfbfd, #f5f6f9);
+}
+
+
+/* ============================================================
+   LA LENTE
+   ============================================================
+   Lo que está activo (la pestaña de la barra de abajo, el enlace de la
+   página en la que estás, la categoría elegida) es una lente de vidrio:
+   más clara en el centro de arriba, con brillo en el canto, sombra que
+   la despega, y el borde tornasolado.
+
+   En los enlaces y pestañas, la lente es el propio fondo y el borde va
+   en ::after. En la barra de abajo la lente ya es ::before (la dibuja
+   css/tienda.css), así que el borde también va en ::after. */
+.nav-link--activo,
+.cat-tab.active,
+.nav-links a.active {
+  position: relative;
+  isolation: isolate;
+  background: var(--vidrio-lente);
+  box-shadow:
+    inset 0 1.5px 0 #fff,
+    inset 0 -1.5px 2px rgba(20,22,26,.07),
+    inset 0 0 0 1px rgba(255,255,255,.55),
+    0 6px 16px rgba(20,22,26,.13),
+    0 1px 3px rgba(20,22,26,.08);
+}
+
+.nav-link--activo::after,
+.cat-tab.active::after,
+.nav-links a.active::after,
+.nav-item.active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--vidrio-tornasol);
+  /* Solo el anillo del borde: el centro se recorta con la máscara */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: .55;
+  pointer-events: none;
+}
+
+/* En la barra de abajo la lente es un poco más grande que la pestaña,
+   como la del iPhone, y lo de adentro se ve apenas aumentado. */
+.nav-item.active::before,
+.nav-item.active::after { inset: -3px -1px; }
+.nav-item.active::before {
+  background: var(--vidrio-lente);
+  box-shadow:
+    inset 0 1.5px 0 #fff,
+    inset 0 -1.5px 2px rgba(20,22,26,.07),
+    inset 0 0 0 1px rgba(255,255,255,.55),
+    0 6px 16px rgba(20,22,26,.13),
+    0 1px 3px rgba(20,22,26,.08);
+}
+.nav-item.active .nav-icon { transform: scale(1.06); }
+
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --vidrio:       rgba(255,255,255,.97);
+    --vidrio-claro: rgba(255,255,255,.95);
+    --vidrio-denso: #fff;
+  }
+}

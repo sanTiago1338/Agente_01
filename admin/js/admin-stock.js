@@ -34,9 +34,18 @@ const escapar = s => String(s ?? '').replace(/[&<>"]/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 // Lo que se lee de la base en cada refresco
-let PRODUCTOS = [];   // [{ id, nombre }]  (sin imagen: pesa demasiado, ver cargar())
-let CUENTAS   = [];   // [{ id, producto_id, estado, ... }]
+let PRODUCTOS = [];   // [{ id, nombre, imagen, descripcion, categoria, activo }]
+let CUENTAS   = [];   // [{ id, producto_id, estado, costo, ... }]
+let VENDIDAS  = new Map();   // producto_id -> unidades pagadas en los últimos 30 días
 let abierto   = null; // qué producto está desplegado en la lista
+
+// Lo último que te costó una cuenta de este producto, o null si nunca lo
+// anotaste. CUENTAS viene de la más nueva a la más vieja, así que la
+// primera con costo es la más reciente.
+function ultimoCosto(productoId) {
+  const c = CUENTAS.find(x => x.producto_id === productoId && x.costo != null);
+  return c ? Number(c.costo) : null;
+}
 
 
 // ============================================================
@@ -202,7 +211,55 @@ css.textContent = `
   .st-resumen-previa .bien { color: #15803d; }
   .st-resumen-previa .mal  { color: #dc2626; }
 
+  /* ---------- Te conviene cargar ----------
+     Lo que más se vende y no tiene cuentas: ahí es donde la entrega
+     automática rinde más. */
+  .st-sugerir {
+    background: var(--panel); border: 1px solid var(--borde);
+    border-radius: 12px; padding: 14px 16px 6px; margin-bottom: 18px;
+  }
+  .st-sugerir h3 { margin: 0; font-size: 15px; color: var(--tinta); }
+  .st-sugerir .sub { margin: 3px 0 8px; font-size: 12.5px; color: var(--gris-dim); line-height: 1.5; }
+  .st-sug {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 0; border-top: 1px solid var(--borde); font-size: 13.5px;
+  }
+  .st-sug .nom {
+    flex: 1; min-width: 0; font-weight: 600; color: var(--tinta);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .st-sug .vendidas { color: var(--gris); font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .st-sugerir .bien { padding: 10px 0 12px; border-top: 1px solid var(--borde); font-size: 13px; color: #15803d; }
+
+  /* ---------- El costo ----------
+     Sin costo el panel no puede decir cuánto ganás, y la rebaja automática
+     no sabe hasta dónde puede bajar (se queda en la mitad del precio). */
+  .st-aviso-costo {
+    padding: 11px 14px; border-radius: 10px; margin-bottom: 14px;
+    background: rgba(180,83,9,.09); border: 1px solid rgba(180,83,9,.28);
+    color: #7c3d06; font-size: 13px; line-height: 1.5;
+  }
+  .st-pill.sincosto { background: rgba(180,83,9,.10); color: #b45309; }
+  .st-costo-fila {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 10px 16px 10px 68px;
+    background: rgba(180,83,9,.06); border-bottom: 1px solid var(--borde);
+    font-size: 13px; color: #7c3d06;
+  }
+  .st-costo-fila input {
+    width: 110px; padding: 6px 9px;
+    border: 1px solid var(--borde); border-radius: 7px;
+    background: var(--panel); color: var(--texto); font: inherit;
+  }
+  .st-costo-fila input:focus { outline: none; border-color: var(--rojo); }
+  .st-cuenta .costo { color: var(--gris-dim); font-size: 12px; flex: none; font-variant-numeric: tabular-nums; }
+  .st-cuenta .costo.falta { color: #b45309; }
+  .st-ayuda.falta { color: #b45309; font-weight: 600; }
+
   @media (max-width: 640px) {
+    .st-costo-fila { padding-left: 16px; }
+    .st-sug { flex-wrap: wrap; gap: 6px 12px; }
+    .st-sug .nom { flex: 1 1 100%; white-space: normal; }
     .st-cuenta { padding-left: 16px; flex-wrap: wrap; }
     .st-fila2  { grid-template-columns: 1fr; }
 
@@ -240,6 +297,9 @@ $('vistaStock').innerHTML = `
       <button class="btn btn-primario" id="stCargar">+ Cargar cuentas</button>
     </div>
 
+    <section class="st-sugerir" id="stSugerir" hidden></section>
+    <div class="st-aviso-costo" id="stAvisoCosto" hidden></div>
+
     <div id="stLista"></div>
   </div>
 
@@ -270,9 +330,15 @@ $('vistaStock').innerHTML = `
             </div>
           </div>
           <div class="st-campo">
-            <label for="stCosto">Costo por cuenta (opcional)</label>
+            <label for="stCosto">Costo por cuenta (Bs)</label>
             <input type="number" id="stCosto" step="0.01" min="0" placeholder="Ej: 45">
-            <div class="st-ayuda">Lo que te costó cada una. Sirve para saber si ganás.</div>
+            <!-- Se llena solo con el último costo que anotaste de este
+                 producto: casi siempre es el mismo proveedor y el mismo
+                 precio, y así no hay que acordarse. -->
+            <div class="st-ayuda" id="stCostoAyuda">
+              Lo que te costó cada una. Con esto el Inicio te muestra cuánto
+              ganás, y la rebaja automática nunca baja de acá.
+            </div>
           </div>
         </div>
 
@@ -326,7 +392,9 @@ async function cargarTodo() {
 
   $('stRefrescar').disabled = true;
 
-  const [rProd, rCuentas] = await Promise.all([
+  const hace30 = new Date(Date.now() - 30 * 864e5).toISOString();
+
+  const [rProd, rCuentas, rVendidas] = await Promise.all([
     // La imagen vuelve a viajar acá: desde que están en Storage es una URL
     // de unos 100 bytes. Cuando eran base64 sumaban 17 MB y esta misma
     // consulta se cortaba por tiempo.
@@ -341,14 +409,28 @@ async function cargarTodo() {
     // El order() de Postgres ordena por bytes, así que "Ángel" caería
     // después de "Zulu". Se reordena en JavaScript más abajo, con
     // localeCompare, que sí entiende tildes y ñ.
-    sbAdmin.from('productos').select('id, nombre, imagen').order('nombre'),
-    sbAdmin.from('cuentas').select('*').order('creada_en', { ascending: false })
+    //
+    // descripcion, categoria y activo son para "Te conviene cargar": los
+    // que piden el correo del cliente o son seguidores no se entregan con
+    // stock, y los apagados no se venden.
+    sbAdmin.from('productos').select('id, nombre, imagen, descripcion, categoria, activo').order('nombre'),
+    sbAdmin.from('cuentas').select('*').order('creada_en', { ascending: false }),
+    // Lo que se vendió (pagado) en el último mes, una fila por cuenta
+    sbAdmin.from('pedidos').select('producto_id').gte('pagado_en', hace30)
   ]);
 
   $('stRefrescar').disabled = false;
 
   if (rProd.error)    { fallo(rProd.error);    return; }
   if (rCuentas.error) { fallo(rCuentas.error); return; }
+
+  // Si falla lo vendido no se corta nada: solo no hay sugerencias
+  VENDIDAS = new Map();
+  if (!rVendidas.error) {
+    for (const p of rVendidas.data || []) {
+      if (p.producto_id) VENDIDAS.set(p.producto_id, (VENDIDAS.get(p.producto_id) || 0) + 1);
+    }
+  }
 
   // El orden alfabético de verdad lo hace acá localeCompare, no Postgres:
   // con 'es' entiende que la Á va con la A y que la Ñ va después de la N,
@@ -366,6 +448,8 @@ async function cargarTodo() {
 
   llenarSelectorProductos();
   metricas();
+  sugerencias();
+  avisoDeCosto();
   listar();
 }
 
@@ -462,6 +546,7 @@ function listar() {
     const suyas  = CUENTAS.filter(c => c.producto_id === p.id);
     const libres = suyas.filter(c => c.estado === 'libre').length;
     const dadas  = suyas.filter(c => c.estado === 'entregada').length;
+    const sinCostoLibres = suyas.filter(c => c.estado === 'libre' && c.costo == null).length;
     const desplegado = abierto === p.id;
 
     // Si la foto no carga se muestra la inicial del nombre, igual que en la
@@ -479,21 +564,35 @@ function listar() {
           <span class="st-acciones">
             <span class="st-pill ${libres > 0 ? 'libre' : 'cero'}">${libres} libre${libres === 1 ? '' : 's'}</span>
             ${dadas ? `<span class="st-pill dadas">${dadas} entregada${dadas === 1 ? '' : 's'}</span>` : ''}
+            ${sinCostoLibres ? `<span class="st-pill sincosto" title="Cuentas libres sin costo anotado">sin costo</span>` : ''}
             <button class="st-mini" data-cargar="${p.id}">+ Cargar</button>
           </span>
           <span class="st-flecha">▸</span>
         </div>
-        ${desplegado ? filasDeCuentas(suyas) : ''}
+        ${desplegado ? filasDeCuentas(suyas, p.id) : ''}
       </div>`;
   }).join('');
 }
 
-function filasDeCuentas(cuentas) {
+function filasDeCuentas(cuentas, productoId) {
   if (cuentas.length === 0) {
     return `<div class="st-cuentas"><div class="st-cuenta">Sin cuentas cargadas.</div></div>`;
   }
 
-  return `<div class="st-cuentas">` + cuentas.map(c => {
+  // Las que no tienen costo (libres o ya entregadas) se completan de una:
+  // así la ganancia del Inicio cuenta también lo que ya vendiste, y la
+  // rebaja automática sabe hasta dónde puede bajar.
+  const sinCosto = cuentas.filter(c => c.costo == null).length;
+  const sugerido = ultimoCosto(productoId);
+  const filaCosto = sinCosto ? `
+    <div class="st-costo-fila">
+      <span>${sinCosto} cuenta${sinCosto === 1 ? '' : 's'} sin costo anotado. ¿Cuánto te costó cada una?</span>
+      <input type="number" step="0.01" min="0" placeholder="Bs" data-costo-de="${productoId}"
+             value="${sugerido != null ? sugerido : ''}" aria-label="Costo por cuenta en bolivianos">
+      <button class="st-mini" data-poner-costo="${productoId}">Guardar costo</button>
+    </div>` : '';
+
+  return `<div class="st-cuentas">` + filaCosto + cuentas.map(c => {
     const cred  = c.credenciales || {};
     const clave = cred.clave || cred.password || '';
     return `
@@ -502,12 +601,99 @@ function filasDeCuentas(cuentas) {
         ${clave ? `<span class="st-clave tapada" data-clave title="Tocar para ver / copiar">${escapar(clave)}</span>` : ''}
         ${cred.perfil ? `<span style="color:var(--gris-dim);font-size:12.5px;">${escapar(cred.perfil)}</span>` : ''}
         ${c.vence_en ? `<span style="color:var(--gris-dim);font-size:12px;">vence ${escapar(c.vence_en)}</span>` : ''}
+        ${c.costo != null
+          ? `<span class="costo">costo ${Number(c.costo).toFixed(2)} Bs</span>`
+          : `<span class="costo falta">sin costo</span>`}
         <span class="st-estado ${c.estado}">${c.estado}</span>
         ${c.estado === 'libre'
           ? `<button class="st-mini" data-anular="${c.id}">Anular</button>`
           : ''}
       </div>`;
   }).join('') + `</div>`;
+}
+
+// ------------------------------------------------------------
+// Te conviene cargar
+// ------------------------------------------------------------
+// Casi todos los productos se entregan por WhatsApp porque no tienen
+// cuentas cargadas: cada venta pasa por vos. Esta lista dice dónde rinde
+// más cargar: lo que más se vendió en el último mes y no tiene stock, o
+// le quedan menos cuentas de las que se venden en una semana.
+// Quedan afuera los que no se entregan con stock: los que piden el correo
+// del cliente (se activan sobre SU cuenta), los seguidores y los apagados.
+const MAX_SUGERENCIAS = 8;
+
+function sugerencias() {
+  const caja = $('stSugerir');
+  // Sin ventas en el mes (o si no se pudieron leer) no hay nada que sugerir
+  if (!VENDIDAS.size) { caja.hidden = true; return; }
+
+  const libresDe  = id => CUENTAS.filter(c => c.producto_id === id && c.estado === 'libre').length;
+  const noSeCarga = p => (p.descripcion || '').toLowerCase().includes('correo de cliente')
+                      || p.categoria === 'seguidores' || p.activo === false;
+
+  const lista = PRODUCTOS
+    .filter(p => VENDIDAS.get(p.id) && !noSeCarga(p))
+    .map(p => {
+      const vendidas = VENDIDAS.get(p.id);
+      return { p, vendidas, libres: libresDe(p.id), porSemana: Math.max(1, Math.ceil(vendidas / 4)) };
+    })
+    .filter(x => x.libres < x.porSemana)
+    // Primero los que no tienen nada, y dentro de cada grupo los que más salen
+    .sort((a, b) => (a.libres === 0) !== (b.libres === 0)
+      ? (a.libres === 0 ? -1 : 1)
+      : b.vendidas - a.vendidas)
+    .slice(0, MAX_SUGERENCIAS);
+
+  caja.hidden = false;
+  caja.innerHTML = `
+    <h3>Te conviene cargar</h3>
+    <p class="sub">Lo que más vendiste en los últimos 30 días y no tiene cuentas (o le quedan
+       menos de las que se venden en una semana). Con stock, esas ventas se entregan solas.</p>
+    ${lista.length ? lista.map(x => `
+      <div class="st-sug">
+        <span class="nom">${escapar(x.p.nombre)}</span>
+        <span class="vendidas">vendiste ${x.vendidas} en 30 días</span>
+        <span class="st-pill ${x.libres ? 'libre' : 'cero'}">${x.libres ? `quedan ${x.libres}` : 'sin stock'}</span>
+        <button class="st-mini" data-cargar="${x.p.id}">+ Cargar</button>
+      </div>`).join('')
+    : `<div class="bien">✓ Todo lo que más vendés tiene stock para una semana.</div>`}`;
+}
+
+// El aviso de arriba de la lista: cuántas cuentas libres no tienen costo
+function avisoDeCosto() {
+  const caja = $('stAvisoCosto');
+  const n = CUENTAS.filter(c => c.estado === 'libre' && c.costo == null).length;
+  caja.hidden = n === 0;
+  if (!n) return;
+  caja.innerHTML = `⚠️ <strong>${n} cuenta${n === 1 ? '' : 's'} libre${n === 1 ? '' : 's'} sin costo anotado.</strong>
+    Abrí los productos que dicen "sin costo" y anotalo: sin costo no se ve cuánto ganás,
+    y la rebaja automática puede bajar hasta la mitad del precio.`;
+}
+
+// Anota el costo en todas las cuentas de un producto que no lo tenían,
+// libres y entregadas (así la ganancia cuenta también lo ya vendido).
+async function ponerCosto(productoId, boton) {
+  const campo = document.querySelector(`[data-costo-de="${productoId}"]`);
+  const costo = parseFloat(campo && campo.value);
+  if (!Number.isFinite(costo) || costo < 0) {
+    aviso('Escribí el costo de cada cuenta en Bs (por ejemplo 45)', 'error');
+    if (campo) campo.focus();
+    return;
+  }
+
+  boton.disabled = true;
+  const { data, error } = await sbAdmin.from('cuentas')
+    .update({ costo })
+    .eq('producto_id', productoId)
+    .is('costo', null)
+    .select('id');
+  boton.disabled = false;
+
+  if (error) { aviso(`No se pudo guardar el costo: ${error.message}`, 'error'); return; }
+  const n = (data || []).length;
+  aviso(`✓ Costo de ${costo.toFixed(2)} Bs anotado en ${n} cuenta${n === 1 ? '' : 's'}`, 'ok');
+  await cargarTodo();
 }
 
 // Los productos guardan rutas relativas a la raíz del sitio, y el panel
@@ -561,6 +747,15 @@ $('stLista').addEventListener('click', async e => {
     return;
   }
 
+  // --- Anotar el costo de las cuentas que no lo tienen ---
+  const costo = e.target.closest('[data-poner-costo]');
+  if (costo) {
+    await ponerCosto(costo.dataset.ponerCosto, costo);
+    return;
+  }
+  // Tocar el campo del costo no pliega el producto
+  if (e.target.closest('.st-costo-fila')) return;
+
   // --- Anular una cuenta ---
   const anular = e.target.closest('[data-anular]');
   if (anular) {
@@ -580,6 +775,21 @@ $('stLista').addEventListener('click', async e => {
 $('stBuscar').addEventListener('input', listar);
 $('stRefrescar').addEventListener('click', cargarTodo);
 $('stCargar').addEventListener('click', () => abrirModal(null));
+
+// "+ Cargar" en la lista de "Te conviene cargar"
+$('stSugerir').addEventListener('click', e => {
+  const cargar = e.target.closest('[data-cargar]');
+  if (cargar) abrirModal(cargar.dataset.cargar);
+});
+
+// Enter en el campo del costo = "Guardar costo"
+$('stLista').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const campo = e.target.closest('[data-costo-de]');
+  if (!campo) return;
+  const boton = document.querySelector(`[data-poner-costo="${campo.dataset.costoDe}"]`);
+  if (boton) ponerCosto(campo.dataset.costoDe, boton);
+});
 
 // Anular = "esta cuenta se cayó, no la vendas", y se BORRA de la base.
 // Antes quedaba marcada 'anulada' y el stock se llenaba de filas tachadas
@@ -635,12 +845,51 @@ function abrirModal(productoId) {
   }
   if (productoId) $('stProducto').value = productoId;
   $('stTexto').value = '';
-  $('stCosto').value = '';
   $('stVence').value = '';
+  costoTocado = false;
+  sinCostoConfirmado = false;
+  sugerirCosto();
   refrescarPrevia();
   $('stFondo').classList.add('abierto');
   $('stTexto').focus();
 }
+
+// ------------------------------------------------------------
+// El costo al cargar
+// ------------------------------------------------------------
+// Se llena solo con lo último que anotaste de ese producto (casi siempre
+// es el mismo proveedor y el mismo precio), mientras no lo cambies a mano.
+// Y si queda vacío, "Cargar" pide confirmación una vez: sin costo no se ve
+// la ganancia y la rebaja automática no sabe hasta dónde bajar.
+let costoTocado = false;
+let sinCostoConfirmado = false;
+
+const AYUDA_COSTO = 'Lo que te costó cada una. Con esto el Inicio te muestra cuánto ' +
+                    'ganás, y la rebaja automática nunca baja de acá.';
+
+function sugerirCosto() {
+  if (costoTocado) return;
+  const c = ultimoCosto($('stProducto').value);
+  $('stCosto').value = c != null ? c : '';
+  pintarPedidoDeCosto(false);
+}
+
+function pintarPedidoDeCosto(pedir) {
+  const ayuda = $('stCostoAyuda');
+  ayuda.classList.toggle('falta', pedir);
+  ayuda.textContent = pedir
+    ? 'Falta el costo: sin él no vas a ver cuánto ganás con estas cuentas. ' +
+      'Escribilo, o tocá "Cargar sin costo" si no lo sabés.'
+    : AYUDA_COSTO;
+  $('stGuardar').textContent = pedir ? 'Cargar sin costo' : 'Cargar';
+}
+
+$('stProducto').addEventListener('change', () => { sinCostoConfirmado = false; sugerirCosto(); });
+$('stCosto').addEventListener('input', () => {
+  costoTocado = true;
+  sinCostoConfirmado = false;
+  pintarPedidoDeCosto(false);
+});
 
 function cerrarModal() { $('stFondo').classList.remove('abierto'); }
 
@@ -734,6 +983,14 @@ $('stGuardar').addEventListener('click', async () => {
   const productoId = $('stProducto').value;
   const costo      = parseFloat($('stCosto').value);
   const vence      = $('stVence').value || null;
+
+  // Sin costo: la primera vez se avisa, la segunda se carga igual
+  if (!Number.isFinite(costo) && !sinCostoConfirmado) {
+    sinCostoConfirmado = true;
+    pintarPedidoDeCosto(true);
+    $('stCosto').focus();
+    return;
+  }
 
   const filas = buenas.map(f => ({
     producto_id:  productoId,

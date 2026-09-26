@@ -333,13 +333,15 @@
   </footer>
 
   <!-- BOTTOM NAV -->
+  <!-- Íconos de línea (y no emojis): toman el color de la pestaña, rojo
+       en la activa, y se ven iguales en cualquier celular. -->
   <nav class="bottom-nav">
     <button class="nav-item active" onclick="goHome()">
-      <span class="nav-icon">🏠</span>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9v10.5a1 1 0 0 0 1 1H10v-5.5h4v5.5h3.5a1 1 0 0 0 1-1V9"/></svg></span>
       Plataformas
     </button>
     <a class="nav-item" href="recarga-juegos.html" style="text-decoration:none;">
-      <span class="nav-icon">🎮</span>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5.5"/><path d="M7.5 10.5v4M5.5 12.5h4"/><path d="M15.5 11.2h.01M17.8 13.8h.01" stroke-width="2.6"/></svg></span>
       Juegos
     </a>
     <!-- Antes acá estaba "Categorías", que llevaba a showAllCats(). Las
@@ -348,18 +350,18 @@
          El historial no tenía dónde entrar y es lo que el cliente busca
          cuando vuelve. -->
     <a class="nav-item" href="mis-compras.html" style="text-decoration:none;">
-      <span class="nav-icon">🧾</span>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5.5 3.5h13v17l-2.6-1.7-2.2 1.7-1.7-1.3-1.7 1.3-2.2-1.7-2.6 1.7z"/><path d="M9 8.5h6M9 12.5h6"/></svg></span>
       Historial
     </a>
     <button class="nav-item" onclick="openCart()">
       <div class="nav-cart-wrap">
-        <span class="nav-icon">🛒</span>
+        <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/><path d="M2.5 3.5h2.6l2.2 10.8a1.6 1.6 0 0 0 1.6 1.2h7.8a1.6 1.6 0 0 0 1.6-1.2l1.7-7H5.9"/></svg></span>
         <span class="nav-cart-badge" id="7">0</span>
       </div>
       Carro
     </button>
     <button class="nav-item">
-      <span class="nav-icon">🔔</span>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.6 1.8H4.4z"/><path d="M10 20.5a2.1 2.1 0 0 0 4 0"/></svg></span>
       Notificaciones
     </button>
   </nav>

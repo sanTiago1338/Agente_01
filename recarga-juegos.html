@@ -96,7 +96,11 @@
       --verde: var(--verde-wa);
       --verde2: #1e9e5a;
       --rosa: #d81b60;
-      --barra-h: 60px;
+      /* La barra de abajo flota: su alto, el aire que la separa del borde,
+         y --barra-h, todo lo que la página deja libre abajo. */
+      --barra-alto: 62px;
+      --barra-aire: 10px;
+      --barra-h: calc(var(--barra-alto) + var(--barra-aire) + 4px);
       --borde: rgba(20,22,26,0.063);
       --borde-dorado: rgba(255,215,0,0.35);
     }
@@ -527,29 +531,84 @@
     }
 
     /* ===== BOTTOM NAV ===== */
+    /* Barra de abajo: liquid glass. Es la misma de css/tienda.css (ahí
+       está explicada): si cambiás una, cambiá la otra. */
     .bottom-nav {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: var(--barra-h);
-      background: var(--negro2);
-      border-top: 1px solid var(--borde);
-      display: flex; justify-content: space-around; align-items: center;
+      left: 50%;
+      bottom: calc(var(--barra-aire) + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      width: min(calc(100% - 20px), 540px);
+      height: var(--barra-alto);
+      display: flex; align-items: stretch; gap: 2px;
+      padding: 5px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,255,255,.5));
+      -webkit-backdrop-filter: blur(22px) saturate(180%);
+      backdrop-filter: blur(22px) saturate(180%);
+      border: 1px solid rgba(255,255,255,.8);
+      box-shadow:
+        0 12px 32px rgba(20,22,26,.14),
+        0 2px 8px rgba(20,22,26,.06),
+        0 0 0 .5px rgba(20,22,26,.08),
+        inset 0 1px 0 rgba(255,255,255,.95),
+        inset 0 -1px 1px rgba(20,22,26,.05);
       z-index: 100;
     }
-    .nav-item {
-      background: none; border: none;
-      color: var(--texto-dim);
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.65rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex; flex-direction: column; align-items: center;
-      gap: 0.15rem;
-      text-decoration: none;
+    .bottom-nav::before {
+      content: '';
+      position: absolute;
+      inset: 1px 1px 50%;
+      border-radius: 999px 999px 40% 40% / 999px 999px 18px 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,255,255,0));
+      pointer-events: none;
     }
-    .nav-item .nav-icon { font-size: 1.3rem; line-height: 1; }
-    .nav-item.active { color: var(--rojo); }
-    .nav-item:hover { color: var(--blanco); }
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      .bottom-nav { background: rgba(255,255,255,.96); }
+    }
+    .nav-item {
+      position: relative; isolation: isolate;
+      flex: 1; min-width: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px;
+      border: none; border-radius: 999px; background: none;
+      color: var(--tinta-media);
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(0.6rem, 2.6vw, 0.68rem);
+      font-weight: 600; letter-spacing: 0.1px; white-space: nowrap;
+      text-decoration: none; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color .2s, transform .18s cubic-bezier(.3,.7,.4,1.4);
+    }
+    .nav-item::before {
+      content: '';
+      position: absolute; inset: 0; z-index: -1;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(20,22,26,.04), rgba(20,22,26,.085));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.85),
+        inset 0 0 0 1px rgba(255,255,255,.4),
+        0 1px 3px rgba(20,22,26,.06);
+      opacity: 0; transform: scale(.82);
+      transition: opacity .25s ease, transform .35s cubic-bezier(.3,.7,.4,1.3);
+    }
+    .nav-item .nav-icon { display: block; width: 23px; height: 23px; }
+    .nav-item .nav-icon svg {
+      display: block; width: 100%; height: 100%;
+      fill: none; stroke: currentColor; stroke-width: 1.8;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .nav-item:hover { color: var(--tinta); }
+    .nav-item:hover::before { opacity: .45; transform: scale(1); }
+    .nav-item:active { transform: scale(.93); }
+    .nav-item:focus-visible { outline: 2px solid var(--rojo); outline-offset: -2px; }
+    .nav-item.active,
+    .nav-item.active:hover { color: var(--rojo); }
+    .nav-item.active::before { opacity: 1; transform: scale(1); }
+    .nav-item.active .nav-icon svg { stroke-width: 2.1; }
+    @media (prefers-reduced-motion: reduce) {
+      .nav-item, .nav-item::before { transition: none; }
+    }
 
     /* ===== MODAL ===== */
     .modal-overlay {
@@ -1271,21 +1330,21 @@
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
     <a class="nav-item" href="index.html">
-      <span class="nav-icon">🏠</span>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9v10.5a1 1 0 0 0 1 1H10v-5.5h4v5.5h3.5a1 1 0 0 0 1-1V9"/></svg></span>
       Plataformas
     </a>
     <a class="nav-item active" href="recarga-juegos.html">
-      <span class="nav-icon">🎮</span>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="11" rx="5.5"/><path d="M7.5 10.5v4M5.5 12.5h4"/><path d="M15.5 11.2h.01M17.8 13.8h.01" stroke-width="2.6"/></svg></span>
       Juegos
     </a>
     <!-- Igual que en index.html: las categorías ya están en las pestañas
          del catálogo, y el historial no tenía dónde entrar. -->
     <a class="nav-item" href="mis-compras.html">
-      <span class="nav-icon">🧾</span>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5.5 3.5h13v17l-2.6-1.7-2.2 1.7-1.7-1.3-1.7 1.3-2.2-1.7-2.6 1.7z"/><path d="M9 8.5h6M9 12.5h6"/></svg></span>
       Historial
     </a>
     <a class="nav-item" href="contacto.html">
-      <span class="nav-icon">💬</span>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.3 7.6L3.5 20.5l1.3-4.3a8.5 8.5 0 1 1 15.7-4.7z"/></svg></span>
       Contacto
     </a>
   </nav>

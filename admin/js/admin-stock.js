@@ -34,9 +34,10 @@ const escapar = s => String(s ?? '').replace(/[&<>"]/g,
   c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 // Lo que se lee de la base en cada refresco
-let PRODUCTOS = [];   // [{ id, nombre, imagen, descripcion, categoria, activo }]
+let PRODUCTOS = [];   // [{ id, nombre, imagen, descripcion, categoria, activo, rebaja_auto, precio, ... }]
 let CUENTAS   = [];   // [{ id, producto_id, estado, costo, ... }]
 let VENDIDAS  = new Map();   // producto_id -> unidades pagadas en los últimos 30 días
+let REBAJAS   = new Map();   // producto_id -> Bs que baja hoy (solo los que bajan algo)
 let abierto   = null; // qué producto está desplegado en la lista
 
 // Lo último que te costó una cuenta de este producto, o null si nunca lo
@@ -256,7 +257,52 @@ css.textContent = `
   .st-cuenta .costo.falta { color: #b45309; }
   .st-ayuda.falta { color: #b45309; font-weight: 600; }
 
+  /* ---------- Rebaja automática ----------
+     Se prende desde acá porque depende del stock: baja el precio mientras
+     queden cuentas sin vender (ver supabase/05-cobros.sql, sección 13). */
+  .st-rebaja {
+    display: inline-flex; align-items: center; gap: 6px; flex: none;
+    background: none; border: 1px solid var(--borde); color: var(--gris);
+    border-radius: 99px; padding: 3px 10px 3px 4px;
+    font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .st-rebaja:hover { border-color: rgba(21,128,61,.45); }
+  .st-rebaja.on { color: #15803d; border-color: rgba(21,128,61,.35); background: rgba(21,128,61,.08); }
+  .st-rebaja:disabled { opacity: .6; cursor: wait; }
+  .st-rebaja .knob, .st-switch .knob {
+    position: relative; flex: none;
+    width: 24px; height: 14px; border-radius: 99px;
+    background: rgba(20,22,26,.2); transition: background .15s;
+  }
+  .st-rebaja .knob::after, .st-switch .knob::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25);
+    transition: transform .15s;
+  }
+  .st-rebaja.on .knob, .st-switch input:checked + .knob { background: #16a34a; }
+  .st-rebaja.on .knob::after, .st-switch input:checked + .knob::after { transform: translateX(10px); }
+
+  .st-rebaja-fila {
+    padding: 10px 16px 10px 68px;
+    background: rgba(21,128,61,.06); border-bottom: 1px solid var(--borde);
+    font-size: 13px; line-height: 1.5; color: #14532d;
+  }
+  .st-rebaja-fila .falta { color: #b45309; font-weight: 600; }
+
+  /* El interruptor del modal de carga */
+  .st-campo label.st-switch {
+    display: flex; align-items: center; gap: 9px; margin: 0;
+    font-size: 13.5px; font-weight: 700; color: var(--tinta); cursor: pointer;
+  }
+  .st-campo .st-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; padding: 0; }
+  .st-switch input:focus-visible + .knob { outline: 2px solid #16a34a; outline-offset: 2px; }
+
   @media (max-width: 640px) {
+    .st-rebaja-fila { padding-left: 16px; }
+    .st-rebaja .largo { display: none; }
+    .st-acciones { flex-wrap: wrap; row-gap: 8px; }
     .st-costo-fila { padding-left: 16px; }
     .st-sug { flex-wrap: wrap; gap: 6px 12px; }
     .st-sug .nom { flex: 1 1 100%; white-space: normal; }
@@ -351,6 +397,21 @@ $('vistaStock').innerHTML = `
           </div>
         </div>
 
+        <!-- Arranca como está el producto: si ya la tenía prendida, sigue.
+             Se guarda junto con las cuentas, al tocar "Cargar". -->
+        <div class="st-campo">
+          <label class="st-switch" for="stRebaja">
+            <input type="checkbox" id="stRebaja">
+            <span class="knob"></span>
+            📉 Rebaja automática para este producto
+          </label>
+          <div class="st-ayuda">
+            Mientras queden cuentas sin vender, el precio baja <strong>2 Bs cada 3 días</strong>
+            (contando desde la más vieja) y nunca baja del costo. En la tienda se ve como
+            oferta. Cuando se venden, vuelve a su precio.
+          </div>
+        </div>
+
         <div class="st-campo">
           <label for="stTexto">Una cuenta por línea</label>
           <textarea id="stTexto" spellcheck="false"
@@ -394,7 +455,7 @@ async function cargarTodo() {
 
   const hace30 = new Date(Date.now() - 30 * 864e5).toISOString();
 
-  const [rProd, rCuentas, rVendidas] = await Promise.all([
+  const [rProd, rCuentas, rVendidas, rRebajas] = await Promise.all([
     // La imagen vuelve a viajar acá: desde que están en Storage es una URL
     // de unos 100 bytes. Cuando eran base64 sumaban 17 MB y esta misma
     // consulta se cortaba por tiempo.
@@ -413,10 +474,18 @@ async function cargarTodo() {
     // descripcion, categoria y activo son para "Te conviene cargar": los
     // que piden el correo del cliente o son seguidores no se entregan con
     // stock, y los apagados no se venden.
-    sbAdmin.from('productos').select('id, nombre, imagen, descripcion, categoria, activo').order('nombre'),
+    //
+    // rebaja_auto y los precios son para el interruptor de la rebaja
+    // automática y para mostrar a cuánto se vende hoy.
+    sbAdmin.from('productos')
+      .select('id, nombre, imagen, descripcion, categoria, activo, rebaja_auto, precio, precio_oferta, oferta')
+      .order('nombre'),
     sbAdmin.from('cuentas').select('*').order('creada_en', { ascending: false }),
     // Lo que se vendió (pagado) en el último mes, una fila por cuenta
-    sbAdmin.from('pedidos').select('producto_id').gte('pagado_en', hace30)
+    sbAdmin.from('pedidos').select('producto_id').gte('pagado_en', hace30),
+    // Cuánto le toca hoy a cada producto con la rebaja prendida. La cuenta
+    // la hace la base, que es la que cobra: acá solo se muestra.
+    sbAdmin.rpc('rebajas_vigentes')
   ]);
 
   $('stRefrescar').disabled = false;
@@ -430,6 +499,11 @@ async function cargarTodo() {
     for (const p of rVendidas.data || []) {
       if (p.producto_id) VENDIDAS.set(p.producto_id, (VENDIDAS.get(p.producto_id) || 0) + 1);
     }
+  }
+  // Tampoco si falla la rebaja de hoy: el interruptor anda igual
+  REBAJAS = new Map();
+  if (!rRebajas.error) {
+    for (const r of rRebajas.data || []) REBAJAS.set(r.producto_id, Number(r.rebaja) || 0);
   }
 
   // El orden alfabético de verdad lo hace acá localeCompare, no Postgres:
@@ -565,11 +639,12 @@ function listar() {
             <span class="st-pill ${libres > 0 ? 'libre' : 'cero'}">${libres} libre${libres === 1 ? '' : 's'}</span>
             ${dadas ? `<span class="st-pill dadas">${dadas} entregada${dadas === 1 ? '' : 's'}</span>` : ''}
             ${sinCostoLibres ? `<span class="st-pill sincosto" title="Cuentas libres sin costo anotado">sin costo</span>` : ''}
+            ${botonRebaja(p)}
             <button class="st-mini" data-cargar="${p.id}">+ Cargar</button>
           </span>
           <span class="st-flecha">▸</span>
         </div>
-        ${desplegado ? filasDeCuentas(suyas, p.id) : ''}
+        ${desplegado ? filaDeRebaja(p, suyas) + filasDeCuentas(suyas, p.id) : ''}
       </div>`;
   }).join('');
 }
@@ -610,6 +685,91 @@ function filasDeCuentas(cuentas, productoId) {
           : ''}
       </div>`;
   }).join('') + `</div>`;
+}
+
+// ------------------------------------------------------------
+// Rebaja automática
+// ------------------------------------------------------------
+// El interruptor vive en el stock y no en el producto porque es del
+// stock: baja el precio mientras queden cuentas sin vender, contando desde
+// la más vieja. Lo natural es prenderlo cuando cargás.
+function botonRebaja(p) {
+  const on  = p.rebaja_auto === true;
+  const hoy = REBAJAS.get(p.id) || 0;
+  const titulo = on
+    ? 'Rebaja automática prendida: tocá para apagarla y volver al precio normal'
+    : 'Rebaja automática: mientras queden cuentas sin vender, el precio baja 2 Bs cada 3 días. Tocá para prenderla';
+  return `
+    <button class="st-rebaja ${on ? 'on' : ''}" data-rebaja="${p.id}" title="${titulo}" aria-pressed="${on}">
+      <span class="knob"></span><span>📉 Rebaja<span class="largo"> automática</span>${on && hoy ? ` −${fmtBs(hoy)} Bs` : ''}</span>
+    </button>`;
+}
+
+// Al desplegar un producto con la rebaja prendida: cuánto baja hoy, a
+// cuánto se vende y hasta dónde puede llegar. Mismas reglas que la base.
+function filaDeRebaja(p, cuentas) {
+  if (p.rebaja_auto !== true) return '';
+
+  const base   = (p.oferta && Number(p.precio_oferta) > 0) ? Number(p.precio_oferta) : Number(p.precio);
+  const libres = cuentas.filter(c => c.estado === 'libre');
+  const costos = libres.filter(c => c.costo != null).map(c => Number(c.costo));
+  const hoy    = REBAJAS.get(p.id) || 0;
+
+  let texto = '📉 <strong>Rebaja automática prendida.</strong> ';
+  if (!libres.length) {
+    texto += 'Sin cuentas libres no baja nada: se vende a su precio.';
+  } else if (hoy) {
+    texto += `Hoy baja ${fmtBs(hoy)} Bs y se vende a <strong>${fmtBs(base - hoy)} Bs</strong> (precio normal ${fmtBs(base)} Bs).`;
+  } else {
+    texto += 'Hoy todavía no baja: empieza cuando la cuenta más vieja cumple 3 días sin venderse.';
+  }
+
+  if (libres.length && base > 0) {
+    texto += costos.length
+      ? ` Nunca baja de ${fmtBs(Math.max(...costos))} Bs, tu costo.`
+      : ` <span class="falta">Sin costo anotado puede bajar hasta ${fmtBs(Math.round(base * 50) / 100)} Bs, la mitad del precio.</span>`;
+  }
+  return `<div class="st-rebaja-fila">${texto}</div>`;
+}
+
+// 12 -> "12" · 12.5 -> "12.50"
+const fmtBs = n => Number.isInteger(n) ? String(n) : n.toFixed(2);
+
+// Prende o apaga la rebaja de un producto. Devuelve true si se guardó.
+async function guardarRebaja(productoId, prender) {
+  // El select() es para saber si tocó la fila: con RLS, un update sin
+  // permiso no da error, vuelve vacío.
+  const { data, error } = await sbAdmin.from('productos')
+    .update({ rebaja_auto: prender })
+    .eq('id', productoId)
+    .select('id');
+
+  if (error || !(data || []).length) {
+    aviso(`No se pudo ${prender ? 'prender' : 'apagar'} la rebaja: ${error ? error.message : 'sin permiso'}`, 'error');
+    return false;
+  }
+  const p = PRODUCTOS.find(x => x.id === productoId);
+  if (p) p.rebaja_auto = prender;
+  return true;
+}
+
+async function alternarRebaja(productoId, boton) {
+  const p = PRODUCTOS.find(x => x.id === productoId);
+  if (!p || boton.disabled) return;
+  const prender = p.rebaja_auto !== true;
+
+  boton.disabled = true;
+  const ok = await guardarRebaja(productoId, prender);
+  boton.disabled = false;
+  if (!ok) return;
+
+  const sinCosto = CUENTAS.some(c => c.producto_id === productoId && c.estado === 'libre')
+                && !CUENTAS.some(c => c.producto_id === productoId && c.estado === 'libre' && c.costo != null);
+  aviso(prender
+    ? `📉 Rebaja automática prendida en "${p.nombre}"` +
+      (sinCosto ? '. Anotá el costo: sin él puede bajar hasta la mitad del precio' : '')
+    : `Rebaja automática apagada en "${p.nombre}": vuelve a su precio`, 'ok');
+  await cargarTodo();
 }
 
 // ------------------------------------------------------------
@@ -747,6 +907,13 @@ $('stLista').addEventListener('click', async e => {
     return;
   }
 
+  // --- Prender / apagar la rebaja automática ---
+  const rebaja = e.target.closest('[data-rebaja]');
+  if (rebaja) {
+    await alternarRebaja(rebaja.dataset.rebaja, rebaja);
+    return;
+  }
+
   // --- Anotar el costo de las cuentas que no lo tienen ---
   const costo = e.target.closest('[data-poner-costo]');
   if (costo) {
@@ -849,6 +1016,7 @@ function abrirModal(productoId) {
   costoTocado = false;
   sinCostoConfirmado = false;
   sugerirCosto();
+  rebajaDelProducto();
   refrescarPrevia();
   $('stFondo').classList.add('abierto');
   $('stTexto').focus();
@@ -884,7 +1052,17 @@ function pintarPedidoDeCosto(pedir) {
   $('stGuardar').textContent = pedir ? 'Cargar sin costo' : 'Cargar';
 }
 
-$('stProducto').addEventListener('change', () => { sinCostoConfirmado = false; sugerirCosto(); });
+// El interruptor de la rebaja arranca como está el producto elegido
+function rebajaDelProducto() {
+  const p = PRODUCTOS.find(x => x.id === $('stProducto').value);
+  $('stRebaja').checked = p?.rebaja_auto === true;
+}
+
+$('stProducto').addEventListener('change', () => {
+  sinCostoConfirmado = false;
+  sugerirCosto();
+  rebajaDelProducto();
+});
 $('stCosto').addEventListener('input', () => {
   costoTocado = true;
   sinCostoConfirmado = false;
@@ -1013,8 +1191,17 @@ $('stGuardar').addEventListener('click', async () => {
     return;
   }
 
-  const nombre = PRODUCTOS.find(p => p.id === productoId)?.nombre || '';
-  aviso(`✓ ${filas.length} cuenta${filas.length === 1 ? '' : 's'} de "${nombre}" en stock`, 'ok');
+  const producto = PRODUCTOS.find(p => p.id === productoId);
+  let mensaje = `✓ ${filas.length} cuenta${filas.length === 1 ? '' : 's'} de "${producto?.nombre || ''}" en stock`;
+
+  // La rebaja se guarda recién ahora, con las cuentas ya cargadas. Si
+  // falla, guardarRebaja avisa aparte y las cuentas quedan igual.
+  const conRebaja = $('stRebaja').checked;
+  if (producto && conRebaja !== (producto.rebaja_auto === true)
+      && await guardarRebaja(productoId, conRebaja)) {
+    mensaje += conRebaja ? ' · 📉 rebaja automática prendida' : ' · rebaja automática apagada';
+  }
+  aviso(mensaje, 'ok');
   cerrarModal();
   abierto = productoId;      // dejarlo desplegado para que se vean
   await cargarTodo();

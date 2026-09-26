@@ -1140,8 +1140,8 @@ create index if not exists pedidos_producto_idx
 --     normal: el reloj es de la mercadería, no del producto.
 --   · Nunca por debajo del costo. Si ninguna cuenta libre tiene el costo
 --     anotado (Panel → Stock), el piso es la mitad del precio de venta.
---   · Solo en los productos que tengan el interruptor "Rebaja automática"
---     (Panel → Productos). Por defecto está apagado: nada cambia solo.
+--   · Solo en los productos que tengan prendida la "Rebaja automática"
+--     (Panel → Stock). Por defecto está apagada: nada cambia solo.
 --
 -- La tienda muestra la rebaja como una oferta, con el precio normal
 -- tachado (ver rebajas_vigentes y js/tienda-catalogo.js). Pero el precio

@@ -76,7 +76,7 @@ WhatsApp, y el pedido queda marcado `sin_stock` para que lo atiendas.
 
 ## Rebaja automática del stock que no se vende
 
-**Panel → Productos → editar → `📉 Rebaja automática`**
+**Panel → Stock → `📉 Rebaja automática`** (en cada producto, o al cargar cuentas)
 
 Una cuenta cargada que no se vende pierde valor: cada día que pasa en el
 stock es un día que se le vence sin que nadie la use. Con el interruptor

@@ -355,6 +355,19 @@ body .wa-bubble svg { filter: drop-shadow(0 1px 1px rgba(0,60,30,.3)); }
   html { scrollbar-width: thin; scrollbar-color: rgba(20,22,26,.3) transparent; }
 }
 
+/* Escondida mientras nadie la usa: la de la página y las filas con
+   class="barra-sola" (los Tops). js/barra-vidrio.js pone .barra-quieta
+   (en el <body> para la de la página)
+   y la saca al deslizar o al acercar el mouse. Sin ese archivo (o en el
+   celular, donde no corre) la barra se ve como siempre. */
+.barra-quieta::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  background-image: none;
+}
+@supports not selector(::-webkit-scrollbar) {
+  .barra-quieta { scrollbar-color: transparent transparent; }
+}
+
 @media (prefers-reduced-transparency: reduce) {
   :root {
     --vidrio:       rgba(255,255,255,.97);

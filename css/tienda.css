@@ -587,12 +587,11 @@
       overflow-y: hidden;
       padding: 0.5rem 0.25rem 0.75rem;
       scroll-snap-type: x mandatory;
-      scrollbar-width: thin;
-      scrollbar-color: var(--rojo) transparent;
     }
-    .tops-scroll::-webkit-scrollbar { height: 6px; }
-    .tops-scroll::-webkit-scrollbar-track { background: transparent; }
-    .tops-scroll::-webkit-scrollbar-thumb { background: var(--separador-2); border-radius: 3px; }
+    /* La barra es la de vidrio de css/vidrio.css, y se esconde sola
+       mientras nadie la usa (class="barra-sola", js/barra-vidrio.js).
+       Sin scrollbar-color acá: en Chrome ese pisa a ::-webkit-scrollbar y
+       volvía la barra de Windows, roja y con flechas. */
 
     .tops-card {
       flex: 0 0 200px;

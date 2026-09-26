@@ -595,9 +595,16 @@
   /* Vidrio verde (css/vidrio.css): acá solo la forma */
   .btn-wa-help { border-radius: 999px; }
   /* ---------- Dos columnas en compu, todo en una pantalla ----------
-     Izquierda: pasos, estado, resumen del pedido, instrucciones, datos,
-     "Ya pagué" y el pedido. Derecha: el monto y el QR, que se quedan a
-     la vista mientras se baja por la izquierda. */
+     Arriba y al centro, los pasos (Elegir, Carrito, Pagar con QR).
+     Izquierda: el resumen del pedido, los datos, "Ya pagué" y el pedido.
+     Derecha: "Esperando pago", el monto, el QR y debajo los 4 pasos
+     para pagar. */
+  #pasosPago {
+    justify-content: center;
+    max-width: 460px;
+    margin-left: auto;
+    margin-right: auto;
+  }
   .pay-instructions {
     border-top: none;
     margin-bottom: 1.25rem;
@@ -617,10 +624,12 @@
       align-items: start;
     }
     .pago-der { position: sticky; top: 1rem; }
-    .pago-der .pay-card { margin-bottom: 0; }
-    .pay-card-header { padding: 1rem; }
-    .pay-qr-wrap { padding: 1rem; margin: .75rem; }
-    .pay-qr-wrap img { max-width: 240px; }
+    .pago-der .pay-card { margin-bottom: .9rem; }
+    .pago-der .pay-status-bar { margin-bottom: .9rem; }
+    .pay-card-header { padding: .85rem 1rem; }
+    .pay-qr-wrap { padding: .9rem; margin: .7rem; }
+    .pay-qr-wrap img { max-width: 230px; }
+    .pay-instructions { padding: .85rem 1.1rem; }
     /* Entregada la cuenta, el QR se esconde: el pedido usa todo el ancho */
     .pago-grid:has(#qrCard[style*="none"]) { grid-template-columns: 1fr; }
   }
@@ -694,12 +703,10 @@
 
     <!-- Payment Content -->
     <div id="payContent" style="display:none;">
-      <!-- En compu, dos columnas: el pedido a la izquierda y el QR a la
+      <!-- En compu: los pasos arriba al centro, y dos columnas: el pedido a
+           la izquierda; el estado, el QR y cómo pagar a la
            derecha, todo en una pantalla. En el celular, una sola columna
            con el QR arriba (el orden lo da el CSS, ver .pago-grid). -->
-      <div class="pago-grid">
-        <!-- IZQUIERDA: todo lo del pedido -->
-        <div class="pago-izq">
       <!-- Los tres pasos de la compra, el mismo dibujo del carrito de la
            tienda. Solo si la compra viene de ahí: las recargas de juegos
            llegan directo, sin carrito (ver renderPayment). -->
@@ -709,12 +716,9 @@
         <li class="actual" aria-current="step"><span>3</span>Pagar con QR</li>
       </ol>
 
-      <!-- Status bar -->
-      <div class="pay-status-bar pendiente" id="statusBar">
-        <div class="status-dot"></div>
-        <span id="statusText">Esperando pago...</span>
-      </div>
-
+      <div class="pago-grid">
+        <!-- IZQUIERDA: todo lo del pedido -->
+        <div class="pago-izq">
       <!-- Order Summary -->
       <div class="pay-order-summary" id="orderSummary">
         <div class="pay-order-title">Resumen del pedido</div>
@@ -724,25 +728,6 @@
           <span class="total" id="orderTotal">0.00 Bs</span>
         </div>
       </div>
-
-        <div class="pay-instructions" id="instruccionesPago">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-text">Abre tu app de <strong>BancoSol</strong> u otro banco y escanea el QR</div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-text">Ingresa el monto exacto: <strong id="instrMonto" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-text">En Glosa/Adjunto escribe: <strong style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar">VARIOS</strong></div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-text" id="paso4Texto">Confirma el pago y seras <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
-          </div>
-        </div>
 
       <!-- Datos de cliente (correo / usuario) - aparece solo si el producto lo requiere -->
       <div id="customerDataBox" style="display:none; background:rgba(255,215,0,0.06); border:1px solid rgba(255,215,0,0.25); border-radius:12px; padding:1rem; margin-bottom:0.75rem;">
@@ -901,6 +886,12 @@
 
         <!-- DERECHA: el monto y el QR -->
         <div class="pago-der">
+      <!-- Status bar -->
+      <div class="pay-status-bar pendiente" id="statusBar">
+        <div class="status-dot"></div>
+        <span id="statusText">Esperando pago...</span>
+      </div>
+
       <!-- QR Card -->
       <div class="pay-card" id="qrCard">
         <div class="pay-card-header">
@@ -920,6 +911,25 @@
           Redirigiendo a WhatsApp en <span id="timerDisplay" style="color:var(--verde-wa);">5:00</span>
         </div>
       </div>
+        <div class="pay-instructions" id="instruccionesPago">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text">Abre tu app de <strong>BancoSol</strong> u otro banco y escanea el QR</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text">Ingresa el monto exacto: <strong id="instrMonto" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text">En Glosa/Adjunto escribe: <strong style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar">VARIOS</strong></div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-text" id="paso4Texto">Confirma el pago y seras <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
+          </div>
+        </div>
+
 
         </div>
       </div>

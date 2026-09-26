@@ -783,8 +783,8 @@ body > nav {
   margin: .6rem .6rem 0;
   border-radius: 22px;
   background: var(--vidrio-claro);
-  -webkit-backdrop-filter: var(--vidrio-blur);
-  backdrop-filter: var(--vidrio-blur);
+  -webkit-backdrop-filter: var(--vidrio-blur-barra);
+  backdrop-filter: var(--vidrio-blur-barra);
   border: 1px solid rgba(255,255,255,.8);
   box-shadow: 0 10px 30px rgba(20,22,26,.10), 0 1px 3px rgba(20,22,26,.06),
               0 0 0 .5px rgba(20,22,26,.08),
@@ -815,7 +815,7 @@ body > nav {
   box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
 }
 .hero-badge {
-  background: linear-gradient(180deg, rgba(255,255,255,.75), rgba(253,226,228,.65));
+  background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(253,226,228,.5));
   border: 1px solid rgba(229,9,20,.3);
   box-shadow: 0 2px 8px rgba(229,9,20,.1), inset 0 1px 0 #fff;
 }
@@ -862,7 +862,7 @@ body > nav {
 
 /* planes.html: el aviso de precios, el buscador y las tablas */
 .aviso-precios {
-  background: linear-gradient(180deg, rgba(255,251,235,.75), rgba(255,244,205,.55));
+  background: linear-gradient(180deg, rgba(255,251,235,.6), rgba(255,244,205,.4));
   -webkit-backdrop-filter: var(--vidrio-blur);
   backdrop-filter: var(--vidrio-blur);
   border: 1px solid rgba(255,255,255,.85);

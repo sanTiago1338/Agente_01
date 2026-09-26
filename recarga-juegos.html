@@ -558,9 +558,9 @@
       display: flex; align-items: stretch; gap: 2px;
       padding: 5px;
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.5));
-      -webkit-backdrop-filter: blur(22px) saturate(180%);
-      backdrop-filter: blur(22px) saturate(180%);
+      background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.35));
+      -webkit-backdrop-filter: var(--vidrio-blur-barra);
+      backdrop-filter: var(--vidrio-blur-barra);
       border: 1px solid rgba(255,255,255,.8);
       box-shadow:
         0 12px 32px rgba(20,22,26,.14),
@@ -1261,9 +1261,9 @@
     margin: .6rem .6rem 0;
     border-radius: 999px;
     color: var(--tinta);
-    background: linear-gradient(90deg, rgba(255,243,196,.7), rgba(255,255,255,.52) 50%, rgba(255,243,196,.7));
-    -webkit-backdrop-filter: var(--vidrio-blur);
-    backdrop-filter: var(--vidrio-blur);
+    background: linear-gradient(90deg, rgba(255,243,196,.55), rgba(255,255,255,.37) 50%, rgba(255,243,196,.55));
+    -webkit-backdrop-filter: var(--vidrio-blur-barra);
+    backdrop-filter: var(--vidrio-blur-barra);
     border: 1px solid rgba(255,255,255,.85);
     box-shadow: 0 8px 24px rgba(184,134,11,.10), 0 1px 3px rgba(20,22,26,.05),
                 0 0 0 .5px rgba(184,134,11,.25),
@@ -1288,8 +1288,8 @@
     margin: .6rem .6rem 0;
     border-radius: 22px;
     background: var(--vidrio-claro);
-    -webkit-backdrop-filter: var(--vidrio-blur);
-    backdrop-filter: var(--vidrio-blur);
+    -webkit-backdrop-filter: var(--vidrio-blur-barra);
+    backdrop-filter: var(--vidrio-blur-barra);
     border: 1px solid rgba(255,255,255,.8);
     box-shadow: 0 10px 30px rgba(20,22,26,.10), 0 1px 3px rgba(20,22,26,.06),
                 0 0 0 .5px rgba(20,22,26,.08),
@@ -1300,12 +1300,12 @@
   }
   .header-icon-btn {
     border-radius: 999px;
-    background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.15));
+    background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,.05));
     box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(20,22,26,.07);
   }
   .header-icon-btn:hover { background: rgba(255,255,255,.75); }
   .header-user {
-    background: linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,244,214,.6));
+    background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(255,244,214,.45));
     border: 1px solid var(--vidrio-borde);
     box-shadow: 0 2px 10px rgba(20,22,26,.07), 0 0 0 .5px rgba(154,116,0,.25), var(--vidrio-brillo);
   }
@@ -1325,7 +1325,7 @@
                 inset 0 -1px 1px rgba(20,22,26,.08);
   }
   .hero-arrow {
-    background: rgba(255,255,255,.2);
+    background: rgba(255,255,255,.1);
     color: #fff;
     -webkit-backdrop-filter: blur(12px) saturate(160%);
     backdrop-filter: blur(12px) saturate(160%);
@@ -1351,11 +1351,53 @@
     backdrop-filter: blur(6px) saturate(140%);
   }
   .modal-box {
-    background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.78));
+    background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.63));
     -webkit-backdrop-filter: blur(28px) saturate(170%);
     backdrop-filter: blur(28px) saturate(170%);
     border: 1px solid rgba(255,255,255,.9);
     box-shadow: 0 24px 60px rgba(20,22,26,.2), 0 0 0 .5px rgba(154,116,0,.25), inset 0 1px 0 #fff;
+  }
+
+  /* Adentro de la ventana de paquetes: pestañas, resumen, campo del ID y
+     botones, de vidrio; los fucsia siguen fucsia, con brillo arriba. */
+  .pkg-tabs {
+    background: var(--vidrio);
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    border: 1px solid var(--vidrio-borde);
+    box-shadow: 0 4px 14px rgba(20,22,26,.06), var(--vidrio-brillo);
+  }
+  .pkg-tab.active {
+    box-shadow: 0 4px 14px rgba(236,64,192,.4), inset 0 1px 0 rgba(255,255,255,.45),
+                inset 0 -1px 1px rgba(0,0,0,.12);
+  }
+  .pkg-resumen {
+    background: var(--vidrio);
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    border: 1px solid var(--vidrio-borde);
+    box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+  }
+  .id-input {
+    background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(246,232,252,.4));
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 2px 8px rgba(236,64,192,.08);
+  }
+  .btn-comprar {
+    box-shadow: 0 8px 22px rgba(236,64,192,.4), inset 0 1px 0 rgba(255,255,255,.4),
+                inset 0 -1px 1px rgba(0,0,0,.12);
+  }
+  .btn-modal { border-radius: 999px; }
+  .btn-cancel {
+    background: var(--vidrio);
+    border: 1px solid var(--vidrio-borde);
+    box-shadow: 0 2px 10px rgba(20,22,26,.06), var(--vidrio-brillo);
+  }
+  .btn-cancel:hover { background: rgba(255,255,255,.8); }
+  .btn-wa {
+    background: linear-gradient(180deg, #1aa896, var(--verde));
+    box-shadow: 0 6px 16px rgba(18,140,126,.25), inset 0 1px 0 rgba(255,255,255,.35);
   }
 
   /* La burbuja de WhatsApp, arriba de la barra que ahora flota */

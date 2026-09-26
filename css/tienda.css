@@ -2090,9 +2090,9 @@
       gap: 2px;
       padding: 5px;
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.5));
-      -webkit-backdrop-filter: blur(22px) saturate(180%);
-      backdrop-filter: blur(22px) saturate(180%);
+      background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.35));
+      -webkit-backdrop-filter: var(--vidrio-blur-barra);
+      backdrop-filter: var(--vidrio-blur-barra);
       border: 1px solid rgba(255,255,255,.8);
       box-shadow:
         0 12px 32px rgba(20,22,26,.14),
@@ -2511,9 +2511,9 @@
       margin: .6rem .6rem 0;
       border-radius: 999px;
       color: var(--tinta);
-      background: linear-gradient(90deg, rgba(255,228,230,.68), rgba(255,255,255,.52) 50%, rgba(255,228,230,.68));
-      -webkit-backdrop-filter: var(--vidrio-blur);
-      backdrop-filter: var(--vidrio-blur);
+      background: linear-gradient(90deg, rgba(255,228,230,.53), rgba(255,255,255,.37) 50%, rgba(255,228,230,.53));
+      -webkit-backdrop-filter: var(--vidrio-blur-barra);
+      backdrop-filter: var(--vidrio-blur-barra);
       border: 1px solid rgba(255,255,255,.85);
       box-shadow: 0 8px 24px rgba(229,9,20,.08), 0 1px 3px rgba(20,22,26,.05),
                   0 0 0 .5px rgba(229,9,20,.18),
@@ -2542,8 +2542,8 @@
       margin: .6rem .6rem 0;
       border-radius: 22px;
       background: var(--vidrio-claro);
-      -webkit-backdrop-filter: var(--vidrio-blur);
-      backdrop-filter: var(--vidrio-blur);
+      -webkit-backdrop-filter: var(--vidrio-blur-barra);
+      backdrop-filter: var(--vidrio-blur-barra);
       border: 1px solid rgba(255,255,255,.8);
       box-shadow: 0 10px 30px rgba(20,22,26,.10), 0 1px 3px rgba(20,22,26,.06),
                   0 0 0 .5px rgba(20,22,26,.08),
@@ -2554,7 +2554,7 @@
     .nav-link {
       padding: .38rem .85rem;
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.15));
+      background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,.05));
       box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(20,22,26,.07),
                   0 1px 3px rgba(20,22,26,.05);
       transition: color .2s, background .2s, box-shadow .2s, transform .15s;
@@ -2683,7 +2683,7 @@
     }
     .sub-pill:hover,
     .sub-pill.active {
-      background: linear-gradient(180deg, rgba(255,240,241,.86), rgba(253,222,224,.75));
+      background: linear-gradient(180deg, rgba(255,240,241,.71), rgba(253,222,224,.6));
       border-color: rgba(229,9,20,.35);
       color: var(--rojo);
       box-shadow: 0 2px 8px rgba(229,9,20,.12), inset 0 1px 0 rgba(255,255,255,.9);
@@ -2704,7 +2704,7 @@
     }
     .plat-cta {
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,255,255,.8), var(--acento-suave));
+      background: linear-gradient(180deg, rgba(255,255,255,.65), var(--acento-suave));
       box-shadow: 0 2px 8px rgba(20,22,26,.06), inset 0 1px 0 rgba(255,255,255,.95);
     }
 
@@ -2729,12 +2729,54 @@
       backdrop-filter: blur(6px) saturate(140%);
     }
     .modal-sheet {
-      background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.78));
+      background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,.63));
       -webkit-backdrop-filter: blur(28px) saturate(170%);
       backdrop-filter: blur(28px) saturate(170%);
       border: 1px solid rgba(255,255,255,.9);
       box-shadow: 0 -12px 40px rgba(20,22,26,.18), inset 0 1px 0 #fff;
     }
+
+    /* ---------- Numeración de páginas ---------- */
+    .page-btn {
+      border-radius: 12px;
+      background: var(--vidrio);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: 0 2px 10px rgba(20,22,26,.06), 0 0 0 .5px rgba(20,22,26,.07), var(--vidrio-brillo);
+    }
+
+    /* ---------- Adentro de la ventana de planes ----------
+       Las tarjetas de cada plan, su cuadro de características y la guía,
+       de vidrio sobre la hoja; los botones rojos, con brillo arriba. */
+    .pl-cab { border-bottom-color: rgba(20,22,26,.07); }
+    .plan-item,
+    .pl-guia,
+    .ck-caja {
+      background: var(--vidrio);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+    }
+    .plan-item { border-radius: 20px; }
+    .plan-features {
+      background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.2));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 0 0 .5px rgba(20,22,26,.06);
+    }
+    .plan-comprar,
+    .ck-pagar {
+      border-radius: 999px;
+      box-shadow: 0 8px 22px rgba(229,9,20,.28), inset 0 1px 0 rgba(255,255,255,.4),
+                  inset 0 -1px 1px rgba(0,0,0,.12);
+    }
+
+    /* ---------- Adentro del carrito ---------- */
+    .cr-combo {
+      background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.2));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+    }
+    .cr-pie { background: transparent; border-top-color: rgba(20,22,26,.07); }
 
     /* ---------- El botón de WhatsApp, un poco más arriba ----------
        La barra de abajo ahora flota y es más alta: sin esto la burbuja

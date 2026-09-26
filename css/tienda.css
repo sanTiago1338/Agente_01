@@ -2587,17 +2587,20 @@
     }
 
     /* ---------- Cartel de agentes ---------- */
+    /* Vidrio transparente, sin el círculo rojo de la esquina, y letras
+       negras (el título era dorado y la bajada gris) */
     .promo-banner {
-      background: var(--vidrio);
+      background: var(--vidrio-transparente);
       -webkit-backdrop-filter: var(--vidrio-blur);
       backdrop-filter: var(--vidrio-blur);
-      border: 1px solid var(--vidrio-borde);
+      border: 1px solid rgba(255,255,255,.75);
       border-radius: 20px;
-      box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+      box-shadow: 0 10px 30px rgba(20,22,26,.06), 0 0 0 .5px rgba(20,22,26,.08),
+                  inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 1px rgba(20,22,26,.04);
     }
-    .promo-banner::before {
-      background: radial-gradient(circle, rgba(229,9,20,.20), rgba(229,9,20,0) 70%);
-    }
+    .promo-banner::before { display: none; }
+    .promo-text strong { color: #0b0c0e; }
+    .promo-text span   { color: #2a2d33; }
     .promo-wa { border-radius: 999px; }   /* vidrio verde: css/vidrio.css */
 
     /* ---------- Carrusel ---------- */

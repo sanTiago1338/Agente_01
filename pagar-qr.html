@@ -594,6 +594,53 @@
   .btn-back:hover { background: rgba(255,255,255,.92); }
   /* Vidrio verde (css/vidrio.css): acá solo la forma */
   .btn-wa-help { border-radius: 999px; }
+  /* ---------- Dos columnas en compu, todo en una pantalla ----------
+     Izquierda: pasos, estado, resumen del pedido, instrucciones, datos,
+     "Ya pagué" y el pedido. Derecha: el monto y el QR, que se quedan a
+     la vista mientras se baja por la izquierda. */
+  .pay-instructions {
+    border-top: none;
+    margin-bottom: 1.25rem;
+    border-radius: 24px;
+    background: var(--vidrio);
+    -webkit-backdrop-filter: var(--vidrio-blur);
+    backdrop-filter: var(--vidrio-blur);
+    border: 1px solid var(--vidrio-borde);
+    box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+  }
+  @media (min-width: 760px) {
+    .pay-container { max-width: 980px; }
+    .pago-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .pago-der { position: sticky; top: 1rem; }
+    .pago-der .pay-card { margin-bottom: 0; }
+    .pay-card-header { padding: 1rem; }
+    .pay-qr-wrap { padding: 1rem; margin: .75rem; }
+    .pay-qr-wrap img { max-width: 240px; }
+    /* Entregada la cuenta, el QR se esconde: el pedido usa todo el ancho */
+    .pago-grid:has(#qrCard[style*="none"]) { grid-template-columns: 1fr; }
+  }
+  /* Celular: una sola columna, en el orden de siempre (el QR arriba) */
+  @media (max-width: 759px) {
+    .pago-grid { display: flex; flex-direction: column; }
+    .pago-izq, .pago-der { display: contents; }
+    #pasosPago        { order: 1; }
+    #statusBar        { order: 2; }
+    #qrCard           { order: 3; }
+    #instruccionesPago{ order: 4; }
+    #customerDataBox  { order: 5; }
+    #btnYaPague       { order: 6; }
+    #ayudaYaPague     { order: 7; }
+    #orderSummary     { order: 8; }
+    #cajaPedido       { order: 9; }
+    .pago-izq > .btn-back { order: 10; }
+    #payRef           { order: 11; }
+  }
+
   /* "Ya pagué" también es vidrio verde; su estilo va escrito en el propio
      enlace, así que la forma y la sombra se pisan con !important */
   #btnYaPague {
@@ -647,6 +694,12 @@
 
     <!-- Payment Content -->
     <div id="payContent" style="display:none;">
+      <!-- En compu, dos columnas: el pedido a la izquierda y el QR a la
+           derecha, todo en una pantalla. En el celular, una sola columna
+           con el QR arriba (el orden lo da el CSS, ver .pago-grid). -->
+      <div class="pago-grid">
+        <!-- IZQUIERDA: todo lo del pedido -->
+        <div class="pago-izq">
       <!-- Los tres pasos de la compra, el mismo dibujo del carrito de la
            tienda. Solo si la compra viene de ahí: las recargas de juegos
            llegan directo, sin carrito (ver renderPayment). -->
@@ -662,22 +715,17 @@
         <span id="statusText">Esperando pago...</span>
       </div>
 
-      <!-- QR Card -->
-      <div class="pay-card" id="qrCard">
-        <div class="pay-card-header">
-          <div class="pay-amount" id="payAmount">0.00 Bs</div>
-          <div class="pay-amount-label">Monto a transferir</div>
+      <!-- Order Summary -->
+      <div class="pay-order-summary" id="orderSummary">
+        <div class="pay-order-title">Resumen del pedido</div>
+        <div id="orderItems"></div>
+        <div class="pay-order-total">
+          <span class="label">TOTAL</span>
+          <span class="total" id="orderTotal">0.00 Bs</span>
         </div>
+      </div>
 
-        <div class="pay-qr-wrap">
-          <img id="qrImage" src="" alt="QR BancoSol">
-          <div class="pay-qr-overlay" id="qrOverlay">
-            <div class="icon" id="overlayIcon"></div>
-            <div class="text" id="overlayText"></div>
-          </div>
-        </div>
-
-        <div class="pay-instructions">
+        <div class="pay-instructions" id="instruccionesPago">
           <div class="step">
             <div class="step-num">1</div>
             <div class="step-text">Abre tu app de <strong>BancoSol</strong> u otro banco y escanea el QR</div>
@@ -695,11 +743,6 @@
             <div class="step-text" id="paso4Texto">Confirma el pago y seras <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
           </div>
         </div>
-
-        <div class="pay-timer" id="timerSection" style="margin-bottom:0.5rem;">
-          Redirigiendo a WhatsApp en <span id="timerDisplay" style="color:var(--verde-wa);">5:00</span>
-        </div>
-      </div>
 
       <!-- Datos de cliente (correo / usuario) - aparece solo si el producto lo requiere -->
       <div id="customerDataBox" style="display:none; background:rgba(255,215,0,0.06); border:1px solid rgba(255,215,0,0.25); border-radius:12px; padding:1rem; margin-bottom:0.75rem;">
@@ -740,23 +783,6 @@
           50% { transform:scale(1.02); box-shadow:0 6px 28px rgba(37,211,102,0.6); }
         }
       </style>
-
-      <!-- Order Summary -->
-      <div class="pay-order-summary" id="orderSummary">
-        <div class="pay-order-title">Resumen del pedido</div>
-        <div id="orderItems"></div>
-        <div class="pay-order-total">
-          <span class="label">TOTAL</span>
-          <span class="total" id="orderTotal">0.00 Bs</span>
-        </div>
-      </div>
-
-      <!-- Back -->
-      <a href="index.html" class="btn-back">Volver a la tienda</a>
-
-      <!-- Ref -->
-      <div class="pay-ref" id="payRef"></div>
-    </div>
 
     <!-- ==========================================================
          ENTREGA AUTOMATICA
@@ -864,6 +890,39 @@
         </a>
       </div>
 
+    </div>
+
+      <!-- Back -->
+      <a href="index.html" class="btn-back">Volver a la tienda</a>
+
+      <!-- Ref -->
+      <div class="pay-ref" id="payRef"></div>
+        </div>
+
+        <!-- DERECHA: el monto y el QR -->
+        <div class="pago-der">
+      <!-- QR Card -->
+      <div class="pay-card" id="qrCard">
+        <div class="pay-card-header">
+          <div class="pay-amount" id="payAmount">0.00 Bs</div>
+          <div class="pay-amount-label">Monto a transferir</div>
+        </div>
+
+        <div class="pay-qr-wrap">
+          <img id="qrImage" src="" alt="QR BancoSol">
+          <div class="pay-qr-overlay" id="qrOverlay">
+            <div class="icon" id="overlayIcon"></div>
+            <div class="text" id="overlayText"></div>
+          </div>
+        </div>
+
+        <div class="pay-timer" id="timerSection" style="margin-bottom:0.5rem;">
+          Redirigiendo a WhatsApp en <span id="timerDisplay" style="color:var(--verde-wa);">5:00</span>
+        </div>
+      </div>
+
+        </div>
+      </div>
     </div>
 
     <!-- Success Screen (no se muestra, redirige directo a WhatsApp) -->
@@ -1393,7 +1452,7 @@
   // El resumen del pedido y "Volver a la tienda" se quedan: uno es su
   // comprobante de que compro y el otro es por donde sigue.
   function esconderLoDePagar() {
-    ['qrCard', 'btnYaPague', 'ayudaYaPague', 'customerDataBox'].forEach(id => {
+    ['qrCard', 'instruccionesPago', 'btnYaPague', 'ayudaYaPague', 'customerDataBox'].forEach(id => {
       const el = $(id);
       if (el) el.style.display = 'none';
     });

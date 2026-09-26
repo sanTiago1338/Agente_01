@@ -1458,8 +1458,10 @@
     }
 
     function toggleFilter() {
+      // '' y no 'block': así vuelve al display de la hoja (el orden va en
+      // fila con su etiqueta, al lado de "Filtrar")
       const row = document.getElementById('3');
-      row.style.display = row.style.display === 'none' ? 'block' : 'none';
+      row.style.display = row.style.display === 'none' ? '' : 'none';
     }
 
     // ==========================================================

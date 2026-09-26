@@ -215,25 +215,24 @@
     </div>
   </section>
 
-  <!-- Sin la miga ("Hogar / …") ni el título "Todas las plataformas": la
-       categoría elegida ya se ve marcada en las pestañas de abajo, y eran
-       dos renglones que decían lo mismo. Queda solo "Filtrar". -->
+  <!-- Ordenar y "Filtrar" en un solo renglón. Sin la miga ("Hogar / …")
+       ni el título "Todas las plataformas": la categoría elegida ya se ve
+       marcada en las pestañas de abajo. "Filtrar" muestra u oculta el
+       orden, y se queda a la derecha. -->
   <div class="page-header">
+    <div class="sort-row" id="3">
+      <label for="4">Ordenar por</label>
+      <!-- Arranca en "Recomendado": el orden del catálogo, cada producto
+           en su sección. "El más nuevo" queda para quien lo elija. -->
+      <select class="sort-select" id="4" onchange="sortProducts()">
+        <option value="orden">Recomendado</option>
+        <option value="new">El más nuevo</option>
+        <option value="price-asc">Precio: menor a mayor</option>
+        <option value="price-desc">Precio: mayor a menor</option>
+        <option value="name">Nombre A-Z</option>
+      </select>
+    </div>
     <button class="filter-btn" onclick="toggleFilter()">▼ Filtrar</button>
-  </div>
-
-  <!-- SORT -->
-  <div class="sort-row" id="3">
-    <label>Ordenar por</label>
-    <!-- Arranca en "Recomendado": el orden del catálogo, cada producto
-         en su sección. "El más nuevo" queda para quien lo elija. -->
-    <select class="sort-select" id="4" onchange="sortProducts()">
-      <option value="orden">Recomendado</option>
-      <option value="new">El más nuevo</option>
-      <option value="price-asc">Precio: menor a mayor</option>
-      <option value="price-desc">Precio: mayor a menor</option>
-      <option value="name">Nombre A-Z</option>
-    </select>
   </div>
 
   <!-- CATEGORY TABS · se generan desde Supabase (renderCategorias) -->

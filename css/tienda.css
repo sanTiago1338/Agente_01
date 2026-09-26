@@ -390,13 +390,14 @@
     }
 
     /* ===== PAGE HEADER =====
-       Solo el botón "Filtrar", a la derecha: la miga y el título "Todas
-       las plataformas" se sacaron (la categoría ya se ve en las pestañas). */
+       Un solo renglón compacto: "Ordenar por" a la izquierda y "Filtrar"
+       a la derecha. Antes eran dos renglones (y antes, cuatro, con la
+       miga y el título) con mucho aire entre medio. */
     .page-header {
-      padding: 0.5rem 1rem 0.75rem;
+      padding: 0.25rem 1rem 0.35rem;
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      gap: 0.6rem;
     }
 
     .filter-btn {
@@ -412,22 +413,27 @@
       gap: 0.4rem;
       font-family: 'Outfit', sans-serif;
       transition: background 0.2s;
+      /* Siempre a la derecha, aunque el orden esté oculto */
+      margin-left: auto;
+      flex: none;
     }
 
     .filter-btn:hover { background: var(--gris); color: var(--blanco); }
 
-    /* ===== SORT ===== */
+    /* ===== SORT ===== (en el mismo renglón que "Filtrar") */
     .sort-row {
-      padding: 0 1rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 0;
     }
 
     .sort-row label {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--texto-dim);
-      display: block;
-      margin-bottom: 0.3rem;
       text-transform: uppercase;
       letter-spacing: 1px;
+      white-space: nowrap;
     }
 
     .sort-select {
@@ -438,7 +444,9 @@
       font-size: 0.85rem;
       padding: 0.45rem 0.85rem;
       border-radius: 8px;
-      width: 180px;
+      width: auto;
+      min-width: 150px;
+      max-width: 100%;
       cursor: pointer;
     }
 
@@ -2429,7 +2437,6 @@
     .promo-banner  { margin-left: 0.5rem; margin-right: 0.5rem; }
     .search-bar,
     .page-header,
-    .sort-row,
     .cat-tabs-wrap,
     .sub-pills,
     .pagination    { padding-left: 0.5rem; padding-right: 0.5rem; }

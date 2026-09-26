@@ -238,3 +238,124 @@ body .jg-modal {
 /* Cabecera y pie de las ventanas: sin fondo propio, sobre el vidrio */
 body .zv-cab, body .zv-pie,
 body .jg-cab, body .jg-pie { background: transparent; }
+
+
+/* ============================================================
+   LO QUE FALTABA (revisión completa del panel)
+   ============================================================ */
+
+/* Encabezados de las tablas, la línea de las barras del embudo y las
+   etiquetas de categoría: vidrio en vez de gris macizo */
+body thead th {
+  background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,.25));
+  -webkit-backdrop-filter: var(--vidrio-blur);
+  backdrop-filter: var(--vidrio-blur);
+}
+body .ini-paso-riel {
+  background: linear-gradient(180deg, rgba(20,22,26,.08), rgba(20,22,26,.04));
+  box-shadow: inset 0 1px 2px rgba(20,22,26,.1);
+}
+body .tag-cat {
+  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.25));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(20,22,26,.1);
+}
+
+/* Los interruptores de la tabla: riel de vidrio; encendido, vidrio de
+   su color (verde disponible, rojo oferta, dorado destacado, azul planes) */
+body .sw-riel {
+  background: linear-gradient(180deg, rgba(20,22,26,.14), rgba(20,22,26,.07));
+  box-shadow: inset 0 1px 3px rgba(20,22,26,.18), 0 0 0 .5px rgba(255,255,255,.6);
+}
+body .sw[aria-checked="true"] .sw-riel { background: var(--vidrio-verde); }
+body .sw[aria-checked="true"][data-accion="oferta"] .sw-riel    { background: var(--vidrio-reflejo), linear-gradient(180deg, rgba(240,40,50,.78), rgba(196,8,18,.7)); }
+body .sw[aria-checked="true"][data-accion="destacado"] .sw-riel { background: var(--vidrio-reflejo), linear-gradient(180deg, rgba(214,168,20,.8), rgba(181,137,0,.72)); }
+body .sw[aria-checked="true"][data-accion="planes"] .sw-riel    { background: var(--vidrio-reflejo), linear-gradient(180deg, rgba(60,110,240,.8), rgba(29,78,216,.72)); }
+
+/* Contadores rojos del menú: gota de vidrio rojo */
+body .contador {
+  background: linear-gradient(180deg, rgba(240,40,50,.85), rgba(200,10,20,.75));
+  -webkit-backdrop-filter: blur(8px) saturate(180%);
+  backdrop-filter: blur(8px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 6px rgba(220,38,38,.35), 0 0 0 1.5px rgba(255,255,255,.8);
+}
+
+/* Numeración de páginas, "Actualizar", 7/30 días y los filtros de
+   Ventas: píldoras de vidrio; lo elegido es la lente */
+body .pag-btn,
+body .ini-refrescar,
+body .ini-rango button,
+body .vt-filtro {
+  background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,.22));
+  border-color: rgba(255,255,255,.85);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(20,22,26,.1), 0 2px 8px rgba(20,22,26,.05);
+}
+body .ini-rango { background: transparent; border-color: rgba(255,255,255,.8); }
+body .ini-rango button + button { border-left-color: rgba(20,22,26,.08); }
+body .pag-btn.activo,
+body .ini-rango button.on,
+body .vt-filtro.activo {
+  background: var(--vidrio-lente);
+  color: #0b0c0e;
+  border-color: rgba(255,255,255,.9);
+  box-shadow: inset 0 1.5px 0 #fff, 0 4px 12px rgba(20,22,26,.12), 0 0 0 .5px rgba(20,22,26,.1);
+}
+
+/* Adentro de las ventanas de edición (producto, juego, cuentas):
+   campos, chips de los interruptores, frases, zona de la foto y vista
+   previa, todo de vidrio */
+body :is(.zv-modal, .jg-modal, .st-modal, .vt-modal)
+  :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), textarea, select) {
+  background: var(--vidrio-campo);
+  border-color: rgba(255,255,255,.85);
+  box-shadow: inset 0 1px 2px rgba(20,22,26,.06), 0 0 0 .5px rgba(20,22,26,.12);
+}
+body .zv-sw,
+body .jg-sw,
+body .zv-frase {
+  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.25));
+  border-color: rgba(255,255,255,.85);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(20,22,26,.1);
+}
+body .zv-sw.on,
+body .jg-sw.on {
+  background: var(--vidrio-lente);
+  box-shadow: inset 0 1.5px 0 #fff, 0 4px 12px rgba(20,22,26,.1), 0 0 0 .5px rgba(20,22,26,.1);
+}
+body .zvi-zona,
+body .zv-previa {
+  background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.2));
+  border-color: rgba(255,255,255,.85);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+}
+
+/* "Guardar" de las ventanas (era rojo): el botón principal de vidrio
+   claro con letras negras, como el de "Nuevo producto" */
+body .zv-btn.rojo,
+body .jg-btn.rojo {
+  position: relative;
+  isolation: isolate;
+  background: var(--vidrio-reflejo),
+              linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.3));
+  border: 1px solid rgba(255,255,255,.85);
+  color: var(--tinta);
+  border-radius: 999px;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.1);
+  backdrop-filter: blur(16px) saturate(180%) brightness(1.1);
+  box-shadow: 0 8px 24px rgba(20,22,26,.14), 0 1px 3px rgba(20,22,26,.08),
+              0 0 0 .5px rgba(20,22,26,.08),
+              inset 0 1.5px 0 #fff, inset 0 -2px 5px rgba(20,22,26,.06);
+}
+body .zv-btn.rojo:not(:disabled)::after,
+body .jg-btn.rojo:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--vidrio-tornasol);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: .5;
+  pointer-events: none;
+}

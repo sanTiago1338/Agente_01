@@ -17,10 +17,10 @@
    ============================================================ */
 
 :root {
-  --vidrio:        linear-gradient(180deg, rgba(255,255,255,.80), rgba(255,255,255,.58));
-  --vidrio-claro:  linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.38));
-  --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,255,255,.82));
-  --vidrio-lente:  radial-gradient(120% 90% at 50% 0%, #fff 0%, rgba(255,255,255,.72) 55%, rgba(255,255,255,.5) 100%);
+  --vidrio:        linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,255,255,.48));
+  --vidrio-claro:  linear-gradient(180deg, rgba(255,255,255,.52), rgba(255,255,255,.28));
+  --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.84), rgba(255,255,255,.72));
+  --vidrio-lente:  radial-gradient(120% 90% at 50% 0%, #fff 0%, rgba(255,255,255,.62) 55%, rgba(255,255,255,.4) 100%);
   --vidrio-borde:  rgba(255,255,255,.85);
   --vidrio-blur:   blur(20px) saturate(170%);
   --vidrio-brillo: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);

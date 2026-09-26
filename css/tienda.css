@@ -389,29 +389,14 @@
       z-index: 1;
     }
 
-    /* ===== BREADCRUMB ===== */
-    .breadcrumb {
-      padding: 0.6rem 1rem 0;
-      font-size: 0.78rem;
-      color: var(--texto-dim);
-    }
-
-    .breadcrumb a { color: var(--rojo); text-decoration: none; }
-    .breadcrumb span { margin: 0 0.35rem; }
-
-    /* ===== PAGE HEADER ===== */
+    /* ===== PAGE HEADER =====
+       Solo el botón "Filtrar", a la derecha: la miga y el título "Todas
+       las plataformas" se sacaron (la categoría ya se ve en las pestañas). */
     .page-header {
       padding: 0.5rem 1rem 0.75rem;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-    }
-
-    .page-header h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.4rem;
-      letter-spacing: 2px;
-      color: var(--blanco);
+      justify-content: flex-end;
     }
 
     .filter-btn {
@@ -2443,7 +2428,6 @@
        incluidos los de @media (min-width: 600px). */
     .promo-banner  { margin-left: 0.5rem; margin-right: 0.5rem; }
     .search-bar,
-    .breadcrumb,
     .page-header,
     .sort-row,
     .cat-tabs-wrap,

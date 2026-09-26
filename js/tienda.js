@@ -1178,11 +1178,6 @@
       document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
       el.classList.add('active');
 
-      const titulo = document.getElementById('tituloCategoria');
-      const miga    = document.getElementById('migaCategoria');
-      if (titulo) titulo.textContent = nombreCat(cat);
-      if (miga)   miga.textContent   = nombreCat(cat);
-
       renderSubfiltros();
       renderProducts();
     }
@@ -1195,17 +1190,12 @@
       renderProducts();
     }
 
-    // Suelta la categoría y vuelve a "TODOS", dejando las pestañas, el
-    // título y los subfiltros coherentes con lo que se está mostrando.
+    // Suelta la categoría y vuelve a "TODOS", dejando las pestañas y los
+    // subfiltros coherentes con lo que se está mostrando.
     function volverATodo() {
       currentCat = 'all';
       currentSub = 'all';
       document.querySelectorAll('.cat-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
-
-      const titulo = document.getElementById('tituloCategoria');
-      const miga   = document.getElementById('migaCategoria');
-      if (titulo) titulo.textContent = nombreCat('all');
-      if (miga)   miga.textContent   = nombreCat('all');
 
       renderSubfiltros();
     }

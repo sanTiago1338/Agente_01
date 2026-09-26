@@ -119,6 +119,39 @@ body::before {
 .nav-item.active .nav-icon { transform: scale(1.06); }
 
 
+/* ============================================================
+   LA BARRA DE DESPLAZAMIENTO
+   ============================================================
+   La de Windows mide 17 px y se come el costado de la pantalla. Esta
+   ocupa 8 px, y lo que se ve es una varilla de vidrio de 3 px: el resto
+   es aire transparente (el borde transparente + background-clip), que
+   igual se puede agarrar con el mouse. Al pasarle el mouse o tocarla
+   crece un poco (a 4 px) y se oscurece, para que se note que la
+   agarraste.
+   En el celular el sistema dibuja su propia barra finita y esto no
+   cambia nada. */
+::-webkit-scrollbar { width: 8px; height: 8px; background: transparent; }
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-button { display: none; }
+::-webkit-scrollbar-thumb {
+  border: 2.5px solid transparent;
+  background-clip: padding-box;
+  border-radius: 99px;
+  background-color: rgba(20,22,26,.26);
+  /* El brillo del vidrio: más claro de un lado */
+  background-image: linear-gradient(90deg, rgba(255,255,255,.6), rgba(255,255,255,0) 70%);
+}
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  border-width: 2px;
+  background-color: rgba(20,22,26,.42);
+}
+/* Firefox no deja dibujarla: solo afinarla y darle color */
+@supports not selector(::-webkit-scrollbar) {
+  html { scrollbar-width: thin; scrollbar-color: rgba(20,22,26,.3) transparent; }
+}
+
 @media (prefers-reduced-transparency: reduce) {
   :root {
     --vidrio:       rgba(255,255,255,.97);

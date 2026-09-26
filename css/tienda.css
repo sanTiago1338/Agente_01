@@ -2735,7 +2735,7 @@
 
     /* ---------- Adentro de la ventana de planes ----------
        Las tarjetas de cada plan, su cuadro de características y la guía,
-       de vidrio sobre la hoja; los botones rojos, con brillo arriba. */
+       de vidrio sobre la hoja; los botones, vidrio claro (css/vidrio.css). */
     .pl-cab { border-bottom-color: rgba(20,22,26,.07); }
     .plan-item,
     .pl-guia,
@@ -2751,7 +2751,7 @@
       background: linear-gradient(180deg, rgba(255,255,255,.27), rgba(255,255,255,.04));
       box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 0 0 .5px rgba(20,22,26,.06);
     }
-    /* Los botones rojos son vidrio de color (css/vidrio.css): acá solo
+    /* Los botones son vidrio claro con letras negras (css/vidrio.css): acá solo
        la forma de píldora */
     .plan-comprar,
     .ck-pagar { border-radius: 999px; }

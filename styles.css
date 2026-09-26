@@ -817,7 +817,7 @@ body > nav {
   box-shadow: 0 2px 8px rgba(229,9,20,.1), inset 0 1px 0 #fff;
 }
 
-/* Botones: píldoras. El rojo y el verde son vidrio de color
+/* Botones: píldoras. El principal es vidrio claro y el verde vidrio verde
    (css/vidrio.css); el de borde, vidrio claro. */
 .btn-primary,
 .btn-wa { border-radius: 999px; }

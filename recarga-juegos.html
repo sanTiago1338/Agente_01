@@ -558,17 +558,17 @@
       display: flex; align-items: stretch; gap: 2px;
       padding: 5px;
       border-radius: 999px;
-      /* Sin relleno ni aclarado: igual que en css/tienda.css */
+      /* Sin relleno ni aclarado, y un 30% más suave: igual que en css/tienda.css */
       background: transparent;
-      -webkit-backdrop-filter: blur(14px) saturate(160%);
-      backdrop-filter: blur(14px) saturate(160%);
-      border: 1px solid rgba(255,255,255,.6);
+      -webkit-backdrop-filter: blur(10px) saturate(142%);
+      backdrop-filter: blur(10px) saturate(142%);
+      border: 1px solid rgba(255,255,255,.42);
       box-shadow:
-        0 12px 32px rgba(20,22,26,.14),
-        0 2px 8px rgba(20,22,26,.06),
-        0 0 0 .5px rgba(20,22,26,.08),
-        inset 0 1px 0 rgba(255,255,255,.75),
-        inset 0 -1px 1px rgba(20,22,26,.05);
+        0 12px 32px rgba(20,22,26,.1),
+        0 2px 8px rgba(20,22,26,.042),
+        0 0 0 .5px rgba(20,22,26,.056),
+        inset 0 1px 0 rgba(255,255,255,.52),
+        inset 0 -1px 1px rgba(20,22,26,.035);
       z-index: 100;
     }
     .bottom-nav::before {
@@ -576,7 +576,7 @@
       position: absolute;
       inset: 1px 1px 50%;
       border-radius: 999px 999px 40% 40% / 999px 999px 18px 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,0));
+      background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0));
       pointer-events: none;
     }
     @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {

@@ -303,6 +303,12 @@ body .wa-bubble {
   isolation: isolate;
 }
 body .wa-bubble:hover { background: linear-gradient(180deg, rgba(62,224,122,.52), rgba(18,160,110,.42)); }
+/* La burbuja flota abajo a la derecha (56 px, a 20 px del borde). En el
+   celular, en las páginas sin barra de abajo, tapaba la última línea del
+   pie: se deja ese alto libre al final. Las que tienen barra ya lo hacen. */
+@media (max-width: 700px) {
+  body:has(> .wa-bubble):not(:has(.bottom-nav)) { padding-bottom: 84px; }
+}
 /* El reflejo de arriba y el borde claro de adentro */
 body .wa-bubble::before {
   content: '';

@@ -724,8 +724,19 @@ footer strong { color: var(--dorado); font-family: 'Bebas Neue', sans-serif; fon
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  nav { padding: 0 1rem; }
-  .nav-links { display: none; }
+  /* En el celular los enlaces bajan a un segundo renglón, como en la
+     tienda. Antes se escondían y la única salida era el logo. El de
+     WhatsApp no se muestra: para eso está la burbuja verde. */
+  nav {
+    padding: .45rem 1rem .5rem;
+    height: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: .3rem;
+  }
+  .nav-links { flex: 1 1 100%; justify-content: center; flex-wrap: wrap; gap: 4px; }
+  .nav-links a { padding: .36rem .75rem; font-size: .72rem; letter-spacing: .3px; }
+  .nav-links li:has(.nav-wa) { display: none; }
   .hero h1 { font-size: clamp(3rem, 15vw, 5rem); }
   .contact-grid { grid-template-columns: 1fr; }
   .stats-bar { gap: 2rem; }

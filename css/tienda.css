@@ -2249,8 +2249,10 @@
     .modal-sheet {
       background: var(--negro2);
       border-radius: 20px 20px 0 0;
-      /* 8 px a los costados, igual que el resto de la tienda */
-      padding: 1.5rem 0.5rem 5rem;
+      /* La ventana chica (el carrito vacío): con 8 px el título quedaba
+         pegado al canto de vidrio. Las grandes (.ancho, .compra) tienen
+         su propio aire más abajo. */
+      padding: 1.5rem 1rem 5rem;
       width: 100%;
       max-width: 600px;
       max-height: 85vh;
@@ -2275,7 +2277,7 @@
     /* Las columnas de la grilla de plataformas estan mas abajo, en
        "MISMAS COLUMNAS QUE LOS JUEGOS". */
     @media (min-width: 600px) {
-      .modal-sheet { border-radius: 20px; margin-bottom: 5rem; max-height: 80vh; }
+      .modal-sheet { border-radius: 20px; margin-bottom: 5rem; max-height: 80vh; padding-left: 1.5rem; padding-right: 1.5rem; }
       .modal-overlay { align-items: center; }
     }
 

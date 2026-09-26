@@ -1934,69 +1934,69 @@
     }
 
     /* ===== PIE DE PÁGINA =====
-       Tres columnas en pantalla ancha, apiladas en celular.
+       Una tarjeta de vidrio que flota, compacta: cuatro columnas en
+       pantalla ancha (marca, contacto, atención y la tienda), tres en
+       tablet con la marca arriba, y dos en el celular.
+       El vidrio (translúcido y esmerilado, así las burbujas de atrás se
+       siguen viendo) está en el bloque LIQUID GLASS, al final.
 
-       SIN FONDO PROPIO, A PROPÓSITO. Las burbujas de bg-burbujas.js y los
-       degradados de body::before viven en z-index -1, detrás de todo. Si
-       el pie pusiera un color de fondo las taparía justo en el tramo final
-       de la página, que es donde más se ven. Lo único que lo separa del
-       catálogo es una línea fina arriba. */
+       ANTES DEJABA UN HUECO DOBLE ABAJO. El pie sumaba su propio espacio
+       para la barra de abajo, y el body ya deja el suyo. Ahora solo lo
+       deja el body. */
     .pie {
-      border-top: 1px solid var(--borde);
       color: var(--tinta-suave);
-      font-size: 0.86rem;
-      line-height: 1.7;
-      margin-top: 2.5rem;
-      padding: 2.5rem 1.25rem calc(var(--barra-h) + 1rem);
+      font-size: 0.84rem;
+      line-height: 1.5;
+      margin: 1.75rem .6rem 0;
+      padding: 1.4rem 1.5rem 1rem;
     }
 
     .pie-cols {
       max-width: 1100px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 1.4fr 1fr 1fr;
-      gap: 2.5rem;
+      grid-template-columns: 1.3fr 1fr 1fr 1fr;
+      gap: 1.25rem 2rem;
     }
 
     /* ---- Marca ---- */
     .pie-logo {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       letter-spacing: 3px;
       color: var(--tinta);
       line-height: 1;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.45rem;
     }
     .pie-logo span { color: var(--marca); }
 
     .pie-lema {
-      margin: 0 0 0.9rem;
+      margin: 0 0 0.55rem;
       max-width: 34ch;
     }
 
     .pie-lugar {
       margin: 0;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: var(--tinta-tenue);
     }
 
     /* ---- Columnas de enlaces ---- */
     .pie-titulo {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       letter-spacing: 2px;
       color: var(--tinta);
-      margin: 0 0 0.7rem;
+      margin: 0 0 0.45rem;
       font-weight: 400;
     }
-    .pie-titulo--sep { margin-top: 1.4rem; }
 
     .pie-lista {
       list-style: none;
       margin: 0;
       padding: 0;
     }
-    .pie-lista li { margin-bottom: 0.4rem; }
+    .pie-lista li { margin-bottom: 0.28rem; }
 
     .pie-lista a {
       color: var(--tinta-suave);
@@ -2013,49 +2013,59 @@
     /* ---- Franja de abajo ---- */
     .pie-abajo {
       max-width: 1100px;
-      margin: 2rem auto 0;
-      padding-top: 1.2rem;
-      border-top: 1px solid var(--borde);
+      margin: 1.1rem auto 0;
+      padding-top: 0.8rem;
+      border-top: 1px solid rgba(20,22,26,.07);
       text-align: center;
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       color: var(--tinta-tenue);
     }
 
-    /* ---- Celular ----
-       DOS columnas, no una. Apilado todo en una sola, el pie medía 887 px:
-       más que la pantalla entera del teléfono, y había que scrollear un
-       rato para pasarlo. Las etiquetas son cortas y entran de a dos.
+    /* ---- Tablet: la marca arriba y tres columnas abajo ----
+       Con cuatro, el correo largo no entraba en su columna. */
+    @media (max-width: 1000px) {
+      .pie-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .pie-marca { grid-column: 1 / -1; }
+      .pie-lema { max-width: none; }
+    }
 
-       Y alineado a la izquierda: una lista centrada se lee peor y ocupa
+    /* ---- Celular ----
+       La marca y el contacto a todo el ancho (el correo es largo), y
+       atención y la tienda de a dos. Los tres datos de contacto van en
+       fila y bajan de renglón solos: uno debajo del otro ocupaban tres
+       renglones enteros.
+
+       Alineado a la izquierda: una lista centrada se lee peor y ocupa
        más, porque cada renglón arranca en un lugar distinto. */
     @media (max-width: 760px) {
       .pie {
-        padding: 1.8rem 1.25rem calc(var(--barra-h) + 3rem);
+        margin: 1.25rem .5rem 0;
+        padding: 1.1rem 1rem .9rem;
         font-size: 0.82rem;
-        line-height: 1.55;
       }
 
       .pie-cols {
         grid-template-columns: 1fr 1fr;
-        gap: 1.5rem 1.2rem;
+        gap: 0.9rem 1rem;
       }
-      .pie-marca { grid-column: 1 / -1; }
+      .pie-contacto { grid-column: 1 / -1; }
+      .pie-contacto .pie-lista { display: flex; flex-wrap: wrap; gap: 0.15rem 1rem; }
+      .pie-contacto .pie-lista li { margin-bottom: 0; }
 
-      .pie-logo  { font-size: 1.35rem; margin-bottom: 0.35rem; }
-      .pie-lema  { max-width: none; margin-bottom: 0.45rem; }
-      .pie-lugar { font-size: 0.78rem; }
+      .pie-logo  { font-size: 1.3rem; margin-bottom: 0.3rem; }
+      .pie-lema  { margin-bottom: 0.35rem; }
+      .pie-lugar { font-size: 0.76rem; }
 
-      .pie-titulo      { font-size: 0.95rem; margin-bottom: 0.45rem; }
-      .pie-titulo--sep { margin-top: 1.1rem; }
-      .pie-lista li    { margin-bottom: 0.3rem; }
+      .pie-titulo   { font-size: 0.95rem; margin-bottom: 0.35rem; }
+      .pie-lista li { margin-bottom: 0.22rem; }
 
       /* El botón flotante de WhatsApp se apoya abajo a la derecha y se
          comía el final del copyright. En vez de empujar todo hacia arriba
          --que dejaba un hueco muerto de 100 px-- se le corre el texto:
          envuelve antes de llegar a la esquina del botón. */
       .pie-abajo {
-        margin-top: 1.5rem;
-        padding-top: 0.9rem;
+        margin-top: 0.9rem;
+        padding-top: 0.7rem;
         padding-right: 4.5rem;
         text-align: left;
       }
@@ -2441,7 +2451,7 @@
     .pagination    { padding-left: 0.5rem; padding-right: 0.5rem; }
     .tops-section  { padding-left: 0.25rem; padding-right: 0.25rem; }
     .products-grid { padding: 0 0.5rem; gap: 0.5rem; }
-    .pie           { padding-left: 0.75rem; padding-right: 0.75rem; }
+    /* El pie es una tarjeta con su propio aire adentro (ver PIE DE PÁGINA) */
     .pie-cols,
     .pie-abajo     { max-width: none; }
 
@@ -2699,13 +2709,16 @@
     }
 
     /* ---------- Pie de página ---------- */
+    /* Una tarjeta de vidrio que flota, como el menú de arriba */
     .pie {
+      border-radius: 26px;
       background: var(--vidrio);
       -webkit-backdrop-filter: var(--vidrio-blur);
       backdrop-filter: var(--vidrio-blur);
-      border-top: 1px solid rgba(255,255,255,.85);
-      box-shadow: 0 -1px 0 rgba(20,22,26,.05), inset 0 1px 0 #fff;
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
     }
+    @media (max-width: 760px) { .pie { border-radius: 22px; } }
 
     /* ---------- Ventanas (planes y carrito) ----------
        El fondo de atrás se esmerila en vez de solo oscurecerse, y la hoja

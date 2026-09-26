@@ -558,9 +558,10 @@
       display: flex; align-items: stretch; gap: 2px;
       padding: 5px;
       border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.04));
-      -webkit-backdrop-filter: var(--vidrio-blur-barra);
-      backdrop-filter: var(--vidrio-blur-barra);
+      /* 20 % más transparente: igual que en css/tienda.css */
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+      -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.1);
+      backdrop-filter: blur(24px) saturate(180%) brightness(1.1);
       border: 1px solid rgba(255,255,255,.8);
       box-shadow:
         0 12px 32px rgba(20,22,26,.14),
@@ -613,6 +614,12 @@
       fill: none; stroke: currentColor; stroke-width: 1.8;
       stroke-linecap: round; stroke-linejoin: round;
     }
+    /* La barra es casi transparente: cuando pasa sobre una foto oscura,
+       un halo blanco suave (como el texto sobre vidrio del iPhone) hace
+       que los íconos y los nombres se sigan leyendo. */
+    .nav-item { text-shadow: 0 0 5px rgba(255,255,255,.95), 0 0 2px rgba(255,255,255,.9); }
+    .nav-item .nav-icon svg { filter: drop-shadow(0 0 2px rgba(255,255,255,.95)) drop-shadow(0 0 4px rgba(255,255,255,.7)); }
+
     .nav-item:hover { color: var(--tinta); }
     .nav-item:hover::before { opacity: .45; transform: scale(1); }
     .nav-item:active { transform: scale(.93); }

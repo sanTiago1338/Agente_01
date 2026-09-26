@@ -1,0 +1,240 @@
+/* ============================================================
+   TIAGO STORE · LIQUID GLASS DEL PANEL
+   ============================================================
+   El mismo vidrio que la tienda (los tonos, el fondo con manchas de
+   color, la lente y la barra de desplazamiento vienen de css/vidrio.css,
+   que se carga antes que este archivo).
+
+   Menú lateral y barra de arriba flotan como píldoras de vidrio; la
+   sección en la que estás es la lente con borde tornasolado; tarjetas,
+   tablas y ventanas son vidrio. Lo que tiene datos (tablas, campos) va
+   un poco más denso que en la tienda: acá se trabaja leyendo números y
+   contraseñas, y tienen que leerse de un vistazo.
+
+   POR QUÉ TODO EMPIEZA CON "body"
+     Cada módulo (Inicio, Productos, Juegos, Ventas, Stock) mete sus
+     estilos en la página cuando arranca, o sea DESPUÉS de este archivo.
+     A igual peso gana el último; "body" le suma el peso justo para que
+     el vidrio no quede tapado.
+   ============================================================ */
+
+:root {
+  /* Vidrio para lo que tiene datos: más denso que el de la tienda */
+  --vidrio-datos: linear-gradient(180deg, rgba(255,255,255,.52), rgba(255,255,255,.38));
+  --vidrio-campo: rgba(255,255,255,.62);
+}
+
+
+/* ---------- Barra de arriba: píldora que flota ---------- */
+body .barra {
+  top: 8px;
+  margin: 8px 8px 0;
+  border-radius: 20px;
+  background: var(--vidrio-claro);
+  -webkit-backdrop-filter: var(--vidrio-blur-barra);
+  backdrop-filter: var(--vidrio-blur-barra);
+  border: 1px solid rgba(255,255,255,.8);
+  box-shadow: 0 10px 30px rgba(20,22,26,.10), 0 1px 3px rgba(20,22,26,.06),
+              0 0 0 .5px rgba(20,22,26,.08),
+              inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
+}
+
+
+/* ---------- Menú de la izquierda (compu): panel de vidrio que flota ---------- */
+@media (min-width: 900px) {
+  body .lateral {
+    top: 10px;
+    height: calc(100vh - 20px);
+    margin: 10px 0 10px 10px;
+    border-radius: 24px;
+    background: var(--vidrio);
+    -webkit-backdrop-filter: var(--vidrio-blur-barra);
+    backdrop-filter: var(--vidrio-blur-barra);
+    border: 1px solid rgba(255,255,255,.8);
+    box-shadow: 0 10px 30px rgba(20,22,26,.08), 0 0 0 .5px rgba(20,22,26,.08),
+                inset 0 1px 0 rgba(255,255,255,.95);
+  }
+}
+body .lateral .vista-tab,
+body .menu-link { border-radius: 12px; }
+body .lateral .vista-tab:hover,
+body .menu-link:hover { background: rgba(255,255,255,.5); }
+
+
+/* ---------- Barra de abajo (celular): igual que la de la tienda ---------- */
+body .menu-movil {
+  left: 10px; right: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  padding: 5px;
+  gap: 2px;
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.04));
+  -webkit-backdrop-filter: var(--vidrio-blur-barra);
+  backdrop-filter: var(--vidrio-blur-barra);
+  border: 1px solid rgba(255,255,255,.8);
+  box-shadow: 0 12px 32px rgba(20,22,26,.14), 0 2px 8px rgba(20,22,26,.06),
+              0 0 0 .5px rgba(20,22,26,.08),
+              inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.05);
+}
+body .menu-movil .vista-tab { border-radius: 20px; }
+/* Aire para que el contenido no quede tapado por la barra que flota */
+body .contenido { padding-bottom: 96px; }
+@media (min-width: 900px) { body .contenido { padding-bottom: 0; } }
+
+
+/* ---------- La sección en la que estás: la lente ---------- */
+body .lateral .vista-tab.activa,
+body .menu-movil .vista-tab.activa {
+  position: relative;
+  isolation: isolate;
+  background: var(--vidrio-lente);
+  box-shadow:
+    inset 0 1.5px 0 #fff,
+    inset 0 -1.5px 2px rgba(20,22,26,.07),
+    inset 0 0 0 1px rgba(255,255,255,.55),
+    0 6px 16px rgba(20,22,26,.13),
+    0 1px 3px rgba(20,22,26,.08);
+}
+body .lateral .vista-tab.activa::after,
+body .menu-movil .vista-tab.activa::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--vidrio-tornasol);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: .55;
+  pointer-events: none;
+}
+
+
+/* ---------- Tarjetas y cajas ---------- */
+body .metrica,
+body .ini-cifra {
+  background: var(--vidrio);
+  -webkit-backdrop-filter: var(--vidrio-blur);
+  backdrop-filter: var(--vidrio-blur);
+  border: 1px solid var(--vidrio-borde);
+  box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+}
+body .tabla-caja,
+body .ini-caja,
+body .vt-pedido,
+body .st-prod,
+body .st-sugerir,
+body .jg-card {
+  background: var(--vidrio-datos);
+  -webkit-backdrop-filter: var(--vidrio-blur);
+  backdrop-filter: var(--vidrio-blur);
+  border: 1px solid var(--vidrio-borde);
+  box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+}
+/* Lo que necesita atención sigue viéndose distinto, pero en vidrio */
+body .vt-pedido.urgente { border-color: rgba(220,38,38,.45); background: linear-gradient(180deg, rgba(255,236,236,.6), rgba(255,236,236,.4)); }
+body .vt-pedido.espera  { border-color: rgba(180,83,9,.4); }
+/* Las filas de las tablas: al pasar el mouse, un velo claro */
+body tbody tr:hover td { background: rgba(255,255,255,.45); }
+body .st-cab:hover { background: rgba(255,255,255,.4); }
+
+
+/* ---------- Campos ---------- */
+body .buscador input,
+body select,
+body .vt-modal input,
+body .vt-fecha-sel,
+body .st-campo input, body .st-campo select, body .st-campo textarea,
+body .zv-campo input, body .zv-campo select, body .zv-campo textarea,
+body .jg-campo input[type=text], body .jg-campo input[type=number], body .jg-campo select,
+body .jg-pk input, body .jg-pk select,
+body .precio-edicion input {
+  background: var(--vidrio-campo);
+  border-color: rgba(255,255,255,.85);
+  box-shadow: inset 0 1px 2px rgba(20,22,26,.06), 0 0 0 .5px rgba(20,22,26,.12);
+}
+
+
+/* ---------- Botones ---------- */
+body .btn { border-radius: 999px; }
+/* El principal (Confirmar, Cargar, Nuevo producto…): vidrio claro con
+   letras negras y el borde tornasolado, como en la tienda.
+   .btn-primario no tenía estilo en ningún lado y se veía como texto
+   suelto: ahora es este. */
+body .btn-rojo,
+body .btn-primario {
+  position: relative;
+  isolation: isolate;
+  background: var(--vidrio-reflejo),
+              linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.3));
+  border: 1px solid rgba(255,255,255,.85);
+  color: var(--tinta);
+  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.1);
+  backdrop-filter: blur(16px) saturate(180%) brightness(1.1);
+  box-shadow: 0 8px 24px rgba(20,22,26,.14), 0 1px 3px rgba(20,22,26,.08),
+              0 0 0 .5px rgba(20,22,26,.08),
+              inset 0 1.5px 0 #fff, inset 0 -2px 5px rgba(20,22,26,.06);
+}
+body .btn-rojo:not(:disabled)::after,
+body .btn-primario:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--vidrio-tornasol);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: .5;
+  pointer-events: none;
+}
+body .btn-rojo:hover:not(:disabled),
+body .btn-primario:hover:not(:disabled) {
+  filter: none;
+  background: var(--vidrio-reflejo),
+              linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.5));
+}
+body .btn-fantasma {
+  background: var(--vidrio);
+  border-color: var(--vidrio-borde);
+  box-shadow: 0 2px 10px rgba(20,22,26,.06), var(--vidrio-brillo);
+}
+body .btn-fantasma:hover:not(:disabled) { background: rgba(255,255,255,.7); }
+/* Los redondos de ícono */
+body .icono-btn,
+body .accion-btn,
+body .btn-icono {
+  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.25));
+  border-color: rgba(255,255,255,.8);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(20,22,26,.1);
+}
+
+
+/* ---------- Ventanas ----------
+   Lo de atrás se esmerila y la hoja es vidrio casi blanco, para que se
+   lea todo lo de adentro (formularios, credenciales). */
+body .zv-fondo,
+body .st-fondo,
+body .vt-fondo,
+body .jg-fondo {
+  background: rgba(20,22,26,.2);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+}
+body .zv-modal,
+body .st-modal,
+body .vt-modal,
+body .jg-modal {
+  background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.6));
+  -webkit-backdrop-filter: blur(28px) saturate(170%) brightness(1.15);
+  backdrop-filter: blur(28px) saturate(170%) brightness(1.15);
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(20,22,26,.2), 0 0 0 .5px rgba(20,22,26,.1),
+              inset 0 1px 0 #fff;
+}
+/* Cabecera y pie de las ventanas: sin fondo propio, sobre el vidrio */
+body .zv-cab, body .zv-pie,
+body .jg-cab, body .jg-pie { background: transparent; }

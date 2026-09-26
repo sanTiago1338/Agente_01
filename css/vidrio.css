@@ -17,12 +17,15 @@
    ============================================================ */
 
 :root {
-  --vidrio:        linear-gradient(180deg, rgba(255,255,255,.37), rgba(255,255,255,.15));
-  --vidrio-claro:  linear-gradient(180deg, rgba(255,255,255,.19), rgba(255,255,255,.04));
-  --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.51), rgba(255,255,255,.39));
-  --vidrio-lente:  radial-gradient(120% 90% at 50% 0%, #fff 0%, rgba(255,255,255,.29) 55%, rgba(255,255,255,.07) 100%);
+  --vidrio:        linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.02));
+  --vidrio-claro:  linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.36), rgba(255,255,255,.24));
+  --vidrio-lente:  radial-gradient(120% 90% at 50% 0%, #fff 0%, rgba(255,255,255,.14) 55%, rgba(255,255,255,.02) 100%);
+  /* Vidrio sin relleno blanco: casi nada de color, se ve por el canto
+     claro, el brillo de arriba y lo esmerilado de atrás (el pie) */
+  --vidrio-transparente: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
   --vidrio-borde:  rgba(255,255,255,.85);
-  --vidrio-blur:   blur(22px) saturate(180%) brightness(1.06);
+  --vidrio-blur:   blur(22px) saturate(180%);
   /* Las barras con texto (menú de arriba, franja, barra de abajo) son
      las más transparentes y pasan por encima de fotos oscuras: aclaran
      bastante lo que tienen detrás, como el iPhone, para que las letras
@@ -152,7 +155,7 @@ body::before {
   position: relative;
   isolation: isolate;
   background: var(--vidrio-reflejo),
-              linear-gradient(180deg, rgba(255,255,255,.62), rgba(255,255,255,.3));
+              linear-gradient(180deg, rgba(255,255,255,.47), rgba(255,255,255,.15));
   border: 1px solid rgba(255,255,255,.85);
   color: var(--tinta, #14161a);
   -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(1.1);
@@ -217,7 +220,7 @@ body::before {
 .btn-primary:hover,
 .btn-tienda:hover {
   background: var(--vidrio-reflejo),
-              linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.5));
+              linear-gradient(180deg, rgba(255,255,255,.67), rgba(255,255,255,.35));
 }
 .btn-wa:hover,
 .nav-links a.nav-wa:hover { filter: brightness(1.08) saturate(1.1); }
@@ -232,14 +235,14 @@ body::before {
    Lo dibuja wa-bubble.js, que mete su propio estilo después de esta
    hoja: por eso "body .wa-bubble", que pesa más que su ".wa-bubble". */
 body .wa-bubble {
-  background: linear-gradient(180deg, rgba(62,224,122,.54), rgba(18,160,110,.44));
+  background: linear-gradient(180deg, rgba(62,224,122,.39), rgba(18,160,110,.29));
   -webkit-backdrop-filter: blur(14px) saturate(180%);
   backdrop-filter: blur(14px) saturate(180%);
   border: 1px solid rgba(255,255,255,.55);
   overflow: hidden;
   isolation: isolate;
 }
-body .wa-bubble:hover { background: linear-gradient(180deg, rgba(62,224,122,.67), rgba(18,160,110,.57)); }
+body .wa-bubble:hover { background: linear-gradient(180deg, rgba(62,224,122,.52), rgba(18,160,110,.42)); }
 /* El reflejo de arriba y el borde claro de adentro */
 body .wa-bubble::before {
   content: '';

@@ -812,7 +812,7 @@ body > nav {
   box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
 }
 .hero-badge {
-  background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(253,226,228,.32));
+  background: linear-gradient(180deg, rgba(255,255,255,.27), rgba(253,226,228,.17));
   border: 1px solid rgba(229,9,20,.3);
   box-shadow: 0 2px 8px rgba(229,9,20,.1), inset 0 1px 0 #fff;
 }
@@ -850,7 +850,7 @@ body > nav {
 
 /* planes.html: el aviso de precios, el buscador y las tablas */
 .aviso-precios {
-  background: linear-gradient(180deg, rgba(255,251,235,.42), rgba(255,244,205,.22));
+  background: linear-gradient(180deg, rgba(255,251,235,.27), rgba(255,244,205,.07));
   -webkit-backdrop-filter: var(--vidrio-blur);
   backdrop-filter: var(--vidrio-blur);
   border: 1px solid rgba(255,255,255,.85);
@@ -886,9 +886,9 @@ body > nav {
   box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
 }
 
-/* Pie de página */
+/* Pie de página: vidrio transparente, sin relleno blanco */
 footer {
-  background: var(--vidrio);
+  background: var(--vidrio-transparente);
   -webkit-backdrop-filter: var(--vidrio-blur);
   backdrop-filter: var(--vidrio-blur);
   border-top: 1px solid rgba(255,255,255,.85);

@@ -797,11 +797,8 @@ body > nav {
 .nav-links a:hover { background: rgba(255,255,255,.75); color: var(--tinta); }
 .nav-links a:active { transform: scale(.95); }
 .nav-links a.active { border-bottom: none; }   /* la lente es de css/vidrio.css */
-.nav-links a.nav-wa {
-  border-radius: 999px;
-  background: linear-gradient(180deg, #1aa896, var(--verde-wa)) !important;
-  box-shadow: 0 4px 12px rgba(18,140,126,.28), inset 0 1px 0 rgba(255,255,255,.35);
-}
+/* El de WhatsApp es vidrio verde (css/vidrio.css): acá solo la forma */
+.nav-links a.nav-wa { border-radius: 999px; }
 
 /* El título de arriba, en una tarjeta de vidrio */
 .hero-inner {
@@ -815,30 +812,21 @@ body > nav {
   box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
 }
 .hero-badge {
-  background: linear-gradient(180deg, rgba(255,255,255,.6), rgba(253,226,228,.5));
+  background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(253,226,228,.32));
   border: 1px solid rgba(229,9,20,.3);
   box-shadow: 0 2px 8px rgba(229,9,20,.1), inset 0 1px 0 #fff;
 }
 
-/* Botones: píldoras con brillo arriba */
-.btn-primary {
-  border-radius: 999px;
-  background: linear-gradient(180deg, #f0262f, var(--marca));
-  box-shadow: 0 8px 20px rgba(229,9,20,.25), inset 0 1px 0 rgba(255,255,255,.35),
-              inset 0 -1px 1px rgba(0,0,0,.1);
-}
-.btn-primary:hover { background: linear-gradient(180deg, var(--marca), var(--marca-oscura)); }
+/* Botones: píldoras. El rojo y el verde son vidrio de color
+   (css/vidrio.css); el de borde, vidrio claro. */
+.btn-primary,
+.btn-wa { border-radius: 999px; }
 .btn-outline {
   border-radius: 999px;
   background: var(--vidrio);
   box-shadow: 0 4px 14px rgba(20,22,26,.07), var(--vidrio-brillo);
 }
 .btn-outline:hover { background: rgba(255,255,255,.9); }
-.btn-wa {
-  border-radius: 999px;
-  background: linear-gradient(180deg, #1aa896, var(--verde-wa));
-  box-shadow: 0 8px 20px rgba(18,140,126,.25), inset 0 1px 0 rgba(255,255,255,.35);
-}
 
 /* Tarjetas: vidrio con canto claro */
 .plan-card,
@@ -862,7 +850,7 @@ body > nav {
 
 /* planes.html: el aviso de precios, el buscador y las tablas */
 .aviso-precios {
-  background: linear-gradient(180deg, rgba(255,251,235,.6), rgba(255,244,205,.4));
+  background: linear-gradient(180deg, rgba(255,251,235,.42), rgba(255,244,205,.22));
   -webkit-backdrop-filter: var(--vidrio-blur);
   backdrop-filter: var(--vidrio-blur);
   border: 1px solid rgba(255,255,255,.85);

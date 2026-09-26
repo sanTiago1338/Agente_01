@@ -138,7 +138,7 @@
 
     function updateCartCount() {
       cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
-      document.getElementById('1').textContent = cartCount;
+      // El contador del "Carro" de la barra de abajo (el de arriba ya no está)
       document.getElementById('7').textContent = cartCount;
     }
 

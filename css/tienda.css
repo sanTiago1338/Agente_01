@@ -111,8 +111,8 @@
 
     /* ===== HEADER ===== */
     /* ===== BARRA DE NAVEGACIÓN =====
-       Marca a la izquierda, enlaces al centro, carrito a la derecha.
-       Reemplaza al encabezado separado que había antes. */
+       Marca a la izquierda y enlaces al centro. El carrito está en la
+       barra de abajo. Reemplaza al encabezado separado que había antes. */
     .nav-principal {
       background: var(--negro2);
       border-bottom: 1px solid var(--borde);
@@ -147,34 +147,8 @@
       flex-wrap: wrap;
     }
 
-    .nav-carrito {
-      background: none;
-      border: none;
-      color: var(--texto-dim);
-      cursor: pointer;
-      font-size: 1.3rem;
-      padding: 0.35rem;
-      border-radius: 8px;
-      transition: color 0.2s, background 0.2s;
-      position: relative;
-      flex-shrink: 0;
-    }
-    .nav-carrito:hover { color: var(--blanco); background: rgba(20,22,26,0.054); }
-
-    .cart-badge {
-      position: absolute;
-      top: -2px; right: -2px;
-      background: var(--rojo);
-      color: white;
-      font-size: 0.55rem;
-      width: 14px; height: 14px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 900;
-    }
-
-    /* En pantallas chicas: marca y carrito en la primera fila,
-       los cuatro enlaces repartidos en una segunda fila. */
+    /* En pantallas chicas: la marca en la primera fila y los cuatro
+       enlaces repartidos en una segunda fila. */
     @media (max-width: 640px) {
       .nav-principal {
         flex-wrap: wrap;
@@ -182,7 +156,6 @@
         gap: 0.4rem;
       }
       .nav-marca { font-size: 1.2rem; }
-      .nav-carrito { margin-left: auto; }
       .nav-menu {
         order: 3;
         flex: 0 0 100%;   /* pisa el flex:1 de la regla base */

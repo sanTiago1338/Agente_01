@@ -420,6 +420,42 @@
 
     .filter-btn:hover { background: var(--gris); color: var(--blanco); }
 
+    /* ===== FILTRAR =====
+       Un menú de vidrio que cae debajo del botón. Mientras hay un filtro
+       puesto, el botón dice cuál ("▼ 1 pantalla") en letra más fuerte. */
+    .filtro-wrap { position: relative; margin-left: auto; flex: none; }
+    /* Cada renglón de la página es su propia capa (body > * lleva
+       z-index:1) y el de abajo tapaba el menú: este va una más arriba. */
+    .page-header { z-index: 5; }
+    .filter-btn.activo { color: var(--tinta); font-weight: 700; }
+    .filtro-menu {
+      position: absolute; right: 0; top: calc(100% + 6px); z-index: 60;
+      min-width: 190px; padding: 6px;
+      display: flex; flex-direction: column; gap: 2px;
+      background: var(--vidrio-denso);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border: 1px solid var(--vidrio-borde);
+      border-radius: 18px;
+      box-shadow: 0 14px 34px rgba(20,22,26,.16), 0 0 0 .5px rgba(20,22,26,.08), var(--vidrio-brillo);
+    }
+    .filtro-menu[hidden] { display: none; }
+    .filtro-op {
+      display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+      padding: .55rem .8rem;
+      border: 0; border-radius: 12px;
+      background: transparent; color: var(--tinta);
+      font-family: 'Outfit', sans-serif; font-size: .85rem; font-weight: 600;
+      text-align: left; cursor: pointer;
+    }
+    .filtro-op:hover { background: rgba(255,255,255,.45); }
+    .filtro-op.activo {
+      background: var(--vidrio-lente);
+      box-shadow: 0 2px 8px rgba(20,22,26,.08), inset 0 1px 0 #fff;
+      font-weight: 800;
+    }
+    .filtro-op.activo::after { content: '✓'; }
+
     /* ===== SORT ===== (en el mismo renglón que "Filtrar") */
     .sort-row {
       display: flex;

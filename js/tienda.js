@@ -56,6 +56,7 @@
 
     let currentCat = 'all';
     let currentSub = 'all';
+    let currentFormato = 'all';   // "Filtrar": '1-pantalla' | '1-dispositivo' | 'completa'
     let currentSearch = '';
     let currentPage = 1;
     // Cuántas plataformas trae cada página: al menos 12, y siempre filas
@@ -694,7 +695,8 @@
         const catOk = buscando || currentCat === 'all' || p.cat === currentCat;
         // tiposDe() unifica las variantes ("1-device" = "1-dispositivo")
         const subOk = currentSub === 'all' || tiposDe(p).includes(currentSub);
-        return catOk && subOk;
+        const formatoOk = currentFormato === 'all' || formatoDe(p) === currentFormato;
+        return catOk && subOk && formatoOk;
       });
 
       // La búsqueda se aplica a la plataforma ya armada, no a cada plan:
@@ -731,7 +733,9 @@
           <div style="font-size:2.5rem; margin-bottom:.75rem;">🔍</div>
           <div style="font-weight:900; color:var(--tinta); margin-bottom:.4rem;">Sin resultados</div>
           <div style="font-size:.9rem; color:var(--tinta-suave);">
-            ${currentSearch ? `No encontramos nada para «${currentSearch}»` : 'No hay productos en esta categoría'}
+            ${currentSearch ? `No encontramos nada para «${currentSearch}»`
+              : currentFormato !== 'all' ? `No hay planes de «${ETIQUETAS_FORMATO[currentFormato]}» acá`
+              : 'No hay productos en esta categoría'}
           </div>
         </div>`;
         renderPagination(0);
@@ -1457,12 +1461,69 @@
       renderProducts();
     }
 
-    function toggleFilter() {
-      // '' y no 'block': así vuelve al display de la hoja (el orden va en
-      // fila con su etiqueta, al lado de "Filtrar")
-      const row = document.getElementById('3');
-      row.style.display = row.style.display === 'none' ? '' : 'none';
+    // ==========================================================
+    //  FILTRAR: 1 PANTALLA, 1 DISPOSITIVO O CUENTA COMPLETA
+    // ==========================================================
+    // Lo que dice el nombre manda, porque es lo que lee el cliente: el
+    // "tipo" a veces quedó mal cargado ("Prezi … 1 dispositivo" dice
+    // completa). Si el nombre no dice nada, se usa el tipo.
+    // "GARANTIA completa" es de la garantía, no de la cuenta.
+    const ETIQUETAS_FORMATO = {
+      '1-pantalla':    '1 pantalla',
+      '1-dispositivo': '1 dispositivo',
+      'completa':      'Cuenta completa'
+    };
+    function formatoDe(p) {
+      const nombre = sinTildes(p.name).replace(/garantia\s+completa/g, '');
+      if (/\b1\s*pantalla/.test(nombre))    return '1-pantalla';
+      if (/\b1\s*dispositivo/.test(nombre)) return '1-dispositivo';
+      if (/\bcompleta\b/.test(nombre))      return 'completa';
+      const tipos = tiposDe(p);
+      if (tipos.includes('1-pantalla'))     return '1-pantalla';
+      if (tipos.includes('1-dispositivo'))  return '1-dispositivo';
+      if (tipos.includes('completa'))       return 'completa';
+      return null;
     }
+
+    function toggleFilter(abrir) {
+      const menu = document.getElementById('filtroMenu');
+      const btn  = document.getElementById('filtroBtn');
+      if (!menu || !btn) return;
+      const abierto = typeof abrir === 'boolean' ? abrir : menu.hidden;
+      menu.hidden = !abierto;
+      btn.setAttribute('aria-expanded', String(abierto));
+    }
+
+    function elegirFormato(formato) {
+      currentFormato = formato;
+      currentPage = 1;
+      toggleFilter(false);
+      pintarFormato();
+      renderProducts();
+    }
+
+    // El botón dice lo que está filtrando, así no se olvida que hay un filtro
+    function pintarFormato() {
+      const btn = document.getElementById('filtroBtn');
+      if (btn) {
+        btn.textContent = '▼ ' + (ETIQUETAS_FORMATO[currentFormato] || 'Filtrar');
+        btn.classList.toggle('activo', currentFormato !== 'all');
+      }
+      document.querySelectorAll('.filtro-op').forEach(op =>
+        op.classList.toggle('activo', op.dataset.formato === currentFormato));
+    }
+
+    // Tocar fuera del menú o Esc lo cierran
+    document.addEventListener('pointerdown', function (e) {
+      if (!e.target.closest('.filtro-wrap')) toggleFilter(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      const menu = document.getElementById('filtroMenu');
+      if (e.key === 'Escape' && menu && !menu.hidden) {
+        toggleFilter(false);
+        document.getElementById('filtroBtn').focus();
+      }
+    });
 
     // ==========================================================
     // EL "ATRÁS" DEL CELULAR DENTRO DE LA VENTANA
@@ -1995,7 +2056,8 @@
     }
 
     function goHome() {
-      currentCat = 'all'; currentSub = 'all'; currentSearch = '';
+      currentCat = 'all'; currentSub = 'all'; currentSearch = ''; currentFormato = 'all';
+      pintarFormato();
       document.getElementById('2').value = '';
       cerrarSugerencias();
       document.querySelectorAll('.cat-tab').forEach((t,i) => t.classList.toggle('active', i===0));

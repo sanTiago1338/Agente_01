@@ -217,8 +217,8 @@
 
   <!-- Ordenar y "Filtrar" en un solo renglón. Sin la miga ("Hogar / …")
        ni el título "Todas las plataformas": la categoría elegida ya se ve
-       marcada en las pestañas de abajo. "Filtrar" muestra u oculta el
-       orden, y se queda a la derecha. -->
+       marcada en las pestañas de abajo. "Filtrar" se queda a la derecha y
+       abre un menú: 1 pantalla, 1 dispositivo o cuenta completa. -->
   <div class="page-header">
     <div class="sort-row" id="3">
       <label for="4">Ordenar por</label>
@@ -232,7 +232,16 @@
         <option value="name">Nombre A-Z</option>
       </select>
     </div>
-    <button class="filter-btn" onclick="toggleFilter()">▼ Filtrar</button>
+    <div class="filtro-wrap">
+      <button class="filter-btn" id="filtroBtn" onclick="toggleFilter()"
+              aria-haspopup="true" aria-expanded="false" aria-controls="filtroMenu">▼ Filtrar</button>
+      <div class="filtro-menu" id="filtroMenu" hidden>
+        <button type="button" class="filtro-op activo" data-formato="all" onclick="elegirFormato('all')">Todos</button>
+        <button type="button" class="filtro-op" data-formato="1-pantalla" onclick="elegirFormato('1-pantalla')">1 pantalla</button>
+        <button type="button" class="filtro-op" data-formato="1-dispositivo" onclick="elegirFormato('1-dispositivo')">1 dispositivo</button>
+        <button type="button" class="filtro-op" data-formato="completa" onclick="elegirFormato('completa')">Cuenta completa</button>
+      </div>
+    </div>
   </div>
 
   <!-- CATEGORY TABS · se generan desde Supabase (renderCategorias) -->

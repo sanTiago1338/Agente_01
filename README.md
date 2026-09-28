@@ -36,6 +36,18 @@ instalar.
 > Manda `Cache-Control: max-age=60`. Si tocás algo y "no toma", agregá
 > `?v=1` a la URL antes de sospechar del código.
 
+## Antes de publicar
+
+```bash
+powershell -File nueva-version.ps1
+```
+
+Le pone `?v=<fecha y hora>` a cada `.js` y `.css` que cargan las páginas.
+GitHub Pages deja que el navegador reuse un archivo hasta 10 minutos, y sin
+esto un cliente podía recibir la página nueva con el script viejo (y
+romperse). Con la versión nueva, el navegador baja los archivos en el
+momento.
+
 ---
 
 ## Qué hay en cada lado

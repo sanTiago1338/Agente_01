@@ -170,6 +170,8 @@ css.textContent = `
     font-size: 12px; color: var(--gris-dim); margin-top: 3px;
     font-variant-numeric: tabular-nums;
   }
+  .vt-plan { font-size: 12.5px; color: var(--gris); margin-top: 3px; }
+  .vt-plan strong { color: var(--tinta); }
   .vt-cliente { font-size: 12.5px; color: var(--gris); margin-top: 3px; }
   .vt-cliente a { color: var(--gris); text-decoration: none; border-bottom: 1px dotted var(--borde); }
   .vt-cliente a:hover { color: #15803d; }
@@ -400,7 +402,12 @@ css.textContent = `
     font-size: 20px; line-height: 1; cursor: pointer; padding: 4px 6px;
   }
   .vt-ver-x:hover { color: var(--tinta); }
-  .vt-ver-modal .vt-pedido { margin-bottom: 0; }
+  .vt-ver-modal .vt-pedido { margin-bottom: 0; grid-template-columns: 86px 1fr; }
+  /* En la ventana hay menos ancho que en la lista de antes: el precio, el
+     estado y los botones van en su propio renglón, así el nombre del
+     producto y la fecha se leen enteros */
+  .vt-ver-modal .vt-prod { white-space: normal; overflow: visible; }
+  .vt-ver-modal .vt-der { grid-column: 1 / -1; justify-content: flex-end; flex-wrap: wrap; }
 
   /* ---------- Celular ----------
      La fila deja de ser una grilla de tres columnas y pasa a ser una sola,
@@ -894,11 +901,16 @@ const badgeEstado = (estado, txt) => {
  * en estados distintos (una entregada y otra sin stock), cada una con su
  * cartel.
  */
+// Cuánto tiempo de suscripción compró: los días anotados en el pedido.
+// En un plan rebajado son menos que el plan entero (le quedan 21 de 30).
+const duracion = o => o && o.plan_dias ? `${o.plan_dias} días` : '';
+
 function detalleCompra(c, { porEstado = false } = {}) {
   const filas = productosDeCompra(c.lineas, porEstado).map(x => `
     <div class="vt-linea">
       <span class="vt-l-cant">${x.cant}×</span>
-      <span class="vt-l-nom">${escapar(x.nombre)}<small>${x.lineas.map(o => '#' + o.numero).join(' · ')}</small></span>
+      <span class="vt-l-nom">${escapar(x.nombre)}<small>${x.lineas.map(o => '#' + o.numero).join(' · ')}${
+        duracion(x.lineas[0]) ? ` · ${duracion(x.lineas[0])}` : ''}</small></span>
       ${porEstado ? badgeEstado(x.estado) : ''}
       <span class="vt-l-bs">${bsTxt(x.unitario * x.cant)}</span>
     </div>`).join('');
@@ -1069,6 +1081,9 @@ function pintarCompra(c) {
              su mensaje de WhatsApp. Entregada, la de la entrega; mientras
              no, la de cuando armó el pedido. -->
         <div class="vt-orden">Fecha de orden: ${fechaOrden(entregadaEn || p.creado_en)}${n > 1 ? ` · ${n} cuentas` : ''}</div>
+        <!-- Cuánto tiempo compró. Con varios productos va en cada renglón
+             del detalle de abajo, porque cada uno tiene el suyo. -->
+        ${n === 1 && duracion(p) ? `<div class="vt-plan">Suscripción: <strong>${duracion(p)}</strong></div>` : ''}
         <div class="vt-cliente">
           ${escapar(p.cliente_nombre || 'Sin nombre')}
           ${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">📲 ${escapar(p.cliente_whatsapp)}</a>` : ''}

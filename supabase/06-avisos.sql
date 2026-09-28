@@ -126,7 +126,10 @@ begin
       sum(p.precio)                                          as total,
       max(nullif(p.cliente_nombre, ''))                      as cliente,
       max(nullif(p.cliente_whatsapp, ''))                    as whatsapp,
-      string_agg(p.producto_nombre, chr(10) || '· ' order by p.numero) as productos,
+      -- Cada producto con cuánto tiempo compró ("· 30 días"): en un plan
+      -- rebajado son menos que el plan entero
+      string_agg(p.producto_nombre || coalesce(' · ' || p.plan_dias || ' días', ''),
+                 chr(10) || '· ' order by p.numero)          as productos,
       array_agg(p.id)                                        as ids
     from public.pedidos p
     where p.avisado_en is null

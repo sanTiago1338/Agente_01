@@ -38,6 +38,15 @@ let confirmando = null;
 // datos cargados no hay nada que refrescar, alcanza con avisar.
 let yaCargado = false;
 
+// La lista va de a páginas: una fila corta por compra (código, fecha,
+// total, estado) y "Ver" para abrirla entera. Antes cada compra era una
+// tarjeta larga con todo adentro y la pantalla bajaba sin fin.
+const POR_PAGINA = 15;
+let pagina = 1;
+// La compra abierta con "Ver". Se guarda para mantenerla al día: si la
+// confirmás desde ahí, la ventana muestra enseguida lo que se entregó.
+let verClave = null;
+
 // En qué estados tiene sentido tocar "Confirmar".
 //
 // "vencido" está en la lista, y es el que menos se espera. Vencer es solo
@@ -322,6 +331,77 @@ css.textContent = `
   .vt-cred-de { font-family: 'Outfit', system-ui, sans-serif; font-weight: 700; color: var(--tinta); }
   .vt-cred-todas { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
 
+  /* ---------- La lista: una fila por compra ----------
+     Código, fecha, total y estado, y "Ver" para abrir la compra entera.
+     Toda la fila se puede tocar; el botón está para que se note y para
+     llegar con el teclado. */
+  .vt-tabla {
+    background: var(--panel); border: 1px solid var(--borde);
+    border-radius: 14px; overflow: hidden;
+  }
+  .vt-fila {
+    display: grid;
+    grid-template-columns: minmax(80px, 1fr) minmax(120px, 1.2fr) minmax(80px, .9fr) minmax(110px, 1.2fr) auto;
+    align-items: center; gap: 12px;
+    padding: 11px 16px;
+    border-top: 1px solid var(--borde);
+    cursor: pointer;
+  }
+  .vt-fila:not(.vt-fila-cab):hover { background: rgba(255,255,255,.45); }
+  .vt-fila-cab {
+    border-top: none; cursor: default;
+    padding-top: 12px; padding-bottom: 9px;
+    font-size: 11px; font-weight: 700; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--gris-dim);
+  }
+  /* Lo que te pide algo, marcado al costado sin tener que leerlo */
+  .vt-fila.urgente { box-shadow: inset 3px 0 0 #dc2626; background: rgba(220,38,38,.04); }
+  .vt-fila.espera  { box-shadow: inset 3px 0 0 #d97706; }
+  .vt-f-num {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 14.5px; font-weight: 700; color: var(--tinta);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .vt-f-fecha { font-size: 13px; color: var(--gris); font-variant-numeric: tabular-nums; }
+  .vt-f-fecha small { display: block; font-size: 11.5px; color: var(--gris-dim); }
+  .vt-f-bs {
+    font-size: 14px; font-weight: 700; color: var(--tinta);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .vt-ver {
+    background: none; border: 1px solid var(--borde); color: var(--tinta);
+    border-radius: 99px; padding: 6px 13px;
+    font: inherit; font-size: 12.5px; font-weight: 700;
+    cursor: pointer; white-space: nowrap;
+  }
+  .vt-ver:hover { border-color: var(--tinta); }
+
+  /* Las páginas: ‹ 1 2 3 … 12 13 › */
+  .vt-paginas { display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 16px; }
+  .vt-pag {
+    min-width: 36px; height: 36px; padding: 0 10px;
+    border-radius: 99px; border: 1px solid var(--borde);
+    background: none; color: var(--gris);
+    font: inherit; font-size: 13.5px; font-weight: 700;
+    font-variant-numeric: tabular-nums; cursor: pointer;
+  }
+  .vt-pag:hover:not(:disabled) { border-color: var(--tinta); color: var(--tinta); }
+  .vt-pag.activa { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+  .vt-pag:disabled { opacity: .35; cursor: default; }
+  .vt-pag-puntos { color: var(--gris-dim); padding: 0 2px; }
+  .vt-pag-info { text-align: center; font-size: 12.5px; color: var(--gris-dim); margin-top: 8px; }
+
+  /* ---------- "Ver": la compra entera, en una ventana ---------- */
+  .vt-modal.vt-ver-modal { max-width: 860px; padding: 18px 20px 20px; }
+  .vt-ver-cab { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .vt-ver-cab h3 { margin: 0; flex: 1; }
+  .vt-ver-x {
+    background: none; border: none; color: var(--gris);
+    font-size: 20px; line-height: 1; cursor: pointer; padding: 4px 6px;
+  }
+  .vt-ver-x:hover { color: var(--tinta); }
+  .vt-ver-modal .vt-pedido { margin-bottom: 0; }
+
   /* ---------- Celular ----------
      La fila deja de ser una grilla de tres columnas y pasa a ser una sola,
      en tres renglones: número, producto y cliente, y abajo plata y botones.
@@ -343,6 +423,23 @@ css.textContent = `
     /* Y que la plata y los botones envuelvan en vez de empujar. */
     .vt-der { flex-wrap: wrap; gap: 9px 12px; }
     .vt-cred { margin-top: 0; }
+
+    /* La fila de la lista en dos renglones: código y total arriba, fecha
+       y estado abajo, y "Ver" a la derecha de los dos. Los títulos de
+       las columnas sobran. */
+    .vt-fila {
+      grid-template-columns: 1fr auto auto;
+      grid-template-areas: "num bs ver" "fecha estado ver";
+      gap: 4px 10px; padding: 11px 12px;
+    }
+    .vt-fila-cab { display: none; }
+    .vt-f-num    { grid-area: num; }
+    .vt-f-fecha  { grid-area: fecha; }
+    .vt-f-fecha small { display: inline; margin-left: 5px; }
+    .vt-f-bs     { grid-area: bs; justify-self: end; }
+    .vt-f-estado { grid-area: estado; justify-self: end; }
+    .vt-ver      { grid-area: ver; }
+    .vt-modal.vt-ver-modal { padding: 14px 12px 14px; }
   }
 `;
 document.head.appendChild(css);
@@ -375,6 +472,20 @@ $('vistaVentas').innerHTML = `
     </div>
 
     <div id="vtLista"></div>
+  </div>
+
+  <!-- ===== Ventana: la compra entera ("Ver") =====
+       Va ANTES que las otras dos: las tres tienen el mismo z-index, así
+       que "Confirmar" o "Listo" se abren por encima de esta y al cerrarlas
+       volvés a la compra. -->
+  <div class="vt-fondo" id="vtFondoVer">
+    <div class="vt-modal vt-ver-modal" role="dialog" aria-modal="true" aria-labelledby="vtVerTitulo">
+      <div class="vt-ver-cab">
+        <h3 id="vtVerTitulo">Pedido</h3>
+        <button class="vt-ver-x" id="vtVerCerrar" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="vtVerCuerpo"></div>
+    </div>
   </div>
 
   <!-- ===== Modal: confirmar pago ===== -->
@@ -661,10 +772,110 @@ function listar() {
              ? 'Probá con otro día, o mirá "Todos".'
              : 'Van a aparecer acá solos, apenas alguien compre.'}</p>
       </div>`;
+    pintarVer();
     return;
   }
 
-  $('vtLista').innerHTML = lista.map(pintarCompra).join('');
+  // Si la lista se achicó (se confirmó algo, cambió el filtro) y la página
+  // en la que estabas ya no existe, se queda en la última que sí.
+  const paginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA));
+  if (pagina > paginas) pagina = paginas;
+  const desde = (pagina - 1) * POR_PAGINA;
+  const estas = lista.slice(desde, desde + POR_PAGINA);
+
+  $('vtLista').innerHTML = `
+    <div class="vt-tabla">
+      <div class="vt-fila vt-fila-cab">
+        <span>Código</span><span>Fecha</span><span>Total</span><span>Estado</span><span></span>
+      </div>
+      ${estas.map(filaCompra).join('')}
+    </div>
+    ${paginador(paginas, desde, estas.length, lista.length)}`;
+
+  pintarVer();
+}
+
+// Una fila de la lista: lo justo para encontrar la compra. Todo lo demás
+// (qué se compró, el cliente, las cuentas, los botones) está en "Ver".
+function filaCompra(c) {
+  const L = c.lineas;
+  const principal = estadoPrincipal(L);
+  const clase = principal === 'sin_stock' ? 'urgente'
+              : principal === 'esperando_pago' || principal === 'pagado' ? 'espera' : '';
+  // "19-09-2026 04:04 PM": el día arriba, la hora abajo en chico
+  const [dia, ...hora] = fechaOrden(c.primera.creado_en).split(' ');
+
+  return `
+    <div class="vt-fila ${clase}" data-ver="${escapar(c.clave)}">
+      <span class="vt-f-num">${numerosDeCompra(L)}</span>
+      <span class="vt-f-fecha">${dia}<small>${hora.join(' ')}</small></span>
+      <span class="vt-f-bs">${bsTxt(c.total)}</span>
+      <span class="vt-f-estado">${cartelDe(c)}</span>
+      <button class="vt-ver" data-ver="${escapar(c.clave)}">👁 Ver</button>
+    </div>`;
+}
+
+// ‹ 1 2 3 … 12 13 ›, y debajo "16–30 de 187 compras"
+function paginador(paginas, desde, cuantas, total) {
+  if (paginas <= 1) return '';
+  const botones = numerosDePagina(pagina, paginas).map(n => n === '…'
+    ? '<span class="vt-pag-puntos">…</span>'
+    : `<button class="vt-pag${n === pagina ? ' activa' : ''}" data-pagina="${n}"
+               ${n === pagina ? 'aria-current="page"' : ''}>${n}</button>`).join('');
+
+  return `
+    <nav class="vt-paginas" aria-label="Páginas">
+      <button class="vt-pag" data-pagina="${pagina - 1}" ${pagina === 1 ? 'disabled' : ''} aria-label="Página anterior">‹</button>
+      ${botones}
+      <button class="vt-pag" data-pagina="${pagina + 1}" ${pagina === paginas ? 'disabled' : ''} aria-label="Página siguiente">›</button>
+    </nav>
+    <div class="vt-pag-info">${desde + 1}–${desde + cuantas} de ${total} compras</div>`;
+}
+
+// Hasta 7 páginas se muestran todas. Con más: las dos primeras, las dos
+// últimas y las vecinas de la actual, con "…" en los saltos.
+function numerosDePagina(actual, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const quedan = [...new Set([1, 2, actual - 1, actual, actual + 1, total - 1, total])]
+    .filter(n => n >= 1 && n <= total)
+    .sort((a, b) => a - b);
+  const salida = [];
+  quedan.forEach((n, i) => {
+    if (i && n - quedan[i - 1] > 1) salida.push('…');
+    salida.push(n);
+  });
+  return salida;
+}
+
+// ------------------------------------------------------------
+// "Ver": la compra entera en una ventana
+// ------------------------------------------------------------
+// Es la misma tarjeta de siempre, con todos sus botones: confirmar,
+// Listo, ✕, copiar las cuentas. Se busca en TODOS los pedidos y no solo
+// en los del filtro: al confirmarla desde acá deja de estar "Para
+// atender", pero la ventana tiene que seguir mostrándola, ya entregada.
+function compraPorClave(clave) {
+  return agruparCompras(PEDIDOS.filter(o => (o.grupo || o.id) === clave))[0] || null;
+}
+
+function abrirVer(clave) {
+  verClave = clave;
+  pintarVer();
+  $('vtFondoVer').classList.add('abierto');
+  $('vtVerCerrar').focus();
+}
+
+function pintarVer() {
+  if (!verClave) return;
+  const c = compraPorClave(verClave);
+  if (!c) { cerrarVer(); return; }
+  $('vtVerTitulo').textContent = `Pedido ${numerosDeCompra(c.lineas)}`;
+  $('vtVerCuerpo').innerHTML = pintarCompra(c);
+}
+
+function cerrarVer() {
+  verClave = null;
+  $('vtFondoVer').classList.remove('abierto');
 }
 
 const bsTxt = n => `${Number(n || 0).toFixed(2)} Bs`;
@@ -726,6 +937,18 @@ function detalleCompra(c, { porEstado = false } = {}) {
  * Arriba queda como siempre: número, qué se compró, cliente, total, estado
  * y botones. Abajo, si hay más de una cuenta o hubo descuento, el detalle.
  */
+// El cartel del estado. Con estados mezclados dice cuánto va entregado;
+// el color sigue siendo el de lo que falta, que es lo que te pide algo.
+function cartelDe(c) {
+  const L = c.lineas;
+  const principal = estadoPrincipal(L);
+  const mixto = new Set(L.map(o => o.estado)).size > 1;
+  const entregadas = L.filter(o => o.estado === 'entregado');
+  return mixto && entregadas.length
+    ? badgeEstado(principal, `${entregadas.length} de ${L.length} entregadas`)
+    : badgeEstado(principal);
+}
+
 function pintarCompra(c) {
   const L = c.lineas;
   const p = c.primera;
@@ -737,12 +960,8 @@ function pintarCompra(c) {
   const clase = principal === 'sin_stock' ? 'urgente'
               : principal === 'esperando_pago' || principal === 'pagado' ? 'espera' : '';
 
-  // Con estados mezclados, el cartel dice cuánto va entregado. El color
-  // sigue siendo el de lo que falta: es lo que te pide algo.
   const entregadas = L.filter(o => o.estado === 'entregado');
-  const cartel = mixto && entregadas.length
-    ? badgeEstado(principal, `${entregadas.length} de ${n} entregadas`)
-    : badgeEstado(principal);
+  const cartel = cartelDe(c);
 
   const wa = (p.cliente_whatsapp || '').replace(/[^0-9]/g, '');
   const comprobante = L.find(o => o.referencia_pago)?.referencia_pago;
@@ -929,6 +1148,7 @@ document.querySelector('.vt-barra').addEventListener('click', e => {
   document.querySelectorAll('.vt-filtro').forEach(f => f.classList.remove('activo'));
   btn.classList.add('activo');
   filtro = btn.dataset.filtro;
+  pagina = 1;
 
   // El selector de día solo se ve cuando se está mirando por fecha; el
   // resto del tiempo sería un control que no hace nada.
@@ -945,12 +1165,44 @@ document.querySelector('.vt-barra').addEventListener('click', e => {
 
 $('vtFecha').addEventListener('change', () => {
   filtro = 'fecha';
+  pagina = 1;
   cargarDia($('vtFecha').value);
 });
 
 $('vtRefrescar').addEventListener('click', cargarTodo);
 
-$('vtLista').addEventListener('click', async e => {
+// La lista: cambiar de página, o abrir una compra con "Ver" (o tocando
+// cualquier parte de su fila)
+$('vtLista').addEventListener('click', e => {
+  const pag = e.target.closest('[data-pagina]');
+  if (pag) {
+    if (pag.disabled) return;
+    pagina = Number(pag.dataset.pagina) || 1;
+    listar();
+    // Que la página nueva arranque desde arriba, no a mitad de la lista
+    $('vtLista').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+
+  const ver = e.target.closest('[data-ver]');
+  if (ver) abrirVer(ver.dataset.ver);
+});
+
+// La ventana de "Ver"
+$('vtVerCerrar').addEventListener('click', cerrarVer);
+$('vtFondoVer').addEventListener('click', e => { if (e.target === $('vtFondoVer')) cerrarVer(); });
+// Esc cierra "Ver" solo si no hay otra ventana encima: si estás en
+// "Confirmar", el Esc cierra esa y volvés a la compra. Va en captura para
+// mirar antes de que los otros Esc cierren la suya.
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || !verClave) return;
+  if ($('vtFondo').classList.contains('abierto') || $('vtFondoMano').classList.contains('abierto')) return;
+  cerrarVer();
+}, true);
+
+// Los botones de la compra (confirmar, Listo, ✕, copiar) viven en la
+// ventana de "Ver"
+$('vtVerCuerpo').addEventListener('click', async e => {
   const confirmar = e.target.closest('[data-confirmar]');
   if (confirmar) { abrirConfirmacion(confirmar.dataset.confirmar); return; }
 

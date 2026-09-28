@@ -28,10 +28,10 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="stylesheet" href="styles.css?v=202609281740">
+  <link rel="stylesheet" href="styles.css?v=20260928174100">
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=202609281740">
-  <script src="js/barra-vidrio.js?v=202609281740" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20260928174100">
+  <script src="js/barra-vidrio.js?v=20260928174100" defer></script>
 </head>
 <body>
 
@@ -201,8 +201,12 @@
     // tabla diría un precio y el QR otro.
     let REBAJAS = new Map();
     // Cada rebaja viene con sus días ({ rebaja, dias, diasPlan }): acá solo
-    // hacen falta los Bs
-    const rebajaDe   = p => (REBAJAS.get(p.id) || {}).rebaja || 0;
+    // hacen falta los Bs. Un número suelto es el formato de antes (un
+    // stock-tienda.js viejo en el caché): se acepta igual.
+    const rebajaDe = p => {
+      const r = REBAJAS.get(p.id);
+      return typeof r === 'number' ? r : ((r && r.rebaja) || 0);
+    };
     const precioVenta = p => Math.max(0, precioFinal(p) - rebajaDe(p));
     const descuentoDe = p => rebajaDe(p) > 0 && p.precio > 0
       ? Math.round((1 - precioVenta(p) / p.precio) * 100)
@@ -397,7 +401,7 @@
     );
   </script>
 
-  <script src="wa-bubble.js?v=202609281740" defer></script>
-  <script src="bg-burbujas.js?v=202609281740" defer></script>
+  <script src="wa-bubble.js?v=20260928174100" defer></script>
+  <script src="bg-burbujas.js?v=20260928174100" defer></script>
 </body>
 </html>

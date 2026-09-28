@@ -2,7 +2,7 @@
 # TIAGO STORE - Nueva version antes de publicar
 # ============================================================
 # Le pone a cada .js y .css que cargan las paginas un "?v=" con la fecha
-# y hora de ahora:  js/tienda.js  ->  js/tienda.js?v=202609281930
+# y hora de ahora:  js/tienda.js  ->  js/tienda.js?v=20260928193045
 #
 # Por que existe: GitHub Pages deja que el navegador reuse un archivo
 # hasta 10 minutos sin preguntar si cambio. Despues de publicar, un
@@ -21,7 +21,7 @@
 
 $ErrorActionPreference = 'Stop'
 $raiz    = $PSScriptRoot
-$version = Get-Date -Format 'yyyyMMddHHmm'
+$version = Get-Date -Format 'yyyyMMddHHmmss'
 
 # src="..." o href="..." de un .js o .css propio (no https://, no data:),
 # con o sin un ?v= anterior

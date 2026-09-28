@@ -31,13 +31,15 @@
       // La rebaja automática del stock que no se vende (la calcula la base,
       // ver mapaDeRebajas en js/stock-tienda.js) se muestra como una oferta
       // más: el precio normal tachado y el % contra ese precio.
+      // { rebaja, dias, diasPlan }. Un número suelto es el formato de antes
+      // (un stock-tienda.js viejo en el caché del navegador): se acepta igual.
       const r      = REBAJAS.get(p.id);
-      const rebaja = r ? r.rebaja : 0;
+      const rebaja = typeof r === 'number' ? r : (r ? r.rebaja : 0);
       const precio = Math.max(0, Math.round((precioFinal(p) - rebaja) * 100) / 100);
       // Rebajado porque a la cuenta le quedan menos días que al plan: la
       // tienda lo dice ("27 días de 30"). Solo cuando hay rebaja de verdad
       // y le quedan menos que el plan entero.
-      const diasQuedan = rebaja > 0 && r.dias && r.diasPlan && r.dias < r.diasPlan ? r.dias : null;
+      const diasQuedan = rebaja > 0 && r && r.dias && r.diasPlan && r.dias < r.diasPlan ? r.dias : null;
       return {
         id:          idNumerico(p),
         fid:         p.id,                       // ID real del producto

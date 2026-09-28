@@ -335,6 +335,14 @@
       flex: 1;
       padding-right: 0.5rem;
     }
+    /* Plan rebajado: los días que le quedan, en su propio renglón */
+    .pay-order-item .item-dias {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #9a4d00;
+    }
 
     .pay-order-item .item-price {
       color: var(--dorado);
@@ -675,8 +683,8 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=202609281728">
-  <script src="js/barra-vidrio.js?v=202609281728" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=202609281740">
+  <script src="js/barra-vidrio.js?v=202609281740" defer></script>
 </head>
 <body>
 
@@ -1004,9 +1012,12 @@
       const sumaItems = items.reduce((s, i) => s + i.price * i.qty, 0);
       const descuento = Math.round((sumaItems - total) * 100) / 100;
       const orderItems = document.getElementById('orderItems');
+      // Plan rebajado: se vuelve a decir cuántos días le quedan, así lo ve
+      // justo antes de pagar y no se lleva una sorpresa después
       orderItems.innerHTML = items.map(item => `
         <div class="pay-order-item">
-          <span class="item-name">${item.qty}x ${item.name}</span>
+          <span class="item-name">${item.qty}x ${item.name}${item.dias && item.diasPlan && item.dias < item.diasPlan
+            ? ` <small class="item-dias">Le quedan ${item.dias} días (de ${item.diasPlan})</small>` : ''}</span>
           <span class="item-price">${(item.price * item.qty).toFixed(2)} Bs</span>
         </div>
       `).join('') + (descuento > 0 ? `
@@ -1414,11 +1425,17 @@
            </div>`;
       }
 
+      // Plan rebajado: hasta cuándo le dura, que no es un mes entero
+      const vence = l.vence && Number(l.dias) && Number(l.dias_plan) && Number(l.dias) < Number(l.dias_plan)
+        ? String(l.vence).slice(0, 10).split('-').reverse().join('/')
+        : '';
+
       return titulo +
         fila('Usuario', c.usuario) +
         fila('Clave',   c.clave)   +
         fila('Perfil',  c.perfil)  +
         fila('PIN',     c.pin)     +
+        fila('Vence el', vence)    +
         (c.notas ? `<div style="color:#ffd700; font-size:0.82rem; line-height:1.5;
                                 margin-top:0.4rem;">${escapar(c.notas)}</div>` : '');
     };
@@ -1562,6 +1579,8 @@
     // en su propia linea (la diferencia contra compra.total).
     const items = (compra.lineas || []).map(l => ({
       name: l.producto, price: (Number(l.precio) || 0) + (Number(l.descuento) || 0), qty: 1,
+      // Los días que se le prometieron (menos que el plan si estaba rebajado)
+      dias: Number(l.dias) || null, diasPlan: Number(l.dias_plan) || null,
       ...(desdeCarrito ? {
         fid: l.producto_id,
         needsEmail:    !!desdeCarrito.needsEmail,
@@ -1663,6 +1682,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=202609281728" defer></script>
+  <script src="bg-burbujas.js?v=202609281740" defer></script>
 </body>
 </html>

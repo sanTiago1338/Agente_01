@@ -1129,6 +1129,16 @@
       padding: .12rem .45rem;
       border-radius: 6px;
     }
+    /* Por qué está rebajado: a la cuenta le quedan menos días que al plan.
+       Así el descuento se entiende, en vez de parecer raro. */
+    .plan-porque {
+      margin-top: .35rem;
+      max-width: 15rem;
+      font-size: .74rem;
+      font-weight: 600;
+      line-height: 1.35;
+      color: #9a4d00;
+    }
     .plan-precio .antes {
       font-family: 'Outfit', sans-serif;
       font-size: .72rem;
@@ -1657,6 +1667,9 @@
     .cr-ya { color: #0f7a6e; font-weight: 700; }
     .cr-unit { font-size: .85rem; color: var(--tinta-media); margin-top: .3rem; }
     .cr-unit s { color: var(--tinta-suave); margin-left: .25rem; }
+    /* Plan rebajado: cuántos días le quedan, dicho antes de pagar */
+    .cr-dias { font-size: .78rem; font-weight: 600; color: #9a4d00; margin-top: .3rem; line-height: 1.35; }
+    .cr-res-dias { font-weight: 600; color: #9a4d00; }
     .cr-aviso {
       display: inline-block;
       margin-top: .45rem;

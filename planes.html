@@ -28,10 +28,10 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="stylesheet" href="styles.css?v=202609281728">
+  <link rel="stylesheet" href="styles.css?v=202609281740">
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=202609281728">
-  <script src="js/barra-vidrio.js?v=202609281728" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=202609281740">
+  <script src="js/barra-vidrio.js?v=202609281740" defer></script>
 </head>
 <body>
 
@@ -200,8 +200,11 @@
     // la tienda y que cobra la base (ver mapaDeRebajas). Sin ella, esta
     // tabla diría un precio y el QR otro.
     let REBAJAS = new Map();
-    const precioVenta = p => Math.max(0, precioFinal(p) - (REBAJAS.get(p.id) || 0));
-    const descuentoDe = p => REBAJAS.get(p.id) > 0 && p.precio > 0
+    // Cada rebaja viene con sus días ({ rebaja, dias, diasPlan }): acá solo
+    // hacen falta los Bs
+    const rebajaDe   = p => (REBAJAS.get(p.id) || {}).rebaja || 0;
+    const precioVenta = p => Math.max(0, precioFinal(p) - rebajaDe(p));
+    const descuentoDe = p => rebajaDe(p) > 0 && p.precio > 0
       ? Math.round((1 - precioVenta(p) / p.precio) * 100)
       : porcentajeDescuento(p);
 
@@ -394,7 +397,7 @@
     );
   </script>
 
-  <script src="wa-bubble.js?v=202609281728" defer></script>
-  <script src="bg-burbujas.js?v=202609281728" defer></script>
+  <script src="wa-bubble.js?v=202609281740" defer></script>
+  <script src="bg-burbujas.js?v=202609281740" defer></script>
 </body>
 </html>

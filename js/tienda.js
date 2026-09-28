@@ -559,11 +559,17 @@
         ? 'Inmediata'
         : textoFicha(p.entrega, 'De 5 a 30 minutos');
 
+      // Rebajado porque la cuenta ya pasó días en el stock: en vez de
+      // "Mensual" se dice cuánto le queda de verdad.
+      const duracion = p.diasQuedan
+        ? `${p.diasQuedan} días (de ${p.diasPlan})`
+        : textoFicha(p.suscripcion, suscripcion);
+
       return [
         ['⚡',  'Entrega',     entrega],
         ['🛡️', 'Soporte',     textoFicha(p.soporte,     'Incluido')],
         ['📺',  'Acceso',      textoFicha(p.acceso,      acceso)],
-        ['🔄',  'Suscripción', textoFicha(p.suscripcion, suscripcion)]
+        ['🔄',  'Suscripción', duracion]
       ].filter(fila => fila[2]);
     }
 
@@ -804,7 +810,8 @@
         const precioHtml = sinPrecio(pl)
           ? '<div class="plan-precio consultar">A consultar</div>'
           : `<div class="plan-precio">${formatoBs(pl.price).replace(/Bs$/, '')}<small>Bs</small></div>
-             ${pl.precioAntes ? `<div class="plan-ahorro"><s>${pl.precioAntes}</s>${pl.descuento ? `<span class="plan-desc">-${pl.descuento}%</span>` : ''}</div>` : ''}`;
+             ${pl.precioAntes ? `<div class="plan-ahorro"><s>${pl.precioAntes}</s>${pl.descuento ? `<span class="plan-desc">-${pl.descuento}%</span>` : ''}</div>` : ''}
+             ${pl.diasQuedan && !agotado ? `<div class="plan-porque">Más barato: a esta cuenta le quedan ${pl.diasQuedan} días</div>` : ''}`;
 
         return `
         <div class="plan-item${agotado ? ' plan-item--agotado' : ''}">
@@ -1890,7 +1897,7 @@
       const { descuento } = cuentasDelCarrito();
       lista.innerHTML = cart.map(i => `
         <li>
-          <span class="cr-res-nombre">${i.qty}× ${escaparHtml(i.name)}</span>
+          <span class="cr-res-nombre">${i.qty}× ${escaparHtml(i.name)}${i.diasQuedan ? ` <small class="cr-res-dias">· ${i.diasQuedan} días</small>` : ''}</span>
           <b>${fmtBsCarrito(i.price * i.qty)}</b>
         </li>`).join('') +
         (descuento > 0 ? `
@@ -1915,6 +1922,7 @@
             <div class="cr-nombre">${escaparHtml(item.name)}</div>
             <div class="cr-meta">${entrega}${f.needsEmail || f.needsUsername ? ' · 📧 pide tu correo' : ''}</div>
             <div class="cr-unit">${fmtBsCarrito(item.price)} c/u${item.precioAntes ? ` <s>${item.precioAntes}</s>` : ''}</div>
+            ${item.diasQuedan ? `<div class="cr-dias">⏳ Le quedan ${item.diasQuedan} días (de ${item.diasPlan}): por eso el precio rebajado</div>` : ''}
             <div class="cr-aviso" ${ajustado ? '' : 'hidden'}>${ajustado ? mensajeTope(item) : ''}</div>
           </div>
           <div class="cr-der">
@@ -2135,6 +2143,8 @@
         name: item.name.substring(0, 80),
         price: item.price,
         qty: item.qty,
+        // Plan rebajado: la página del QR vuelve a decir cuántos días le quedan
+        ...(item.diasQuedan ? { dias: item.diasQuedan, diasPlan: item.diasPlan } : {}),
         ...productFlags(item),
       }));
       const params = new URLSearchParams({

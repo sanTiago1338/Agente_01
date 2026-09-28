@@ -88,6 +88,12 @@ prendido, el precio baja solo:
   ninguna tiene el costo anotado, no baja de la mitad del precio. Anotá el
   costo: es lo que te protege de vender a pérdida.
 - En la tienda se ve como una oferta: el precio normal tachado y el %.
+- Y dice por qué: **cuántos días le quedan a la cuenta** ("21 días (de
+  30)", "Más barato: a esta cuenta le quedan 21 días"), en el plan, en el
+  carrito y en la página del QR. Si al cargar la cuenta anotaste "Vencen
+  el", es exacto; si no, son los días del plan menos los que lleva en el
+  stock. Esos mismos días quedan anotados en el pedido, así el vencimiento
+  y el aviso de renovación salen bien (`supabase/08-dias-de-la-rebaja.sql`).
 
 Viene apagado en todos los productos: nada cambia hasta que lo prendas.
 El precio que se cobra lo calcula la base al crear el pedido, así que el

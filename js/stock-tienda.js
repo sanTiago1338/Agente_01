@@ -69,7 +69,12 @@ export async function mapaDeStock() {
  * Solo vienen los productos con alguna rebaja. Si falla, la tienda muestra
  * los precios sin rebaja; al pagar, el QR dice el precio que vale.
  *
- * @returns {Promise<Map<string, number>>} id del producto -> Bs de rebaja
+ * También vienen los días: la rebaja es porque la cuenta ya pasó días en
+ * el stock, y el cliente tiene que saber que le quedan 27 y no 30 (ver
+ * supabase/08-dias-de-la-rebaja.sql).
+ *
+ * @returns {Promise<Map<string, {rebaja: number, dias: number|null, diasPlan: number|null}>>}
+ *          id del producto -> Bs de rebaja, días que le quedan y días del plan
  */
 export async function mapaDeRebajas() {
   try {
@@ -78,7 +83,11 @@ export async function mapaDeRebajas() {
       console.warn('No se pudieron leer las rebajas:', error.message);
       return new Map();
     }
-    return new Map((data || []).map(f => [f.producto_id, Number(f.rebaja) || 0]));
+    return new Map((data || []).map(f => [f.producto_id, {
+      rebaja:   Number(f.rebaja) || 0,
+      dias:     Number(f.dias) || null,
+      diasPlan: Number(f.dias_plan) || null
+    }]));
   } catch (e) {
     console.warn('No se pudieron leer las rebajas:', e.message);
     return new Map();

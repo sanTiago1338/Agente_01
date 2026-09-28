@@ -810,8 +810,7 @@
         const precioHtml = sinPrecio(pl)
           ? '<div class="plan-precio consultar">A consultar</div>'
           : `<div class="plan-precio">${formatoBs(pl.price).replace(/Bs$/, '')}<small>Bs</small></div>
-             ${pl.precioAntes ? `<div class="plan-ahorro"><s>${pl.precioAntes}</s>${pl.descuento ? `<span class="plan-desc">-${pl.descuento}%</span>` : ''}</div>` : ''}
-             ${pl.diasQuedan && !agotado ? `<div class="plan-porque">Más barato: a esta cuenta le quedan ${pl.diasQuedan} días</div>` : ''}`;
+             ${pl.precioAntes ? `<div class="plan-ahorro"><s>${pl.precioAntes}</s>${pl.descuento ? `<span class="plan-desc">-${pl.descuento}%</span>` : ''}</div>` : ''}`;
 
         return `
         <div class="plan-item${agotado ? ' plan-item--agotado' : ''}">
@@ -1922,7 +1921,7 @@
             <div class="cr-nombre">${escaparHtml(item.name)}</div>
             <div class="cr-meta">${entrega}${f.needsEmail || f.needsUsername ? ' · 📧 pide tu correo' : ''}</div>
             <div class="cr-unit">${fmtBsCarrito(item.price)} c/u${item.precioAntes ? ` <s>${item.precioAntes}</s>` : ''}</div>
-            ${item.diasQuedan ? `<div class="cr-dias">⏳ Le quedan ${item.diasQuedan} días (de ${item.diasPlan}): por eso el precio rebajado</div>` : ''}
+            ${item.diasQuedan ? `<div class="cr-dias">Suscripción: ${item.diasQuedan} días (de ${item.diasPlan})</div>` : ''}
             <div class="cr-aviso" ${ajustado ? '' : 'hidden'}>${ajustado ? mensajeTope(item) : ''}</div>
           </div>
           <div class="cr-der">

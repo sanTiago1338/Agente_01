@@ -683,8 +683,8 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20260928174100">
-  <script src="js/barra-vidrio.js?v=20260928174100" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20260928174655">
+  <script src="js/barra-vidrio.js?v=20260928174655" defer></script>
 </head>
 <body>
 
@@ -1017,7 +1017,7 @@
       orderItems.innerHTML = items.map(item => `
         <div class="pay-order-item">
           <span class="item-name">${item.qty}x ${item.name}${item.dias && item.diasPlan && item.dias < item.diasPlan
-            ? ` <small class="item-dias">Le quedan ${item.dias} días (de ${item.diasPlan})</small>` : ''}</span>
+            ? ` <small class="item-dias">Suscripción: ${item.dias} días (de ${item.diasPlan})</small>` : ''}</span>
           <span class="item-price">${(item.price * item.qty).toFixed(2)} Bs</span>
         </div>
       `).join('') + (descuento > 0 ? `
@@ -1682,6 +1682,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20260928174100" defer></script>
+  <script src="bg-burbujas.js?v=20260928174655" defer></script>
 </body>
 </html>

@@ -1129,16 +1129,6 @@
       padding: .12rem .45rem;
       border-radius: 6px;
     }
-    /* Por qué está rebajado: a la cuenta le quedan menos días que al plan.
-       Así el descuento se entiende, en vez de parecer raro. */
-    .plan-porque {
-      margin-top: .35rem;
-      max-width: 15rem;
-      font-size: .74rem;
-      font-weight: 600;
-      line-height: 1.35;
-      color: #9a4d00;
-    }
     .plan-precio .antes {
       font-family: 'Outfit', sans-serif;
       font-size: .72rem;

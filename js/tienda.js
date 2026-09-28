@@ -553,8 +553,14 @@
         ? (renovable ? (plazo ? plazo + ' · Renovable' : 'Renovable') : plazo)
         : null;
 
+      // Con cuentas cargadas se entrega en el momento de pagar, diga lo que
+      // diga la ficha. Cuando se acaban vuelve a lo escrito (o 5 a 30 min).
+      const entrega = (p.entregaInmediata && !p.soldOut)
+        ? 'Inmediata'
+        : textoFicha(p.entrega, 'De 5 a 30 minutos');
+
       return [
-        ['⚡',  'Entrega',     textoFicha(p.entrega,     'De 5 a 30 minutos')],
+        ['⚡',  'Entrega',     entrega],
         ['🛡️', 'Soporte',     textoFicha(p.soporte,     'Incluido')],
         ['📺',  'Acceso',      textoFicha(p.acceso,      acceso)],
         ['🔄',  'Suscripción', textoFicha(p.suscripcion, suscripcion)]
@@ -782,6 +788,10 @@
       const url = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
       const nombreSeguro = p.name.replace(/'/g, "\\'");
       const vivo = acentoDe(p);
+      // Arriba dice "entrega inmediata" solo si TODOS los planes que se
+      // pueden comprar tienen cuentas cargadas; si alguno no, 5 a 30 min.
+      const aLaVenta = g.planes.filter(pl => !pl.soldOut);
+      const todosConStock = aLaVenta.length > 0 && aLaVenta.every(pl => pl.entregaInmediata);
 
       const tarjetas = g.planes.map(pl => {
         const agotado = pl.soldOut === true;
@@ -858,7 +868,7 @@
               <span class="pl-badge">Suscripciones premium</span>
               <h3>${g.nombre}</h3>
               <p>Elegí el plan que mejor se adapte a lo que necesitás.<br>
-                 <b>Entrega de 5 a 30 minutos</b> y soporte incluido.</p>
+                 <b>${todosConStock ? 'Entrega inmediata' : 'Entrega de 5 a 30 minutos'}</b> y soporte incluido.</p>
             </div>
           </div>
 

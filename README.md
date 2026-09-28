@@ -39,7 +39,7 @@ instalar.
 ## Antes de publicar
 
 ```bash
-powershell -File nueva-version.ps1
+powershell -ExecutionPolicy Bypass -File nueva-version.ps1
 ```
 
 Le pone `?v=<fecha y hora>` a cada `.js` y `.css` que cargan las páginas.

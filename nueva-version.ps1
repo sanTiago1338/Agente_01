@@ -16,7 +16,7 @@
 # los 10 minutos: cambian poco.
 #
 # Uso (antes de subir):
-#   powershell -File nueva-version.ps1
+#   powershell -ExecutionPolicy Bypass -File nueva-version.ps1
 # ============================================================
 
 $ErrorActionPreference = 'Stop'

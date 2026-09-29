@@ -409,6 +409,16 @@ css.textContent = `
   .vt-ver-modal .vt-prod { white-space: normal; overflow: visible; }
   .vt-ver-modal .vt-der { grid-column: 1 / -1; justify-content: flex-end; flex-wrap: wrap; }
 
+  /* ---------- Recordar por WhatsApp al que no pagó ---------- */
+  .vt-recordar {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 8px 11px; border-radius: 8px;
+    background: rgba(34,197,94,.08);
+  }
+  .vt-recordar .vt-mini { text-decoration: none; color: #15803d; border-color: rgba(21,128,61,.35); }
+  .vt-recordar-nota { font-size: 12.5px; color: var(--gris); }
+
   /* ---------- Exportar a Excel ---------- */
   .vt-excel-resumen {
     margin-top: 12px; padding: 12px 14px; border-radius: 10px;
@@ -978,6 +988,75 @@ function detalleCompra(c, { porEstado = false } = {}) {
  * Arriba queda como siempre: número, qué se compró, cliente, total, estado
  * y botones. Abajo, si hay más de una cuenta o hubo descuento, el detalle.
  */
+// ------------------------------------------------------------
+// Recordarle por WhatsApp al que no pagó
+// ------------------------------------------------------------
+// Más de la mitad de las compras se empiezan y no se pagan, y muchas
+// dejan el WhatsApp. El botón abre el chat del cliente con el mensaje ya
+// escrito: si todavía puede pagar (esperando o vencida), con el enlace a
+// su QR; si se canceló, invitándolo a volver a la tienda. Al tocarlo se
+// anota cuándo (recordado_en), para no escribirle dos veces sin querer.
+const NO_PAGADA = ['esperando_pago', 'vencido', 'cancelado'];
+
+// El número tal como lo pide wa.me: con el 591 adelante
+function numeroWa(tel) {
+  const d = String(tel || '').replace(/\D/g, '');
+  return d.length === 8 ? '591' + d : d;
+}
+
+function mensajeRecordatorio(c) {
+  const p = c.primera;
+  const nombre = String(p.cliente_nombre || '').trim().split(/\s+/)[0];
+  const hola = `Hola${nombre ? ' ' + nombre : ''}, te escribo de Tiago Store.`;
+  const que = nombreDeCompra(c.lineas);
+  // La tienda está un nivel arriba del panel (/admin/)
+  const tienda = new URL('../', location.href).href;
+
+  if (c.lineas.every(o => o.estado === 'cancelado')) {
+    return [hola,
+      `Vi que no se completó tu pedido ${numerosDeCompra(c.lineas)} de ${que}.`,
+      `Si todavía lo querés, lo encontrás acá: ${tienda}`,
+      `Cualquier duda, respondeme por acá.`].join('\n');
+  }
+  const token = c.lineas.find(o => o.token)?.token;
+  return [hola,
+    `Quedó pendiente tu pedido ${numerosDeCompra(c.lineas)}: ${que} (${bsTxt(c.total)}).`,
+    `¿Te ayudo a terminarlo? Podés pagarlo con el QR desde acá: ${tienda}pagar-qr.html#t=${token}`,
+    `Si tuviste algún problema con el pago, respondeme y lo vemos.`].join('\n');
+}
+
+function filaRecordatorio(c) {
+  const wa = numeroWa(c.primera.cliente_whatsapp);
+  if (!wa || !c.lineas.every(o => NO_PAGADA.includes(o.estado))) return '';
+
+  const cuando = c.lineas.map(o => o.recordado_en).filter(Boolean).sort().pop();
+  const hace = cuando ? cuandoFue(cuando) : '';
+  const nota = cuando
+    ? `Ya le recordaste ${hace.startsWith('hace') || hace === 'recién' ? hace : 'el ' + hace}.`
+    : c.lineas.every(o => o.estado === 'cancelado')
+      ? 'Se canceló: el mensaje lo invita a volver a la tienda.'
+      : 'Le llega con el enlace a su QR para pagar.';
+
+  return `
+    <div class="vt-recordar">
+      <a class="vt-mini" href="https://wa.me/${wa}?text=${encodeURIComponent(mensajeRecordatorio(c))}"
+         target="_blank" rel="noopener" data-recordar="${escapar(c.clave)}">
+        ${cuando ? 'Recordar de nuevo' : 'Recordar por WhatsApp'}</a>
+      <span class="vt-recordar-nota">${nota}</span>
+    </div>`;
+}
+
+async function anotarRecordatorio(clave) {
+  const c = compraPorClave(clave);
+  if (!c) return;
+  const ahora = new Date().toISOString();
+  const ids = c.lineas.map(o => o.id);
+  const { error } = await sbAdmin.from('pedidos').update({ recordado_en: ahora }).in('id', ids);
+  if (error) { console.error(error); return; }     // el chat ya se abrió: no se molesta con un error
+  PEDIDOS.forEach(o => { if (ids.includes(o.id)) o.recordado_en = ahora; });
+  pintarVer();
+}
+
 // El cartel del estado. Con estados mezclados dice cuánto va entregado;
 // el color sigue siendo el de lo que falta, que es lo que te pide algo.
 function cartelDe(c) {
@@ -1127,6 +1206,7 @@ function pintarCompra(c) {
         ${acciones}
       </div>
 
+      ${filaRecordatorio(c)}
       ${n > 1 || c.descuento > 0 ? detalleCompra(c, { porEstado: mixto }) : ''}
       ${stock}
       ${cuentas}
@@ -1247,6 +1327,10 @@ document.addEventListener('keydown', e => {
 // Los botones de la compra (confirmar, Listo, ✕, copiar) viven en la
 // ventana de "Ver"
 $('vtVerCuerpo').addEventListener('click', async e => {
+  // El enlace abre el chat solo (es un <a>); acá solo se anota cuándo
+  const recordar = e.target.closest('[data-recordar]');
+  if (recordar) { anotarRecordatorio(recordar.dataset.recordar); return; }
+
   const confirmar = e.target.closest('[data-confirmar]');
   if (confirmar) { abrirConfirmacion(confirmar.dataset.confirmar); return; }
 

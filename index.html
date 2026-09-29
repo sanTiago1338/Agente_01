@@ -61,7 +61,7 @@
 <body>
 
   <!-- BANNER -->
-  <div class="banner-top">🦁 TIAGO STORE · Entrega de 5 a 30 min · Precios en Bolivianos · Soporte 24/7</div>
+  <div class="banner-top">TIAGO STORE · Entrega de 5 a 30 min · Precios en Bolivianos · Soporte 24/7</div>
 
   <!-- NAV: marca · menú. El carrito no va acá: está en la barra de abajo
        ("Carro"), y dos botones para lo mismo eran uno de más. -->
@@ -69,28 +69,28 @@
     <a href="index.html" class="nav-marca">Tiago Store</a>
 
     <div class="nav-menu">
-      <a href="index.html"    class="nav-link nav-link--activo">🛒 TIENDA</a>
-      <a href="#tops"         class="nav-link nav-link--oro">🏆 TOPS</a>
-      <a href="planes.html"   class="nav-link">💰 PLANES</a>
-      <a href="contacto.html" class="nav-link">📲 CONTACTO</a>
+      <a href="index.html"    class="nav-link nav-link--activo">TIENDA</a>
+      <a href="#ofertas"      class="nav-link nav-link--oro" id="navOfertas">OFERTAS</a>
+      <a href="planes.html"   class="nav-link">PLANES</a>
+      <a href="contacto.html" class="nav-link">CONTACTO</a>
     </div>
   </nav>
 
   <!-- PROMO BANNER (agentes) -->
   <div class="promo-banner">
-    <span class="promo-lion">🦁</span>
+    <span class="promo-logo" aria-hidden="true">T</span>
     <div class="promo-text">
       <strong>SE BUSCAN AGENTES DISTRIBUIDORES</strong>
       <span>Gana dinero revendiendo nuestros servicios. ¡Contáctanos!</span>
     </div>
-    <a href="https://wa.me/59157707335?text=Hola!%20Me%20interesa%20ser%20agente%20distribuidor" target="_blank" class="promo-wa">📲 Info</a>
+    <a href="https://wa.me/59157707335?text=Hola!%20Me%20interesa%20ser%20agente%20distribuidor" target="_blank" class="promo-wa">Más info</a>
   </div>
 
   <!-- SEARCH -->
   <div class="search-bar">
     <div class="search-box">
       <div class="search-input-wrap">
-        <span class="search-icon">🔍</span>
+        <span class="search-icon"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
         <input type="text" id="2" placeholder="Buscar plataforma, app o juego..."
                autocomplete="off" oninput="filterProducts()"
                onfocus="renderSugerencias()" onkeydown="teclaSugerencias(event)">
@@ -125,7 +125,7 @@
       <div class="hero-slide" data-plataforma="Paramount+ UFC" style="--bg: linear-gradient(135deg,#003087 0%, #001a4d 60%, #0d0d0d 100%);">
         <img data-src="Img/opt/Paramount%2B.jpg" alt="Paramount+" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
-          <span class="hero-tag">🥊 UFC INCLUIDO</span>
+          <span class="hero-tag">UFC INCLUIDO</span>
           <div class="hero-title">PARAMOUNT+ <span>PREMIUM</span></div>
           <div class="hero-sub">UFC en vivo, series, películas y más contenido exclusivo</div>
           <a href="#" class="hero-cta" onclick="document.getElementById('2').value='Paramount';filterProducts();return false;">Ver oferta →</a>
@@ -135,7 +135,7 @@
       <div class="hero-slide" data-plataforma="Spotify" style="--bg: linear-gradient(135deg,#1DB954 0%, #0a5d2a 60%, #0d0d0d 100%);">
         <img data-src="Img/opt/Spotyfi.jpg" alt="Spotify Renovable" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
-          <span class="hero-tag hero-tag--new">♻️ RENOVABLE</span>
+          <span class="hero-tag hero-tag--new">RENOVABLE</span>
           <div class="hero-title">SPOTIFY <span>RENOVABLE</span></div>
           <div class="hero-sub">A correo del cliente · Sin anuncios, descargas offline y calidad superior</div>
           <a href="#" class="hero-cta" onclick="document.getElementById('2').value='Spotify Premium';filterProducts();return false;">Ver plan →</a>
@@ -145,9 +145,9 @@
       <div class="hero-slide" data-plataforma="Magis TV" style="--bg: linear-gradient(135deg,#1a0533 0%, #7b1fa2 50%, #0d0d0d 100%);">
         <img data-src="Img/opt/Magis%20TV.jpg" alt="Magis TV PRO" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
-          <span class="hero-tag hero-tag--new">🏆 LIGA BOLIVIANA</span>
+          <span class="hero-tag hero-tag--new">LIGA BOLIVIANA</span>
           <div class="hero-title">MAGIS TV <span>PRO</span></div>
-          <div class="hero-sub">Fútbol en vivo · Liga Boliviana incluida 🇧🇴</div>
+          <div class="hero-sub">Fútbol en vivo · Liga Boliviana incluida</div>
           <a href="#" class="hero-cta" onclick="document.getElementById('2').value='Magis TV PRO';filterProducts();return false;">Ver planes →</a>
         </div>
       </div>
@@ -155,9 +155,9 @@
       <div class="hero-slide" data-plataforma="IPTV Smarters" style="--bg: linear-gradient(135deg,#003300 0%, #1a6600 60%, #0d0d0d 100%);">
         <img data-src="Img/opt/IPTV.jpg" alt="IPTV Smarters PRO" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
-          <span class="hero-tag hero-tag--new">🏆 LIGA BOLIVIANA</span>
+          <span class="hero-tag hero-tag--new">LIGA BOLIVIANA</span>
           <div class="hero-title">IPTV <span>SMARTERS PRO</span></div>
-          <div class="hero-sub">3 meses + 2 GRATIS · Liga Boliviana incluida 🇧🇴</div>
+          <div class="hero-sub">3 meses + 2 GRATIS · Liga Boliviana incluida</div>
           <a href="#" class="hero-cta" onclick="document.getElementById('2').value='IPTV Smarters';filterProducts();return false;">Ver planes →</a>
         </div>
       </div>
@@ -165,7 +165,7 @@
       <div class="hero-slide" data-plataforma="Claude IA" style="--bg: linear-gradient(135deg,#7c3aed 0%, #2e1065 60%, #0d0d0d 100%);">
         <img data-src="Img/opt/Claude.jpg" alt="Claude IA" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
-          <span class="hero-tag">🤖 NUEVO</span>
+          <span class="hero-tag">NUEVO</span>
           <div class="hero-title">IA PREMIUM <span>CLAUDE & GEMINI</span></div>
           <div class="hero-sub">Acceso completo a las mejores IAs del mercado</div>
           <a href="#" class="hero-cta" onclick="document.getElementById('2').value='Claude';filterProducts();return false;">Ver Claude →</a>
@@ -177,48 +177,21 @@
     <div class="hero-dots" id="heroDots"></div>
   </div>
 
-  <!-- TOPS SECTION -->
-  <section id="tops" class="tops-section">
-    <div class="tops-header">
-      <h2 class="tops-title">🏆 TOPS DEL MOMENTO</h2>
-      <span class="tops-subtitle">Las plataformas IPTV más buscadas</span>
+  <!-- OFERTAS: las plataformas con descuento, sea una oferta puesta a
+       mano en el panel o la rebaja automática del stock. Las pinta
+       js/tienda.js (pintarOfertas) con cada cambio del catálogo, y la
+       fila gira sola. Sin ninguna oferta, la sección no se muestra.
+       Mientras llega el catálogo, tarjetas vacías que guardan el lugar. -->
+  <section id="ofertas" class="ofertas-section">
+    <div class="ofertas-header">
+      <h2 class="ofertas-title">OFERTAS</h2>
+      <span class="ofertas-subtitle">Plataformas con descuento</span>
     </div>
-    <div class="tops-scroll barra-sola">
-      <!-- Con Liga Boliviana (van primero) -->
-      <a href="#" class="tops-card" style="--c1:#0d1b5e;--c2:#1976d2;" data-search="Magis TV">
-        <div class="tops-card-head"><span class="tops-icon">🌀</span><span class="tops-name">MAGIS TV-PRO<br><small>→ OLEADA TV</small></span></div>
-        <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
-      </a>
-      <a href="#" class="tops-card" style="--c1:#003366;--c2:#00509e;" data-search="IPTV SMTREAM-MASTERS">
-        <div class="tops-card-head"><span class="tops-icon">📺</span><span class="tops-name">IPTV SMTREAM-MASTERS</span></div>
-        <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
-      </a>
-      <a href="#" class="tops-card" style="--c1:#5a0000;--c2:#a30000;" data-search="Tele Latino">
-        <div class="tops-card-head"><span class="tops-icon">▶</span><span class="tops-name">TELE LATINO<br><small>MAX</small></span></div>
-        <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
-      </a>
-      <a href="#" class="tops-card" style="--c1:#0a1a4a;--c2:#1565c0;" data-search="Nubia TV">
-        <div class="tops-card-head"><span class="tops-icon">📺</span><span class="tops-name">NUBIA TV-GX<br><small>MAX</small></span></div>
-        <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
-      </a>
-      <a href="#" class="tops-card" style="--c1:#3a0000;--c2:#7a0000;" data-search="Veltix">
-        <div class="tops-card-head"><span class="tops-icon">V</span><span class="tops-name">VELTIX</span></div>
-        <div class="tops-liga"><span>TIENE LIGA BOLIVIANA</span><span class="tops-flag">🇧🇴</span></div>
-      </a>
-      <!-- Sin Liga Boliviana -->
-      <a href="#" class="tops-card" style="--c1:#ffb300;--c2:#ff8000;" data-search="Flujo TV">
-        <div class="tops-card-head"><span class="tops-icon">▶</span><span class="tops-name">FLUJO TV</span></div>
-      </a>
-      <a href="#" class="tops-card" style="--c1:#0d2546;--c2:#1976d2;" data-search="IPTV Smarters">
-        <div class="tops-card-head"><span class="tops-icon">📺</span><span class="tops-name">IPTV SMARTER<br><small>PRO</small></span></div>
-      </a>
-      <a href="#" class="tops-card" style="--c1:#003087;--c2:#0078ff;" data-search="Paramount">
-        <div class="tops-card-head"><span class="tops-icon">★</span><span class="tops-name">PARAMOUNT+<br><small>UFC INCLUIDO</small></span></div>
-        <div class="tops-ribbon"><span class="tops-trophy">🥊</span>TIENE UFC EN VIVO</div>
-      </a>
-      <a href="#" class="tops-card" style="--c1:#1a1a1a;--c2:#3a3a3a;" data-search="Plex TV">
-        <div class="tops-card-head"><span class="tops-icon">⚫</span><span class="tops-name">PLEX TV</span></div>
-      </a>
+    <div class="ofertas-fila barra-sola" id="ofertasFila" aria-label="Ofertas">
+      <div class="oferta-card oferta-card--cargando"></div>
+      <div class="oferta-card oferta-card--cargando"></div>
+      <div class="oferta-card oferta-card--cargando"></div>
+      <div class="oferta-card oferta-card--cargando"></div>
     </div>
   </section>
 
@@ -288,7 +261,7 @@
           Cuentas de streaming, apps premium y recargas de juegos.
           Entrega de 5 a 30 minutos.
         </p>
-        <p class="pie-lugar">📍 Cercado, Cochabamba · Bolivia</p>
+        <p class="pie-lugar"><span class="pie-ico"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Cercado, Cochabamba · Bolivia</p>
       </div>
 
       <!-- Contacto -->
@@ -296,12 +269,12 @@
         <h3 class="pie-titulo">Contacto</h3>
         <ul class="pie-lista">
           <li><a href="https://wa.me/59157707335" target="_blank" rel="noopener">
-            <span class="pie-ico">💬</span> WhatsApp · +591 57707335</a></li>
+            <span class="pie-ico"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.9 7.1L3 20l1.4-4.9A8.4 8.4 0 1 1 21 11.5z"/></svg></span> WhatsApp · +591 57707335</a></li>
           <li><a href="https://chat.whatsapp.com/CMFw2QKU8Pn4Tl2LFnG0uk"
                  target="_blank" rel="noopener">
-            <span class="pie-ico">🌐</span> Comunidad</a></li>
+            <span class="pie-ico"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span> Comunidad</a></li>
           <li><a href="mailto:alfredomendita1011@gmail.com">
-            <span class="pie-ico">✉️</span> alfredomendita1011@gmail.com</a></li>
+            <span class="pie-ico"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span> alfredomendita1011@gmail.com</a></li>
         </ul>
       </div>
 

@@ -364,7 +364,7 @@ body .wa-bubble svg { filter: drop-shadow(0 1px 1px rgba(0,60,30,.3)); }
 }
 
 /* Escondida mientras nadie la usa: la de la página y las filas con
-   class="barra-sola" (los Tops). js/barra-vidrio.js pone .barra-quieta
+   class="barra-sola" (las Ofertas). js/barra-vidrio.js pone .barra-quieta
    (en el <body> para la de la página)
    y la saca al deslizar o al acercar el mouse. Sin ese archivo (o en el
    celular, donde no corre) la barra se ve como siempre. */

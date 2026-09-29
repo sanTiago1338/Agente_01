@@ -2,7 +2,7 @@
 // TIAGO STORE · Barras de desplazamiento que se esconden solas
 // ============================================================
 // La barra de la derecha (la de la página) y las de las filas marcadas
-// con class="barra-sola" (los Tops) solo se ven mientras se usan:
+// con class="barra-sola" (las Ofertas) solo se ven mientras se usan:
 //   · mientras se desliza, y un momento después;
 //   · con el mouse encima de la fila, o cerca del borde derecho para la
 //     de la página (así se la puede ir a agarrar).
@@ -16,7 +16,7 @@
 // podría cortar un desplazamiento suave, así que ahí no se fuerza.
 //
 // En el celular la barra de la página es del sistema y ya se esconde
-// sola: esa no se toca. La de los Tops sí: aparece mientras se desliza
+// sola: esa no se toca. La de las Ofertas sí: aparece mientras se desliza
 // con el dedo.
 // ============================================================
 (function () {
@@ -25,7 +25,7 @@
   const QUIETA_MS = 900;       // cuánto sigue visible después de deslizar
   const BORDE_PX  = 24;        // qué tan cerca del borde derecho aparece
 
-  // Los dos ejes: la página se desliza para abajo y los Tops de costado.
+  // Los dos ejes: la página se desliza para abajo y las Ofertas de costado.
   // Se devuelve lo que hubiera escrito en el elemento (por ejemplo el
   // overflow:hidden que traba la página con una ventana abierta).
   function repintar(el) {
@@ -55,6 +55,9 @@
     }
 
     fuenteScroll.addEventListener('scroll', function () {
+      // La fila de Ofertas girando sola (js/tienda.js le pone .girando):
+      // nadie la está usando, así que la barra sigue escondida
+      if (fuenteScroll.classList && fuenteScroll.classList.contains('girando')) return;
       estado.deslizando = true;
       pintar(false);
       clearTimeout(estado.reloj);

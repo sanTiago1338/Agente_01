@@ -35,7 +35,7 @@
       renderCategorias();   // pestañas según lo que haya en Supabase
       renderSubfiltros();
       renderProducts();
-      actualizarFotosDePlataforma();   // banners y Tops, con la foto de su plataforma
+      actualizarFotosDePlataforma();   // banners con la foto de su plataforma, y las Ofertas
       // El carrito se rearma con los precios frescos que acaban de llegar.
       reconstruirCarrito();
       // Si volvió con "atrás" a una pantalla de la ventana, se la abre
@@ -82,7 +82,7 @@
       const grid = document.getElementById('5');
       if (!grid) return;
       grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3.5rem 1rem;">
-        <div style="font-size:2.5rem; margin-bottom:.75rem;">⚠️</div>
+        <div style="font-size:2.2rem; margin-bottom:.75rem; color:var(--marca);">${icono('alerta')}</div>
         <div style="font-weight:900; color:#fff; margin-bottom:.4rem;">No se pudo cargar el catálogo</div>
         <div style="font-size:.9rem; color:var(--gris-texto);">${mensaje}</div>
       </div>`;
@@ -518,6 +518,26 @@
       return Number.isInteger(num) ? num + 'Bs' : num.toFixed(2) + 'Bs';
     }
 
+    // ---------- Íconos ----------
+    // Dibujos de línea en vez de emojis: se ven iguales en todos los
+    // celulares, miden lo que la letra de al lado y toman su color.
+    const ICONOS = {
+      rayo:     '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+      escudo:   '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+      pantalla: '<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',
+      renovar:  '<path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/>',
+      lupa:     '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+      alerta:   '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+      globo:    '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
+      carrito:  '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.5L22 7H6"/>',
+      reloj:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      correo:   '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>'
+    };
+    function icono(nombre) {
+      return `<svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONOS[nombre] || ''}</svg>`;
+    }
+
     // ---------- Color de cada plataforma ----------
     // Sale de imagenColor, que ya viene en cada producto ("#8b0000,#e50914").
     // El segundo tono es el vivo de la marca; si falta, se usa el primero.
@@ -600,10 +620,10 @@
         : textoFicha(p.suscripcion, suscripcion);
 
       return [
-        ['⚡',  'Entrega',     entrega],
-        ['🛡️', 'Soporte',     textoFicha(p.soporte,     'Incluido')],
-        ['📺',  'Acceso',      textoFicha(p.acceso,      acceso)],
-        ['🔄',  'Suscripción', duracion]
+        [icono('rayo'),     'Entrega',     entrega],
+        [icono('escudo'),   'Soporte',     textoFicha(p.soporte,     'Incluido')],
+        [icono('pantalla'), 'Acceso',      textoFicha(p.acceso,      acceso)],
+        [icono('renovar'),  'Suscripción', duracion]
       ].filter(fila => fila[2]);
     }
 
@@ -776,7 +796,7 @@
 
       if (total === 0) {
         grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3.5rem 1rem;">
-          <div style="font-size:2.5rem; margin-bottom:.75rem;">🔍</div>
+          <div style="font-size:2.2rem; margin-bottom:.75rem; color:var(--tinta-tenue);">${icono('lupa')}</div>
           <div style="font-weight:900; color:var(--tinta); margin-bottom:.4rem;">Sin resultados</div>
           <div style="font-size:.9rem; color:var(--tinta-suave);">
             ${currentSearch ? `No encontramos nada para «${currentSearch}»`
@@ -856,8 +876,8 @@
                 <div class="plan-item-nombre">${pl.name}</div>
                 <div class="plan-chips">
                   <span class="plan-chip ${agotado ? 'off' : 'ok'}">${agotado ? '● Agotado' : '● Disponible'}</span>
-                  ${!agotado && pl.entregaInmediata ? '<span class="plan-chip ya">⚡ Entrega inmediata</span>' : ''}
-                  <span class="plan-chip zona">🌎 Global</span>
+                  ${!agotado && pl.entregaInmediata ? '<span class="plan-chip ya">' + icono('rayo') + 'Entrega inmediata</span>' : ''}
+                  <span class="plan-chip zona">${icono('globo')}Global</span>
                   ${chipDatos(pl)}
                 </div>
               </div>
@@ -871,10 +891,10 @@
                 ${precioHtml}
               </div>
               ${sinPrecio(pl) && !agotado
-                ? `<a class="plan-comprar" href="${waConsulta(pl.name)}" target="_blank" rel="noopener">💬 Consultar</a>`
+                ? `<a class="plan-comprar" href="${waConsulta(pl.name)}" target="_blank" rel="noopener">Consultar</a>`
                 : `<button class="plan-comprar" ${agotado ? 'disabled' : ''}
                            onclick="${agotado ? '' : `abrirCheckout(${pl.id})`}">
-                     🛒 ${agotado ? 'Agotado' : 'Comprar'}
+                     ${agotado ? 'Agotado' : icono('carrito') + 'Comprar'}
                    </button>`}
             </div>
           </div>
@@ -887,7 +907,7 @@
       const guiaHtml = guia.length ? `
         <div class="pl-guia">
           <div class="pl-guia-cab">
-            <span class="pl-guia-ico">⚡</span>
+            <span class="pl-guia-ico">${icono('rayo')}</span>
             <div>
               <b>Guía de activación</b>
               <small>Reglas del servicio</small>
@@ -1092,21 +1112,21 @@
     // ==========================================================
 
     // Nombre bonito para las categorías conocidas.
-    // Una categoría nueva sale en mayúsculas con un ícono genérico.
+    // Una categoría nueva sale en mayúsculas.
     const ETIQUETAS_CAT = {
-      streaming:  '🎬 STREAMING',
-      musica:     '🎵 MÚSICA',
-      ia:         '🤖 IA & TOOLS',
-      combos:     '🎁 COMBOS',
-      vpn:        '🔐 VPN',
-      seguidores: '📱 SEGUIDORES',
-      juegos:     '🎮 JUEGOS',
-      recargas:   '💎 RECARGAS',
-      apps:       '📲 APPS',
-      cursos:     '📚 CURSOS'
+      streaming:  'STREAMING',
+      musica:     'MÚSICA',
+      ia:         'IA & TOOLS',
+      combos:     'COMBOS',
+      vpn:        'VPN',
+      seguidores: 'SEGUIDORES',
+      juegos:     'JUEGOS',
+      recargas:   'RECARGAS',
+      apps:       'APPS',
+      cursos:     'CURSOS'
     };
     function etiquetaCat(c) {
-      return ETIQUETAS_CAT[c] || ('🏷️ ' + String(c).toUpperCase());
+      return ETIQUETAS_CAT[c] || String(c).toUpperCase();
     }
 
     // Orden en que se muestran las pestañas.
@@ -1119,12 +1139,10 @@
     const CATEGORIAS_FIJAS = ['combos'];
 
 
-    // Nombre limpio para el título (sin el emoji de la pestaña)
-    // Título sin el emoji: "🎬 STREAMING" -> "STREAMING"
+    // Nombre de la categoría para las sugerencias del buscador
     function nombreCat(c) {
       if (c === 'all') return 'Todas las plataformas';
-      const partes = etiquetaCat(c).split(' ');
-      return partes.length > 1 ? partes.slice(1).join(' ') : partes[0];
+      return etiquetaCat(c);
     }
 
     // Los "tipo" del catálogo vienen con variantes escritas distinto:
@@ -1277,7 +1295,7 @@
     }
 
     // Deja la tienda filtrada por un texto, como si el cliente lo hubiera
-    // escrito. Lo usan las tarjetas de "Tops", las recientes y el Enter.
+    // escrito. Lo usan las búsquedas recientes y el Enter.
     function usarBusqueda(texto) {
       const input = document.getElementById('2');
       if (input) input.value = texto;
@@ -1290,14 +1308,6 @@
       const grid = document.getElementById('5');
       if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-
-    // Tops cards → filtran por el nombre del producto
-    document.addEventListener('click', function(e){
-      const card = e.target.closest('.tops-card');
-      if (!card) return;
-      e.preventDefault();
-      usarBusqueda(card.getAttribute('data-search') || '');
-    });
 
 
     // ==========================================================
@@ -1409,7 +1419,7 @@
           const i = SUG_FILAS.length;
           SUG_FILAS.push({ texto: r });
           html += `<button type="button" class="sug-item" data-fila="${i}">
-                     <span class="sug-ico">🕘</span>
+                     <span class="sug-ico">${icono('reloj')}</span>
                      <span class="sug-txt"><span class="sug-nombre">${resaltar(r, texto)}</span></span>
                    </button>`;
         });
@@ -1755,7 +1765,7 @@
             <button class="ck-cerrar" onclick="closeModal()" aria-label="Cerrar">✕</button>
           </div>
           <div class="cr-vacio">
-            <div class="cr-vacio-ico">🛒</div>
+            <div class="cr-vacio-ico">${icono('carrito')}</div>
             <b>Tu carrito está vacío</b>
             <p>Elegí un plan y tocá <b>Comprar</b>: aparece acá para pagarlo con QR.</p>
             <button class="ck-pagar" onclick="closeModal(null, goHome)">Ver productos</button>
@@ -1816,7 +1826,7 @@
 
             ${pideDatos ? `
             <div class="ck-caja ck-correo">
-              <span class="ck-correo-ico">📧</span>
+              <span class="ck-correo-ico">${icono('correo')}</span>
               <div>
                 <b>Te pediremos tu correo al pagar</b>
                 <p>Alguno de estos servicios se activa sobre tu propia cuenta.
@@ -1841,7 +1851,7 @@
               <div class="ck-renovar-tel" id="crRenovarTel" hidden>
                 <label for="crTel">¿A qué WhatsApp te escribimos?</label>
                 <div class="ck-tel-campo">
-                  <span class="ck-tel-pais">🇧🇴 +591</span>
+                  <span class="ck-tel-pais">+591</span>
                   <input type="tel" id="crTel" inputmode="numeric" maxlength="14"
                          autocomplete="tel-national" placeholder="7 123 4567">
                 </div>
@@ -1935,7 +1945,7 @@
         </li>`).join('') +
         (descuento > 0 ? `
         <li class="cr-res-desc">
-          <span class="cr-res-nombre">🎁 Descuento combo</span>
+          <span class="cr-res-nombre">Descuento combo</span>
           <b>−${fmtBsCarrito(descuento)}</b>
         </li>` : '');
     }
@@ -1945,7 +1955,7 @@
       const nombreSeguro = item.name.replace(/'/g, "\\'");
       const f = productFlags(item);
       const entrega = item.stock > 0
-        ? `<span class="cr-ya">⚡ Entrega inmediata</span> · ${item.stock === 1 ? 'queda 1' : `quedan ${item.stock}`}`
+        ? `<span class="cr-ya">Entrega inmediata</span> · ${item.stock === 1 ? 'queda 1' : `quedan ${item.stock}`}`
         : '⏱ Entrega de 5 a 30 min';
       return `
         <li class="cr-item" data-idx="${idx}">
@@ -1953,7 +1963,7 @@
                onerror="this.onerror=null;this.src=generateLogoSvg('${nombreSeguro}','${item.imgColor}');">
           <div class="cr-info">
             <div class="cr-nombre">${escaparHtml(item.name)}</div>
-            <div class="cr-meta">${entrega}${f.needsEmail || f.needsUsername ? ' · 📧 pide tu correo' : ''}</div>
+            <div class="cr-meta">${entrega}${f.needsEmail || f.needsUsername ? ' · pide tu correo' : ''}</div>
             <div class="cr-unit">${fmtBsCarrito(item.price)} c/u${item.precioAntes ? ` <s>${item.precioAntes}</s>` : ''}</div>
             ${item.diasQuedan ? `<div class="cr-dias">Suscripción: ${item.diasQuedan} días (de ${item.diasPlan})</div>` : ''}
             <div class="cr-aviso" ${ajustado ? '' : 'hidden'}>${ajustado ? mensajeTope(item) : ''}</div>
@@ -1998,8 +2008,8 @@
       if (combo) {
         combo.classList.toggle('aplicado', descuento > 0);
         combo.innerHTML = descuento > 0
-          ? `<span>🎁 <b>Descuento combo</b> por llevar ${unidades} productos</span><b class="cr-combo-monto">−${fmtBsCarrito(descuento)}</b>`
-          : `<span>🎁 Sumá otro producto y ahorrá <b>${fmtBsCarrito(DESCUENTO_COMBO)}</b> con el descuento combo</span>`;
+          ? `<span><b>Descuento combo</b> por llevar ${unidades} productos</span><b class="cr-combo-monto">−${fmtBsCarrito(descuento)}</b>`
+          : `<span>Sumá otro producto y ahorrá <b>${fmtBsCarrito(DESCUENTO_COMBO)}</b> con el descuento combo</span>`;
       }
     }
 
@@ -2107,6 +2117,13 @@
     }
 
     function goHome() {
+      soltarFiltros();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // La tienda como recién entrada: todas las categorías, sin búsqueda
+    // ni filtro. La usan el logo (goHome) y las tarjetas de Ofertas.
+    function soltarFiltros() {
       currentCat = 'all'; currentSub = 'all'; currentSearch = ''; currentFormato = 'all';
       pintarFormato();
       document.getElementById('2').value = '';
@@ -2115,7 +2132,6 @@
       document.querySelectorAll('.sub-pill').forEach((p,i) => p.classList.toggle('active', i===0));
       currentPage = 1;
       renderProducts();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showAllCats() {
@@ -2130,7 +2146,7 @@
     function chipDatos(producto) {
       const f = productFlags(producto);
       return f.needsEmail || f.needsUsername
-        ? '<span class="plan-chip correo">📧 Pide tu correo</span>'
+        ? '<span class="plan-chip correo">' + icono('correo') + 'Pide tu correo</span>'
         : '';
     }
 
@@ -2244,32 +2260,186 @@
       });
     }
 
-    // ===== FONDO DE LAS TARJETAS DE TOPS =====
-    // Cada tarjeta de Tops lleva de fondo la foto de la plataforma que
-    // busca (data-search), en vez del color liso. El color (--c1/--c2)
-    // queda debajo: se ve mientras la foto carga, si no carga, o si la
-    // plataforma ya no está en el catálogo.
-    function actualizarTops(grupos) {
-      document.querySelectorAll('.tops-card[data-search]').forEach(card => {
-        const url = fotoDePlataforma(grupos, card.dataset.search);
-        if (!url) {
-          card.classList.remove('tops-card--foto');
-          card.style.removeProperty('--foto');
-          return;
-        }
-        // Absoluta: una ruta relativa dentro de una variable CSS se
-        // resolvería contra css/tienda.css y no contra la página.
-        const absoluta = new URL(url, location.href).href.replace(/"/g, '%22');
-        card.style.setProperty('--foto', `url("${absoluta}")`);
-        card.classList.add('tops-card--foto');
+    // ===== OFERTAS =====
+    // La fila de arriba muestra las plataformas que tienen algún plan con
+    // descuento: una oferta puesta a mano en el panel o la rebaja
+    // automática del stock (las dos llegan como `descuento` desde
+    // js/tienda-catalogo.js). De cada plataforma sale su plan más
+    // rebajado, y van primero las que más descuento tienen. Tocar una
+    // abre sus planes, con el precio de antes tachado.
+    let OFERTAS = [];
+    let firmaOfertas = null;
+
+    function ofertasDe(grupos) {
+      return grupos.map(g => {
+        const rebajados = g.planes.filter(p => !p.soldOut && p.price > 0 && p.descuento > 0);
+        if (!rebajados.length) return null;
+        // El más rebajado; si empatan, el más barato
+        const plan = rebajados.reduce((a, b) =>
+          b.descuento > a.descuento || (b.descuento === a.descuento && b.price < a.price) ? b : a);
+        return { g, plan };
+      }).filter(Boolean)
+        .sort((a, b) => b.plan.descuento - a.plan.descuento);
+    }
+
+    const conEspacio = precio => String(precio).replace(/Bs$/, ' Bs');
+
+    function tarjetaOferta({ g, plan }) {
+      const [c1, c2] = String(g.base.imgColor || '').split(',').map(s => s.trim());
+      const p = g.base;
+      // Absoluta: una ruta relativa dentro de una variable CSS se
+      // resolvería contra css/tienda.css y no contra la página.
+      const foto = new URL(getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl), location.href)
+        .href.replace(/"/g, '%22');
+      const precio = conEspacio(formatoBs(plan.price));
+      const antes  = plan.precioAntes ? conEspacio(plan.precioAntes) : '';
+      return `
+        <button type="button" class="oferta-card" data-clave="${escaparHtml(g.clave)}"
+                data-foto="${escaparHtml(foto)}"
+                style="--c1:${escaparHtml(c1 || '#333')}; --c2:${escaparHtml(c2 || c1 || '#666')}"
+                aria-label="${escaparHtml(`${g.nombre}: ${precio}${antes ? `, antes ${antes}` : ''}`)}">
+          <span class="oferta-nombre">${escaparHtml(g.nombre)}</span>
+          <span class="oferta-desc">-${plan.descuento}%</span>
+          <span class="oferta-precio"><b>${precio}</b>${antes ? `<s>${antes}</s>` : ''}</span>
+        </button>`;
+    }
+
+    function pintarOfertas(grupos) {
+      const seccion = document.getElementById('ofertas');
+      const fila = document.getElementById('ofertasFila');
+      if (!seccion || !fila) return;
+
+      OFERTAS = ofertasDe(grupos);
+      seccion.hidden = OFERTAS.length === 0;
+      const enMenu = document.getElementById('navOfertas');
+      if (enMenu) enMenu.hidden = OFERTAS.length === 0;
+
+      // El catálogo llega varias veces (el stock y las rebajas vienen
+      // aparte, y cada cambio en vivo lo vuelve a mandar). Si las ofertas
+      // son las mismas no se redibuja, así la fila no vuelve al principio.
+      const firma = OFERTAS.map(({ g, plan }) =>
+        [g.clave, g.base.imagenUrl, plan.id, plan.price, plan.descuento].join('|')).join('\n');
+      if (firma === firmaOfertas) return;
+      firmaOfertas = firma;
+
+      fila.innerHTML = OFERTAS.map(tarjetaOferta).join('');
+      vigilarFilaOfertas(fila);
+      prepararGiro(fila);
+    }
+
+    // Tocar una oferta abre los planes de su plataforma. Si la tienda está
+    // filtrada y esa plataforma no se ve, se sueltan los filtros primero:
+    // el panel de planes y el carrito la buscan entre las que se ven.
+    document.addEventListener('click', function (e) {
+      const card = e.target.closest('.oferta-card[data-clave]');
+      if (!card) return;
+      const clave = card.dataset.clave;
+      if (!PLATAFORMAS_VISIBLES.some(g => g.clave === clave)) soltarFiltros();
+      abrirPlataforma(clave);
+    });
+
+    // ---------- La fila gira sola ----------
+    // Cada 3,5 segundos avanza una tarjeta. Para dar la vuelta sin volver
+    // corriendo al principio, las tarjetas van dos veces seguidas: al
+    // llegar a la copia de la primera se salta, sin animación, a la
+    // original, que se ve igual. Se queda quieta mientras el cliente la
+    // toca o tiene el mouse encima, con la ventana de planes abierta, con
+    // la pestaña oculta, fuera de la pantalla, y para quien pidió menos
+    // movimiento en su sistema. Si todas entran a lo ancho, no gira.
+    const GIRO_MS = 3500;
+    const PAUSA_TOQUE_MS = 6000;
+    let giroReloj = 0;
+    let giroQuietoHasta = 0;
+    let giroMouse = false;
+    let anchoJuego = 0;          // lo que miden las originales, hasta la primera copia
+
+    const menosMovimiento = () =>
+      !!window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function prepararGiro(fila) {
+      clearInterval(giroReloj);
+      giroReloj = 0;
+      anchoJuego = 0;
+      fila.querySelectorAll('.oferta-card--copia').forEach(c => c.remove());
+      fila.scrollLeft = 0;
+
+      const originales = [...fila.children];
+      const sobra = fila.scrollWidth > fila.clientWidth + 1;
+      if (originales.length > 1 && sobra && !menosMovimiento()) {
+        originales.forEach(t => {
+          const copia = t.cloneNode(true);
+          copia.classList.add('oferta-card--copia');
+          copia.setAttribute('aria-hidden', 'true');
+          copia.tabIndex = -1;
+          fila.appendChild(copia);
+        });
+        anchoJuego = fila.children[originales.length].offsetLeft - originales[0].offsetLeft;
+        giroReloj = setInterval(() => girarOfertas(fila), GIRO_MS);
+      }
+      fotosDeOfertas(fila);
+    }
+
+    function girarOfertas(fila) {
+      if (document.hidden || giroMouse || Date.now() < giroQuietoHasta || ventanaAbierta()) return;
+      const r = fila.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) return;
+
+      const paso = fila.children[1].offsetLeft - fila.children[0].offsetLeft;
+      // js/barra-vidrio.js no muestra la barra por esto: nadie la está usando
+      fila.classList.add('girando');
+      if (fila.scrollLeft >= anchoJuego - 1) fila.scrollLeft -= anchoJuego;
+      fila.scrollBy({ left: paso, behavior: 'smooth' });
+      clearTimeout(fila._finGiro);
+      fila._finGiro = setTimeout(() => fila.classList.remove('girando'), 1000);
+    }
+
+    // Una sola vez: la fila es siempre la misma, solo cambia lo de adentro
+    function vigilarFilaOfertas(fila) {
+      if (fila.dataset.vigilada) return;
+      fila.dataset.vigilada = '1';
+      const tocaron = () => { giroQuietoHasta = Date.now() + PAUSA_TOQUE_MS; };
+      ['pointerdown', 'touchstart', 'wheel', 'keydown', 'focusin'].forEach(ev =>
+        fila.addEventListener(ev, tocaron, { passive: true }));
+      fila.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') giroMouse = true; });
+      fila.addEventListener('pointerleave', () => { giroMouse = false; tocaron(); });
+
+      // Al girar el celular o cambiar el ancho de la ventana puede que
+      // ahora entren todas, o que ya no: se vuelve a armar.
+      let reloj = 0, ancho = window.innerWidth;
+      window.addEventListener('resize', () => {
+        if (window.innerWidth === ancho) return;   // el celular escondiendo su barra
+        ancho = window.innerWidth;
+        clearTimeout(reloj);
+        reloj = setTimeout(() => prepararGiro(fila), 250);
       });
+    }
+
+    // Las fotos se piden recién cuando la tarjeta está por verse, y no
+    // todas juntas al abrir la tienda. Hasta entonces se ve el color.
+    let fotosObservador = null;
+    function fotosDeOfertas(fila) {
+      const tarjetas = fila.querySelectorAll('.oferta-card[data-foto]');
+      const poner = card => {
+        card.style.setProperty('--foto', `url("${card.dataset.foto}")`);
+        card.removeAttribute('data-foto');
+      };
+      if (!('IntersectionObserver' in window)) { tarjetas.forEach(poner); return; }
+      if (fotosObservador) fotosObservador.disconnect();
+      fotosObservador = new IntersectionObserver(entradas => {
+        entradas.forEach(en => {
+          if (!en.isIntersecting) return;
+          poner(en.target);
+          fotosObservador.unobserve(en.target);
+        });
+      }, { root: fila, rootMargin: '0px 420px' });
+      tarjetas.forEach(t => fotosObservador.observe(t));
     }
 
     // Corre cada vez que llega el catálogo (también en tiempo real).
     function actualizarFotosDePlataforma() {
       const grupos = agruparEnPlataformas(PRODUCTS);
       actualizarCarrusel(grupos);
-      actualizarTops(grupos);
+      pintarOfertas(grupos);
     }
 
     // Los juegos no son parte del catálogo: los manda aparte

@@ -466,6 +466,9 @@ css.textContent = `
     .vt-f-estado { grid-area: estado; justify-self: end; }
     .vt-ver      { grid-area: ver; }
     .vt-modal.vt-ver-modal { padding: 14px 12px 14px; }
+    /* En la ventana, igual que la tarjeta de antes en el celular: el
+       número arriba y todo lo demás debajo, a lo ancho */
+    .vt-ver-modal .vt-pedido { grid-template-columns: 1fr; }
   }
 `;
 document.head.appendChild(css);

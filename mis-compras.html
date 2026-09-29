@@ -158,6 +158,27 @@
   .btn-problema:hover { color: #15803d; }
   .btn-problema:disabled { opacity: .6; cursor: wait; }
 
+  /* "Comprar de nuevo" y el aviso de vencimiento */
+  .compra-links { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; margin-top: 0.5rem; }
+  .compra-links .btn-problema { margin-top: 0; }
+  .btn-otra {
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid rgba(21,128,61,.35);
+    background: rgba(34,197,94,.1);
+    color: #15803d;
+    font: inherit; font-size: 0.8rem; font-weight: 800;
+    cursor: pointer;
+  }
+  .btn-otra:hover { background: rgba(34,197,94,.18); }
+  .btn-otra:disabled { opacity: .6; cursor: wait; }
+  .compra-vence {
+    display: inline-block; margin-top: 0.35rem;
+    padding: 0.15rem 0.55rem; border-radius: 999px;
+    background: rgba(180,83,9,.1); color: #92400e;
+    font-size: 0.75rem; font-weight: 700;
+  }
+
   .compra-num {
     font-weight: 800;
     color: var(--tinta);
@@ -293,8 +314,8 @@
   }
 </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20260928215126">
-  <script src="js/barra-vidrio.js?v=20260928215126" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20260928220656">
+  <script src="js/barra-vidrio.js?v=20260928220656" defer></script>
 </head>
 <body>
 
@@ -389,7 +410,11 @@ function pintar() {
         ${c.faltan > 0
           ? `<span class="compra-faltan">Falta ${c.faltan === 1 ? '1 cuenta' : c.faltan + ' cuentas'}</span>`
           : ''}
-        <div><button type="button" class="btn-problema" data-problema="${escapar(c.token)}">Tengo un problema con mi cuenta</button></div>
+        ${avisoDeVencimiento(c.vence)}
+        <div class="compra-links">
+          <button type="button" class="btn-otra" data-recomprar="${escapar(c.token)}">Comprar de nuevo</button>
+          <button type="button" class="btn-problema" data-problema="${escapar(c.token)}">Tengo un problema con mi cuenta</button>
+        </div>
       </div>
       <a class="btn-abrir" href="${linkDeCompra(c.token)}">Abrir mi cuenta</a>
     </div>`).join('');
@@ -438,9 +463,50 @@ async function escribirPorProblema(token, boton) {
   else location.href = url;          // sin ventanas nuevas: en la misma
 }
 
+// ------------------------------------------------------------
+// "Comprar de nuevo"
+// ------------------------------------------------------------
+// Lleva a la tienda con los mismos productos ya en el carrito
+// (index.html#comprar=<id>,<id>: la tienda lo arma al cargar). Las compras
+// guardadas desde ahora traen los ids; las de antes se consultan al tocar.
+async function comprarDeNuevo(token, boton) {
+  const c = misCompras().find(x => x.token === token);
+  if (!c) return;
+
+  let fids = c.fids && c.fids.length ? c.fids : null;
+  if (!fids) {
+    boton.disabled = true;
+    const compra = await mirarPedido(token);
+    boton.disabled = false;
+    fids = compra
+      ? (compra.lineas || []).filter(l => l.estado === 'entregado' && l.producto_id).map(l => l.producto_id)
+      : [];
+  }
+  if (!fids.length) {
+    alert('No pudimos encontrar esos productos. Buscalos en la tienda o escribinos por WhatsApp.');
+    return;
+  }
+  location.href = `index.html#comprar=${fids.join(',')}`;
+}
+
+// "Se te vence el 25/10" si falta una semana o menos (o ya se venció)
+function avisoDeVencimiento(vence) {
+  if (!vence) return '';
+  const m = String(vence).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return '';
+  const dia = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const faltan = Math.round((dia - hoy) / 864e5);
+  if (faltan > 7) return '';
+  const fechaTxt = `${m[3]}/${m[2]}`;
+  return `<span class="compra-vence">${faltan < 0 ? `Se te venció el ${fechaTxt}` : faltan === 0 ? 'Se te vence hoy' : `Se te vence el ${fechaTxt}`}</span>`;
+}
+
 $('lista').addEventListener('click', e => {
-  const boton = e.target.closest('[data-problema]');
-  if (boton) escribirPorProblema(boton.dataset.problema, boton);
+  const problema = e.target.closest('[data-problema]');
+  if (problema) { escribirPorProblema(problema.dataset.problema, problema); return; }
+  const otra = e.target.closest('[data-recomprar]');
+  if (otra) comprarDeNuevo(otra.dataset.recomprar, otra);
 });
 
 $('btnVaciar').addEventListener('click', () => {
@@ -454,6 +520,6 @@ $('btnVaciar').addEventListener('click', () => {
 pintar();
 </script>
 
-<script src="bg-burbujas.js?v=20260928215126" defer></script>
+<script src="bg-burbujas.js?v=20260928220656" defer></script>
 </body>
 </html>

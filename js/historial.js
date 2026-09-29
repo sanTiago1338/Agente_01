@@ -80,6 +80,10 @@ export function guardarCompra(token, compra) {
     // Solo los nombres, para poder listar sin consultar la base. Se
     // repiten si compró dos del mismo: es lo que efectivamente compró.
     productos: entregadas.map(l => l.producto),
+    // Para "Comprar de nuevo": qué productos eran (uno por cuenta) y
+    // cuándo se le vence el primero, para avisarle a tiempo
+    fids: entregadas.map(l => l.producto_id).filter(Boolean),
+    vence: entregadas.map(l => l.vence).filter(Boolean).sort()[0] || null,
     total: Number(compra.total) || null,
     // Cuántas de las que pagó siguen sin entregarse, para poder avisarlo
     // en la lista sin tener que abrir cada una.

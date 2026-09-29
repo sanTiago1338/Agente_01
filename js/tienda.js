@@ -40,7 +40,41 @@
       reconstruirCarrito();
       // Si volvió con "atrás" a una pantalla de la ventana, se la abre
       restaurarPantalla();
+      // "Comprar de nuevo" desde Mis compras
+      recomprarDesdeElLink();
     };
+
+    // "Comprar de nuevo" (mis-compras.html) llega con #comprar=<id>,<id>:
+    // se ponen esos productos en el carrito (uno por vez que aparezca el
+    // id) y se abre. Los que ya no se venden se saltean. Una sola vez por
+    // visita: el catálogo vuelve a llegar con cada cambio en vivo.
+    let recompraHecha = false;
+    function recomprarDesdeElLink() {
+      if (recompraHecha) return;
+      const m = location.hash.match(/^#comprar=([0-9a-f,-]+)$/i);
+      if (!m) return;
+      recompraHecha = true;
+      // Que el link no vuelva a armar el carrito si recarga la página
+      try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) { /* da igual */ }
+
+      const cuantas = new Map();
+      m[1].split(',').filter(Boolean).forEach(fid => cuantas.set(fid, (cuantas.get(fid) || 0) + 1));
+
+      let agregado = null;
+      for (const [fid, n] of cuantas) {
+        const p = PRODUCTS.find(x => x.fid === fid);
+        if (!p || p.soldOut || sinPrecio(p)) continue;
+        const item = cart.find(i => i.id === p.id);
+        if (item) item.qty = Math.max(item.qty, Math.min(n, topeDe(p)));
+        else cart.push({ ...p, qty: Math.min(n, topeDe(p)) });
+        agregado = p.id;
+      }
+      if (agregado === null) return;      // nada de eso se vende ya: queda la tienda
+
+      updateCartCount();
+      guardarCarrito();
+      openCart({ agregado });
+    }
 
     // Si Supabase falla, lo mostramos en la grilla en vez de dejarla vacía.
     window.__errorCatalogo = function (mensaje) {

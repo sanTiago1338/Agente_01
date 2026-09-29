@@ -407,6 +407,8 @@ css.textContent = `
      estado y los botones van en su propio renglón, así el nombre del
      producto y la fecha se leen enteros */
   .vt-ver-modal .vt-prod { white-space: normal; overflow: visible; }
+  /* El número ya está en el título de la ventana ("Pedido #129") */
+  .vt-ver-modal .vt-num { display: none; }
   .vt-ver-modal .vt-der { grid-column: 1 / -1; justify-content: flex-end; flex-wrap: wrap; }
 
   /* ---------- Recordar por WhatsApp al que no pagó ---------- */
@@ -469,6 +471,36 @@ css.textContent = `
     /* En la ventana, igual que la tarjeta de antes en el celular: el
        número arriba y todo lo demás debajo, a lo ancho */
     .vt-ver-modal .vt-pedido { grid-template-columns: 1fr; }
+
+    /* En el celular la tarjeta dentro de la ventana no lleva su propio
+       borde ni relleno: era una caja dentro de otra y le robaba ancho a
+       todo. El estado ya lo dice el cartel. */
+    body .vt-ver-modal .vt-pedido {
+      background: transparent; border: none; box-shadow: none;
+      padding: 0; gap: 10px;
+      -webkit-backdrop-filter: none; backdrop-filter: none;
+    }
+
+    /* Plata y estado en un renglón; "Entrega por WhatsApp" abajo; y los
+       botones grandes, a lo ancho, fáciles de tocar con el dedo */
+    .vt-ver-modal .vt-der { justify-content: flex-start; gap: 8px 10px; }
+    .vt-ver-modal .vt-der .vt-wa-only { flex-basis: 100%; padding: 0; }
+    .vt-ver-modal .vt-der .btn,
+    .vt-ver-modal .vt-der .vt-mini {
+      /* Todo el renglón menos el lugar de la ✕: así "Confirmar pago" o
+         "Listo" bajan siempre a su propio renglón, con la ✕ al lado */
+      flex: 1 1 calc(100% - 58px); min-height: 44px; padding: 10px 12px;
+      font-size: 14px; text-align: center; justify-content: center;
+    }
+    .vt-ver-modal .vt-der .vt-mini.no { flex: 0 0 48px; padding: 10px 0; font-size: 16px; }
+
+    /* "Recordar por WhatsApp": el botón a lo ancho y la explicación abajo */
+    .vt-ver-modal .vt-recordar { flex-direction: column; align-items: stretch; gap: 6px; }
+    .vt-ver-modal .vt-recordar .vt-mini { min-height: 44px; padding: 10px 12px; font-size: 14px; text-align: center; }
+
+    /* Las cuentas entregadas: "Copiar para mandar" abajo, a lo ancho */
+    .vt-ver-modal .vt-cred { gap: 6px 14px; }
+    .vt-ver-modal .vt-cred button { margin-left: 0; flex-basis: 100%; min-height: 40px; }
   }
 `;
 document.head.appendChild(css);
@@ -917,7 +949,10 @@ function abrirVer(clave) {
 function pintarVer() {
   if (!verClave) return;
   const c = compraPorClave(verClave);
-  if (!c) { cerrarVer(); return; }
+  // No está en los pedidos cargados (una vieja abierta desde "Por fecha",
+  // y un pedido nuevo recargó los últimos 200): la ventana queda como
+  // estaba, en vez de cerrarse sola en la cara.
+  if (!c) return;
   $('vtVerTitulo').textContent = `Pedido ${numerosDeCompra(c.lineas)}`;
   $('vtVerCuerpo').innerHTML = pintarCompra(c);
 }

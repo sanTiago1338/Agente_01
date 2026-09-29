@@ -2924,3 +2924,136 @@
       font-size: 1rem; cursor: pointer;
     }
     @media (prefers-reduced-motion: reduce) { .app-aviso { transition: none; } }
+
+/* ============================================================
+   TRANSPARENTE O TEÑIDO (js/tenido.js)
+   ============================================================
+   El ajuste de Liquid Glass del iPhone, parado y fijo a la izquierda:
+   abajo Transparente, arriba Teñido. La perilla blanca sube por un
+   riel gris que se pinta de azul, con tres paradas marcadas por
+   puntitos. */
+    .tenido-control {
+      --pos: 0;                       /* dónde está la perilla: 0 abajo, 1 arriba */
+      position: fixed;
+      left: calc(10px + env(safe-area-inset-left));
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 94;                    /* debajo de las ventanas (200) */
+      width: 44px;
+      padding: 12px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.72);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255,255,255,.9);
+      box-shadow: 0 10px 30px rgba(20,22,26,.12), 0 0 0 .5px rgba(20,22,26,.08),
+                  inset 0 1px 0 #fff;
+    }
+    .tenido-ico {
+      width: 22px; height: 22px;
+      color: #8e8e93;
+      display: grid;
+      place-items: center;
+    }
+    .tenido-ico svg { width: 100%; height: 100%; display: block; }
+    .tenido-ico--lleno { color: #6e6e73; }
+
+    /* La pista entera se puede agarrar; arriba y abajo deja media
+       perilla (14 px) para que no se salga del control */
+    .tenido-pista {
+      position: relative;
+      width: 100%;
+      height: 132px;
+      cursor: pointer;
+      touch-action: none;             /* arrastrar no mueve la página */
+      outline: none;
+    }
+    .tenido-riel,
+    .tenido-relleno {
+      position: absolute;
+      left: 50%;
+      width: 5px;
+      margin-left: -2.5px;
+      border-radius: 99px;
+    }
+    .tenido-riel { top: 14px; bottom: 14px; background: rgba(120,120,128,.2); }
+    .tenido-relleno {
+      bottom: 14px;
+      height: calc((100% - 28px) * var(--pos));
+      background: #0a84ff;
+      transition: height .25s cubic-bezier(.3,.7,.4,1);
+    }
+    /* Las paradas: al costado del riel, y la de donde está la perilla
+       no se ve (queda debajo, como en el iPhone) */
+    .tenido-punto {
+      position: absolute;
+      left: calc(50% + 8px);
+      bottom: calc(14px + (100% - 28px) * var(--p) - 2px);
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: rgba(120,120,128,.5);
+      transition: opacity .2s;
+    }
+    .tenido-punto.tapado { opacity: 0; }
+    .tenido-perilla {
+      position: absolute;
+      left: 50%;
+      bottom: calc(14px + (100% - 28px) * var(--pos));
+      width: 26px; height: 38px;
+      transform: translate(-50%, 50%);
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 3px 10px rgba(0,0,0,.14), 0 0 0 .5px rgba(0,0,0,.06);
+      transition: bottom .25s cubic-bezier(.3,.7,.4,1), transform .15s;
+    }
+    /* Mientras se arrastra sigue al dedo sin demora, y la perilla crece
+       un poco como la del iPhone */
+    .tenido-control.arrastrando .tenido-relleno,
+    .tenido-control.arrastrando .tenido-perilla { transition: transform .15s; }
+    .tenido-control.arrastrando .tenido-perilla { transform: translate(-50%, 50%) scale(1.12); }
+    .tenido-pista:focus-visible .tenido-perilla {
+      box-shadow: 0 0 0 3px rgba(10,132,255,.45), 0 3px 10px rgba(0,0,0,.14);
+    }
+
+    /* En el celular, más angosto: tapa lo menos posible */
+    @media (max-width: 640px) {
+      .tenido-control { left: calc(6px + env(safe-area-inset-left)); width: 36px; padding: 10px 0; gap: 4px; }
+      .tenido-ico { width: 18px; height: 18px; }
+      .tenido-pista { height: 112px; }
+      .tenido-perilla { width: 22px; height: 32px; }
+      .tenido-punto { left: calc(50% + 7px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .tenido-relleno, .tenido-perilla { transition: none; }
+    }
+    @media print { .tenido-control { display: none; } }
+    /* La flecha "‹" del carrusel quedaba debajo del control: se corre a
+       su derecha (10 del borde + 44 del control + 8 de aire). En el
+       celular las flechas no se muestran. */
+    .hero-arrow--prev { left: calc(62px + env(safe-area-inset-left)); }
+
+    /* El vidrio teñido: blanco debajo de cada vidrio, tanto más cuanto
+       más arriba esté la perilla (--tenido, de 0 a 1). Va como color de
+       fondo, que se pinta debajo de los degradés de cada uno, así no se
+       pierde el brillo ni el canto. Sin la clase (transparente) no se
+       aplica nada. */
+    html.tenido .banner-top,
+    html.tenido .nav-principal,
+    html.tenido .promo-banner,
+    html.tenido .search-input-wrap,
+    html.tenido .search-sug,
+    html.tenido .sort-select,
+    html.tenido .filter-btn,
+    html.tenido .filtro-menu,
+    html.tenido .cat-tabs,
+    html.tenido .sub-pill,
+    html.tenido .plat-card,
+    html.tenido .pie,
+    html.tenido .bottom-nav,
+    html.tenido .modal-sheet {
+      background-color: rgba(255,255,255, calc(var(--tenido) * .82));
+    }

@@ -1926,9 +1926,11 @@
       justify-content: center;
       align-items: center;
       gap: 0.35rem;
-      padding: 1.5rem 1rem 1rem;
+      padding: 0.9rem 1rem 0.25rem;
       flex-wrap: wrap;
     }
+    /* Con una sola página no hay botones: que tampoco quede el hueco */
+    .pagination:empty { padding: 0; }
 
     .page-btn {
       background: var(--negro3);
@@ -1964,7 +1966,7 @@
       color: var(--tinta-suave);
       font-size: 0.84rem;
       line-height: 1.5;
-      margin: 1.75rem .6rem 0;
+      margin: 0.75rem .6rem 0;
       padding: 1.4rem 1.5rem 1rem;
     }
 
@@ -2059,7 +2061,7 @@
        más, porque cada renglón arranca en un lugar distinto. */
     @media (max-width: 760px) {
       .pie {
-        margin: 1.25rem .5rem 0;
+        margin: 0.75rem .5rem 0;
         padding: 1.1rem 1rem .9rem;
         font-size: 0.82rem;
       }

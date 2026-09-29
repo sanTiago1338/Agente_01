@@ -28,6 +28,10 @@ const $ = id => document.getElementById(id);
 // cargadas, sigue a la venta y le quedan estas o menos.
 const POCO_STOCK = 2;
 
+// Un producto "te deja poco" cuando, al último costo anotado, te quedan
+// menos de estos Bs por cuenta. El mismo número que avisa al cargar en Stock.
+const MARGEN_MINIMO = 5;
+
 // Los mismos colores y nombres de estado que usa Ventas
 const ESTADOS = {
   sin_stock:      { txt: 'Sin stock',  color: '#dc2626', bg: 'rgba(220,38,38,.10)' },
@@ -208,6 +212,18 @@ css.textContent = `
   }
   .ini-pill.cero { background: rgba(220,38,38,.10); color: #b91c1c; }
   .ini-pill.poco { background: rgba(180,83,9,.10);  color: #92400e; }
+
+  /* Te están dejando poco, y clientes frecuentes: el nombre arriba y los
+     números abajo, en chico */
+  .ini-dos li { flex-wrap: wrap; row-gap: 3px; }
+  .ini-dos .nom { flex-basis: 100%; white-space: normal; font-weight: 600; }
+  .ini-dos .det { flex: 1; min-width: 0; font-size: 12px; color: var(--tinta-suave); line-height: 1.45; }
+  .ini-dos .det b { color: var(--tinta); }
+  .ini-dos .det .mal { color: #b91c1c; font-weight: 700; }
+  .ini-dos .det .justo { color: #b45309; font-weight: 700; }
+  .ini-dos a.wa { color: #15803d; font-weight: 700; text-decoration: none; white-space: nowrap; font-size: 12.5px; }
+  .ini-dos a.wa:hover { text-decoration: underline; }
+  .ini-nota { font-size: 12px; color: var(--tinta-suave); margin: 10px 0 0; line-height: 1.45; }
 
   /* Lo más vendido: el nombre arriba y una barra fina que dice cuánto */
   .ini-top li { flex-wrap: wrap; row-gap: 6px; }
@@ -402,6 +418,26 @@ $('vistaInicio').innerHTML = `
         <ul class="ini-lista ini-top" id="iniTop"><li><div class="ini-esq" style="height:90px;flex:1"></div></li></ul>
       </section>
     </div>
+
+    <div class="ini-fila">
+      <section class="ini-caja">
+        <div class="ini-caja-cab">
+          <div>
+            <h3>Te están dejando poco</h3>
+            <p class="ini-sub">Productos que, al último costo que anotaste, te dejan menos de ${MARGEN_MINIMO} Bs</p>
+          </div>
+          <button class="ini-link" data-ir="productos">Cambiar precios</button>
+        </div>
+        <ul class="ini-lista ini-dos" id="iniMargen"><li><div class="ini-esq" style="height:90px;flex:1"></div></li></ul>
+        <p class="ini-nota" id="iniMargenNota" hidden></p>
+      </section>
+
+      <section class="ini-caja">
+        <h3>Clientes frecuentes</h3>
+        <p class="ini-sub">Los que te compraron más de una vez</p>
+        <ul class="ini-lista ini-dos" id="iniClientes"><li><div class="ini-esq" style="height:90px;flex:1"></div></li></ul>
+      </section>
+    </div>
     </div><!-- /iniDatos -->
   </div>`;
 
@@ -484,11 +520,15 @@ async function cargar() {
       // Sin credenciales: producto y estado para el stock, y pedido, costo
       // y fecha para la ganancia
       sbAdmin.from('cuentas').select('producto_id, estado, pedido_id, costo, creada_en').neq('estado', 'anulada'),
-      sbAdmin.from('productos').select('id, nombre, activo')
+      // Con los precios, para ver cuánto deja cada uno a su último costo
+      sbAdmin.from('productos').select('id, nombre, activo, precio, precio_oferta, oferta')
     ]);
 
     const error = [rPedidos, rEsperando, rAtender, rCuentas, rProductos].find(r => r.error)?.error;
     if (error) throw error;
+
+    pintarMargen(rCuentas.data, rProductos.data);
+    pintarClientes();   // aparte, con sus propios pedidos: si falla, el resto igual se ve
 
     pintarCifras(rPedidos.data, cuantasCompras(rEsperando.data), cuantasCompras(rAtender.data), rCuentas.data);
     pintarGrafico(rPedidos.data);
@@ -789,6 +829,116 @@ function pintarPedidos(pedidos) {
         }).join('')}
       </tbody>
     </table>`;
+}
+
+
+// ============================================================
+// 8b. TE ESTÁN DEJANDO POCO
+// ============================================================
+// Cada producto a la venta con su último costo anotado (la cuenta más
+// nueva que tenga costo), contra lo que paga el cliente: la oferta si está
+// prendida, si no el precio. La rebaja automática no cuenta: nunca baja
+// del costo. Salen los que dejan menos de MARGEN_MINIMO, primero los que
+// hacen perder, y con el precio al que convendría venderlos.
+function pintarMargen(cuentas, productos) {
+  const ultimo = new Map();
+  [...cuentas]
+    .filter(c => c.costo != null)
+    .sort((a, b) => String(b.creada_en).localeCompare(String(a.creada_en)))
+    .forEach(c => { if (!ultimo.has(c.producto_id)) ultimo.set(c.producto_id, Number(c.costo)); });
+
+  const venta = p => (p.oferta && Number(p.precio_oferta) > 0) ? Number(p.precio_oferta) : Number(p.precio) || 0;
+  const sugerido = costo => Math.ceil((costo + MARGEN_MINIMO) * 2) / 2;
+  const dos = n => Number(n).toFixed(2);
+
+  const flojos = productos
+    .filter(p => p.activo !== false && ultimo.has(p.id) && venta(p) > 0)
+    .map(p => ({ p, costo: ultimo.get(p.id), precio: venta(p) }))
+    .map(x => ({ ...x, queda: Math.round((x.precio - x.costo) * 100) / 100 }))
+    .filter(x => x.queda < MARGEN_MINIMO)
+    .sort((a, b) => a.queda - b.queda);
+
+  if (flojos.length === 0) {
+    $('iniMargen').innerHTML = `<li class="ini-vacio" style="display:block;border:none">
+      <b>Todo deja margen</b>Con los costos que anotaste, cada producto te deja ${MARGEN_MINIMO} Bs o más.</li>`;
+    $('iniMargenNota').hidden = true;
+    return;
+  }
+
+  $('iniMargen').innerHTML = flojos.map(x => `
+    <li>
+      <span class="nom">${escapar(x.p.nombre)}</span>
+      <span class="det">
+        Lo vendés a <b>${dos(x.precio)} Bs</b> · te cuesta <b>${dos(x.costo)} Bs</b> ·
+        ${x.queda < 0 ? `<span class="mal">perdés ${dos(-x.queda)} Bs</span>`
+          : x.queda === 0 ? `<span class="mal">no ganás nada</span>`
+          : `<span class="justo">te quedan ${dos(x.queda)} Bs</span>`}<br>
+        Convendría venderlo a <b>${dos(sugerido(x.costo))} Bs</b>
+      </span>
+    </li>`).join('');
+
+  // Con el descuento combo, al más caro de la compra se le sacan 4 Bs más
+  $('iniMargenNota').hidden = false;
+  $('iniMargenNota').textContent = 'Si lo compran en combo con otro producto, al más caro se le descuentan 4 Bs más.';
+}
+
+
+// ============================================================
+// 8c. CLIENTES FRECUENTES
+// ============================================================
+// Los que compraron más de una vez, con cuántas compras, cuánto gastaron
+// y cuándo fue la última. Se reconoce al cliente por su WhatsApp (con el
+// 591 adelante, esté como esté escrito); si no dejó número, por el nombre.
+// Una compra de 3 productos es una compra, no tres.
+async function pintarClientes() {
+  const { data, error } = await sbAdmin.from('pedidos')
+    .select('id, grupo, cliente_nombre, cliente_whatsapp, precio, entregado_en')
+    .eq('estado', 'entregado')
+    .order('entregado_en', { ascending: false })
+    .limit(5000);
+  if (error) {
+    console.error('❌ Clientes frecuentes:', error);
+    $('iniClientes').innerHTML = `<li class="ini-vacio" style="display:block;border:none">
+      <b>No se pudieron leer</b>${escapar(error.message)}</li>`;
+    return;
+  }
+
+  const numero = t => {
+    const d = String(t || '').replace(/\D/g, '');
+    return d.length === 8 ? '591' + d : d;
+  };
+
+  const porCliente = new Map();
+  for (const p of data) {
+    const wa = numero(p.cliente_whatsapp);
+    const nombre = String(p.cliente_nombre || '').trim();
+    const clave = wa || (nombre ? 'n:' + nombre.toLowerCase() : '');
+    if (!clave) continue;                       // sin número ni nombre: no se sabe quién es
+    const c = porCliente.get(clave) || { wa, nombre, compras: new Set(), gastado: 0, ultima: null };
+    if (!c.nombre && nombre) c.nombre = nombre;
+    c.compras.add(p.grupo || p.id);
+    c.gastado += Number(p.precio || 0);
+    if (!c.ultima || p.entregado_en > c.ultima) c.ultima = p.entregado_en;
+    porCliente.set(clave, c);
+  }
+
+  const frecuentes = [...porCliente.values()]
+    .filter(c => c.compras.size >= 2)
+    .sort((a, b) => b.compras.size - a.compras.size || b.gastado - a.gastado)
+    .slice(0, 8);
+
+  if (frecuentes.length === 0) {
+    $('iniClientes').innerHTML = `<li class="ini-vacio" style="display:block;border:none">
+      <b>Todavía ninguno</b>Cuando alguien te compre por segunda vez, aparece acá.</li>`;
+    return;
+  }
+
+  $('iniClientes').innerHTML = frecuentes.map(c => `
+    <li>
+      <span class="nom">${escapar(c.nombre || 'Sin nombre')}</span>
+      <span class="det"><b>${c.compras.size} compras</b> · ${bs(c.gastado)} Bs · la última ${haceCuanto(c.ultima)}</span>
+      ${c.wa ? `<a class="wa" href="https://wa.me/${c.wa}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+    </li>`).join('');
 }
 
 

@@ -170,7 +170,7 @@
     .search-bar {
       background: var(--negro2);
       border-bottom: 1px solid var(--borde);
-      padding: 0.65rem 1rem;
+      padding: 0.3rem 1rem;
       /* Cada bloque de la página es su propia capa (body > * lleva z-index:1),
          así que sin esto el desplegable queda debajo del carrusel y las Ofertas,
          que vienen después en el HTML. Se queda por debajo de la barra de
@@ -337,13 +337,14 @@
       color: var(--tinta-suave);
     }
 
-    /* ===== PROMO BANNER ===== */
+    /* ===== PROMO BANNER =====
+       Compacto: solo el texto y el botón, con poco aire alrededor */
     .promo-banner {
-      margin: 0.75rem 1rem;
+      margin: 0.5rem 1rem;
       background: linear-gradient(135deg, #eef0f8 0%, #e8ecf7 50%, #e2e9f6 100%);
       border: 1px solid rgba(229,9,20,0.3);
       border-radius: 14px;
-      padding: 1rem 1.25rem;
+      padding: 0.5rem 0.6rem 0.5rem 1rem;
       display: flex;
       align-items: center;
       gap: 0.75rem;
@@ -360,34 +361,19 @@
       border-radius: 50%;
     }
 
-    /* La marca, igual que en el panel: una T blanca en un cuadrado rojo */
-    .promo-logo {
-      flex: none;
-      width: 40px; height: 40px;
-      border-radius: 11px;
-      background: linear-gradient(180deg, #ff2a36 0%, var(--marca) 100%);
-      color: #fff;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.6rem;
-      line-height: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 12px rgba(229,9,20,.3), inset 0 1px 0 rgba(255,255,255,.4);
-      position: relative;
-      z-index: 1;
-    }
-
     .promo-text strong {
       display: block;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
+      line-height: 1.1;
       letter-spacing: 2px;
       color: var(--dorado);
     }
 
     .promo-text span {
-      font-size: 0.78rem;
+      display: block;
+      font-size: 0.75rem;
+      line-height: 1.3;
       color: var(--texto-dim);
     }
 
@@ -2296,7 +2282,7 @@
        para que en la compu no se coma toda la primera vista. */
     .hero-carousel {
       position: relative;
-      margin: 0.75rem 0;
+      margin: 0.5rem 0;
       overflow: hidden;
       height: clamp(190px, 48vw, 420px);
       background: #1a0033;
@@ -2690,7 +2676,7 @@
     /* Las pestañas de categoría pasan a ser un control de vidrio: la
        activa es una lente blanca, como en la barra de abajo. El margen de
        arriba y abajo es para que la sombra no quede cortada por el scroll. */
-    .cat-tabs-wrap { padding: 4px 1rem 10px; margin-bottom: .3rem; }
+    .cat-tabs-wrap { padding: 4px 1rem 8px; margin-bottom: 0; }
     .cat-tabs {
       gap: 2px;
       padding: 4px;
@@ -2712,7 +2698,7 @@
     .cat-tab:hover { background: rgba(255,255,255,.55); }
     /* La activa es la lente de css/vidrio.css */
 
-    .sub-pills { padding-top: 3px; padding-bottom: calc(.75rem + 3px); }
+    .sub-pills { padding-top: 3px; padding-bottom: calc(.5rem + 3px); }
     .sub-pill {
       background: var(--vidrio);
       border: 1px solid var(--vidrio-borde);

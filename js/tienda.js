@@ -2338,19 +2338,21 @@
       abrirPlataforma(clave);
     });
 
-    // ---------- La fila gira sola ----------
-    // Cada 3,5 segundos avanza una tarjeta. Para dar la vuelta sin volver
-    // corriendo al principio, las tarjetas van dos veces seguidas: al
-    // llegar a la copia de la primera se salta, sin animación, a la
-    // original, que se ve igual. Se queda quieta mientras el cliente la
-    // toca o tiene el mouse encima, con la ventana de planes abierta, con
-    // la pestaña oculta, fuera de la pantalla, y para quien pidió menos
-    // movimiento en su sistema. Si todas entran a lo ancho, no gira.
+    // ---------- La fila gira sola, sin parar ----------
+    // Cada 3,5 segundos avanza una tarjeta, siempre, y da la vuelta sin
+    // fin: las tarjetas van dos veces seguidas y, al llegar a la copia de
+    // la primera, se salta sin animación a la original, que se ve igual.
+    // No se frena con el mouse encima ni después de tocarla: solo espera
+    // mientras el cliente la tiene apretada (arrastrándola con el dedo o
+    // el mouse) y sigue enseguida al soltarla. Tampoco gira donde no se
+    // ve: con la pestaña oculta, fuera de la pantalla o detrás de la
+    // ventana de planes, ni para quien pidió menos movimiento en su
+    // sistema. Si todas entran a lo ancho, no hace falta que gire.
     const GIRO_MS = 3500;
-    const PAUSA_TOQUE_MS = 6000;
+    const SOLTAR_MS = 1500;      // lo que espera después de soltarla
     let giroReloj = 0;
     let giroQuietoHasta = 0;
-    let giroMouse = false;
+    let giroApretada = false;
     let anchoJuego = 0;          // lo que miden las originales, hasta la primera copia
 
     const menosMovimiento = () =>
@@ -2380,7 +2382,7 @@
     }
 
     function girarOfertas(fila) {
-      if (document.hidden || giroMouse || Date.now() < giroQuietoHasta || ventanaAbierta()) return;
+      if (document.hidden || giroApretada || Date.now() < giroQuietoHasta || ventanaAbierta()) return;
       const r = fila.getBoundingClientRect();
       if (r.bottom < 0 || r.top > window.innerHeight) return;
 
@@ -2397,11 +2399,21 @@
     function vigilarFilaOfertas(fila) {
       if (fila.dataset.vigilada) return;
       fila.dataset.vigilada = '1';
-      const tocaron = () => { giroQuietoHasta = Date.now() + PAUSA_TOQUE_MS; };
-      ['pointerdown', 'touchstart', 'wheel', 'keydown', 'focusin'].forEach(ev =>
-        fila.addEventListener(ev, tocaron, { passive: true }));
-      fila.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') giroMouse = true; });
-      fila.addEventListener('pointerleave', () => { giroMouse = false; tocaron(); });
+      // Con el dedo el navegador corta el pointer apenas empieza a
+      // deslizar (pointercancel), así que el "soltó" del dedo es touchend
+      const apretar = () => { giroApretada = true; };
+      const soltar = () => {
+        if (!giroApretada) return;
+        giroApretada = false;
+        giroQuietoHasta = Date.now() + SOLTAR_MS;
+      };
+      fila.addEventListener('pointerdown', apretar, { passive: true });
+      fila.addEventListener('touchstart', apretar, { passive: true });
+      ['pointerup', 'touchend', 'touchcancel'].forEach(ev =>
+        window.addEventListener(ev, soltar, { passive: true }));
+      // Soltó el mouse fuera de la ventana: que no quede trabada
+      window.addEventListener('pointercancel', e => { if (e.pointerType === 'mouse') soltar(); });
+      window.addEventListener('blur', soltar);
 
       // Al girar el celular o cambiar el ancho de la ventana puede que
       // ahora entren todas, o que ya no: se vuelve a armar.

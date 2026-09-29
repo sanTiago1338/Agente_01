@@ -139,6 +139,25 @@
 
   .compra-datos { flex: 1; min-width: 0; }
 
+  /* "Tengo un problema con mi cuenta": un enlace chico abajo de los datos,
+     para que no compita con "Abrir mi cuenta" */
+  .btn-problema {
+    display: inline-block;
+    margin-top: 0.45rem;
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--tinta-suave, #4b515c);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .btn-problema:hover { color: #15803d; }
+  .btn-problema:disabled { opacity: .6; cursor: wait; }
+
   .compra-num {
     font-weight: 800;
     color: var(--tinta);
@@ -274,8 +293,8 @@
   }
 </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20260928213110">
-  <script src="js/barra-vidrio.js?v=20260928213110" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20260928214257">
+  <script src="js/barra-vidrio.js?v=20260928214257" defer></script>
 </head>
 <body>
 
@@ -303,6 +322,10 @@
 
 <script type="module">
 import { misCompras, olvidarTodo, linkDeCompra } from './js/historial.js';
+import { mirarPedido } from './js/pedido-automatico.js';
+
+// El WhatsApp de la tienda, el mismo del botón verde
+const WA_TIENDA = '59157707335';
 
 const $ = id => document.getElementById(id);
 const escapar = s => String(s ?? '').replace(/[&<>"]/g,
@@ -366,6 +389,7 @@ function pintar() {
         ${c.faltan > 0
           ? `<span class="compra-faltan">Falta ${c.faltan === 1 ? '1 cuenta' : c.faltan + ' cuentas'}</span>`
           : ''}
+        <div><button type="button" class="btn-problema" data-problema="${escapar(c.token)}">Tengo un problema con mi cuenta</button></div>
       </div>
       <a class="btn-abrir" href="${linkDeCompra(c.token)}">Abrir mi cuenta</a>
     </div>`).join('');
@@ -373,6 +397,51 @@ function pintar() {
   $('acciones').hidden = false;
   $('aviso').hidden = false;
 }
+
+// ------------------------------------------------------------
+// "Tengo un problema con mi cuenta"
+// ------------------------------------------------------------
+// Abre el WhatsApp de la tienda con el pedido, la fecha, el producto y el
+// usuario de cada cuenta ya escritos: así no hay que preguntarle "¿cuál
+// era tu pedido?" y se resuelve más rápido. La clave NO va: no hace falta
+// para encontrar la cuenta y no tiene por qué andar en un chat.
+//
+// El usuario no está guardado acá (solo el token), así que se consulta al
+// tocar. La ventana se abre ANTES de consultar: si se abriera después, el
+// navegador la tomaría por una ventana emergente y la bloquearía.
+async function escribirPorProblema(token, boton) {
+  const c = misCompras().find(x => x.token === token);
+  if (!c) return;
+
+  const ventana = window.open('', '_blank');
+  boton.disabled = true;
+  const compra = await mirarPedido(token);
+  boton.disabled = false;
+
+  // Una línea por cuenta entregada, con su usuario si se pudo consultar
+  const lineas = compra
+    ? (compra.lineas || []).filter(l => l.estado === 'entregado').map(l => {
+        const usuario = l.credenciales && (l.credenciales.usuario || l.credenciales.email);
+        return `${l.producto}${usuario ? ` · usuario: ${usuario}` : ''}`;
+      })
+    : (c.productos || []);
+
+  const texto = [
+    'Hola, tengo un problema con mi cuenta de Tiago Store.',
+    `Pedido #${c.numero} · ${fecha(c.fecha)}`,
+    ...lineas,
+    '¿Me ayudan?'
+  ].join('\n');
+  const url = `https://wa.me/${WA_TIENDA}?text=${encodeURIComponent(texto)}`;
+
+  if (ventana) ventana.location.href = url;
+  else location.href = url;          // sin ventanas nuevas: en la misma
+}
+
+$('lista').addEventListener('click', e => {
+  const boton = e.target.closest('[data-problema]');
+  if (boton) escribirPorProblema(boton.dataset.problema, boton);
+});
 
 $('btnVaciar').addEventListener('click', () => {
   // Se pregunta porque no se puede deshacer desde acá. Las compras siguen
@@ -385,6 +454,6 @@ $('btnVaciar').addEventListener('click', () => {
 pintar();
 </script>
 
-<script src="bg-burbujas.js?v=20260928213110" defer></script>
+<script src="bg-burbujas.js?v=20260928214257" defer></script>
 </body>
 </html>

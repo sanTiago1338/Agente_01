@@ -655,8 +655,9 @@
   .pago-grid.sin-pago #orderSummary          { order: 1; }
   .pago-grid.sin-pago #statusBar             { order: 2; margin-bottom: .9rem; }
   .pago-grid.sin-pago #cajaPedido            { order: 3; }
-  .pago-grid.sin-pago .pago-izq > .btn-back  { order: 4; }
-  .pago-grid.sin-pago #payRef                { order: 5; }
+  .pago-grid.sin-pago #payRef                { order: 4; }
+  /* "Volver a la tienda", último de todo: abajo de la cuenta */
+  .pago-grid.sin-pago .pago-izq > .btn-back  { order: 5; margin-top: .9rem; }
   /* Celular: una sola columna, en el orden de siempre (el QR arriba) */
   @media (max-width: 759px) {
     .pago-grid { display: flex; flex-direction: column; }
@@ -1314,18 +1315,13 @@
     const todoConStock = esperando && !vencido && cobertura !== null &&
                          cobertura.de > 0 && cobertura.hay >= cobertura.de;
 
-    // ---- "VOLVER A LA TIENDA", SOLO SIN STOCK ----
-    // Con stock la cuenta aparece en esta misma pantalla: un botón para irse
-    // es invitarlo a salir justo de donde le llega (y ya entregada, la tiene
-    // acá mismo). Sin stock la entrega es por WhatsApp y ahí sí tiene
-    // sentido volver. Cancelado también: no hay nada que esperar.
+    // ---- "VOLVER A LA TIENDA": NO MIENTRAS LE LLEGA LA CUENTA ----
+    // Pagando con stock, la cuenta aparece en esta misma pantalla: un botón
+    // para irse es invitarlo a salir justo de donde le llega. Se esconde
+    // solo ahí. Apenas se entrega vuelve a aparecer, y también sin stock
+    // (la entrega es por WhatsApp) y cancelado (no hay nada que esperar).
     const volver = document.querySelector('.pago-izq > .btn-back');
-    if (volver) {
-      const conStock = esperando ? todoConStock
-                     : listo     ? r.entregadas.some(conDatos)
-                     :             false;
-      volver.style.display = conStock ? 'none' : '';
-    }
+    if (volver) volver.style.display = (esperando && todoConStock) ? 'none' : '';
 
     // ---- LA PROMESA TIENE QUE SER VERDAD ----
     // Si no hay stock, el cliente paga creyendo que la recibe en el momento

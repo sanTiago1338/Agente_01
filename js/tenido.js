@@ -1,19 +1,20 @@
 // ============================================================
 // TIAGO STORE · Transparente o teñido
 // ============================================================
-// Como el ajuste de Liquid Glass del iPhone: un control fijo a la
-// izquierda de la pantalla, parado, que va de Transparente (abajo) a
-// Teñido (arriba). Teñido pone blanco debajo de cada vidrio: se ve
-// menos lo que hay atrás y las letras contrastan más. Tiene tres
-// paradas (transparente, medio y teñido), como las del iPhone.
+// Como el ajuste de Liquid Glass del iPhone: un control chico, parado,
+// abajo a la izquierda y a la altura de la burbuja de WhatsApp, que va
+// de Transparente (abajo) a Teñido (arriba). Transparente deja ver lo
+// de atrás casi sin esmerilar; Teñido esmerila y pone blanco: se ve
+// menos lo de atrás y las letras contrastan más. Tiene tres paradas
+// (transparente, intermedio y teñido), como las del iPhone.
 //
-// El valor va en --tenido (0 a 1) sobre <html>, y la clase .tenido
-// prende las reglas del final de css/tienda.css. En 0 no hay clase:
-// la tienda queda exactamente como siempre.
+// El valor va en --tenido (0 a 1) sobre <html>: los vidrios de
+// css/vidrio.css lo siguen solos, en todas las páginas. La clase
+// .tenido prende además el blanco de los que tienen degradé propio.
 //
-// Se acuerda de lo elegido en este navegador (localStorage). Va en el
-// <head> sin defer, así el vidrio ya sale teñido desde el primer
-// cuadro y no se ve el cambio al cargar.
+// Se acuerda de lo elegido en este navegador (localStorage), en todas
+// las páginas. Va en el <head> sin defer, así el vidrio ya sale como lo
+// dejó el cliente desde el primer cuadro y no cambia al cargar.
 // ============================================================
 (function () {
   const LLAVE   = 'tiago-tenido';
@@ -93,7 +94,7 @@
     // Arrastrar: la pista entera se puede agarrar, no solo la perilla
     const posDe = e => {
       const r = pista.getBoundingClientRect();
-      const margen = 14;   // media perilla: arriba y abajo no llega al borde
+      const margen = 11;   // media perilla: arriba y abajo no llega al borde (css/vidrio.css)
       const y = Math.min(Math.max(e.clientY, r.top + margen), r.bottom - margen);
       return 1 - (y - r.top - margen) / (r.height - 2 * margen);
     };
@@ -142,6 +143,20 @@
     });
 
     pintar(valor);
+
+    // A la altura de la burbuja de WhatsApp: se le copia el "bottom",
+    // que cambia según la página (con barra de abajo va más arriba). La
+    // burbuja la pone wa-bubble.js, que puede llegar después: se vuelve
+    // a mirar al terminar de cargar y al cambiar el ancho.
+    function alinear() {
+      const wa = document.querySelector('.wa-bubble');
+      if (!wa) return;
+      const abajo = getComputedStyle(wa).bottom;
+      if (abajo && abajo !== 'auto') caja.style.bottom = abajo;
+    }
+    alinear();
+    window.addEventListener('load', alinear);
+    window.addEventListener('resize', alinear);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', armar);

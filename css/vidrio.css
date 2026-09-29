@@ -24,20 +24,39 @@
   --tinta-suave:   #4b515c;
   --tinta-tenue:   #656b77;
 
-  --vidrio:        linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.02));
-  --vidrio-claro:  linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-  --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255,.36), rgba(255,255,255,.24));
+  /* TRANSPARENTE O TEÑIDO, como el ajuste de Liquid Glass del iPhone.
+     Lo mueve el control de abajo a la izquierda (js/tenido.js), de 0 a 1:
+       0 = Transparente: el vidrio casi no esmerila, lo de atrás se lee
+           a través, con apenas un blanco arriba, el canto claro y el
+           brillo. Es como queda la página si el cliente no toca nada.
+       1 = Teñido: esmerilado y blanco; se ve menos lo de atrás y las
+           letras contrastan más.
+     Todos los vidrios de abajo lo siguen solos, en todas las páginas. */
+  --tenido:        0;
+
+  --vidrio:        linear-gradient(180deg, rgba(255,255,255, calc(.22 + .6 * var(--tenido))),
+                                           rgba(255,255,255, calc(.02 + .72 * var(--tenido))));
+  --vidrio-claro:  linear-gradient(180deg, rgba(255,255,255, calc(.06 + .72 * var(--tenido))),
+                                           rgba(255,255,255, calc(.02 + .72 * var(--tenido))));
+  --vidrio-denso:  linear-gradient(180deg, rgba(255,255,255, calc(.36 + .54 * var(--tenido))),
+                                           rgba(255,255,255, calc(.24 + .62 * var(--tenido))));
   --vidrio-lente:  radial-gradient(120% 90% at 50% 0%, #fff 0%, rgba(255,255,255,.14) 55%, rgba(255,255,255,.02) 100%);
   /* Vidrio sin relleno blanco: casi nada de color, se ve por el canto
-     claro, el brillo de arriba y lo esmerilado de atrás (el pie) */
-  --vidrio-transparente: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
+     claro y el brillo de arriba (el pie) */
+  --vidrio-transparente: linear-gradient(180deg, rgba(255,255,255, calc(.08 + .72 * var(--tenido))),
+                                                 rgba(255,255,255, calc(.72 * var(--tenido))));
+  /* Para los vidrios que tienen su propio degradé: el blanco que se
+     les pone debajo cuando está teñido (ver "TEÑIDO", más abajo) */
+  --vidrio-tinte:  rgba(255,255,255, calc(.82 * var(--tenido)));
   --vidrio-borde:  rgba(255,255,255,.85);
-  --vidrio-blur:   blur(22px) saturate(180%);
-  /* Las barras con texto (menú de arriba, franja, barra de abajo) son
-     las más transparentes y pasan por encima de fotos oscuras: aclaran
-     bastante lo que tienen detrás, como el iPhone, para que las letras
-     se sigan leyendo sin volver opaco el vidrio. */
-  --vidrio-blur-barra: blur(24px) saturate(180%) brightness(1.3);
+  /* Transparente: 1,5 px, lo justo para que no se vea cortado; teñido:
+     el esmerilado fuerte de siempre */
+  --vidrio-blur:   blur(calc(1.5px + 20.5px * var(--tenido))) saturate(180%);
+  /* Las barras con texto (menú de arriba, franja, barra de abajo) pasan
+     por encima de fotos oscuras: teñidas aclaran bastante lo de atrás
+     para que las letras se lean; transparentes, casi nada. */
+  --vidrio-blur-barra: blur(calc(1.5px + 22.5px * var(--tenido))) saturate(180%)
+                       brightness(calc(1.06 + .24 * var(--tenido)));
 
   /* El reflejo de la mitad de arriba de un botón, y el vidrio de color
      para los que tienen que seguir siendo verdes o fucsia: el color
@@ -383,3 +402,134 @@ body .wa-bubble svg { filter: drop-shadow(0 1px 1px rgba(0,60,30,.3)); }
     --vidrio-denso: #fff;
   }
 }
+
+/* ============================================================
+   TRANSPARENTE O TEÑIDO: EL CONTROL (js/tenido.js)
+   ============================================================
+   El ajuste de Liquid Glass del iPhone, parado: abajo Transparente,
+   arriba Teñido, con tres paradas. Chico y de vidrio como el resto,
+   abajo a la izquierda, a la altura de la burbuja de WhatsApp
+   (js/tenido.js le copia el "bottom" de la burbuja). */
+.tenido-control {
+  --pos: 0;                         /* dónde está la perilla: 0 abajo, 1 arriba */
+  position: fixed;
+  left: calc(16px + env(safe-area-inset-left));
+  bottom: 20px;
+  z-index: 149;                     /* como la burbuja (150), debajo de las ventanas */
+  width: 30px;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  /* Blanco como el del iPhone, para que se encuentre sobre cualquier
+     foto aunque la página esté transparente */
+  background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.64));
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.9);
+  box-shadow: 0 6px 18px rgba(20,22,26,.14), 0 0 0 .5px rgba(20,22,26,.14), var(--vidrio-brillo);
+}
+.tenido-ico {
+  width: 15px; height: 15px;
+  color: #5f6368;
+  display: grid;
+  place-items: center;
+}
+.tenido-ico svg { width: 100%; height: 100%; display: block; }
+
+/* La pista entera se puede agarrar. Arriba y abajo deja media perilla
+   (11 px, el MARGEN de js/tenido.js) para que no se salga */
+.tenido-pista {
+  position: relative;
+  width: 100%;
+  height: 76px;
+  cursor: pointer;
+  touch-action: none;               /* arrastrar no mueve la página */
+  outline: none;
+}
+.tenido-riel,
+.tenido-relleno {
+  position: absolute;
+  left: 50%;
+  width: 4px;
+  margin-left: -2px;
+  border-radius: 99px;
+}
+.tenido-riel { top: 11px; bottom: 11px; background: rgba(120,120,128,.28); }
+.tenido-relleno {
+  bottom: 11px;
+  height: calc((100% - 22px) * var(--pos));
+  background: #0a84ff;
+  transition: height .25s cubic-bezier(.3,.7,.4,1);
+}
+/* Las paradas, al costado del riel; la de donde está la perilla no se
+   ve, como en el iPhone */
+.tenido-punto {
+  position: absolute;
+  left: calc(50% + 6px);
+  bottom: calc(11px + (100% - 22px) * var(--p) - 1.5px);
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(95,99,104,.6);
+  transition: opacity .2s;
+}
+.tenido-punto.tapado { opacity: 0; }
+.tenido-perilla {
+  position: absolute;
+  left: 50%;
+  bottom: calc(11px + (100% - 22px) * var(--pos));
+  width: 18px; height: 24px;
+  transform: translate(-50%, 50%);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(0,0,0,.18), 0 0 0 .5px rgba(0,0,0,.08);
+  transition: bottom .25s cubic-bezier(.3,.7,.4,1), transform .15s;
+}
+/* Mientras se arrastra sigue al dedo sin demora y la perilla crece un
+   poco, como la del iPhone */
+.tenido-control.arrastrando .tenido-relleno,
+.tenido-control.arrastrando .tenido-perilla { transition: transform .15s; }
+.tenido-control.arrastrando .tenido-perilla { transform: translate(-50%, 50%) scale(1.15); }
+.tenido-pista:focus-visible .tenido-perilla {
+  box-shadow: 0 0 0 3px rgba(10,132,255,.45), 0 2px 7px rgba(0,0,0,.18);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tenido-relleno, .tenido-perilla { transition: none; }
+}
+@media print { .tenido-control { display: none; } }
+
+/* ============================================================
+   TEÑIDO
+   ============================================================
+   Los vidrios que usan --vidrio, --vidrio-denso, etc. se tiñen solos.
+   Estos traen su propio degradé, así que se les pone el blanco debajo:
+   el color de fondo se pinta debajo del degradé, y no pierden el
+   brillo ni el canto. Sin la clase (transparente) no se toca nada. */
+html.tenido .banner-top,
+html.tenido .bottom-nav,
+html.tenido .modal-sheet,
+html.tenido .plat-card {
+  background-color: var(--vidrio-tinte);
+}
+
+/* Transparente: las letras y los íconos de las barras llevan un halo
+   blanco suave, así se leen aunque pase una foto oscura por detrás (el
+   iPhone también las acomoda). Teñidas no hace falta: el blanco ya
+   está en el vidrio. */
+html:not(.tenido) .nav-principal,
+html:not(.tenido) .header,
+html:not(.tenido) body > nav,
+html:not(.tenido) .banner-top,
+html:not(.tenido) .bottom-nav .nav-item {
+  text-shadow: 0 0 2px rgba(255,255,255,.95), 0 0 8px rgba(255,255,255,.85);
+}
+html:not(.tenido) .bottom-nav .nav-item svg {
+  filter: drop-shadow(0 0 1.5px rgba(255,255,255,.95)) drop-shadow(0 0 5px rgba(255,255,255,.8));
+}
+/* Los logos son letras con degradé (el relleno es transparente): el
+   halo se vería a través y las dejaría blancas */
+html:not(.tenido) .nav-marca,
+html:not(.tenido) .nav-logo,
+html:not(.tenido) .header-logo { text-shadow: none; }

@@ -409,6 +409,15 @@ css.textContent = `
   .vt-ver-modal .vt-prod { white-space: normal; overflow: visible; }
   .vt-ver-modal .vt-der { grid-column: 1 / -1; justify-content: flex-end; flex-wrap: wrap; }
 
+  /* ---------- Exportar a Excel ---------- */
+  .vt-excel-resumen {
+    margin-top: 12px; padding: 12px 14px; border-radius: 10px;
+    background: var(--panel-2); font-size: 13.5px; line-height: 1.6;
+    color: var(--gris); min-height: 48px;
+  }
+  .vt-excel-resumen strong { color: var(--tinta); font-variant-numeric: tabular-nums; }
+  .vt-excel-resumen .falta { color: #b45309; }
+
   /* ---------- Celular ----------
      La fila deja de ser una grilla de tres columnas y pasa a ser una sola,
      en tres renglones: número, producto y cliente, y abajo plata y botones.
@@ -475,7 +484,11 @@ $('vistaVentas').innerHTML = `
       <!-- Solo aparece si el navegador todavía no tiene permiso: pedirlo
            hace falta que salga de un toque tuyo, no se puede solo. -->
       <button class="vt-filtro" id="vtAvisos" hidden style="margin-left:auto;">🔔 Activar avisos</button>
-      <button class="btn btn-fantasma" id="vtRefrescar" style="margin-left:auto;">↻ Actualizar</button>
+      <!-- Juntos: si no entran en el renglón, bajan los dos -->
+      <span style="margin-left:auto; display:flex; gap:10px;">
+        <button class="btn btn-fantasma" id="vtExportar">Exportar a Excel</button>
+        <button class="btn btn-fantasma" id="vtRefrescar">↻ Actualizar</button>
+      </span>
     </div>
 
     <div id="vtLista"></div>
@@ -492,6 +505,22 @@ $('vistaVentas').innerHTML = `
         <button class="vt-ver-x" id="vtVerCerrar" aria-label="Cerrar">✕</button>
       </div>
       <div id="vtVerCuerpo"></div>
+    </div>
+  </div>
+
+  <!-- ===== Ventana: exportar las ventas del mes a Excel ===== -->
+  <div class="vt-fondo" id="vtFondoExcel">
+    <div class="vt-modal" role="dialog" aria-modal="true" aria-labelledby="vtExcelTitulo">
+      <h3 id="vtExcelTitulo">Exportar ventas a Excel</h3>
+      <p class="sub">Las ventas pagadas del mes, una por renglón, con precio, costo y
+         ganancia. Y una segunda hoja con el resumen por producto.</p>
+      <label for="vtExcelMes">¿Qué mes?</label>
+      <input type="month" id="vtExcelMes">
+      <div class="vt-excel-resumen" id="vtExcelResumen"></div>
+      <div class="vt-pie">
+        <button class="btn btn-fantasma" id="vtExcelCerrar">Cerrar</button>
+        <button class="btn btn-primario" id="vtExcelBajar" disabled>Bajar Excel</button>
+      </div>
     </div>
   </div>
 
@@ -1802,6 +1831,239 @@ function actualizarTitulo(pendientes) {
   const base = document.title.replace(/^\(\d+\)\s*/, '');
   document.title = pendientes > 0 ? `(${pendientes}) ${base}` : base;
 }
+
+
+// ============================================================
+// 8c. EXPORTAR LAS VENTAS DEL MES A EXCEL
+// ============================================================
+// Para tus cuentas: cada venta pagada del mes con su precio, su costo y la
+// ganancia, y una hoja con el resumen por producto.
+//
+//   · Venta = pedido pagado (entregado, o pagado y esperando cuenta). Su
+//     fecha es la del pago: es cuando entró la plata.
+//   · El costo sale de la cuenta que se le entregó; si se entregó a mano,
+//     del último costo anotado de ese producto (la misma regla que la
+//     ganancia del Inicio). Si no hay ninguno, queda vacío y se avisa.
+//   · Es un .xlsx de verdad (SheetJS): los montos son números y las
+//     fechas son fechas, así se pueden sumar y ordenar en Excel. La
+//     librería se baja recién al tocar el botón.
+const SHEETJS = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/xlsx.mjs';
+const VENDIDOS = ['entregado', 'sin_stock', 'pagado'];
+let ventasDelMes = null;   // { mes, filas, totales } de la última lectura
+
+const aDosDec = n => Math.round(Number(n || 0) * 100) / 100;
+
+// "2026-09" -> desde el 1 a las 00:00 hasta el 1 del mes siguiente, en TU
+// hora (la base guarda en UTC)
+function limitesDelMes(mes) {
+  const [a, m] = mes.split('-').map(Number);
+  return { desde: new Date(a, m - 1, 1), hasta: new Date(a, m, 1) };
+}
+
+async function leerVentasDelMes(mes) {
+  const { desde, hasta } = limitesDelMes(mes);
+  // Un margen de 15 días antes: un pedido armado a fin de mes y pagado el
+  // 1ro es venta de este mes. Después se filtra por la fecha del pago.
+  const margen = new Date(desde.getTime() - 15 * 864e5);
+
+  const [rPed, rCue] = await Promise.all([
+    sbAdmin.from('pedidos').select('*')
+      .in('estado', VENDIDOS)
+      .gte('creado_en', margen.toISOString())
+      .lt('creado_en', hasta.toISOString())
+      .order('creado_en', { ascending: true }),
+    sbAdmin.from('cuentas').select('pedido_id, producto_id, costo, creada_en').not('costo', 'is', null)
+  ]);
+  if (rPed.error) throw rPed.error;
+  if (rCue.error) throw rCue.error;
+
+  // El costo de cada pedido: el de su cuenta, o el último del producto
+  const porPedido = new Map(), porProducto = new Map();
+  [...rCue.data]
+    .sort((a, b) => String(b.creada_en).localeCompare(String(a.creada_en)))
+    .forEach(c => {
+      if (c.pedido_id && !porPedido.has(c.pedido_id)) porPedido.set(c.pedido_id, Number(c.costo));
+      if (!porProducto.has(c.producto_id)) porProducto.set(c.producto_id, Number(c.costo));
+    });
+
+  const filas = rPed.data
+    .map(p => ({ p, fecha: new Date(p.pagado_en || p.entregado_en || p.creado_en) }))
+    .filter(({ fecha }) => fecha >= desde && fecha < hasta)
+    .sort((a, b) => a.fecha - b.fecha)
+    .map(({ p, fecha }) => {
+      const deLaCuenta = porPedido.has(p.id);
+      const costo = deLaCuenta ? porPedido.get(p.id) : porProducto.get(p.producto_id);
+      const precio = aDosDec(p.precio);
+      return {
+        fecha,
+        numero:    p.numero,
+        producto:  p.producto_nombre || '',
+        dias:      p.plan_dias || null,
+        cliente:   p.cliente_nombre || '',
+        whatsapp:  p.cliente_whatsapp || '',
+        precio,
+        descuento: aDosDec(p.descuento),
+        costo:     costo == null ? null : aDosDec(costo),
+        ganancia:  costo == null ? null : aDosDec(precio - costo),
+        origen:    costo == null ? 'Sin costo anotado'
+                 : deLaCuenta    ? 'De la cuenta entregada'
+                 :                 'Último costo del producto',
+        estado:    p.estado === 'entregado' ? 'Entregado' : 'Pagado, falta entregar',
+        referencia: p.referencia_pago || ''
+      };
+    });
+
+  const conCosto = filas.filter(f => f.costo != null);
+  const totales = {
+    ventas:   filas.length,
+    vendido:  aDosDec(filas.reduce((s, f) => s + f.precio, 0)),
+    costo:    aDosDec(conCosto.reduce((s, f) => s + f.costo, 0)),
+    ganancia: aDosDec(conCosto.reduce((s, f) => s + f.ganancia, 0)),
+    sinCosto: filas.length - conCosto.length
+  };
+  return { mes, filas, totales };
+}
+
+// "septiembre de 2026"
+const nombreDelMes = mes => {
+  const { desde } = limitesDelMes(mes);
+  return desde.toLocaleDateString('es-BO', { month: 'long', year: 'numeric' });
+};
+
+async function mostrarResumenExcel() {
+  const mes = $('vtExcelMes').value;
+  const caja = $('vtExcelResumen');
+  $('vtExcelBajar').disabled = true;
+  ventasDelMes = null;
+  if (!mes) { caja.textContent = 'Elegí un mes.'; return; }
+
+  caja.textContent = 'Leyendo las ventas…';
+  try {
+    const datos = await leerVentasDelMes(mes);
+    if ($('vtExcelMes').value !== mes) return;      // cambiaron de mes mientras tanto
+    ventasDelMes = datos;
+    const t = datos.totales;
+    if (!t.ventas) {
+      caja.innerHTML = `En ${nombreDelMes(mes)} no hubo ventas pagadas.`;
+      return;
+    }
+    caja.innerHTML = `
+      <strong>${t.ventas}</strong> venta${t.ventas === 1 ? '' : 's'} en ${nombreDelMes(mes)} ·
+      vendido <strong>${bsTxt(t.vendido)}</strong><br>
+      Costo <strong>${bsTxt(t.costo)}</strong> · ganancia <strong>${bsTxt(t.ganancia)}</strong>
+      ${t.sinCosto ? `<br><span class="falta">${t.sinCosto} venta${t.sinCosto === 1 ? '' : 's'} sin costo anotado:
+        no suman a la ganancia. Anotá el costo en Stock.</span>` : ''}`;
+    $('vtExcelBajar').disabled = false;
+  } catch (err) {
+    console.error(err);
+    caja.textContent = `No se pudieron leer las ventas: ${err.message || err}`;
+  }
+}
+
+// Fecha de Excel (días desde el 30/12/1899) con la hora local tal cual:
+// así Excel muestra la misma hora que el panel, sin correrla por la zona.
+function fechaExcel(d) {
+  const local = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes());
+  return (local - Date.UTC(1899, 11, 30)) / 864e5;
+}
+
+async function bajarExcel() {
+  if (!ventasDelMes || !ventasDelMes.filas.length) return;
+  const boton = $('vtExcelBajar');
+  boton.disabled = true;
+  boton.textContent = 'Armando el Excel…';
+  try {
+    const XLSX = await import(SHEETJS);
+    const { mes, filas, totales } = ventasDelMes;
+
+    // ---- Hoja 1: las ventas, una por renglón ----
+    const titulos = ['Fecha', 'Pedido', 'Producto', 'Suscripción (días)', 'Cliente', 'WhatsApp',
+                     'Precio cobrado (Bs)', 'Descuento combo (Bs)', 'Costo (Bs)', 'Ganancia (Bs)',
+                     'De dónde sale el costo', 'Estado', 'Nombre en la transferencia'];
+    const renglones = filas.map(f => [
+      fechaExcel(f.fecha), f.numero, f.producto, f.dias, f.cliente, f.whatsapp,
+      f.precio, f.descuento, f.costo, f.ganancia, f.origen, f.estado, f.referencia
+    ]);
+    const total = ['Total', '', `${totales.ventas} ventas`, '', '', '',
+                   totales.vendido, '', totales.costo, totales.ganancia,
+                   totales.sinCosto ? `${totales.sinCosto} sin costo (no suman ganancia)` : '', '', ''];
+    const hoja = XLSX.utils.aoa_to_sheet([titulos, ...renglones, [], total]);
+
+    // Formatos: la fecha como fecha y la plata con dos decimales
+    const ultima = renglones.length + 2;              // fila del total (0-based)
+    for (let r = 1; r <= ultima; r++) {
+      const fecha = hoja[XLSX.utils.encode_cell({ r, c: 0 })];
+      if (fecha && typeof fecha.v === 'number') fecha.z = 'dd/mm/yyyy hh:mm';
+      for (const c of [6, 7, 8, 9]) {
+        const celda = hoja[XLSX.utils.encode_cell({ r, c })];
+        if (celda && typeof celda.v === 'number') celda.z = '#,##0.00';
+      }
+    }
+    hoja['!cols'] = [16, 8, 38, 10, 20, 14, 12, 12, 10, 12, 24, 20, 24].map(wch => ({ wch }));
+    hoja['!autofilter'] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: renglones.length, c: titulos.length - 1 } }) };
+
+    // ---- Hoja 2: resumen por producto ----
+    const porProducto = new Map();
+    for (const f of filas) {
+      const x = porProducto.get(f.producto) || { unidades: 0, vendido: 0, costo: 0, ganancia: 0, sinCosto: 0 };
+      x.unidades++;
+      x.vendido += f.precio;
+      if (f.costo != null) { x.costo += f.costo; x.ganancia += f.ganancia; } else x.sinCosto++;
+      porProducto.set(f.producto, x);
+    }
+    const resumen = [...porProducto.entries()]
+      .sort((a, b) => b[1].vendido - a[1].vendido)
+      // Si ninguna venta del producto tiene costo, costo y ganancia quedan
+      // vacíos: un 0 diría que te salió gratis
+      .map(([nombre, x]) => {
+        const nada = x.sinCosto === x.unidades;
+        return [nombre, x.unidades, aDosDec(x.vendido),
+                nada ? '' : aDosDec(x.costo), nada ? '' : aDosDec(x.ganancia), x.sinCosto || ''];
+      });
+    const hoja2 = XLSX.utils.aoa_to_sheet([
+      ['Producto', 'Unidades', 'Vendido (Bs)', 'Costo (Bs)', 'Ganancia (Bs)', 'Sin costo anotado'],
+      ...resumen,
+      [],
+      ['Total', totales.ventas, totales.vendido, totales.costo, totales.ganancia, totales.sinCosto || '']
+    ]);
+    for (let r = 1; r <= resumen.length + 2; r++) {
+      for (const c of [2, 3, 4]) {
+        const celda = hoja2[XLSX.utils.encode_cell({ r, c })];
+        if (celda && typeof celda.v === 'number') celda.z = '#,##0.00';
+      }
+    }
+    hoja2['!cols'] = [38, 10, 13, 12, 13, 16].map(wch => ({ wch }));
+
+    const libro = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(libro, hoja, 'Ventas');
+    XLSX.utils.book_append_sheet(libro, hoja2, 'Por producto');
+    XLSX.writeFile(libro, `ventas-tiago-store-${mes}.xlsx`);
+    aviso(`✓ Excel de ${nombreDelMes(mes)} descargado`, 'ok');
+  } catch (err) {
+    console.error(err);
+    aviso(`No se pudo armar el Excel: ${err.message || err}`, 'error');
+  } finally {
+    boton.disabled = false;
+    boton.textContent = 'Bajar Excel';
+  }
+}
+
+function abrirExcel() {
+  // Arranca en el mes actual
+  if (!$('vtExcelMes').value) $('vtExcelMes').value = diaLocal(new Date().toISOString()).slice(0, 7);
+  $('vtFondoExcel').classList.add('abierto');
+  mostrarResumenExcel();
+}
+function cerrarExcel() { $('vtFondoExcel').classList.remove('abierto'); }
+
+$('vtExportar').addEventListener('click', abrirExcel);
+$('vtExcelMes').addEventListener('change', mostrarResumenExcel);
+$('vtExcelBajar').addEventListener('click', bajarExcel);
+$('vtExcelCerrar').addEventListener('click', cerrarExcel);
+$('vtFondoExcel').addEventListener('click', e => { if (e.target === $('vtFondoExcel')) cerrarExcel(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && $('vtFondoExcel').classList.contains('abierto')) cerrarExcel();
+});
 
 
 // ============================================================

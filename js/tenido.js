@@ -1,12 +1,13 @@
 // ============================================================
 // TIAGO STORE · Transparente o teñido
 // ============================================================
-// Como el ajuste de Liquid Glass del iPhone: un control chico, parado,
-// abajo a la izquierda y a la altura de la burbuja de WhatsApp, que va
-// de Transparente (abajo) a Teñido (arriba). Transparente deja ver lo
-// de atrás casi sin esmerilar; Teñido esmerila y pone blanco: se ve
-// menos lo de atrás y las letras contrastan más. Tiene tres paradas
-// (transparente, intermedio y teñido), como las del iPhone.
+// Como el ajuste de Liquid Glass del iPhone. Abajo a la izquierda, un
+// poco más abajo que la burbuja de WhatsApp, hay un botón redondo chico;
+// al tocarlo sale hacia arriba un control parado que va de Transparente
+// (abajo) a Teñido (arriba). Transparente deja ver lo de atrás casi
+// sin esmerilar; Teñido esmerila y pone blanco: se ve menos lo de atrás
+// y las letras contrastan más. Tiene tres paradas (transparente,
+// intermedio y teñido), como las del iPhone.
 //
 // El valor va en --tenido (0 a 1) sobre <html>: los vidrios de
 // css/vidrio.css lo siguen solos, en todas las páginas. La clase
@@ -61,18 +62,56 @@
     const caja = document.createElement('div');
     caja.className = 'tenido-control';
     caja.innerHTML = `
-      <span class="tenido-ico tenido-ico--lleno" title="Teñido">${ICONO_TENIDO}</span>
-      <div class="tenido-pista" role="slider" tabindex="0" aria-orientation="vertical"
-           aria-label="Vidrio: transparente o teñido" aria-valuemin="0" aria-valuemax="100">
-        <span class="tenido-riel"></span>
-        <span class="tenido-relleno"></span>
-        ${PARADAS.map(p => `<span class="tenido-punto" style="--p:${p}"></span>`).join('')}
-        <span class="tenido-perilla"></span>
+      <div class="tenido-panel" id="tenidoPanel">
+        <span class="tenido-ico" title="Teñido">${ICONO_TENIDO}</span>
+        <div class="tenido-pista" role="slider" tabindex="0" aria-orientation="vertical"
+             aria-label="Vidrio: transparente o teñido" aria-valuemin="0" aria-valuemax="100">
+          <span class="tenido-riel"></span>
+          <span class="tenido-relleno"></span>
+          ${PARADAS.map(p => `<span class="tenido-punto" style="--p:${p}"></span>`).join('')}
+          <span class="tenido-perilla"></span>
+        </div>
+        <span class="tenido-ico" title="Transparente">${ICONO_TRANSPARENTE}</span>
       </div>
-      <span class="tenido-ico" title="Transparente">${ICONO_TRANSPARENTE}</span>`;
+      <button type="button" class="tenido-boton" aria-expanded="false" aria-controls="tenidoPanel"
+              aria-label="Vidrio: transparente o teñido"></button>`;
     document.body.appendChild(caja);
 
     const pista = caja.querySelector('.tenido-pista');
+    const boton = caja.querySelector('.tenido-boton');
+    let arrastrando = false;
+
+    // ---------- Abrir y cerrar ----------
+    // Cerrado se ve solo el botón, con el ícono de cómo está el vidrio.
+    // Tocarlo abre el control; se cierra al tocar afuera, al tocar de
+    // nuevo el botón, con Esc, o solo, al rato de no usarlo.
+    const CIERRA_SOLO_MS = 4000;
+    let relojCierre = 0;
+    const pintarBoton = () => { boton.innerHTML = valor > 0 ? ICONO_TENIDO : ICONO_TRANSPARENTE; };
+    const abierto = () => caja.classList.contains('abierto');
+
+    function esperarYCerrar() {
+      clearTimeout(relojCierre);
+      relojCierre = setTimeout(() => { if (!arrastrando) abrir(false); }, CIERRA_SOLO_MS);
+    }
+    function abrir(si) {
+      caja.classList.toggle('abierto', si);
+      boton.setAttribute('aria-expanded', String(si));
+      clearTimeout(relojCierre);
+      if (si) esperarYCerrar();
+    }
+
+    boton.addEventListener('click', e => {
+      abrir(!abierto());
+      // Con el teclado (Enter o espacio) el foco pasa al control
+      if (abierto() && e.detail === 0) pista.focus();
+    });
+    document.addEventListener('pointerdown', e => {
+      if (abierto() && !caja.contains(e.target)) abrir(false);
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && abierto()) { abrir(false); boton.focus(); }
+    });
 
     // Dibuja la perilla en una posición (0 abajo, 1 arriba). Mientras se
     // arrastra se mueve suelta; al soltar va a la parada más cercana.
@@ -89,6 +128,8 @@
       aplicar(v);
       guardar(v);
       pintar(v);
+      pintarBoton();
+      if (abierto()) esperarYCerrar();   // lo está usando: que no se cierre todavía
     }
 
     // Arrastrar: la pista entera se puede agarrar, no solo la perilla
@@ -99,9 +140,9 @@
       return 1 - (y - r.top - margen) / (r.height - 2 * margen);
     };
 
-    let arrastrando = false;
     pista.addEventListener('pointerdown', e => {
       arrastrando = true;
+      clearTimeout(relojCierre);
       caja.classList.add('arrastrando');
       pista.setPointerCapture(e.pointerId);
       const pos = posDe(e);
@@ -143,16 +184,29 @@
     });
 
     pintar(valor);
+    pintarBoton();
 
-    // A la altura de la burbuja de WhatsApp: se le copia el "bottom",
-    // que cambia según la página (con barra de abajo va más arriba). La
-    // burbuja la pone wa-bubble.js, que puede llegar después: se vuelve
-    // a mirar al terminar de cargar y al cambiar el ancho.
+    // Un poco más abajo que la burbuja de WhatsApp: su "bottom" menos
+    // BAJAR, que cambia según la página (con barra de abajo va más
+    // arriba). Sin montarse sobre la barra de abajo si le queda debajo
+    // (en el celular la barra ocupa todo el ancho). La burbuja la pone
+    // wa-bubble.js, que puede llegar después: se vuelve a mirar al
+    // terminar de cargar y al cambiar el ancho.
+    const BAJAR = 10;
     function alinear() {
       const wa = document.querySelector('.wa-bubble');
       if (!wa) return;
-      const abajo = getComputedStyle(wa).bottom;
-      if (abajo && abajo !== 'auto') caja.style.bottom = abajo;
+      const abajo = parseFloat(getComputedStyle(wa).bottom);
+      if (!(abajo >= 0)) return;
+      let px = Math.max(abajo - BAJAR, 8);
+      const barra = document.querySelector('.bottom-nav');
+      if (barra) {
+        const b = barra.getBoundingClientRect();
+        const c = boton.getBoundingClientRect();
+        const debajo = b.left < c.right + 4 && b.right > c.left - 4;
+        if (debajo) px = Math.max(px, Math.round(window.innerHeight - b.top + 6));
+      }
+      caja.style.bottom = px + 'px';
     }
     alinear();
     window.addEventListener('load', alinear);

@@ -407,15 +407,54 @@ body .wa-bubble svg { filter: drop-shadow(0 1px 1px rgba(0,60,30,.3)); }
    TRANSPARENTE O TEÑIDO: EL CONTROL (js/tenido.js)
    ============================================================
    El ajuste de Liquid Glass del iPhone, parado: abajo Transparente,
-   arriba Teñido, con tres paradas. Chico y de vidrio como el resto,
-   abajo a la izquierda, a la altura de la burbuja de WhatsApp
-   (js/tenido.js le copia el "bottom" de la burbuja). */
+   arriba Teñido, con tres paradas. Cerrado es solo un botón redondo
+   chico, abajo a la izquierda, un poco más abajo que la burbuja de
+   WhatsApp (js/tenido.js lo acomoda); al tocarlo se abre el control
+   hacia arriba. */
 .tenido-control {
   --pos: 0;                         /* dónde está la perilla: 0 abajo, 1 arriba */
   position: fixed;
   left: calc(16px + env(safe-area-inset-left));
-  bottom: 20px;
+  bottom: 14px;
   z-index: 149;                     /* como la burbuja (150), debajo de las ventanas */
+  width: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  /* La caja no tapa nada: el lugar del control cerrado queda libre */
+  pointer-events: none;
+}
+.tenido-boton,
+.tenido-control.abierto .tenido-panel { pointer-events: auto; }
+
+/* Blanco como el del iPhone, para que se encuentre sobre cualquier foto
+   aunque la página esté transparente */
+.tenido-panel,
+.tenido-boton {
+  background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.64));
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.9);
+  box-shadow: 0 6px 18px rgba(20,22,26,.14), 0 0 0 .5px rgba(20,22,26,.14), var(--vidrio-brillo);
+}
+.tenido-boton {
+  width: 36px; height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #5f6368;
+  cursor: pointer;
+  transition: transform .15s, color .2s;
+}
+.tenido-boton svg { width: 19px; height: 19px; display: block; }
+.tenido-boton:active { transform: scale(.92); }
+.tenido-boton:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
+.tenido-control.abierto .tenido-boton { color: #0a84ff; }
+
+/* El control sale del botón hacia arriba, y vuelve a entrar al cerrarse */
+.tenido-panel {
   width: 30px;
   padding: 8px 0;
   display: flex;
@@ -423,13 +462,17 @@ body .wa-bubble svg { filter: drop-shadow(0 1px 1px rgba(0,60,30,.3)); }
   align-items: center;
   gap: 4px;
   border-radius: 999px;
-  /* Blanco como el del iPhone, para que se encuentre sobre cualquier
-     foto aunque la página esté transparente */
-  background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.64));
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  backdrop-filter: blur(12px) saturate(180%);
-  border: 1px solid rgba(255,255,255,.9);
-  box-shadow: 0 6px 18px rgba(20,22,26,.14), 0 0 0 .5px rgba(20,22,26,.14), var(--vidrio-brillo);
+  transform-origin: 50% 100%;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(.8);
+  transition: opacity .18s, transform .25s cubic-bezier(.3,.7,.4,1), visibility 0s .25s;
+}
+.tenido-control.abierto .tenido-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity .18s, transform .25s cubic-bezier(.3,.7,.4,1), visibility 0s;
 }
 .tenido-ico {
   width: 15px; height: 15px;
@@ -496,7 +539,8 @@ body .wa-bubble svg { filter: drop-shadow(0 1px 1px rgba(0,60,30,.3)); }
   box-shadow: 0 0 0 3px rgba(10,132,255,.45), 0 2px 7px rgba(0,0,0,.18);
 }
 @media (prefers-reduced-motion: reduce) {
-  .tenido-relleno, .tenido-perilla { transition: none; }
+  .tenido-relleno, .tenido-perilla,
+  .tenido-panel, .tenido-control.abierto .tenido-panel { transition: none; }
 }
 @media print { .tenido-control { display: none; } }
 

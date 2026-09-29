@@ -643,9 +643,20 @@
     .pay-qr-wrap { padding: .9rem; margin: .7rem; }
     .pay-qr-wrap img { max-width: 230px; }
     .pay-instructions { padding: .85rem 1.1rem; }
-    /* Entregada la cuenta, el QR se esconde: el pedido usa todo el ancho */
-    .pago-grid:has(#qrCard[style*="none"]) { grid-template-columns: 1fr; }
   }
+  /* Ya no hay nada que pagar (entregada, pagada sin stock o cancelada):
+     una sola columna, en compu y en celular, con el aviso ("Pago
+     confirmado. Tu cuenta está abajo") justo debajo del resumen y la
+     cuenta debajo del aviso. Antes el aviso quedaba último, abajo de todo.
+     La clase la pone esconderLoDePagar(). */
+  .pago-grid.sin-pago { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+  .pago-grid.sin-pago .pago-izq,
+  .pago-grid.sin-pago .pago-der { display: contents; }
+  .pago-grid.sin-pago #orderSummary          { order: 1; }
+  .pago-grid.sin-pago #statusBar             { order: 2; margin-bottom: .9rem; }
+  .pago-grid.sin-pago #cajaPedido            { order: 3; }
+  .pago-grid.sin-pago .pago-izq > .btn-back  { order: 4; }
+  .pago-grid.sin-pago #payRef                { order: 5; }
   /* Celular: una sola columna, en el orden de siempre (el QR arriba) */
   @media (max-width: 759px) {
     .pago-grid { display: flex; flex-direction: column; }
@@ -1299,6 +1310,23 @@
 
     $('pedidoNumero').textContent = '#' + r.numero;
 
+    // Hay cuenta para todo lo que falta: la entrega es en esta pantalla
+    const todoConStock = esperando && !vencido && cobertura !== null &&
+                         cobertura.de > 0 && cobertura.hay >= cobertura.de;
+
+    // ---- "VOLVER A LA TIENDA", SOLO SIN STOCK ----
+    // Con stock la cuenta aparece en esta misma pantalla: un botón para irse
+    // es invitarlo a salir justo de donde le llega (y ya entregada, la tiene
+    // acá mismo). Sin stock la entrega es por WhatsApp y ahí sí tiene
+    // sentido volver. Cancelado también: no hay nada que esperar.
+    const volver = document.querySelector('.pago-izq > .btn-back');
+    if (volver) {
+      const conStock = esperando ? todoConStock
+                     : listo     ? r.entregadas.some(conDatos)
+                     :             false;
+      volver.style.display = conStock ? 'none' : '';
+    }
+
     // ---- LA PROMESA TIENE QUE SER VERDAD ----
     // Si no hay stock, el cliente paga creyendo que la recibe en el momento
     // y recien despues se entera de que no. Prometer y no cumplir es peor
@@ -1336,8 +1364,6 @@
       // llega. El boton queda cuando falta algo (compra a medias o sin
       // stock), cuando el pedido vencio y cuando no se pudo averiguar el
       // stock (cobertura null): ahi el comprobante por WhatsApp es el camino.
-      const todoConStock = !vencido && cobertura !== null &&
-                           cobertura.de > 0 && cobertura.hay >= cobertura.de;
       const btnYaPague = $('btnYaPague');
       const ayudaYaPague = $('ayudaYaPague');
       if (btnYaPague)   btnYaPague.style.display   = todoConStock ? 'none' : 'flex';
@@ -1386,6 +1412,15 @@
     }
 
     if (!listo) return;
+
+    // El paso 3 ("Pagar con QR") ya está hecho: se marca con el ✓
+    const paso3 = document.querySelector('#pasosPago li.actual');
+    if (paso3) {
+      paso3.classList.replace('actual', 'hecho');
+      paso3.removeAttribute('aria-current');
+      const numero = paso3.querySelector('span');
+      if (numero) numero.textContent = '✓';
+    }
 
     // Recien acá entra al historial: un pedido que no se entregó todavía
     // no es una compra, es un intento. Se guarda en cada repintado porque
@@ -1489,6 +1524,9 @@
       const el = $(id);
       if (el) el.style.display = 'none';
     });
+    // Una columna, con el aviso debajo del resumen (ver .pago-grid.sin-pago)
+    const grilla = document.querySelector('.pago-grid');
+    if (grilla) grilla.classList.add('sin-pago');
   }
 
   function apagarReloj() {

@@ -33,10 +33,12 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Tiago Store">
-  <link rel="stylesheet" href="styles.css?v=20260928234554">
+  <link rel="stylesheet" href="styles.css?v=20260929195542">
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20260928234554">
-  <script src="js/barra-vidrio.js?v=20260928234554" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20260929195542">
+  <script src="js/barra-vidrio.js?v=20260929195542" defer></script>
+  <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
+  <script src="js/tenido.js?v=20260929195542"></script>
 </head>
 <body>
 
@@ -44,10 +46,10 @@
   <nav>
     <a class="nav-logo" href="index.html">Tiago Store</a>
     <ul class="nav-links">
-      <li><a href="index.html">🛒 Tienda</a></li>
-      <li><a href="planes.html" class="active">💰 Planes</a></li>
-      <li><a href="contacto.html">📲 Contacto</a></li>
-      <li><a href="https://wa.me/59157707335" target="_blank" class="nav-wa">📲 WhatsApp</a></li>
+      <li><a href="index.html">Tienda</a></li>
+      <li><a href="planes.html" class="active">Planes</a></li>
+      <li><a href="contacto.html">Contacto</a></li>
+      <li><a href="https://wa.me/59157707335" target="_blank" class="nav-wa">WhatsApp</a></li>
     </ul>
   </nav>
 
@@ -406,7 +408,7 @@
     );
   </script>
 
-  <script src="wa-bubble.js?v=20260928234554" defer></script>
-  <script src="bg-burbujas.js?v=20260928234554" defer></script>
+  <script src="wa-bubble.js?v=20260929195542" defer></script>
+  <script src="bg-burbujas.js?v=20260929195542" defer></script>
 </body>
 </html>

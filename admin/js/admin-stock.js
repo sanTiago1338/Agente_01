@@ -256,6 +256,8 @@ css.textContent = `
   .st-cuenta .costo { color: var(--gris-dim); font-size: 12px; flex: none; font-variant-numeric: tabular-nums; }
   .st-cuenta .costo.falta { color: #b45309; }
   .st-ayuda.falta { color: #b45309; font-weight: 600; }
+  .st-margen { color: #b45309; font-weight: 600; }
+  .st-margen.perdida { color: #b91c1c; }
 
   /* ---------- Rebaja automática ----------
      Se prende desde acá porque depende del stock: baja el precio mientras
@@ -384,6 +386,9 @@ $('vistaStock').innerHTML = `
               Lo que te costó cada una. Con esto el Inicio te muestra cuánto
               ganás, y la rebaja automática nunca baja de acá.
             </div>
+            <!-- Si a ese costo el producto te deja poco o nada, se avisa
+                 en el momento, antes de cargar -->
+            <div class="st-ayuda st-margen" id="stMargen" hidden></div>
           </div>
         </div>
 
@@ -1034,10 +1039,47 @@ const AYUDA_COSTO = 'Lo que te costó cada una. Con esto el Inicio te muestra cu
                     'ganás, y la rebaja automática nunca baja de acá.';
 
 function sugerirCosto() {
-  if (costoTocado) return;
+  if (costoTocado) { pintarMargen(); return; }
   const c = ultimoCosto($('stProducto').value);
   $('stCosto').value = c != null ? c : '';
   pintarPedidoDeCosto(false);
+  pintarMargen();
+}
+
+// ------------------------------------------------------------
+// ¿Cuánto te deja?
+// ------------------------------------------------------------
+// Si a este costo el producto te deja menos de MARGEN_MINIMO por cuenta,
+// se avisa antes de cargar. Pasó con Claude: 42 de costo y 41.50 a 44.50
+// de venta, y nadie lo vio hasta mirar la ganancia del mes.
+const MARGEN_MINIMO = 5;
+
+// Lo que paga el cliente (la oferta si está prendida), sin la rebaja: la
+// rebaja nunca baja del costo, así que no cambia la cuenta de acá.
+const precioDeVenta = p => (p && p.oferta && Number(p.precio_oferta) > 0)
+  ? Number(p.precio_oferta) : Number(p && p.precio) || 0;
+
+// A cuánto convendría venderlo: el costo más el margen, redondeado para
+// arriba a 50 centavos
+const precioSugerido = costo => Math.ceil((costo + MARGEN_MINIMO) * 2) / 2;
+
+function pintarMargen() {
+  const caja  = $('stMargen');
+  const p     = PRODUCTOS.find(x => x.id === $('stProducto').value);
+  const costo = parseFloat($('stCosto').value);
+  const venta = precioDeVenta(p);
+  if (!p || !Number.isFinite(costo) || venta <= 0) { caja.hidden = true; return; }
+
+  const queda = Math.round((venta - costo) * 100) / 100;
+  if (queda >= MARGEN_MINIMO) { caja.hidden = true; return; }
+
+  caja.hidden = false;
+  caja.classList.toggle('perdida', queda <= 0);
+  caja.textContent = queda < 0
+    ? `Ojo: lo vendés a ${venta.toFixed(2)} Bs, así que perdés ${Math.abs(queda).toFixed(2)} Bs por cuenta. Convendría venderlo a ${precioSugerido(costo).toFixed(2)} Bs.`
+    : queda === 0
+      ? `Ojo: lo vendés a ${venta.toFixed(2)} Bs, así que no ganás nada. Convendría venderlo a ${precioSugerido(costo).toFixed(2)} Bs.`
+      : `Ojo: lo vendés a ${venta.toFixed(2)} Bs, así que te quedan solo ${queda.toFixed(2)} Bs por cuenta. Convendría venderlo a ${precioSugerido(costo).toFixed(2)} Bs.`;
 }
 
 function pintarPedidoDeCosto(pedir) {
@@ -1065,6 +1107,7 @@ $('stCosto').addEventListener('input', () => {
   costoTocado = true;
   sinCostoConfirmado = false;
   pintarPedidoDeCosto(false);
+  pintarMargen();
 });
 
 function cerrarModal() { $('stFondo').classList.remove('abierto'); }

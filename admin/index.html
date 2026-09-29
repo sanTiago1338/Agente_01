@@ -657,6 +657,12 @@
     font-size: 11.5px;
     color: var(--gris-dim);
   }
+  /* Qué le falta, en el filtro "Para revisar" */
+  .revisar-nota {
+    margin-top: 4px;
+    font-size: 12px; font-weight: 600; line-height: 1.4;
+    color: #b45309;
+  }
   .celda-precio {
     font-variant-numeric: tabular-nums;
     font-weight: 700;
@@ -891,9 +897,9 @@
 </style>
 <!-- Liquid glass: lo común a todo el sitio y lo propio del panel. Van
      después de los estilos de arriba. -->
-<link rel="stylesheet" href="../css/vidrio.css?v=20260928215126">
-<script src="../js/barra-vidrio.js?v=20260928215126" defer></script>
-<link rel="stylesheet" href="css/vidrio-panel.css?v=20260928215126">
+<link rel="stylesheet" href="../css/vidrio.css?v=20260928220656">
+<script src="../js/barra-vidrio.js?v=20260928220656" defer></script>
+<link rel="stylesheet" href="css/vidrio-panel.css?v=20260928220656">
 </head>
 <body>
 
@@ -1012,6 +1018,9 @@
         <option value="destacado">Solo destacados</option>
         <option value="planes">Solo los que salen en Planes</option>
         <option value="sinplanes">Los que NO salen en Planes</option>
+        <!-- Sin foto, sin descripción, o con el tipo distinto de lo que dice
+             el nombre (ver problemasDe). El número se completa al cargar. -->
+        <option value="revisar" id="optRevisar">Para revisar</option>
       </select>
 
       <!-- Arranca por "más nuevos": lo que acabás de publicar tiene que
@@ -1185,6 +1194,7 @@ function escucharCatalogo() {
       cargado = true;
       actualizarMetricas();
       llenarFiltroCategorias();
+      contarParaRevisar();
       render();
     },
     error => {
@@ -1245,6 +1255,60 @@ function llenarFiltroCategorias() {
 }
 
 // ===========================================================
+// PARA REVISAR
+// ===========================================================
+// Lo que le falta a un producto o está mal cargado:
+//   · sin foto: la tienda le dibuja un logo con letras
+//   · sin descripción (o de menos de 15 letras)
+//   · el tipo no dice lo mismo que el nombre: "(1 pantalla)" en el nombre
+//     y "completa" en el tipo. La tienda filtra por el nombre, pero las
+//     pastillas de subcategoría salen del tipo, y quedaba en la equivocada.
+// Las mismas reglas que usa la tienda (formatoDe y tiposDe en js/tienda.js).
+const sinTildes = s => String(s || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+const FORMATOS = { '1-pantalla': '1 pantalla', '1-dispositivo': '1 dispositivo', 'completa': 'cuenta completa' };
+
+function formatoDelNombre(nombre) {
+  const n = sinTildes(nombre).replace(/garantia\s+completa/g, '');
+  if (/\b1\s*pantalla/.test(n))    return '1-pantalla';
+  if (/\b1\s*dispositivo/.test(n)) return '1-dispositivo';
+  if (/\bcompleta\b/.test(n))      return 'completa';
+  return null;
+}
+
+function formatosDelTipo(tipo) {
+  const sinonimos = { '1-device': '1-dispositivo', '1- dispositivo': '1-dispositivo',
+                      '1 dispositivo': '1-dispositivo', '1 pantalla': '1-pantalla' };
+  return [...new Set(String(tipo || '').split(',')
+    .map(t => t.trim().toLowerCase().replace(/\s+/g, ' '))
+    .filter(Boolean)
+    .map(t => t.startsWith('completa') ? 'completa' : (sinonimos[t] || t))
+    .filter(t => t in FORMATOS))];
+}
+
+function problemasDe(p) {
+  const lista = [];
+  if (!String(p.imagen || '').trim()) lista.push('Sin foto');
+  if (String(p.descripcion || '').trim().length < 15) lista.push('Sin descripción');
+
+  const nombre = formatoDelNombre(p.nombre);
+  const tipo   = formatosDelTipo(p.tipo);
+  const dice   = ts => ts.map(t => FORMATOS[t]).join(' y ');
+  if (nombre && tipo.length && !tipo.includes(nombre)) {
+    lista.push(`El nombre dice ${FORMATOS[nombre]} y el tipo dice ${dice(tipo)}`);
+  } else if (nombre && !tipo.length) {
+    lista.push(`El nombre dice ${FORMATOS[nombre]} y el tipo no`);
+  } else if (tipo.length > 1) {
+    lista.push(`El tipo dice ${dice(tipo)} a la vez`);
+  }
+  return lista;
+}
+
+function contarParaRevisar() {
+  const n = TODOS.filter(p => problemasDe(p).length).length;
+  $('optRevisar').textContent = `Para revisar (${n})`;
+}
+
+// ===========================================================
 // FILTRAR + ORDENAR
 // ===========================================================
 function visibles() {
@@ -1261,6 +1325,7 @@ function visibles() {
     if (estado === 'destacado' && p.destacado !== true) return false;
     if (estado === 'planes'    && p.mostrarEnPlanes !== true) return false;
     if (estado === 'sinplanes' && p.mostrarEnPlanes === true) return false;
+    if (estado === 'revisar'   && problemasDe(p).length === 0) return false;
     return true;
   });
 
@@ -1355,6 +1420,8 @@ function fila(p) {
       <td class="celda-nombre">
         <div class="nombre-txt">${escapar(p.nombre || '(sin nombre)')}</div>
         <div class="nombre-sub">${escapar(p.tipo || '')}</div>
+        ${$('filtroEstado').value === 'revisar'
+          ? `<div class="revisar-nota">${problemasDe(p).map(escapar).join(' · ')}</div>` : ''}
         <button class="desc-btn${textoDesc ? '' : ' vacia'}" data-accion="descripcion" data-id="${p.id}"
                 title="Clic para editar la descripción">
           ${textoDesc ? escapar(recortarDesc(textoDesc)) : '+ Agregar descripción'}
@@ -1547,24 +1614,24 @@ window.addEventListener('popstate', () => {
 </script>
 
 <!-- Inicio: el resumen de ventas, pendientes y stock -->
-<script type="module" src="js/admin-inicio.js?v=20260928215126"></script>
+<script type="module" src="js/admin-inicio.js?v=20260928220656"></script>
 
 <!-- CRUD de productos: se trae su propia interfaz (modales + estilos) -->
-<script type="module" src="js/admin-productos.js?v=20260928215126"></script>
+<script type="module" src="js/admin-productos.js?v=20260928220656"></script>
 
 <!-- Subida de imágenes: se engancha al editor de arriba, va después -->
-<script type="module" src="js/admin-imagenes.js?v=20260928215126"></script>
+<script type="module" src="js/admin-imagenes.js?v=20260928220656"></script>
 
 <!-- Administración de juegos de recarga: construye la vista 🎮 Juegos -->
-<script type="module" src="js/admin-juegos.js?v=20260928215126"></script>
+<script type="module" src="js/admin-juegos.js?v=20260928220656"></script>
 
 <!-- Ventas y stock: construyen las vistas 💳 Ventas y 🔑 Stock.
      Le hablan a Supabase directo, sin pasar por el puente
      js/panel-datos.js que usan Productos y Juegos. -->
-<script type="module" src="js/admin-ventas.js?v=20260928215126"></script>
-<script type="module" src="js/admin-stock.js?v=20260928215126"></script>
+<script type="module" src="js/admin-ventas.js?v=20260928220656"></script>
+<script type="module" src="js/admin-stock.js?v=20260928220656"></script>
 
 <!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
-<script src="../bg-burbujas.js?v=20260928215126" defer></script>
+<script src="../bg-burbujas.js?v=20260928220656" defer></script>
 </body>
 </html>

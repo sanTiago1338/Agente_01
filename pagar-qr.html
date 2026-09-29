@@ -28,6 +28,11 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon.png" sizes="32x32">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <!-- La tienda como app en el celular ("Agregar a inicio"). Sin service
+       worker a proposito: siempre carga lo ultimo publicado. -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Tiago Store">
   <!-- Los .woff2 vienen de gstatic, no de googleapis: sin este segundo
        preconnect se pierden DNS + TLS. crossorigin es obligatorio. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -683,8 +688,8 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20260928174655">
-  <script src="js/barra-vidrio.js?v=20260928174655" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20260928212612">
+  <script src="js/barra-vidrio.js?v=20260928212612" defer></script>
 </head>
 <body>
 
@@ -1682,6 +1687,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20260928174655" defer></script>
+  <script src="bg-burbujas.js?v=20260928212612" defer></script>
 </body>
 </html>

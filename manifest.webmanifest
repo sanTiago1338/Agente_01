@@ -1,0 +1,16 @@
+{
+  "name": "Tiago Store",
+  "short_name": "Tiago Store",
+  "description": "Cuentas de streaming, apps premium y recargas de juegos. Entrega de 5 a 30 minutos.",
+  "lang": "es",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8fa",
+  "theme_color": "#e50914",
+  "icons": [
+    { "src": "icono-192.png",          "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icono-512.png",          "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icono-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -41,28 +41,10 @@ let REBAJAS   = new Map();   // producto_id -> Bs que baja hoy (solo los que baj
 let abierto   = null; // qué producto está desplegado en la lista
 let verDadas  = null; // de qué producto se están mostrando las entregadas
 
-// Lo último que te costó una cuenta de este producto, o null si nunca lo
-// anotaste. CUENTAS viene de la más nueva a la más vieja, así que la
-// primera con costo es la más reciente.
-function ultimoCosto(productoId) {
-  const c = CUENTAS.find(x => x.producto_id === productoId && x.costo != null);
-  return c ? Number(c.costo) : null;
-}
-
-// El costo que tienen casi todas las cuentas de un producto (el que más se
-// repite), o null si ninguna tiene. Va una sola vez en la cabecera del
-// producto; en cada cuenta solo se escribe si es distinto de este.
-function costoComun(cuentas) {
-  const veces = new Map();
-  for (const c of cuentas) {
-    if (c.costo == null) continue;
-    const v = Number(c.costo);
-    veces.set(v, (veces.get(v) || 0) + 1);
-  }
-  let mejor = null, max = 0;
-  for (const [v, n] of veces) if (n > max) { mejor = v; max = n; }
-  return mejor;
-}
+// El panel ya no pide ni muestra lo que costó cada cuenta (ni la ganancia
+// que salía de eso): se sacó a pedido, el 30/9/2026. La columna "costo"
+// sigue en la base con lo que se anotó antes, y la rebaja automática lo
+// sigue usando de piso en esas cuentas; las nuevas se cargan sin costo.
 
 
 // ============================================================
@@ -115,14 +97,13 @@ css.textContent = `
   .st-pill.libre  { background: rgba(21,128,61,.11);  color: #15803d; }
   .st-pill.cero   { background: rgba(220,38,38,.10);  color: #dc2626; }
   .st-pill.dadas  { background: var(--panel-2);        color: var(--gris); }
-  .st-pill.costo  { background: none; color: var(--gris-dim); font-weight: 600; padding-left: 0; padding-right: 0; }
 
   .st-flecha { color: var(--gris-dim); font-size: 13px; flex: none; transition: transform .15s; }
   .st-prod.abierto .st-flecha { transform: rotate(90deg); }
 
   /* ---------- Cuentas de un producto ---------- */
-  /* Renglones finos: 30 px en vez de 39, sin el costo ni el estado
-     repetidos en cada uno (ver filaDeCuenta) */
+  /* Renglones finos: 30 px en vez de 39, sin el estado repetido en cada
+     uno (ver filaDeCuenta) */
   .st-cuentas { border-top: 1px solid var(--borde); padding: 4px 0; }
   .st-cuenta {
     display: flex; align-items: center; gap: 12px;
@@ -269,33 +250,6 @@ css.textContent = `
   .st-sug .vendidas { color: var(--gris); font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .st-sugerir .bien { padding: 10px 0 12px; border-top: 1px solid var(--borde); font-size: 13px; color: #15803d; }
 
-  /* ---------- El costo ----------
-     Sin costo el panel no puede decir cuánto ganás, y la rebaja automática
-     no sabe hasta dónde puede bajar (se queda en la mitad del precio). */
-  .st-aviso-costo {
-    padding: 11px 14px; border-radius: 10px; margin-bottom: 14px;
-    background: rgba(180,83,9,.09); border: 1px solid rgba(180,83,9,.28);
-    color: #7c3d06; font-size: 13px; line-height: 1.5;
-  }
-  .st-pill.sincosto { background: rgba(180,83,9,.10); color: #b45309; }
-  .st-costo-fila {
-    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    padding: 10px 16px 10px 68px;
-    background: rgba(180,83,9,.06); border-bottom: 1px solid var(--borde);
-    font-size: 13px; color: #7c3d06;
-  }
-  .st-costo-fila input {
-    width: 110px; padding: 6px 9px;
-    border: 1px solid var(--borde); border-radius: 7px;
-    background: var(--panel); color: var(--texto); font: inherit;
-  }
-  .st-costo-fila input:focus { outline: none; border-color: var(--rojo); }
-  .st-cuenta .costo { color: var(--gris-dim); font-size: 12px; flex: none; font-variant-numeric: tabular-nums; }
-  .st-cuenta .costo.falta { color: #b45309; }
-  .st-ayuda.falta { color: #b45309; font-weight: 600; }
-  .st-margen { color: #b45309; font-weight: 600; }
-  .st-margen.perdida { color: #b91c1c; }
-
   /* ---------- Rebaja automática ----------
      Se prende desde acá porque depende del stock: baja el precio mientras
      queden cuentas sin vender (ver supabase/05-cobros.sql, sección 13). */
@@ -341,7 +295,8 @@ css.textContent = `
   @media (max-width: 640px) {
     .st-rebaja-fila { padding-left: 16px; }
     .st-acciones { flex-wrap: wrap; row-gap: 8px; }
-    .st-costo-fila { padding-left: 16px; }
+    /* Tres números, uno al lado del otro (el de "Invertido" se fue con el costo) */
+    #vistaStock .resumen { grid-template-columns: repeat(3, 1fr); }
     .st-sug { flex-wrap: wrap; gap: 6px 12px; }
     .st-sug .nom { flex: 1 1 100%; white-space: normal; }
     .st-cuenta { padding-left: 16px; flex-wrap: wrap; row-gap: 4px; }
@@ -370,7 +325,6 @@ $('vistaStock').innerHTML = `
       <div class="metrica"><div class="metrica-n ok"   id="stLibres">–</div><div class="metrica-l">Cuentas libres</div></div>
       <div class="metrica"><div class="metrica-n"      id="stDadas">–</div><div class="metrica-l">Entregadas</div></div>
       <div class="metrica"><div class="metrica-n warn" id="stSinStock">–</div><div class="metrica-l">Productos sin stock</div></div>
-      <div class="metrica"><div class="metrica-n"      id="stInvertido">–</div><div class="metrica-l">Invertido en stock</div></div>
     </section>
 
     <div class="st-barra">
@@ -383,7 +337,6 @@ $('vistaStock').innerHTML = `
     </div>
 
     <section class="st-sugerir" id="stSugerir" hidden></section>
-    <div class="st-aviso-costo" id="stAvisoCosto" hidden></div>
 
     <div id="stLista"></div>
   </div>
@@ -415,27 +368,12 @@ $('vistaStock').innerHTML = `
             </div>
           </div>
           <div class="st-campo">
-            <label for="stCosto">Costo por cuenta (Bs)</label>
-            <input type="number" id="stCosto" step="0.01" min="0" placeholder="Ej: 45">
-            <!-- Se llena solo con el último costo que anotaste de este
-                 producto: casi siempre es el mismo proveedor y el mismo
-                 precio, y así no hay que acordarse. -->
-            <div class="st-ayuda" id="stCostoAyuda">
-              Lo que te costó cada una. Con esto el Inicio te muestra cuánto
-              ganás, y la rebaja automática nunca baja de acá.
+            <label for="stVence">Vencen el (opcional)</label>
+            <input type="date" id="stVence">
+            <div class="st-ayuda">
+              Para cuentas renovables. Las que vencen antes se entregan primero,
+              así no se te quedan venciendo en el cajón.
             </div>
-            <!-- Si a ese costo el producto te deja poco o nada, se avisa
-                 en el momento, antes de cargar -->
-            <div class="st-ayuda st-margen" id="stMargen" hidden></div>
-          </div>
-        </div>
-
-        <div class="st-campo">
-          <label for="stVence">Vencen el (opcional)</label>
-          <input type="date" id="stVence">
-          <div class="st-ayuda">
-            Para cuentas renovables. Las que vencen antes se entregan primero,
-            así no se te quedan venciendo en el cajón.
           </div>
         </div>
 
@@ -449,8 +387,8 @@ $('vistaStock').innerHTML = `
           </label>
           <div class="st-ayuda">
             Mientras queden cuentas sin vender, el precio baja <strong>2 Bs cada 3 días</strong>
-            (contando desde la más vieja) y nunca baja del costo. En la tienda se ve como
-            oferta. Cuando se venden, vuelve a su precio.
+            (contando desde la más vieja), hasta la mitad del precio como mucho. En la tienda
+            se ve como oferta. Cuando se venden, vuelve a su precio.
           </div>
         </div>
 
@@ -489,7 +427,7 @@ async function cargarTodo() {
   const permiso = await tengoPermiso();
   if (!permiso.puede) {
     $('stLista').innerHTML = carteSinPermiso(permiso.motivo, 'st-vacio');
-    ['stLibres','stDadas','stSinStock','stInvertido'].forEach(id => { $(id).textContent = '–'; });
+    ['stLibres','stDadas','stSinStock'].forEach(id => { $(id).textContent = '–'; });
     return;
   }
 
@@ -565,7 +503,6 @@ async function cargarTodo() {
   llenarSelectorProductos();
   metricas();
   sugerencias();
-  avisoDeCosto();
   listar();
 }
 
@@ -605,8 +542,6 @@ function metricas() {
   const conLibres   = new Set(libres.map(c => c.producto_id));
   const secos       = [...conHistoria].filter(id => !conLibres.has(id));
 
-  const invertido = libres.reduce((s, c) => s + (Number(c.costo) || 0), 0);
-
   $('stLibres').textContent   = libres.length;
   $('stDadas').textContent    = dadas.length;
   $('stSinStock').textContent = secos.length;
@@ -614,7 +549,6 @@ function metricas() {
   // Para que el contador rojo de "Stock" en el menú se ponga al día
   // (lo calcula admin-inicio.js, con la misma regla de la lista del Inicio)
   document.dispatchEvent(new CustomEvent('stock-cambiado'));
-  $('stInvertido').textContent = invertido > 0 ? `${invertido.toFixed(0)} Bs` : '–';
 }
 
 
@@ -662,8 +596,6 @@ function listar() {
     const suyas  = CUENTAS.filter(c => c.producto_id === p.id);
     const libres = suyas.filter(c => c.estado === 'libre').length;
     const dadas  = suyas.filter(c => c.estado === 'entregada').length;
-    const sinCostoLibres = suyas.filter(c => c.estado === 'libre' && c.costo == null).length;
-    const comun = costoComun(suyas);
     const desplegado = abierto === p.id;
 
     // Si la foto no carga se muestra la inicial del nombre, igual que en la
@@ -681,8 +613,6 @@ function listar() {
           <span class="st-acciones">
             <span class="st-pill ${libres > 0 ? 'libre' : 'cero'}">${libres} libre${libres === 1 ? '' : 's'}</span>
             ${dadas ? `<span class="st-pill dadas">${dadas} entregada${dadas === 1 ? '' : 's'}</span>` : ''}
-            ${comun != null ? `<span class="st-pill costo" title="Lo que te costó cada cuenta">${fmtBs(comun)} Bs c/u</span>` : ''}
-            ${sinCostoLibres ? `<span class="st-pill sincosto" title="Cuentas libres sin costo anotado">sin costo</span>` : ''}
             ${botonRebaja(p)}
             <button class="st-mini" data-cargar="${p.id}">+ Cargar</button>
           </span>
@@ -698,25 +628,11 @@ function filasDeCuentas(cuentas, productoId) {
     return `<div class="st-cuentas"><div class="st-cuenta">Sin cuentas cargadas.</div></div>`;
   }
 
-  // Las que no tienen costo (libres o ya entregadas) se completan de una:
-  // así la ganancia del Inicio cuenta también lo que ya vendiste, y la
-  // rebaja automática sabe hasta dónde puede bajar.
-  const sinCosto = cuentas.filter(c => c.costo == null).length;
-  const sugerido = ultimoCosto(productoId);
-  const filaCosto = sinCosto ? `
-    <div class="st-costo-fila">
-      <span>${sinCosto} cuenta${sinCosto === 1 ? '' : 's'} sin costo anotado. ¿Cuánto te costó cada una?</span>
-      <input type="number" step="0.01" min="0" placeholder="Bs" data-costo-de="${productoId}"
-             value="${sugerido != null ? sugerido : ''}" aria-label="Costo por cuenta en bolivianos">
-      <button class="st-mini" data-poner-costo="${productoId}">Guardar costo</button>
-    </div>` : '';
-
   // Arriba, lo que se puede vender: las libres (y alguna reservada). Las
   // entregadas son historia y quedan plegadas en un solo renglón, "22
   // entregadas · Ver"; se despliegan solo si las pedís, la más reciente
   // primero. Antes salían todas, una por renglón, y un producto con 22
   // vendidas ocupaba la pantalla entera sin nada para hacer.
-  const comun  = costoComun(cuentas);
   const aMano  = cuentas.filter(c => c.estado !== 'entregada');
   const dadas  = cuentas.filter(c => c.estado === 'entregada')
     .sort((a, b) => String(b.entregada_en || b.creada_en || '').localeCompare(String(a.entregada_en || a.creada_en || '')));
@@ -729,32 +645,25 @@ function filasDeCuentas(cuentas, productoId) {
       <span class="accion">${mostrarDadas ? 'Ocultar' : 'Ver'}</span>
     </button>` : '';
 
-  return `<div class="st-cuentas">` + filaCosto
-    + aMano.map(c => filaDeCuenta(c, comun)).join('')
+  return `<div class="st-cuentas">`
+    + aMano.map(filaDeCuenta).join('')
     + plegadas
-    + (mostrarDadas ? `<div class="st-dadas">${dadas.map(c => filaDeCuenta(c, comun)).join('')}</div>` : '')
+    + (mostrarDadas ? `<div class="st-dadas">${dadas.map(filaDeCuenta).join('')}</div>` : '')
     + `</div>`;
 }
 
-// Un renglón por cuenta, sin repetir lo que ya se sabe: el costo va en la
-// cabecera del producto (acá solo si esta cuenta costó distinto, o si
-// falta), y el estado lo dice la sección (libres arriba, entregadas en su
-// grupo). Solo se escribe si es otro, como "reservada".
-function filaDeCuenta(c, comun) {
+// Un renglón por cuenta, sin repetir lo que ya se sabe: el estado lo dice
+// la sección (libres arriba, entregadas en su grupo). Solo se escribe si
+// es otro, como "reservada".
+function filaDeCuenta(c) {
   const cred  = c.credenciales || {};
   const clave = cred.clave || cred.password || '';
-  const costo = c.costo == null
-    ? `<span class="costo falta">sin costo</span>`
-    : Number(c.costo) !== comun
-      ? `<span class="costo">costo ${fmtBs(Number(c.costo))} Bs</span>`
-      : '';
   return `
     <div class="st-cuenta">
       <span class="usuario">${escapar(cred.usuario || cred.email || '(sin usuario)')}</span>
       ${clave ? `<span class="st-clave tapada" data-clave title="Tocar para ver / copiar">${escapar(clave)}</span>` : ''}
       ${cred.perfil ? `<span class="dato">${escapar(cred.perfil)}</span>` : ''}
       ${c.vence_en ? `<span class="dato">vence ${escapar(c.vence_en)}</span>` : ''}
-      ${costo}
       ${c.estado !== 'libre' && c.estado !== 'entregada' ? `<span class="st-estado ${c.estado}">${c.estado}</span>` : ''}
       ${c.estado === 'libre'
         ? `<button class="st-mini" data-anular="${c.id}">Anular</button>`
@@ -779,14 +688,13 @@ function botonRebaja(p) {
   return `<button class="st-rebaja ${on ? 'on' : ''}" data-rebaja="${p.id}" title="${titulo}" aria-pressed="${on}"><span class="knob"></span>Rebaja</button>`;
 }
 
-// Al desplegar un producto con la rebaja prendida: cuánto baja hoy, a
-// cuánto se vende y hasta dónde puede llegar. Mismas reglas que la base.
+// Al desplegar un producto con la rebaja prendida: cuánto baja hoy y a
+// cuánto se vende. Mismas reglas que la base.
 function filaDeRebaja(p, cuentas) {
   if (p.rebaja_auto !== true) return '';
 
   const base   = (p.oferta && Number(p.precio_oferta) > 0) ? Number(p.precio_oferta) : Number(p.precio);
   const libres = cuentas.filter(c => c.estado === 'libre');
-  const costos = libres.filter(c => c.costo != null).map(c => Number(c.costo));
   const hoy    = REBAJAS.get(p.id) || 0;
 
   let texto = '<strong>Rebaja automática prendida.</strong> ';
@@ -798,11 +706,6 @@ function filaDeRebaja(p, cuentas) {
     texto += 'Hoy todavía no baja: empieza cuando la cuenta más vieja cumple 3 días sin venderse.';
   }
 
-  if (libres.length && base > 0) {
-    texto += costos.length
-      ? ` Nunca baja de ${fmtBs(Math.max(...costos))} Bs, tu costo.`
-      : ` <span class="falta">Sin costo anotado puede bajar hasta ${fmtBs(Math.round(base * 50) / 100)} Bs, la mitad del precio.</span>`;
-  }
   return `<div class="st-rebaja-fila">${texto}</div>`;
 }
 
@@ -837,11 +740,8 @@ async function alternarRebaja(productoId, boton) {
   boton.disabled = false;
   if (!ok) return;
 
-  const sinCosto = CUENTAS.some(c => c.producto_id === productoId && c.estado === 'libre')
-                && !CUENTAS.some(c => c.producto_id === productoId && c.estado === 'libre' && c.costo != null);
   aviso(prender
-    ? `Rebaja automática prendida en "${p.nombre}"` +
-      (sinCosto ? '. Anotá el costo: sin él puede bajar hasta la mitad del precio' : '')
+    ? `Rebaja automática prendida en "${p.nombre}"`
     : `Rebaja automática apagada en "${p.nombre}": vuelve a su precio`, 'ok');
   await cargarTodo();
 }
@@ -892,42 +792,6 @@ function sugerencias() {
         <button class="st-mini" data-cargar="${x.p.id}">+ Cargar</button>
       </div>`).join('')
     : `<div class="bien">✓ Todo lo que más vendés tiene stock para una semana.</div>`}`;
-}
-
-// El aviso de arriba de la lista: cuántas cuentas libres no tienen costo
-function avisoDeCosto() {
-  const caja = $('stAvisoCosto');
-  const n = CUENTAS.filter(c => c.estado === 'libre' && c.costo == null).length;
-  caja.hidden = n === 0;
-  if (!n) return;
-  caja.innerHTML = `⚠️ <strong>${n} cuenta${n === 1 ? '' : 's'} libre${n === 1 ? '' : 's'} sin costo anotado.</strong>
-    Abrí los productos que dicen "sin costo" y anotalo: sin costo no se ve cuánto ganás,
-    y la rebaja automática puede bajar hasta la mitad del precio.`;
-}
-
-// Anota el costo en todas las cuentas de un producto que no lo tenían,
-// libres y entregadas (así la ganancia cuenta también lo ya vendido).
-async function ponerCosto(productoId, boton) {
-  const campo = document.querySelector(`[data-costo-de="${productoId}"]`);
-  const costo = parseFloat(campo && campo.value);
-  if (!Number.isFinite(costo) || costo < 0) {
-    aviso('Escribí el costo de cada cuenta en Bs (por ejemplo 45)', 'error');
-    if (campo) campo.focus();
-    return;
-  }
-
-  boton.disabled = true;
-  const { data, error } = await sbAdmin.from('cuentas')
-    .update({ costo })
-    .eq('producto_id', productoId)
-    .is('costo', null)
-    .select('id');
-  boton.disabled = false;
-
-  if (error) { aviso(`No se pudo guardar el costo: ${error.message}`, 'error'); return; }
-  const n = (data || []).length;
-  aviso(`✓ Costo de ${costo.toFixed(2)} Bs anotado en ${n} cuenta${n === 1 ? '' : 's'}`, 'ok');
-  await cargarTodo();
 }
 
 // Los productos guardan rutas relativas a la raíz del sitio, y el panel
@@ -988,15 +852,6 @@ $('stLista').addEventListener('click', async e => {
     return;
   }
 
-  // --- Anotar el costo de las cuentas que no lo tienen ---
-  const costo = e.target.closest('[data-poner-costo]');
-  if (costo) {
-    await ponerCosto(costo.dataset.ponerCosto, costo);
-    return;
-  }
-  // Tocar el campo del costo no pliega el producto
-  if (e.target.closest('.st-costo-fila')) return;
-
   // --- Anular una cuenta ---
   const anular = e.target.closest('[data-anular]');
   if (anular) {
@@ -1031,15 +886,6 @@ $('stCargar').addEventListener('click', () => abrirModal(null));
 $('stSugerir').addEventListener('click', e => {
   const cargar = e.target.closest('[data-cargar]');
   if (cargar) abrirModal(cargar.dataset.cargar);
-});
-
-// Enter en el campo del costo = "Guardar costo"
-$('stLista').addEventListener('keydown', e => {
-  if (e.key !== 'Enter') return;
-  const campo = e.target.closest('[data-costo-de]');
-  if (!campo) return;
-  const boton = document.querySelector(`[data-poner-costo="${campo.dataset.costoDe}"]`);
-  if (boton) ponerCosto(campo.dataset.costoDe, boton);
 });
 
 // Anular = "esta cuenta se cayó, no la vendas", y se BORRA de la base.
@@ -1097,80 +943,10 @@ function abrirModal(productoId) {
   if (productoId) $('stProducto').value = productoId;
   $('stTexto').value = '';
   $('stVence').value = '';
-  costoTocado = false;
-  sinCostoConfirmado = false;
-  sugerirCosto();
   rebajaDelProducto();
   refrescarPrevia();
   $('stFondo').classList.add('abierto');
   $('stTexto').focus();
-}
-
-// ------------------------------------------------------------
-// El costo al cargar
-// ------------------------------------------------------------
-// Se llena solo con lo último que anotaste de ese producto (casi siempre
-// es el mismo proveedor y el mismo precio), mientras no lo cambies a mano.
-// Y si queda vacío, "Cargar" pide confirmación una vez: sin costo no se ve
-// la ganancia y la rebaja automática no sabe hasta dónde bajar.
-let costoTocado = false;
-let sinCostoConfirmado = false;
-
-const AYUDA_COSTO = 'Lo que te costó cada una. Con esto el Inicio te muestra cuánto ' +
-                    'ganás, y la rebaja automática nunca baja de acá.';
-
-function sugerirCosto() {
-  if (costoTocado) { pintarMargen(); return; }
-  const c = ultimoCosto($('stProducto').value);
-  $('stCosto').value = c != null ? c : '';
-  pintarPedidoDeCosto(false);
-  pintarMargen();
-}
-
-// ------------------------------------------------------------
-// ¿Cuánto te deja?
-// ------------------------------------------------------------
-// Si a este costo el producto te deja menos de MARGEN_MINIMO por cuenta,
-// se avisa antes de cargar. Pasó con Claude: 42 de costo y 41.50 a 44.50
-// de venta, y nadie lo vio hasta mirar la ganancia del mes.
-const MARGEN_MINIMO = 5;
-
-// Lo que paga el cliente (la oferta si está prendida), sin la rebaja: la
-// rebaja nunca baja del costo, así que no cambia la cuenta de acá.
-const precioDeVenta = p => (p && p.oferta && Number(p.precio_oferta) > 0)
-  ? Number(p.precio_oferta) : Number(p && p.precio) || 0;
-
-// A cuánto convendría venderlo: el costo más el margen, redondeado para
-// arriba a 50 centavos
-const precioSugerido = costo => Math.ceil((costo + MARGEN_MINIMO) * 2) / 2;
-
-function pintarMargen() {
-  const caja  = $('stMargen');
-  const p     = PRODUCTOS.find(x => x.id === $('stProducto').value);
-  const costo = parseFloat($('stCosto').value);
-  const venta = precioDeVenta(p);
-  if (!p || !Number.isFinite(costo) || venta <= 0) { caja.hidden = true; return; }
-
-  const queda = Math.round((venta - costo) * 100) / 100;
-  if (queda >= MARGEN_MINIMO) { caja.hidden = true; return; }
-
-  caja.hidden = false;
-  caja.classList.toggle('perdida', queda <= 0);
-  caja.textContent = queda < 0
-    ? `Ojo: lo vendés a ${venta.toFixed(2)} Bs, así que perdés ${Math.abs(queda).toFixed(2)} Bs por cuenta. Convendría venderlo a ${precioSugerido(costo).toFixed(2)} Bs.`
-    : queda === 0
-      ? `Ojo: lo vendés a ${venta.toFixed(2)} Bs, así que no ganás nada. Convendría venderlo a ${precioSugerido(costo).toFixed(2)} Bs.`
-      : `Ojo: lo vendés a ${venta.toFixed(2)} Bs, así que te quedan solo ${queda.toFixed(2)} Bs por cuenta. Convendría venderlo a ${precioSugerido(costo).toFixed(2)} Bs.`;
-}
-
-function pintarPedidoDeCosto(pedir) {
-  const ayuda = $('stCostoAyuda');
-  ayuda.classList.toggle('falta', pedir);
-  ayuda.textContent = pedir
-    ? 'Falta el costo: sin él no vas a ver cuánto ganás con estas cuentas. ' +
-      'Escribilo, o tocá "Cargar sin costo" si no lo sabés.'
-    : AYUDA_COSTO;
-  $('stGuardar').textContent = pedir ? 'Cargar sin costo' : 'Cargar';
 }
 
 // El interruptor de la rebaja arranca como está el producto elegido
@@ -1179,17 +955,7 @@ function rebajaDelProducto() {
   $('stRebaja').checked = p?.rebaja_auto === true;
 }
 
-$('stProducto').addEventListener('change', () => {
-  sinCostoConfirmado = false;
-  sugerirCosto();
-  rebajaDelProducto();
-});
-$('stCosto').addEventListener('input', () => {
-  costoTocado = true;
-  sinCostoConfirmado = false;
-  pintarPedidoDeCosto(false);
-  pintarMargen();
-});
+$('stProducto').addEventListener('change', rebajaDelProducto);
 
 function cerrarModal() { $('stFondo').classList.remove('abierto'); }
 
@@ -1281,21 +1047,11 @@ $('stGuardar').addEventListener('click', async () => {
   if (buenas.length === 0) return;
 
   const productoId = $('stProducto').value;
-  const costo      = parseFloat($('stCosto').value);
   const vence      = $('stVence').value || null;
-
-  // Sin costo: la primera vez se avisa, la segunda se carga igual
-  if (!Number.isFinite(costo) && !sinCostoConfirmado) {
-    sinCostoConfirmado = true;
-    pintarPedidoDeCosto(true);
-    $('stCosto').focus();
-    return;
-  }
 
   const filas = buenas.map(f => ({
     producto_id:  productoId,
     credenciales: f.cred,
-    costo:        Number.isFinite(costo) ? costo : null,
     vence_en:     vence
   }));
 

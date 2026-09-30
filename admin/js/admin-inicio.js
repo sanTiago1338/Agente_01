@@ -28,10 +28,6 @@ const $ = id => document.getElementById(id);
 // cargadas, sigue a la venta y le quedan estas o menos.
 const POCO_STOCK = 2;
 
-// Un producto "te deja poco" cuando, al último costo anotado, te quedan
-// menos de estos Bs por cuenta. El mismo número que avisa al cargar en Stock.
-const MARGEN_MINIMO = 5;
-
 // Los mismos colores y nombres de estado que usa Ventas
 const ESTADOS = {
   sin_stock:      { txt: 'Sin stock',  color: '#dc2626', bg: 'rgba(220,38,38,.10)' },
@@ -94,10 +90,6 @@ css.textContent = `
   }
   .ini-cifra-n small { font-size: 15px; font-weight: 700; color: var(--tinta-suave); margin-left: 3px; }
   .ini-cifra-s { margin-top: 6px; font-size: 12.5px; color: var(--tinta-suave); }
-  /* La ganancia, debajo de lo vendido (sale del costo anotado en Stock) */
-  .ini-cifra-g { margin-top: 4px; font-size: 12.5px; font-weight: 700; color: var(--ok); }
-  .ini-cifra-g:empty { display: none; }
-  .ini-cifra-g .falta { font-weight: 600; color: var(--tinta-suave); }
   .ini-sube  { color: var(--ok); font-weight: 700; }
   .ini-baja  { color: var(--error); font-weight: 700; }
   /* Lo que espera por vos: la raya de color dice "hay algo", el número
@@ -213,17 +205,16 @@ css.textContent = `
   .ini-pill.cero { background: rgba(220,38,38,.10); color: #b91c1c; }
   .ini-pill.poco { background: rgba(180,83,9,.10);  color: #92400e; }
 
-  /* Te están dejando poco, y clientes frecuentes: el nombre arriba y los
-     números abajo, en chico */
+  /* Clientes frecuentes: el nombre arriba y los números abajo, en chico.
+     Va sola en su fila, a lo ancho (antes compartía con "Te están dejando
+     poco", que se fue con el costo). */
+  .ini-fila-sola { grid-template-columns: minmax(0, 1fr); }
   .ini-dos li { flex-wrap: wrap; row-gap: 3px; }
   .ini-dos .nom { flex-basis: 100%; white-space: normal; font-weight: 600; }
   .ini-dos .det { flex: 1; min-width: 0; font-size: 12px; color: var(--tinta-suave); line-height: 1.45; }
   .ini-dos .det b { color: var(--tinta); }
-  .ini-dos .det .mal { color: #b91c1c; font-weight: 700; }
-  .ini-dos .det .justo { color: #b45309; font-weight: 700; }
   .ini-dos a.wa { color: #15803d; font-weight: 700; text-decoration: none; white-space: nowrap; font-size: 12.5px; }
   .ini-dos a.wa:hover { text-decoration: underline; }
-  .ini-nota { font-size: 12px; color: var(--tinta-suave); margin: 10px 0 0; line-height: 1.45; }
 
   /* Lo más vendido: el nombre arriba y una barra fina que dice cuánto */
   .ini-top li { flex-wrap: wrap; row-gap: 6px; }
@@ -344,13 +335,11 @@ $('vistaInicio').innerHTML = `
         <div class="ini-cifra-l">${ICO('ventas')} Vendido hoy</div>
         <div class="ini-cifra-n" id="iniHoy">–</div>
         <div class="ini-cifra-s" id="iniHoyS">&nbsp;</div>
-        <div class="ini-cifra-g" id="iniHoyG"></div>
       </div>
       <div class="ini-cifra">
         <div class="ini-cifra-l">${ICO('inicio')} Últimos 7 días</div>
         <div class="ini-cifra-n" id="iniSemana">–</div>
         <div class="ini-cifra-s" id="iniSemanaS">&nbsp;</div>
-        <div class="ini-cifra-g" id="iniSemanaG"></div>
       </div>
       <button class="ini-cifra" id="iniCajaEsperando" data-ir="ventas">
         <span class="ini-ir" aria-hidden="true">→</span>
@@ -419,19 +408,7 @@ $('vistaInicio').innerHTML = `
       </section>
     </div>
 
-    <div class="ini-fila">
-      <section class="ini-caja">
-        <div class="ini-caja-cab">
-          <div>
-            <h3>Te están dejando poco</h3>
-            <p class="ini-sub">Productos que, al último costo que anotaste, te dejan menos de ${MARGEN_MINIMO} Bs</p>
-          </div>
-          <button class="ini-link" data-ir="productos">Cambiar precios</button>
-        </div>
-        <ul class="ini-lista ini-dos" id="iniMargen"><li><div class="ini-esq" style="height:90px;flex:1"></div></li></ul>
-        <p class="ini-nota" id="iniMargenNota" hidden></p>
-      </section>
-
+    <div class="ini-fila ini-fila-sola">
       <section class="ini-caja">
         <h3>Clientes frecuentes</h3>
         <p class="ini-sub">Los que te compraron más de una vez</p>
@@ -517,20 +494,17 @@ async function cargar() {
         .eq('estado', 'esperando_pago'),
       sbAdmin.from('pedidos').select('id, grupo')
         .in('estado', ['sin_stock', 'pagado']),
-      // Sin credenciales: producto y estado para el stock, y pedido, costo
-      // y fecha para la ganancia
-      sbAdmin.from('cuentas').select('producto_id, estado, pedido_id, costo, creada_en').neq('estado', 'anulada'),
-      // Con los precios, para ver cuánto deja cada uno a su último costo
-      sbAdmin.from('productos').select('id, nombre, activo, precio, precio_oferta, oferta')
+      // Sin credenciales: producto y estado, para el stock
+      sbAdmin.from('cuentas').select('producto_id, estado').neq('estado', 'anulada'),
+      sbAdmin.from('productos').select('id, nombre, activo')
     ]);
 
     const error = [rPedidos, rEsperando, rAtender, rCuentas, rProductos].find(r => r.error)?.error;
     if (error) throw error;
 
-    pintarMargen(rCuentas.data, rProductos.data);
     pintarClientes();   // aparte, con sus propios pedidos: si falla, el resto igual se ve
 
-    pintarCifras(rPedidos.data, cuantasCompras(rEsperando.data), cuantasCompras(rAtender.data), rCuentas.data);
+    pintarCifras(rPedidos.data, cuantasCompras(rEsperando.data), cuantasCompras(rAtender.data));
     pintarGrafico(rPedidos.data);
     pintarStock(rCuentas.data, rProductos.data);
     pintarPedidos(rPedidos.data);
@@ -552,49 +526,7 @@ async function cargar() {
 // ============================================================
 // 5. CIFRAS DE ARRIBA
 // ============================================================
-// ------------------------------------------------------------
-// Ganancia: lo cobrado menos lo que costó cada cuenta entregada.
-// ------------------------------------------------------------
-// El costo sale de la cuenta que se entregó. Si esa cuenta no lo tiene
-// anotado (o la venta fue por WhatsApp, sin cuenta en el stock), se usa el
-// último costo anotado de ese producto. Si ni eso, la venta no entra en la
-// cuenta, y se dice cuántas quedaron afuera.
-function calculadoraDeGanancia(cuentas) {
-  const porPedido   = new Map();
-  const porProducto = new Map();
-  [...cuentas]
-    .sort((a, b) => String(b.creada_en).localeCompare(String(a.creada_en)))   // la más nueva primero
-    .forEach(c => {
-      if (c.costo == null) return;
-      if (c.pedido_id && !porPedido.has(c.pedido_id)) porPedido.set(c.pedido_id, Number(c.costo));
-      if (!porProducto.has(c.producto_id)) porProducto.set(c.producto_id, Number(c.costo));
-    });
-
-  return lista => {
-    let bs = 0, con = 0, sin = 0;
-    for (const p of lista) {
-      const costo = porPedido.has(p.id) ? porPedido.get(p.id) : porProducto.get(p.producto_id);
-      if (costo == null) { sin++; continue; }
-      bs += Number(p.precio || 0) - costo;
-      con++;
-    }
-    return { bs, con, sin };
-  };
-}
-
-function pintarGanancia(id, g) {
-  const el = $(id);
-  if (g.con + g.sin === 0) { el.innerHTML = ''; return; }        // no hubo ventas
-  if (g.con === 0) {
-    el.innerHTML = `<span class="falta">Ganancia:</span> <button class="ini-link" data-ir="stock">anotá el costo en Stock</button>`;
-    return;
-  }
-  el.innerHTML = `💰 Ganaste ${bs(g.bs)} Bs` +
-    (g.sin ? ` <span class="falta">· ${g.sin} sin costo</span>` : '');
-}
-
-function pintarCifras(pedidos, esperando, atender, cuentas = []) {
-  const ganancia = calculadoraDeGanancia(cuentas);
+function pintarCifras(pedidos, esperando, atender) {
   $('iniHola').innerHTML = `${saludo()} 👋 <b>Así viene la tienda hoy.</b>`;
 
   const entregados = pedidos.filter(p => p.estado === 'entregado' && p.entregado_en);
@@ -605,7 +537,6 @@ function pintarCifras(pedidos, esperando, atender, cuentas = []) {
   $('iniHoy').innerHTML  = `${bs(bsHoy)}<small>Bs</small>`;
   const comprasHoy = cuantasCompras(deHoy);
   $('iniHoyS').textContent = comprasHoy === 1 ? '1 pedido entregado' : `${comprasHoy} pedidos entregados`;
-  pintarGanancia('iniHoyG', ganancia(deHoy));
 
   // Últimos 7 días (hoy incluido) contra los 7 de antes
   const inicioDia = new Date(); inicioDia.setHours(0, 0, 0, 0);
@@ -618,7 +549,6 @@ function pintarCifras(pedidos, esperando, atender, cuentas = []) {
   const semana   = suma(corte7, Infinity);
   const anterior = suma(corte14, corte7);
   $('iniSemana').innerHTML = `${bs(semana)}<small>Bs</small>`;
-  pintarGanancia('iniSemanaG', ganancia(entregados.filter(p => new Date(p.entregado_en).getTime() >= corte7)));
 
   if (anterior > 0) {
     const cambio = Math.round((semana - anterior) / anterior * 100);
@@ -829,57 +759,6 @@ function pintarPedidos(pedidos) {
         }).join('')}
       </tbody>
     </table>`;
-}
-
-
-// ============================================================
-// 8b. TE ESTÁN DEJANDO POCO
-// ============================================================
-// Cada producto a la venta con su último costo anotado (la cuenta más
-// nueva que tenga costo), contra lo que paga el cliente: la oferta si está
-// prendida, si no el precio. La rebaja automática no cuenta: nunca baja
-// del costo. Salen los que dejan menos de MARGEN_MINIMO, primero los que
-// hacen perder, y con el precio al que convendría venderlos.
-function pintarMargen(cuentas, productos) {
-  const ultimo = new Map();
-  [...cuentas]
-    .filter(c => c.costo != null)
-    .sort((a, b) => String(b.creada_en).localeCompare(String(a.creada_en)))
-    .forEach(c => { if (!ultimo.has(c.producto_id)) ultimo.set(c.producto_id, Number(c.costo)); });
-
-  const venta = p => (p.oferta && Number(p.precio_oferta) > 0) ? Number(p.precio_oferta) : Number(p.precio) || 0;
-  const sugerido = costo => Math.ceil((costo + MARGEN_MINIMO) * 2) / 2;
-  const dos = n => Number(n).toFixed(2);
-
-  const flojos = productos
-    .filter(p => p.activo !== false && ultimo.has(p.id) && venta(p) > 0)
-    .map(p => ({ p, costo: ultimo.get(p.id), precio: venta(p) }))
-    .map(x => ({ ...x, queda: Math.round((x.precio - x.costo) * 100) / 100 }))
-    .filter(x => x.queda < MARGEN_MINIMO)
-    .sort((a, b) => a.queda - b.queda);
-
-  if (flojos.length === 0) {
-    $('iniMargen').innerHTML = `<li class="ini-vacio" style="display:block;border:none">
-      <b>Todo deja margen</b>Con los costos que anotaste, cada producto te deja ${MARGEN_MINIMO} Bs o más.</li>`;
-    $('iniMargenNota').hidden = true;
-    return;
-  }
-
-  $('iniMargen').innerHTML = flojos.map(x => `
-    <li>
-      <span class="nom">${escapar(x.p.nombre)}</span>
-      <span class="det">
-        Lo vendés a <b>${dos(x.precio)} Bs</b> · te cuesta <b>${dos(x.costo)} Bs</b> ·
-        ${x.queda < 0 ? `<span class="mal">perdés ${dos(-x.queda)} Bs</span>`
-          : x.queda === 0 ? `<span class="mal">no ganás nada</span>`
-          : `<span class="justo">te quedan ${dos(x.queda)} Bs</span>`}<br>
-        Convendría venderlo a <b>${dos(sugerido(x.costo))} Bs</b>
-      </span>
-    </li>`).join('');
-
-  // Con el descuento combo, al más caro de la compra se le sacan 4 Bs más
-  $('iniMargenNota').hidden = false;
-  $('iniMargenNota').textContent = 'Si lo compran en combo con otro producto, al más caro se le descuentan 4 Bs más.';
 }
 
 

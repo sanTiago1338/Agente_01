@@ -39,6 +39,7 @@ let CUENTAS   = [];   // [{ id, producto_id, estado, costo, ... }]
 let VENDIDAS  = new Map();   // producto_id -> unidades pagadas en los últimos 30 días
 let REBAJAS   = new Map();   // producto_id -> Bs que baja hoy (solo los que bajan algo)
 let abierto   = null; // qué producto está desplegado en la lista
+let verDadas  = null; // de qué producto se están mostrando las entregadas
 
 // Lo último que te costó una cuenta de este producto, o null si nunca lo
 // anotaste. CUENTAS viene de la más nueva a la más vieja, así que la
@@ -46,6 +47,21 @@ let abierto   = null; // qué producto está desplegado en la lista
 function ultimoCosto(productoId) {
   const c = CUENTAS.find(x => x.producto_id === productoId && x.costo != null);
   return c ? Number(c.costo) : null;
+}
+
+// El costo que tienen casi todas las cuentas de un producto (el que más se
+// repite), o null si ninguna tiene. Va una sola vez en la cabecera del
+// producto; en cada cuenta solo se escribe si es distinto de este.
+function costoComun(cuentas) {
+  const veces = new Map();
+  for (const c of cuentas) {
+    if (c.costo == null) continue;
+    const v = Number(c.costo);
+    veces.set(v, (veces.get(v) || 0) + 1);
+  }
+  let mejor = null, max = 0;
+  for (const [v, n] of veces) if (n > max) { mejor = v; max = n; }
+  return mejor;
 }
 
 
@@ -99,19 +115,40 @@ css.textContent = `
   .st-pill.libre  { background: rgba(21,128,61,.11);  color: #15803d; }
   .st-pill.cero   { background: rgba(220,38,38,.10);  color: #dc2626; }
   .st-pill.dadas  { background: var(--panel-2);        color: var(--gris); }
+  .st-pill.costo  { background: none; color: var(--gris-dim); font-weight: 600; padding-left: 0; padding-right: 0; }
 
   .st-flecha { color: var(--gris-dim); font-size: 13px; flex: none; transition: transform .15s; }
   .st-prod.abierto .st-flecha { transform: rotate(90deg); }
 
   /* ---------- Cuentas de un producto ---------- */
-  .st-cuentas { border-top: 1px solid var(--borde); padding: 6px 0; }
+  /* Renglones finos: 30 px en vez de 39, sin el costo ni el estado
+     repetidos en cada uno (ver filaDeCuenta) */
+  .st-cuentas { border-top: 1px solid var(--borde); padding: 4px 0; }
   .st-cuenta {
     display: flex; align-items: center; gap: 12px;
-    padding: 9px 16px 9px 68px;
-    font-size: 13.5px;
+    padding: 5px 16px 5px 68px;
+    font-size: 13px;
     border-bottom: 1px solid var(--borde);
   }
   .st-cuenta:last-child { border-bottom: none; }
+  .st-cuenta .dato { color: var(--gris-dim); font-size: 12px; flex: none; }
+
+  /* "22 entregadas · Ver": las vendidas, plegadas en un solo renglón */
+  .st-ver-dadas {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%;
+    padding: 7px 16px 7px 68px;
+    background: none; border: none;
+    border-bottom: 1px solid var(--borde);
+    font: inherit; font-size: 13px; font-weight: 600;
+    color: var(--gris); text-align: left; cursor: pointer;
+  }
+  .st-ver-dadas:last-child { border-bottom: none; }
+  .st-ver-dadas:hover { background: var(--panel-2); }
+  .st-ver-dadas .flecha { font-size: 11px; transition: transform .15s; }
+  .st-ver-dadas[aria-expanded="true"] .flecha { transform: rotate(90deg); }
+  .st-ver-dadas .accion { margin-left: auto; font-size: 12px; color: var(--rojo); }
+  .st-dadas .st-cuenta .usuario { color: var(--gris); }
   .st-cuenta .usuario {
     flex: 1; min-width: 0;
     font-family: ui-monospace, Consolas, monospace;
@@ -126,10 +163,10 @@ css.textContent = `
   .st-clave {
     font-family: ui-monospace, Consolas, monospace;
     background: var(--panel-2);
-    padding: 2px 8px; border-radius: 6px;
+    padding: 1px 7px; border-radius: 6px;
     cursor: pointer; flex: none;
     border: 1px solid var(--borde);
-    font-size: 12.5px;
+    font-size: 12.5px; line-height: 1.35;
   }
   .st-clave.tapada { color: transparent; text-shadow: 0 0 7px rgba(20,22,26,.55); }
   .st-clave:hover  { border-color: var(--rojo); }
@@ -307,7 +344,8 @@ css.textContent = `
     .st-costo-fila { padding-left: 16px; }
     .st-sug { flex-wrap: wrap; gap: 6px 12px; }
     .st-sug .nom { flex: 1 1 100%; white-space: normal; }
-    .st-cuenta { padding-left: 16px; flex-wrap: wrap; }
+    .st-cuenta { padding-left: 16px; flex-wrap: wrap; row-gap: 4px; }
+    .st-ver-dadas { padding-left: 16px; }
     .st-fila2  { grid-template-columns: 1fr; }
 
     /* El nombre del producto se lleva el primer renglón entero y puede
@@ -625,6 +663,7 @@ function listar() {
     const libres = suyas.filter(c => c.estado === 'libre').length;
     const dadas  = suyas.filter(c => c.estado === 'entregada').length;
     const sinCostoLibres = suyas.filter(c => c.estado === 'libre' && c.costo == null).length;
+    const comun = costoComun(suyas);
     const desplegado = abierto === p.id;
 
     // Si la foto no carga se muestra la inicial del nombre, igual que en la
@@ -642,6 +681,7 @@ function listar() {
           <span class="st-acciones">
             <span class="st-pill ${libres > 0 ? 'libre' : 'cero'}">${libres} libre${libres === 1 ? '' : 's'}</span>
             ${dadas ? `<span class="st-pill dadas">${dadas} entregada${dadas === 1 ? '' : 's'}</span>` : ''}
+            ${comun != null ? `<span class="st-pill costo" title="Lo que te costó cada cuenta">${fmtBs(comun)} Bs c/u</span>` : ''}
             ${sinCostoLibres ? `<span class="st-pill sincosto" title="Cuentas libres sin costo anotado">sin costo</span>` : ''}
             ${botonRebaja(p)}
             <button class="st-mini" data-cargar="${p.id}">+ Cargar</button>
@@ -671,24 +711,55 @@ function filasDeCuentas(cuentas, productoId) {
       <button class="st-mini" data-poner-costo="${productoId}">Guardar costo</button>
     </div>` : '';
 
-  return `<div class="st-cuentas">` + filaCosto + cuentas.map(c => {
-    const cred  = c.credenciales || {};
-    const clave = cred.clave || cred.password || '';
-    return `
-      <div class="st-cuenta">
-        <span class="usuario">${escapar(cred.usuario || cred.email || '(sin usuario)')}</span>
-        ${clave ? `<span class="st-clave tapada" data-clave title="Tocar para ver / copiar">${escapar(clave)}</span>` : ''}
-        ${cred.perfil ? `<span style="color:var(--gris-dim);font-size:12.5px;">${escapar(cred.perfil)}</span>` : ''}
-        ${c.vence_en ? `<span style="color:var(--gris-dim);font-size:12px;">vence ${escapar(c.vence_en)}</span>` : ''}
-        ${c.costo != null
-          ? `<span class="costo">costo ${Number(c.costo).toFixed(2)} Bs</span>`
-          : `<span class="costo falta">sin costo</span>`}
-        <span class="st-estado ${c.estado}">${c.estado}</span>
-        ${c.estado === 'libre'
-          ? `<button class="st-mini" data-anular="${c.id}">Anular</button>`
-          : ''}
-      </div>`;
-  }).join('') + `</div>`;
+  // Arriba, lo que se puede vender: las libres (y alguna reservada). Las
+  // entregadas son historia y quedan plegadas en un solo renglón, "22
+  // entregadas · Ver"; se despliegan solo si las pedís, la más reciente
+  // primero. Antes salían todas, una por renglón, y un producto con 22
+  // vendidas ocupaba la pantalla entera sin nada para hacer.
+  const comun  = costoComun(cuentas);
+  const aMano  = cuentas.filter(c => c.estado !== 'entregada');
+  const dadas  = cuentas.filter(c => c.estado === 'entregada')
+    .sort((a, b) => String(b.entregada_en || b.creada_en || '').localeCompare(String(a.entregada_en || a.creada_en || '')));
+  const mostrarDadas = verDadas === productoId;
+
+  const plegadas = dadas.length ? `
+    <button type="button" class="st-ver-dadas" data-ver-dadas="${productoId}" aria-expanded="${mostrarDadas}">
+      <span class="flecha">▸</span>
+      ${dadas.length} entregada${dadas.length === 1 ? '' : 's'}
+      <span class="accion">${mostrarDadas ? 'Ocultar' : 'Ver'}</span>
+    </button>` : '';
+
+  return `<div class="st-cuentas">` + filaCosto
+    + aMano.map(c => filaDeCuenta(c, comun)).join('')
+    + plegadas
+    + (mostrarDadas ? `<div class="st-dadas">${dadas.map(c => filaDeCuenta(c, comun)).join('')}</div>` : '')
+    + `</div>`;
+}
+
+// Un renglón por cuenta, sin repetir lo que ya se sabe: el costo va en la
+// cabecera del producto (acá solo si esta cuenta costó distinto, o si
+// falta), y el estado lo dice la sección (libres arriba, entregadas en su
+// grupo). Solo se escribe si es otro, como "reservada".
+function filaDeCuenta(c, comun) {
+  const cred  = c.credenciales || {};
+  const clave = cred.clave || cred.password || '';
+  const costo = c.costo == null
+    ? `<span class="costo falta">sin costo</span>`
+    : Number(c.costo) !== comun
+      ? `<span class="costo">costo ${fmtBs(Number(c.costo))} Bs</span>`
+      : '';
+  return `
+    <div class="st-cuenta">
+      <span class="usuario">${escapar(cred.usuario || cred.email || '(sin usuario)')}</span>
+      ${clave ? `<span class="st-clave tapada" data-clave title="Tocar para ver / copiar">${escapar(clave)}</span>` : ''}
+      ${cred.perfil ? `<span class="dato">${escapar(cred.perfil)}</span>` : ''}
+      ${c.vence_en ? `<span class="dato">vence ${escapar(c.vence_en)}</span>` : ''}
+      ${costo}
+      ${c.estado !== 'libre' && c.estado !== 'entregada' ? `<span class="st-estado ${c.estado}">${c.estado}</span>` : ''}
+      ${c.estado === 'libre'
+        ? `<button class="st-mini" data-anular="${c.id}">Anular</button>`
+        : ''}
+    </div>`;
 }
 
 // ------------------------------------------------------------
@@ -933,11 +1004,21 @@ $('stLista').addEventListener('click', async e => {
     return;
   }
 
+  // --- Ver / ocultar las entregadas de un producto ---
+  const verLas = e.target.closest('[data-ver-dadas]');
+  if (verLas) {
+    const id = verLas.dataset.verDadas;
+    verDadas = (verDadas === id) ? null : id;
+    listar();
+    return;
+  }
+
   // --- Desplegar / plegar el producto ---
   const cab = e.target.closest('.st-cab');
   if (cab) {
     const id = cab.closest('[data-prod]').dataset.prod;
     abierto = (abierto === id) ? null : id;
+    verDadas = null;          // al abrir otro, sus entregadas arrancan plegadas
     listar();
   }
 });

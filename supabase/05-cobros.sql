@@ -615,6 +615,10 @@ grant execute on function public.vencer_pedidos()                 to authenticat
 -- ============================================================
 -- 8b. QUE LOS VENCIDOS SE VENZAN SOLOS
 -- ============================================================
+-- OJO: APAGADO DESDE EL 29/9/2026 (10-sin-vencimiento.sql). Ahora un
+-- pedido espera hasta que lo cierres con la X del panel. Si volvés a
+-- correr este archivo, corré después el 10, o esto se vuelve a prender.
+--
 -- vencer_pedidos() no sirve de nada si no la llama nadie, y durante un
 -- tiempo no la llamó nadie. Cada visitante que arma un pedido y después no
 -- paga dejaba una fila en 'esperando_pago' para siempre, y esa fila sale

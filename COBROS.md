@@ -217,9 +217,14 @@ misma función. No hay dos caminos que puedan quedar desincronizados.
 **"Pagó y no había stock"** → el pedido queda en `sin_stock` con el pago
 registrado. Cargá cuentas de ese producto y tocá **Reintentar** en el panel.
 
-**"Pagó tarde y el pedido figura vencido"** → vencer es solo una etiqueta para
-que la lista de pendientes no se llene. Tocá **"Pagó tarde: entregar"**; el
-pedido se entrega igual.
+**"Un pedido que nunca pagó sigue en Para atender"** → desde el 29/9/2026 los
+pedidos ya no se vencen solos a las 24 horas: esperan hasta que los cierres con
+la **X** del panel, con su motivo ("Nunca pagó", "Pedido duplicado"…). Ver
+`supabase/10-sin-vencimiento.sql`.
+
+**"Pagó tarde y el pedido figura vencido"** → solo les pasa a los que se
+vencieron antes de ese cambio. Vencer es solo una etiqueta: tocá **"Pagó tarde:
+entregar"** y el pedido se entrega igual.
 
 **"El cliente perdió la cuenta"** → el link de su pedido quedó en el mensaje de
 WhatsApp que te mandó con el comprobante. Ahí la vuelve a ver. Y desde el panel

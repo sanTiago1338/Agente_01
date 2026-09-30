@@ -308,7 +308,7 @@ nav {
    Sin tope de ancho y a 8 px del borde, igual que la tienda: antes se
    frenaba en 1100 px y en la compu quedaban franjas vacias a los lados. */
 main {
-  padding: 3rem 0.5rem;
+  padding: 1rem 0.5rem 1.5rem;
 }
 
 /* ===== SECTION TITLE ===== */
@@ -316,7 +316,7 @@ main {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.9rem;
 }
 
 .section-title h2 {
@@ -476,7 +476,7 @@ main {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin-top: 1.5rem;
+  margin-top: 0.9rem;
 }
 
 .plan-card {
@@ -559,7 +559,7 @@ main {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.25rem;
-  margin-top: 1.5rem;
+  margin-top: 0.9rem;
 }
 
 .info-card {
@@ -596,15 +596,15 @@ main {
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-top: 1.5rem;
+  gap: 1.25rem;
+  margin-top: 0;
 }
 
 .contact-card {
   background: var(--negro2);
   border: 1px solid rgba(20,22,26,0.054);
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 .contact-card h3 {
@@ -650,7 +650,7 @@ main {
   border: none;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(229,9,20,0.3), transparent);
-  margin: 3rem 0;
+  margin: 1.5rem 0;
 }
 
 /* ===== GLOW ACCENT ===== */
@@ -661,7 +661,7 @@ main {
 footer {
   background: var(--negro2);
   border-top: 1px solid rgba(20,22,26,0.054);
-  padding: 2rem;
+  padding: 1.25rem 2rem;
   text-align: center;
   color: var(--texto-dim);
   font-size: 0.85rem;
@@ -688,7 +688,7 @@ footer strong { color: var(--dorado); font-family: 'Bebas Neue', sans-serif; fon
 .hero-inner {
   background: var(--negro2);
   border-bottom: 1px solid rgba(20,22,26,0.045);
-  padding: 4rem 2rem 3rem;
+  padding: 2rem 2rem 1.75rem;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -740,7 +740,7 @@ footer strong { color: var(--dorado); font-family: 'Bebas Neue', sans-serif; fon
   .hero h1 { font-size: clamp(3rem, 15vw, 5rem); }
   .contact-grid { grid-template-columns: 1fr; }
   .stats-bar { gap: 2rem; }
-  main { padding-top: 2rem; padding-bottom: 2rem; }
+  main { padding-top: 0.75rem; padding-bottom: 1.25rem; }
 }
 
 @media (max-width: 480px) {
@@ -893,7 +893,7 @@ body > nav {
   border: 1px solid var(--vidrio-borde);
   border-radius: 20px;
   overflow-x: auto;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
 }
 

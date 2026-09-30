@@ -63,7 +63,7 @@
   <main>
 
     <!-- AVISO -->
-    <div class="aviso-precios" style="padding:1rem 1.5rem; margin-bottom:2.5rem; display:flex; align-items:center; gap:1rem;">
+    <div class="aviso-precios" style="padding:1rem 1.5rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:1rem;">
       <span style="font-size:1.5rem;">💡</span>
       <p style="margin:0; color:var(--texto); font-size:0.9rem;">Todos los precios están en <strong style="color:var(--dorado);">bolivianos (Bs.)</strong>. Para consultas de servicios específicos, escríbenos directamente al WhatsApp.</p>
     </div>
@@ -74,7 +74,7 @@
       <div class="line"></div>
     </div>
 
-    <div class="planes-grid" style="margin-bottom:3rem;">
+    <div class="planes-grid" style="margin-bottom:1.5rem;">
 
       <div class="plan-card">
         <div class="plan-header">
@@ -163,10 +163,10 @@
     <hr class="divisor">
 
     <!-- CTA -->
-    <div style="text-align:center; padding: 2rem 0;">
+    <div style="text-align:center; padding: 0.5rem 0;">
       <div class="hero-badge" style="margin-bottom:1rem;">🛒 Ver catálogo completo</div>
       <h2 style="font-family:'Bebas Neue',sans-serif; font-size:2.5rem; letter-spacing:3px; margin-bottom:0.75rem; color: var(--blanco);">ACCEDE A NUESTRA TIENDA</h2>
-      <p style="color: var(--texto-dim); margin-bottom:2rem; font-size:0.95rem;">Revisa todos los servicios disponibles y agrega los que deseas a tu carrito.</p>
+      <p style="color: var(--texto-dim); margin-bottom:1.25rem; font-size:0.95rem;">Revisa todos los servicios disponibles y agrega los que deseas a tu carrito.</p>
       <a href="index.html" class="btn-wa" style="font-size:1rem; padding:0.9rem 2.5rem;">
         🛒 Ir a la Tienda
       </a>
@@ -174,10 +174,10 @@
 
     <hr class="divisor">
 
-    <div style="text-align:center; padding: 2rem 0;">
+    <div style="text-align:center; padding: 0.5rem 0;">
       <div class="hero-badge" style="margin-bottom:1rem;">🦁 Tu consulta no molesta</div>
       <h2 style="font-family:'Bebas Neue',sans-serif; font-size:2.5rem; letter-spacing:3px; margin-bottom:0.75rem; color: var(--blanco);">¿TIENES DUDAS SOBRE PRECIOS?</h2>
-      <p style="color: var(--texto-dim); margin-bottom:2rem; font-size:0.95rem;">Escríbenos indicando el servicio y el tiempo de suscripción que deseas.</p>
+      <p style="color: var(--texto-dim); margin-bottom:1.25rem; font-size:0.95rem;">Escríbenos indicando el servicio y el tiempo de suscripción que deseas.</p>
       <a href="https://wa.me/59157707335" target="_blank" class="btn-wa" style="font-size:1rem; padding:0.9rem 2.5rem;">
         📲 Consultar por WhatsApp · +591 57707335
       </a>
@@ -346,7 +346,7 @@
       $('tablasPrecios').innerHTML = categorias.map(cat => {
         const filas = grupos.filter(g => g.categoria === cat);
         return `
-        <h3 style="color:var(--rojo); font-family:'Bebas Neue',sans-serif; letter-spacing:2px; font-size:1.4rem; margin-bottom:1rem; margin-top:2rem;">
+        <h3 style="color:var(--rojo); font-family:'Bebas Neue',sans-serif; letter-spacing:2px; font-size:1.4rem; margin-bottom:0.6rem; margin-top:1.25rem;">
           ${TITULOS[cat] || '🏷️ ' + escapar(cat).toUpperCase()}
           <span style="color:var(--texto-dim); font-size:0.8rem; font-family:'Outfit',sans-serif; letter-spacing:0;">${filas.length}</span>
         </h3>

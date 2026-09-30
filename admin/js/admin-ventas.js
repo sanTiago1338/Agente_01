@@ -1391,15 +1391,15 @@ async function copiarParaMandar(pedidoId) {
   if (!p || !cred) return;
 
   const texto = [
-    `🦁 *TIAGO STORE* · Pedido #${p.numero}`,
+    `*TIAGO STORE* · Pedido #${p.numero}`,
     ``,
     `*${p.producto_nombre}*`,
     ``,
-    `👤 Usuario: ${cred.usuario || ''}`,
-    cred.clave  ? `🔑 Clave: ${cred.clave}`   : '',
-    cred.perfil ? `👥 Perfil: ${cred.perfil}` : '',
-    cred.pin    ? `🔢 PIN: ${cred.pin}`       : '',
-    cred.notas  ? `\n📌 ${cred.notas}`        : '',
+    `Usuario: ${cred.usuario || ''}`,
+    cred.clave  ? `Clave: ${cred.clave}`   : '',
+    cred.perfil ? `Perfil: ${cred.perfil}` : '',
+    cred.pin    ? `PIN: ${cred.pin}`       : '',
+    cred.notas  ? `\nNota: ${cred.notas}`    : '',
     ``,
     `¡Gracias por tu compra!`
   ].filter(l => l !== '').join('\n');
@@ -1417,17 +1417,17 @@ async function copiarCompraEntera(clave) {
     const cred = CREDS[o.id];
     return [
       `*${o.producto_nombre}* (#${o.numero})`,
-      `👤 Usuario: ${cred.usuario || ''}`,
-      cred.clave  ? `🔑 Clave: ${cred.clave}`   : '',
-      cred.perfil ? `👥 Perfil: ${cred.perfil}` : '',
-      cred.pin    ? `🔢 PIN: ${cred.pin}`       : '',
-      cred.notas  ? `📌 ${cred.notas}`          : ''
+      `Usuario: ${cred.usuario || ''}`,
+      cred.clave  ? `Clave: ${cred.clave}`   : '',
+      cred.perfil ? `Perfil: ${cred.perfil}` : '',
+      cred.pin    ? `PIN: ${cred.pin}`       : '',
+      cred.notas  ? `Nota: ${cred.notas}`      : ''
     ].filter(Boolean).join('\n');
   });
   if (!bloques.length) return;
 
   await copiarTexto([
-    `🦁 *TIAGO STORE* · Pedido ${numerosDeCompra(c.lineas)}`,
+    `*TIAGO STORE* · Pedido ${numerosDeCompra(c.lineas)}`,
     ...bloques,
     `¡Gracias por tu compra!`
   ].join('\n\n'));

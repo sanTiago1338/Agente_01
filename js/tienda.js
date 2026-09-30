@@ -975,7 +975,7 @@
     const sinPrecio = p => !(p.price > 0);
 
     function waConsulta(nombre) {
-      const texto = `🦁 *TIAGO STORE BOLIVIA* 🦁\n\nHola, quiero consultar el precio y la disponibilidad de:\n\n🎯 *${nombre}*\n\nGracias.`;
+      const texto = `*TIAGO STORE BOLIVIA*\n\nHola, quiero consultar el precio y la disponibilidad de:\n\n*${nombre}*\n\nGracias.`;
       return `https://wa.me/59157707335?text=${encodeURIComponent(texto)}`;
     }
 

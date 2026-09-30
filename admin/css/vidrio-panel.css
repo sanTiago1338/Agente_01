@@ -22,6 +22,14 @@
   /* Vidrio para lo que tiene datos: más denso que el de la tienda */
   --vidrio-datos: linear-gradient(180deg, rgba(255,255,255,.52), rgba(255,255,255,.38));
   --vidrio-campo: rgba(255,255,255,.62);
+
+  /* El panel sigue esmerilado como siempre. La tienda pasó a vidrio
+     Transparente (--tenido en css/vidrio.css), casi sin esmerilar, y el
+     panel lo heredaba: la barra de arriba dejaba leer lo que pasaba por
+     detrás y se mezclaban las letras. Acá se trabaja leyendo, y el panel
+     no tiene el botón para teñir: vuelven los de antes. */
+  --vidrio-blur:       blur(22px) saturate(180%);
+  --vidrio-blur-barra: blur(24px) saturate(180%) brightness(1.3);
 }
 
 

@@ -574,9 +574,19 @@ main {
 .info-card:hover { transform: translateY(-3px); }
 
 .info-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.75rem;
+  font-size: 2.2rem;
+  margin-bottom: 0.6rem;
   display: block;
+}
+/* Los íconos de línea que reemplazaron a los emojis: toman el tamaño y
+   el color de su caja (el color va en cada uno, en contacto.html) */
+.info-icon svg,
+.contact-icon svg { display: block; margin: 0 auto; }
+.cta-ico {
+  font-size: 2.4rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: center;
 }
 
 .info-card h3 {
@@ -626,9 +636,10 @@ main {
 .contact-item:last-of-type { border: none; }
 
 .contact-icon {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   min-width: 2rem;
   text-align: center;
+  color: var(--rojo);
 }
 
 .contact-label {

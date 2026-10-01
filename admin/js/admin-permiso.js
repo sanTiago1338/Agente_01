@@ -80,19 +80,19 @@ export async function tengoPermiso() {
 export function carteSinPermiso(motivo, claseVacio = 'st-vacio') {
   const textos = {
     sin_sesion: {
-      emo: '🔒',
+      emo: '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
       titulo: 'No hay sesión abierta',
       cuerpo: 'Volvé a entrar al panel.'
     },
     no_es_admin: {
-      emo: '🚫',
+      emo: '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg>',
       titulo: 'Tu usuario no está en la lista de admins',
       cuerpo: 'Podés mirar el catálogo, pero no las ventas ni el stock.<br>' +
               'Se arregla agregándote a la tabla <code>admins</code>: ' +
               'está explicado en <code>supabase/02-seguridad.sql</code>.'
     },
     error: {
-      emo: '📡',
+      emo: '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8.8a15 15 0 0 1 20 0M5 12.9a10 10 0 0 1 14 0M8.5 16.4a5 5 0 0 1 7 0"/><path d="M12 20h.01"/></svg>',
       titulo: 'No se pudo comprobar tu permiso',
       cuerpo: 'Puede ser la conexión. Probá con <strong>↻ Actualizar</strong>.'
     }

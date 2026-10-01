@@ -277,7 +277,7 @@
         <input type="password" id="clave1" autocomplete="new-password"
                placeholder="Al menos 8 caracteres" required>
         <button type="button" class="ojo" id="btnOjo"
-                aria-label="Mostrar contraseña">👁</button>
+                aria-label="Mostrar contraseña"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
 
@@ -390,7 +390,7 @@ $('btnOjo').addEventListener('click', () => {
   const campo  = $('clave1');
   const oculta = campo.type === 'password';
   campo.type = oculta ? 'text' : 'password';
-  $('btnOjo').textContent = oculta ? '🙈' : '👁';
+  $('btnOjo').innerHTML = oculta ? '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.9 4.2A10 10 0 0 1 12 4c6.5 0 10 8 10 8a17 17 0 0 1-2.2 3.2M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2M2 2l20 20"/></svg>' : '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
   $('btnOjo').setAttribute('aria-label', oculta ? 'Ocultar contraseña' : 'Mostrar contraseña');
   campo.focus();
 });

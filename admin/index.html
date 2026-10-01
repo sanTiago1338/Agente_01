@@ -1001,7 +1001,7 @@
     <!-- ===== Herramientas ===== -->
     <section class="herramientas">
       <div class="buscador" id="cajaBuscador">
-        <span class="lupa">🔍</span>
+        <span class="lupa"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
         <input type="search" id="buscar" placeholder="Buscar producto por nombre…" autocomplete="off">
         <button class="limpiar" id="btnLimpiar" aria-label="Limpiar búsqueda">✕</button>
       </div>
@@ -1201,7 +1201,7 @@ function escucharCatalogo() {
       cargado = true;
       $('cuerpoTabla').innerHTML = `<tr><td colspan="6">
         <div class="estado-vacio">
-          <div class="emo">⚠️</div>
+          <div class="emo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
           <h3>No se pudo cargar el catálogo</h3>
           <p>${escapar(error.message)}</p>
         </div></td></tr>`;
@@ -1363,7 +1363,7 @@ function render() {
     const buscando = $('buscar').value.trim();
     $('cuerpoTabla').innerHTML = `<tr><td colspan="6">
       <div class="estado-vacio">
-        <div class="emo">🔍</div>
+        <div class="emo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
         <h3>Sin resultados</h3>
         <p>${buscando
               ? `Ningún producto coincide con «${escapar(buscando)}»`
@@ -1425,8 +1425,8 @@ function fila(p) {
         <button class="desc-btn${textoDesc ? '' : ' vacia'}" data-accion="descripcion" data-id="${p.id}"
                 title="Clic para editar la descripción">
           ${textoDesc ? escapar(recortarDesc(textoDesc)) : '+ Agregar descripción'}
-          ${pideCorreo ? '<span class="pide-correo">· 📧 pide correo</span>' : ''}
-          <span class="desc-lapiz">✏️</span>
+          ${pideCorreo ? '<span class="pide-correo">· pide correo</span>' : ''}
+          <span class="desc-lapiz"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></span>
         </button>
       </td>
       <td class="celda-precio">
@@ -1622,10 +1622,10 @@ window.addEventListener('popstate', () => {
 <!-- Subida de imágenes: se engancha al editor de arriba, va después -->
 <script type="module" src="js/admin-imagenes.js?v=20261001145400"></script>
 
-<!-- Administración de juegos de recarga: construye la vista 🎮 Juegos -->
+<!-- Administración de juegos de recarga: construye la vista Juegos -->
 <script type="module" src="js/admin-juegos.js?v=20261001145400"></script>
 
-<!-- Ventas y stock: construyen las vistas 💳 Ventas y 🔑 Stock.
+<!-- Ventas y stock: construyen las vistas Ventas y Stock.
      Le hablan a Supabase directo, sin pasar por el puente
      js/panel-datos.js que usan Productos y Juegos. -->
 <script type="module" src="js/admin-ventas.js?v=20261001145400"></script>

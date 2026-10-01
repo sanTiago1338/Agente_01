@@ -329,7 +329,7 @@ $('vistaStock').innerHTML = `
 
     <div class="st-barra">
       <div class="buscador">
-        <span class="lupa">🔍</span>
+        <span class="lupa"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
         <input type="search" id="stBuscar" placeholder="Buscar producto…" autocomplete="off">
       </div>
       <button class="btn btn-fantasma" id="stRefrescar">↻ Actualizar</button>
@@ -520,7 +520,7 @@ function fallo(error) {
            || error.code === '42501';
   $('stLista').innerHTML = `
     <div class="st-vacio">
-      <div class="emo">🔒</div>
+      <div class="emo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
       <h3>No se pudo leer el stock</h3>
       <p>${escapar(error.message)}</p>
       ${rls ? '<p>Tu usuario no está en la tabla <code>admins</code>. Está explicado en <code>supabase/02-seguridad.sql</code>.</p>' : ''}
@@ -571,7 +571,7 @@ function listar() {
   if (PRODUCTOS.length === 0) {
     $('stLista').innerHTML = `
       <div class="st-vacio">
-        <div class="emo">📦</div>
+        <div class="emo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg></div>
         <h3>Todavía no hay productos en Supabase</h3>
         <p>El stock se carga contra un producto, así que primero hay que
            copiar el catálogo.<br>Es el <strong>paso 5</strong> de
@@ -583,7 +583,7 @@ function listar() {
   if (lista.length === 0) {
     $('stLista').innerHTML = `
       <div class="st-vacio">
-        <div class="emo">${filtro ? '🔍' : '🔑'}</div>
+        <div class="emo">${filtro ? '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' : '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></svg>'}</div>
         <h3>${filtro ? 'Ningún producto con ese nombre' : 'Todavía no cargaste ninguna cuenta'}</h3>
         <p>${filtro
              ? 'Probá con otras letras.'

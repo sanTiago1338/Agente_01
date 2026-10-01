@@ -264,16 +264,16 @@ contenedor.innerHTML = `
                   <input type="checkbox" id="fActivo" checked> Disponible
                 </label>
                 <label class="zv-sw" id="swDestacado">
-                  <input type="checkbox" id="fDestacado"> ★ Destacado
+                  <input type="checkbox" id="fDestacado"> Destacado
                 </label>
                 <label class="zv-sw" id="swOferta">
                   <input type="checkbox" id="fOferta"> En oferta
                 </label>
                 <label class="zv-sw" id="swPlanes" title="Aparece en la tabla de planes.html">
-                  <input type="checkbox" id="fPlanes"> 📋 Mostrar en Planes
+                  <input type="checkbox" id="fPlanes"> Mostrar en Planes
                 </label>
                 <label class="zv-sw" id="swCorreo" title="Escribe «A correo de cliente.» en la descripción — es lo que hace que la tienda le pida el correo al cliente al pagar">
-                  <input type="checkbox" id="fCorreo"> 📧 Pide correo
+                  <input type="checkbox" id="fCorreo"> Pide correo
                 </label>
                 <!-- La rebaja automática se prende en Stock: depende de las
                      cuentas sin vender, y es ahí donde las cargás. -->
@@ -310,11 +310,11 @@ contenedor.innerHTML = `
             <div class="zv-campo">
               <label for="fEstrellas">Estrellas</label>
               <select id="fEstrellas">
-                <option value="5">★★★★★ (5)</option>
-                <option value="4">★★★★☆ (4)</option>
-                <option value="3">★★★☆☆ (3)</option>
-                <option value="2">★★☆☆☆ (2)</option>
-                <option value="1">★☆☆☆☆ (1)</option>
+                <option value="5">5 estrellas</option>
+                <option value="4">4 estrellas</option>
+                <option value="3">3 estrellas</option>
+                <option value="2">2 estrellas</option>
+                <option value="1">1 estrella</option>
               </select>
             </div>
 
@@ -335,19 +335,19 @@ contenedor.innerHTML = `
               </label>
               <div class="zv-ficha">
                 <div>
-                  <span>⚡ Entrega</span>
+                  <span>Entrega</span>
                   <input type="text" id="fEntrega" placeholder="De 5 a 30 minutos" autocomplete="off">
                 </div>
                 <div>
-                  <span>🛡️ Soporte</span>
+                  <span>Soporte</span>
                   <input type="text" id="fSoporte" placeholder="Incluido" autocomplete="off">
                 </div>
                 <div>
-                  <span>📺 Acceso</span>
+                  <span>Acceso</span>
                   <input type="text" id="fAcceso" placeholder="Cuenta completa…" autocomplete="off">
                 </div>
                 <div>
-                  <span>🔄 Suscripción</span>
+                  <span>Suscripción</span>
                   <input type="text" id="fSuscripcion" placeholder="Mensual · Renovable" autocomplete="off">
                 </div>
               </div>
@@ -444,7 +444,7 @@ contenedor.innerHTML = `
         <img id="zvBorrarImg" alt="">
         <h3>¿Eliminar este producto?</h3>
         <p id="zvBorrarNombre"></p>
-        <p class="peligro">⚠️ No se puede deshacer. Desaparece de la tienda al instante.</p>
+        <p class="peligro">No se puede deshacer. Desaparece de la tienda al instante.</p>
       </div>
       <div class="zv-pie">
         <button type="button" class="zv-btn gris" data-cerrar>Cancelar</button>
@@ -563,7 +563,7 @@ function actualizarPrevia() {
   $('fPrevia').onerror = () => {
     $('fPrevia').onerror = null;
     $('fPrevia').src = logoPorDefecto(nombre);
-    $('fPreviaTxt').textContent = '⚠️ No se pudo cargar esa imagen. Revisá la ruta.';
+    $('fPreviaTxt').textContent = 'No se pudo cargar esa imagen. Revisá la ruta.';
   };
   $('fPreviaTxt').textContent = src
     ? src
@@ -635,7 +635,7 @@ function alternarOferta(p, boton) {
       });
       aviso(prendida
         ? `"${recortar(p.nombre)}" vuelve a su precio normal: ${Number(p.precio).toFixed(2)} Bs`
-        : `🏷️ "${recortar(p.nombre)}" en oferta a ${Number(p.precioOferta).toFixed(2)} Bs`, 'ok');
+        : `"${recortar(p.nombre)}" en oferta a ${Number(p.precioOferta).toFixed(2)} Bs`, 'ok');
       return true;
     } catch (err) {
       console.error(err);
@@ -653,7 +653,7 @@ async function alternarDestacado(p) {
       fechaActualizacion: serverTimestamp()
     });
     aviso(nuevoEstado
-      ? `★ "${recortar(p.nombre)}" ahora es destacado`
+      ? `"${recortar(p.nombre)}" ahora es destacado`
       : `"${recortar(p.nombre)}" ya no es destacado`, 'ok');
     return true;
   } catch (err) {
@@ -962,7 +962,7 @@ function avisarSiPideCorreo() {
   const texto = (($('fDescRapida').value || '') + ' ' + (cambiandoDesc.nombre || '')).toLowerCase();
   const pide = texto.includes('correo de cliente');
   el.textContent = pide
-    ? '📧 Con este texto, la tienda le va a pedir el correo al cliente en la pantalla de pago.'
+    ? 'Con este texto, la tienda le va a pedir el correo al cliente en la pantalla de pago.'
     : '';
   el.style.display = pide ? 'block' : 'none';
 }
@@ -1044,7 +1044,7 @@ async function alternarPlanes(p) {
       fechaActualizacion: serverTimestamp()
     });
     aviso(nuevoEstado
-      ? `📋 "${recortar(p.nombre)}" ahora sale en Planes`
+      ? `"${recortar(p.nombre)}" ahora sale en Planes`
       : `"${recortar(p.nombre)}" ya no sale en Planes`, 'ok');
     return true;
   } catch (err) {
@@ -1210,8 +1210,8 @@ async function alternarDisponible(p) {
       fechaActualizacion: serverTimestamp()
     });
     aviso(nuevoEstado
-      ? `📦 "${recortar(p.nombre)}" vuelve a estar disponible`
-      : `🚫 "${recortar(p.nombre)}" marcado como agotado`, 'ok');
+      ? `"${recortar(p.nombre)}" vuelve a estar disponible`
+      : `"${recortar(p.nombre)}" marcado como agotado`, 'ok');
     return true;
   } catch (err) {
     console.error(err);
@@ -1240,7 +1240,7 @@ $('zvConfirmarBorrar').addEventListener('click', async () => {
 
   try {
     await deleteDoc(doc(db, 'productos', p.id));
-    aviso(`🗑️ "${recortar(p.nombre)}" eliminado`, 'ok');
+    aviso(`"${recortar(p.nombre)}" eliminado`, 'ok');
     cerrarTodo();
   } catch (err) {
     console.error(err);

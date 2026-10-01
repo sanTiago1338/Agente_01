@@ -125,7 +125,7 @@ css.textContent = `
 
   .jg-pk-lista { display:flex; flex-direction:column; gap:7px; max-height:340px; overflow-y:auto; padding-right:4px; }
   .jg-pk {
-    display:grid; grid-template-columns:38px 1fr 108px 118px 34px;
+    display:grid; grid-template-columns:132px 1fr 108px 118px 34px;
     gap:7px; align-items:center;
     background:var(--panel-2); border:1px solid var(--borde); border-radius:8px; padding:7px;
   }
@@ -134,7 +134,9 @@ css.textContent = `
     border-radius:6px; color:var(--tinta); font-size:13px; font-family:inherit;
   }
   .jg-pk input:focus, .jg-pk select:focus { outline:none; border-color:var(--rojo); }
-  .jg-pk .icono { text-align:center; }
+  /* La lista de íconos no se estira más que su columna (sin esto pisaba
+     el nombre del paquete) */
+  .jg-pk .icono { min-width:0; padding-left:6px; padding-right:4px; text-overflow:ellipsis; }
   .jg-pk .precio { font-variant-numeric:tabular-nums; }
   .jg-pk .quitar {
     background:none; border:none; color:var(--gris-dim); cursor:pointer;
@@ -143,8 +145,11 @@ css.textContent = `
   .jg-pk .quitar:hover { color:#fff; background:var(--error); }
   .jg-pk.consulta .precio { opacity:.4; }
   @media (max-width:640px) {
-    .jg-pk { grid-template-columns:38px 1fr 34px; }
-    .jg-pk .precio, .jg-pk .grupo { grid-column:2; }
+    .jg-pk { grid-template-columns:1fr 1fr 34px; }
+    .jg-pk .icono { grid-column:1; }
+    .jg-pk [data-campo="nombre"] { grid-column:2; }
+    .jg-pk .precio { grid-column:1; }
+    .jg-pk .grupo { grid-column:2; }
   }
 
   .jg-pie {
@@ -193,7 +198,7 @@ vista.innerHTML = `
 
     <div class="herramientas">
       <div class="buscador" id="jgCajaBuscador">
-        <span class="lupa">🔍</span>
+        <span class="lupa"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
         <input type="search" id="jgBuscar" placeholder="Buscar juego…" autocomplete="off">
       </div>
       <button class="btn btn-rojo" id="jgNuevo">+ Nuevo juego</button>
@@ -251,7 +256,7 @@ vista.innerHTML = `
               <label>Opciones</label>
               <div class="jg-switches">
                 <label class="jg-sw" id="jgswActivo"><input type="checkbox" id="jgfActivo" checked> Visible</label>
-                <label class="jg-sw" id="jgswPopular"><input type="checkbox" id="jgfPopular"> ⭐ Popular</label>
+                <label class="jg-sw" id="jgswPopular"><input type="checkbox" id="jgfPopular"> Popular</label>
                 <label class="jg-sw" id="jgswNuevo"><input type="checkbox" id="jgfNuevo"> Nuevo</label>
                 <label class="jg-sw" id="jgswServer"><input type="checkbox" id="jgfServer"> Pide ID + servidor</label>
                 <label class="jg-sw" id="jgswCuenta"><input type="checkbox" id="jgfCuenta"> Pide cuenta</label>
@@ -282,7 +287,7 @@ vista.innerHTML = `
         <img id="jgBorrarImg" alt="">
         <h3>¿Eliminar este juego?</h3>
         <p id="jgBorrarNombre"></p>
-        <p class="peligro">⚠️ Se borran también todos sus paquetes. No se puede deshacer.</p>
+        <p class="peligro">Se borran también todos sus paquetes. No se puede deshacer.</p>
       </div>
       <div class="jg-pie">
         <button type="button" class="jg-btn gris" data-jg-cerrar>Cancelar</button>
@@ -337,7 +342,7 @@ onSnapshot(juegosRef,
     console.error(error);
     $('jgLista').innerHTML = `
       <div class="jg-vacio" style="grid-column:1/-1;">
-        <div class="emo">🔒</div>
+        <div class="emo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
         <h3>No se pudo leer la tabla "juegos"</h3>
         <p>${escapar(error.code || error.message)}<br>
            Si dice algo de permisos, tu usuario no está en la tabla
@@ -365,7 +370,7 @@ function listar() {
   if (lista.length === 0) {
     $('jgLista').innerHTML = `
       <div class="jg-vacio" style="grid-column:1/-1;">
-        <div class="emo">${JUEGOS.length ? '🔍' : '🎮'}</div>
+        <div class="emo">${JUEGOS.length ? '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' : '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h4M8 10v4"/><path d="M15 13h.01M18 11h.01"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>'}</div>
         <h3>${JUEGOS.length ? 'Sin resultados' : 'Todavía no hay juegos'}</h3>
         <p>${JUEGOS.length
               ? 'Probá con otro nombre'
@@ -388,13 +393,13 @@ function listar() {
       </div>
       <div class="jg-chips">
         <span class="jg-chip pk">${n} paquete${n === 1 ? '' : 's'}</span>
-        ${j.popular ? '<span class="jg-chip pop">⭐ Popular</span>' : ''}
+        ${j.popular ? '<span class="jg-chip pop">Popular</span>' : ''}
         ${j.nuevo ? '<span class="jg-chip new">Nuevo</span>' : ''}
         ${j.activo === false ? '<span class="jg-chip off">Oculto</span>' : ''}
       </div>
       <div class="jg-acciones">
-        <button class="btn-icono" data-jg="editar" data-id="${j.id}" title="Editar">✏️ Editar</button>
-        <button class="btn-icono peligro" data-jg="borrar" data-id="${j.id}" title="Eliminar">🗑️</button>
+        <button class="btn-icono" data-jg="editar" data-id="${j.id}" title="Editar">Editar</button>
+        <button class="btn-icono peligro" data-jg="borrar" data-id="${j.id}" title="Eliminar" aria-label="Eliminar"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
       </div>
     </div>`;
   }).join('');
@@ -480,6 +485,32 @@ function abrirEditor(j) {
 }
 
 // ---- Paquetes ----
+
+// El ícono de cada paquete se elige por nombre, no escribiendo un emoji.
+// Se sigue guardando la misma clave de siempre (el emoji), así los 259
+// paquetes que ya existen no cambian: la tienda la lee y dibuja el ícono
+// de línea que corresponde (recarga-juegos.html, iconoPaquete). Sin ícono
+// la tienda pone el diamante, por eso vacío se muestra como "Diamante".
+const ICONOS_PAQUETE = [
+  ['💎', 'Diamante'], ['🪙', 'Moneda'], ['🎫', 'Entrada / pase'], ['⭐', 'Estrella'],
+  ['🏆', 'Trofeo'], ['📈', 'Subir de nivel'], ['🎁', 'Regalo'], ['⏳', 'Tiempo'],
+  ['📅', 'Calendario'], ['📦', 'Caja'], ['⚡', 'Rayo'], ['🎵', 'Música']
+];
+// Los que se cargaron antes con otro emoji parecido
+const ICONOS_PARECIDOS = {
+  '🎟️': 'Entrada / pase', '🎟': 'Entrada / pase', '✨': 'Estrella', '🎉': 'Regalo',
+  '🍬': 'Regalo', '🌙': 'Tiempo', '🎶': 'Música'
+};
+
+function selectorDeIcono(actual) {
+  const v = String(actual || '').trim() || '💎';
+  const lista = [...ICONOS_PAQUETE];
+  if (!lista.some(([e]) => e === v)) lista.push([v, ICONOS_PARECIDOS[v] || 'Diamante']);
+  return `<select class="icono" data-campo="icono" title="Ícono del paquete" aria-label="Ícono del paquete">${
+    lista.map(([e, nombre]) => `<option value="${escapar(e)}"${e === v ? ' selected' : ''}>${nombre}</option>`).join('')
+  }</select>`;
+}
+
 function pintarPaquetes() {
   $('jgPkCuenta').textContent = `${paquetesEdit.length} paquete${paquetesEdit.length === 1 ? '' : 's'}`;
 
@@ -498,7 +529,7 @@ function pintarPaquetes() {
 
     return `
     <div class="jg-pk${p.consultar ? ' consulta' : ''}" data-i="${i}">
-      <input class="icono" data-campo="icono" value="${escapar(p.icono)}" placeholder="💎" maxlength="4">
+      ${selectorDeIcono(p.icono)}
       <input data-campo="nombre" value="${escapar(p.nombre)}" placeholder="${escapar(sugerencia)}"
              ${porCantidad ? 'style="font-style:italic;" title="Se muestra como &quot;' + escapar(sugerencia) + '&quot;. Si escribís un nombre, reemplaza a ese texto."' : ''}>
       <input class="precio" data-campo="precio" type="number" step="0.01" min="0"
@@ -627,7 +658,7 @@ $('jgConfirmarBorrar').addEventListener('click', async () => {
   btn.textContent = 'Eliminando…';
   try {
     await deleteDoc(doc(db, 'juegos', j.id));
-    aviso(`🗑️ "${j.nombre}" eliminado`, 'ok');
+    aviso(`"${j.nombre}" eliminado`, 'ok');
     cerrar();
   } catch (err) {
     console.error(err);

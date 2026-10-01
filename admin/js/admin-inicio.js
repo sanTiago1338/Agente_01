@@ -322,7 +322,7 @@ const ICO = id => `<svg class="ico"><use href="#i-${id}"/></svg>`;
 $('vistaInicio').innerHTML = `
   <div class="ini-wrap">
     <div class="ini-cab">
-      <p class="ini-hola" id="iniHola">Hola 👋</p>
+      <p class="ini-hola" id="iniHola">Hola</p>
       <span class="ini-actualizado" id="iniActualizado"></span>
       <button class="ini-refrescar" id="iniRefrescar">↻ Actualizar</button>
     </div>
@@ -527,7 +527,7 @@ async function cargar() {
 // 5. CIFRAS DE ARRIBA
 // ============================================================
 function pintarCifras(pedidos, esperando, atender) {
-  $('iniHola').innerHTML = `${saludo()} 👋 <b>Así viene la tienda hoy.</b>`;
+  $('iniHola').innerHTML = `${saludo()}. <b>Así viene la tienda hoy.</b>`;
 
   const entregados = pedidos.filter(p => p.estado === 'entregado' && p.entregado_en);
   const hoy = claveDia(new Date());
@@ -754,7 +754,7 @@ function pintarPedidos(pedidos) {
             <td class="p" title="${escapar(que)}">${escapar(que)}</td>
             <td><span class="ini-pill" style="color:${e.color};background:${e.bg}">${e.txt}</span></td>
             <td class="t">${haceCuanto(c.primera.creado_en)}</td>
-            <td class="b"${c.descuento > 0 ? ` title="Con ${bs(c.descuento)} Bs de descuento combo"` : ''}>${bs(c.total)}${c.descuento > 0 ? ' <span class="ini-combo">🎁</span>' : ''}</td>
+            <td class="b"${c.descuento > 0 ? ` title="Con ${bs(c.descuento)} Bs de descuento combo"` : ''}>${bs(c.total)}${c.descuento > 0 ? ' <span class="ini-combo">combo</span>' : ''}</td>
           </tr>`;
         }).join('')}
       </tbody>

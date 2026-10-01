@@ -371,3 +371,14 @@ body .jg-btn.rojo:not(:disabled)::after {
   opacity: .5;
   pointer-events: none;
 }
+
+/* ---------- Íconos de línea (antes eran emojis) ----------
+   Miden lo que la letra de su caja y se apoyan en su renglón. Los de las
+   pantallas vacías y la zona de subir imagen, en gris. */
+body .emo svg,
+body .lupa svg,
+body .icono svg,
+body .btn-icono svg,
+body .desc-lapiz svg { display: inline-block; vertical-align: -0.125em; }
+body .emo,
+body .zvi-zona .icono { color: var(--gris-dim); }

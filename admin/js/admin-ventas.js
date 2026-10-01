@@ -518,16 +518,16 @@ $('vistaVentas').innerHTML = `
     </section>
 
     <div class="vt-barra">
-      <button class="vt-filtro activo" data-filtro="atencion">⚠️ Para atender <span class="n" id="nAtencion"></span></button>
-      <button class="vt-filtro" data-filtro="entregado">✓ Entregados <span class="n" id="nEntregado"></span></button>
+      <button class="vt-filtro activo" data-filtro="atencion">Para atender <span class="n" id="nAtencion"></span></button>
+      <button class="vt-filtro" data-filtro="entregado">Entregados <span class="n" id="nEntregado"></span></button>
       <button class="vt-filtro" data-filtro="todos">Todos <span class="n" id="nTodos"></span></button>
       <!-- "El cliente dice que hizo una orden el lunes": con esto se busca
            por el día que él te dice, sin scrollear la lista entera. -->
-      <button class="vt-filtro" data-filtro="fecha">📅 Por fecha <span class="n" id="nFecha"></span></button>
+      <button class="vt-filtro" data-filtro="fecha">Por fecha <span class="n" id="nFecha"></span></button>
       <input type="date" id="vtFecha" class="vt-fecha-sel" style="display:none;">
       <!-- Solo aparece si el navegador todavía no tiene permiso: pedirlo
            hace falta que salga de un toque tuyo, no se puede solo. -->
-      <button class="vt-filtro" id="vtAvisos" hidden style="margin-left:auto;">🔔 Activar avisos</button>
+      <button class="vt-filtro" id="vtAvisos" hidden style="margin-left:auto;">Activar avisos</button>
       <!-- Juntos: si no entran en el renglón, bajan los dos -->
       <span style="margin-left:auto; display:flex; gap:10px;">
         <button class="btn btn-fantasma" id="vtExportar">Exportar a Excel</button>
@@ -684,7 +684,7 @@ async function cargarTodo() {
     const rls = (error.message || '').toLowerCase().includes('permission') || error.code === '42501';
     $('vtLista').innerHTML = `
       <div class="vt-vacio">
-        <div class="emo">🔒</div>
+        <div class="emo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
         <h3>No se pudieron leer los pedidos</h3>
         <p>${escapar(error.message)}</p>
         ${rls ? '<p>Tu usuario no está en la tabla <code>admins</code>.</p>' : ''}
@@ -842,7 +842,7 @@ function listar() {
     const dia = $('vtFecha').value;
     $('vtLista').innerHTML = `
       <div class="vt-vacio">
-        <div class="emo">${filtro === 'atencion' ? '✅' : filtro === 'fecha' ? '📅' : '🧾'}</div>
+        <div class="emo">${filtro === 'atencion' ? '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>' : filtro === 'fecha' ? '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' : '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>'}</div>
         <h3>${filtro === 'atencion' ? 'No hay nada pendiente'
              : filtro === 'fecha'   ? `No hubo pedidos el ${dia ? fechaOrden(`${dia}T00:00:00`).split(' ')[0] : 'ese día'}`
              : 'Todavía no hay pedidos'}</h3>
@@ -891,7 +891,7 @@ function filaCompra(c) {
       <span class="vt-f-fecha">${dia}<small>${hora.join(' ')}</small></span>
       <span class="vt-f-bs">${bsTxt(c.total)}</span>
       <span class="vt-f-estado">${cartelDe(c)}</span>
-      <button class="vt-ver" data-ver="${escapar(c.clave)}">👁 Ver</button>
+      <button class="vt-ver" data-ver="${escapar(c.clave)}">Ver</button>
     </div>`;
 }
 
@@ -993,7 +993,7 @@ function detalleCompra(c, { porEstado = false } = {}) {
 
   const descuento = c.descuento > 0 ? `
     <div class="vt-linea desc">
-      <span class="vt-l-cant">🎁</span>
+      <span class="vt-l-cant"></span>
       <span class="vt-l-nom">Descuento combo</span>
       <span class="vt-l-bs">−${bsTxt(c.descuento)}</span>
     </div>` : '';
@@ -1166,8 +1166,8 @@ function pintarCompra(c) {
   let stock = '';
   if (pend.length > 1 && cob.hay > 0) {
     stock = cob.hay >= cob.de
-      ? `<div class="vt-stock-fila">⚡ Hay stock para todo: al confirmar se entregan solas las ${cob.de} cuentas.</div>`
-      : `<div class="vt-stock-fila parcial">⚡ Hay stock para ${cob.hay} de ${cob.de}: al confirmar se
+      ? `<div class="vt-stock-fila">Hay stock para todo: al confirmar se entregan solas las ${cob.de} cuentas.</div>`
+      : `<div class="vt-stock-fila parcial">Hay stock para ${cob.hay} de ${cob.de}: al confirmar se
            ${cob.hay === 1 ? 'entrega esa' : 'entregan esas'}, y lo demás (<strong>${escapar(cob.faltan.join(', '))}</strong>)
            queda sin stock hasta que cargues cuentas o lo entregues por WhatsApp.</div>`;
   }
@@ -1181,15 +1181,15 @@ function pintarCompra(c) {
     return `
       <div class="vt-cred">
         ${n > 1 ? `<span class="vt-cred-de">${escapar(o.producto_nombre)} · #${o.numero}</span>` : ''}
-        <span>👤 ${escapar(cred.usuario || '')}</span>
-        ${cred.clave  ? `<span>🔑 ${escapar(cred.clave)}</span>`   : ''}
-        ${cred.perfil ? `<span>👥 ${escapar(cred.perfil)}</span>`  : ''}
+        <span>Usuario: ${escapar(cred.usuario || '')}</span>
+        ${cred.clave  ? `<span>Clave: ${escapar(cred.clave)}</span>`   : ''}
+        ${cred.perfil ? `<span>Perfil: ${escapar(cred.perfil)}</span>`  : ''}
         ${cred.pin    ? `<span># ${escapar(cred.pin)}</span>`      : ''}
         <button data-copiar="${o.id}">Copiar para mandar</button>
       </div>`;
   }).join('') + (conCuenta.length > 1 ? `
       <div class="vt-cred-todas">
-        <button class="vt-mini" data-copiar-compra="${c.clave}">📋 Copiar las ${conCuenta.length} en un solo mensaje</button>
+        <button class="vt-mini" data-copiar-compra="${c.clave}">Copiar las ${conCuenta.length} en un solo mensaje</button>
       </div>` : '');
 
   const sinStock  = L.filter(o => o.estado === 'sin_stock');
@@ -1231,7 +1231,7 @@ function pintarCompra(c) {
         ${n === 1 && duracion(p) ? `<div class="vt-plan">Suscripción: <strong>${duracion(p)}</strong></div>` : ''}
         <div class="vt-cliente">
           ${escapar(p.cliente_nombre || 'Sin nombre')}
-          ${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">📲 ${escapar(p.cliente_whatsapp)}</a>` : ''}
+          ${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp ${escapar(p.cliente_whatsapp)}</a>` : ''}
           ${p.cliente_email ? ` · ${escapar(p.cliente_email)}` : ''}
           ${comprobante ? ` · comprobante ${escapar(comprobante)}` : ''}
         </div>
@@ -1259,7 +1259,7 @@ function pintarCompra(c) {
 
       ${renov.length ? `
         <div class="vt-renov-fila">
-          🔁 Pidió que le avisemos para renovar${vencimientos.length ? ' · ' + vencimientos.join(' · ') : ''}${
+          Pidió que le avisemos para renovar${vencimientos.length ? ' · ' + vencimientos.join(' · ') : ''}${
             L.some(o => o.renovar && o.suscripcion_avisada_en) ? ' · ya te avisé por Telegram' : ''}
         </div>` : ''}
     </div>`;
@@ -1902,11 +1902,11 @@ function avisarCompraNueva(c) {
   const num   = numerosDeCompra(c.lineas);
   const que   = nombreDeCompra(c.lineas);
   const plata = bsTxt(c.total) + (c.descuento > 0 ? ` (combo −${Number(c.descuento).toFixed(0)})` : '');
-  aviso(`🛒 Pedido nuevo ${num}: ${que} · ${plata}`, 'ok');
+  aviso(`Pedido nuevo ${num}: ${que} · ${plata}`, 'ok');
 
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   try {
-    const n = new Notification(`🛒 Pedido nuevo ${num}`, {
+    const n = new Notification(`Pedido nuevo ${num}`, {
       body: `${que} · ${plata}\nEsperando que lo apruebes`,
       // Con el tag, dos avisos de la misma compra no se apilan
       tag: 'pedido-' + c.clave
@@ -1935,7 +1935,7 @@ $('vtAvisos').addEventListener('click', async () => {
   try {
     await Notification.requestPermission();
     pintarBotonAvisos();
-    if (Notification.permission === 'granted') aviso('🔔 Listo, te aviso acá cuando entre un pedido', 'ok');
+    if (Notification.permission === 'granted') aviso('Listo, te aviso acá cuando entre un pedido', 'ok');
   } catch { /* nada: el botón se queda como estaba */ }
 });
 

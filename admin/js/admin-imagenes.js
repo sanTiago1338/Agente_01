@@ -195,7 +195,7 @@ function montar(input) {
   const zona = document.createElement('div');
   zona.className = 'zvi-zona';
   zona.innerHTML = `
-    <span class="icono">🖼️</span>
+    <span class="icono"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></span>
     <div class="titulo">Elegí una imagen o arrastrala acá</div>
     <div class="sub">Se optimiza sola hasta ${LADO_MAX}×${LADO_MAX} · JPG, PNG, WebP o GIF · cuanto más grande la original, mejor</div>`;
 
@@ -268,7 +268,7 @@ function montar(input) {
           `${formato} · ${sonda.naturalWidth}×${sonda.naturalHeight} · ~${kb} KB · guardada en la base`;
         if (lado < LADO_MINIMO) {
           const b = document.createElement('b');
-          b.textContent = ' · ⚠ chica: se ve borrosa en la tienda, volvé a subirla en buena calidad';
+          b.textContent = ' · Chica: se ve borrosa en la tienda, volvé a subirla en buena calidad';
           detalle.appendChild(b);
         }
       };

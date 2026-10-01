@@ -98,6 +98,10 @@ correr de nuevo sin romper nada.
 | `05-cobros.sql` | `pedidos`, `cuentas`, la entrega automática y la rebaja del stock viejo |
 | `06-avisos.sql` | Los avisos de pedido nuevo por Telegram |
 | `07-embudo.sql` | Cuántos llegan a cada paso de la compra (lo muestra Inicio) |
+| `08-dias-de-la-rebaja.sql` | Los días que le quedan a una cuenta rebajada |
+| `09-recordar-por-whatsapp.sql` | "Recordar por WhatsApp" a los que no pagaron |
+| `10-sin-vencimiento.sql` | Los pedidos ya no se vencen solos: esperan a la X del panel |
+| `11-avisos-de-vencimiento.sql` | Telegram avisa 1 día antes y el día que vence cada suscripción, con el mensaje listo para el cliente |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 
 ---

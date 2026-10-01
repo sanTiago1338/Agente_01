@@ -313,6 +313,11 @@ revoke all on function public.probar_telegram() from public, anon, authenticated
 -- ============================================================
 -- 6. AVISO DE RENOVACION
 -- ============================================================
+-- OJO: REEMPLAZADO EL 1/10/2026 POR 11-avisos-de-vencimiento.sql. Ahora
+-- avisa de todas las suscripciones, 1 día antes y el día que vencen, con
+-- el mensaje listo para el cliente. Si volvés a correr este archivo,
+-- corré después el 11, o vuelve el aviso viejo de 3 días.
+--
 -- Aplicado con las migraciones:
 --   renovacion_columnas_y_dias_del_plan
 --   crear_compra_con_renovacion

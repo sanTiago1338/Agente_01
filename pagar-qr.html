@@ -1116,7 +1116,11 @@
       // el link ya no le queda en el chat. Se resuelve desde el panel, con
       // "Copiar para mandar", que arma el mensaje con sus credenciales.
       const linkPedido = '';
-      const whatsappMsg = `*TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n*Codigo:* ${window._pedidoNumero || s.ref}\n*Fecha de orden:* ${fechaOrden(window._pedidoCreado)}\n*Monto:* ${s.total.toFixed(2)} Bs\n*Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}`).join('\n')}${customerBlock}${renovBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
+      // Cuánto compró de cada uno: "· 30 días", o en un plan rebajado
+      // "· 18 días (de 30)", así queda escrito en el chat lo que pagó
+      const diasDe = i => !i.dias ? ''
+        : (i.diasPlan && i.dias < i.diasPlan ? ` · ${i.dias} días (de ${i.diasPlan})` : ` · ${i.dias} días`);
+      const whatsappMsg = `*TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n*Codigo:* ${window._pedidoNumero || s.ref}\n*Fecha de orden:* ${fechaOrden(window._pedidoCreado)}\n*Monto:* ${s.total.toFixed(2)} Bs\n*Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}${diasDe(i)}`).join('\n')}${customerBlock}${renovBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por QR.\nAdjunto captura del comprobante.${passwordBlock}`;
       window._waUrl = `https://wa.me/59157707335?text=${encodeURIComponent(whatsappMsg)}`;
     }
 

@@ -22,6 +22,10 @@
 --
 -- Corre solo todos los días a las 9:00 de Bolivia (el trabajo
 -- "avisar-renovaciones" de pg_cron, 13:00 UTC, ver 06-avisos.sql).
+--
+-- OJO: textos_de_vencimiento() se reemplazó en 12-dias-en-los-avisos.sql
+-- (suma "Duración: 18 días (de 30)"). Si corrés este archivo de nuevo,
+-- corré después el 12.
 -- ============================================================
 
 

@@ -102,6 +102,7 @@ correr de nuevo sin romper nada.
 | `09-recordar-por-whatsapp.sql` | "Recordar por WhatsApp" a los que no pagaron |
 | `10-sin-vencimiento.sql` | Los pedidos ya no se vencen solos: esperan a la X del panel |
 | `11-avisos-de-vencimiento.sql` | Telegram avisa 1 día antes y el día que vence cada suscripción, con el mensaje listo para el cliente |
+| `12-dias-en-los-avisos.sql` | Los avisos dicen cuántos días compró: "18 días (de 30)" en una cuenta rebajada |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 
 ---

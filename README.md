@@ -103,6 +103,8 @@ correr de nuevo sin romper nada.
 | `10-sin-vencimiento.sql` | Los pedidos ya no se vencen solos: esperan a la X del panel |
 | `11-avisos-de-vencimiento.sql` | Telegram avisa 1 día antes y el día que vence cada suscripción, con el mensaje listo para el cliente |
 | `12-dias-en-los-avisos.sql` | Los avisos dicen cuántos días compró: "18 días (de 30)" en una cuenta rebajada |
+| `13-telegram-sin-emojis.sql` | El mensaje de prueba de Telegram, sin emojis |
+| `14-renovar-con-un-toque.sql` | El mensaje de vencimiento trae "Renová acá": abre la tienda con el producto en el carrito |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 
 ---

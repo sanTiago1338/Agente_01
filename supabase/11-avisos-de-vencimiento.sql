@@ -24,8 +24,9 @@
 -- "avisar-renovaciones" de pg_cron, 13:00 UTC, ver 06-avisos.sql).
 --
 -- OJO: textos_de_vencimiento() se reemplazó en 12-dias-en-los-avisos.sql
--- (suma "Duración: 18 días (de 30)"). Si corrés este archivo de nuevo,
--- corré después el 12.
+-- (suma "Duración: 18 días (de 30)") y después en 14-renovar-con-un-toque.sql
+-- (suma el enlace "Renová acá"). Si corrés este archivo de nuevo,
+-- corré después el 12 y el 14.
 -- ============================================================
 
 

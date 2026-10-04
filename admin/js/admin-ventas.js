@@ -23,6 +23,7 @@ import { sbAdmin } from '../../js/supabase-config.js';
 import { tengoPermiso, carteSinPermiso } from './admin-permiso.js';
 import { agruparCompras, numerosDeCompra, productosDeCompra, nombreDeCompra,
          estadoPrincipal, cuantasCompras } from './admin-compras.js';
+import { prepararImagen } from '../../js/subir-imagen.js';
 
 const $ = id => document.getElementById(id);
 const aviso = (t, tipo) => (window.avisoAdmin ? window.avisoAdmin(t, tipo) : console.log(t));
@@ -370,6 +371,26 @@ css.textContent = `
     font-size: 14px; font-weight: 700; color: var(--tinta);
     font-variant-numeric: tabular-nums; white-space: nowrap;
   }
+  /* Eligió Binance Pay: lo que tiene que llegarte en USDT, debajo del total */
+  .vt-f-bs small { display: block; font-size: 11.5px; font-weight: 700; color: #8a6508; }
+  .vt-usdt {
+    font-size: 12px; font-weight: 700; color: #8a6508; white-space: nowrap;
+    background: rgba(183,134,11,.1); padding: 3px 9px; border-radius: 99px;
+  }
+  .vt-linea.usdt .vt-l-nom, .vt-linea.usdt .vt-l-bs { color: #8a6508; }
+
+  /* ---------- Cobros: el QR de Binance y el tipo de cambio ---------- */
+  .vt-cobro-qr { display: flex; gap: 14px; align-items: center; margin-bottom: 4px; }
+  .vt-cobro-qr img,
+  .vt-cobro-qr .vacio {
+    flex: none; width: 104px; height: 104px; border-radius: 10px;
+    border: 1px solid var(--borde); background: #fff; object-fit: contain;
+  }
+  .vt-cobro-qr .vacio {
+    display: flex; align-items: center; justify-content: center;
+    border-style: dashed; font-size: 12px; color: var(--gris-dim);
+  }
+  .vt-cobro-btns { display: flex; flex-direction: column; gap: 8px; }
   .vt-ver {
     background: none; border: 1px solid var(--borde); color: var(--tinta);
     border-radius: 99px; padding: 6px 13px;
@@ -530,6 +551,7 @@ $('vistaVentas').innerHTML = `
       <button class="vt-filtro" id="vtAvisos" hidden style="margin-left:auto;">Activar avisos</button>
       <!-- Juntos: si no entran en el renglón, bajan los dos -->
       <span style="margin-left:auto; display:flex; gap:10px;">
+        <button class="btn btn-fantasma" id="vtCobros">Cobros</button>
         <button class="btn btn-fantasma" id="vtExportar">Exportar a Excel</button>
         <button class="btn btn-fantasma" id="vtRefrescar">↻ Actualizar</button>
       </span>
@@ -564,6 +586,44 @@ $('vistaVentas').innerHTML = `
       <div class="vt-pie">
         <button class="btn btn-fantasma" id="vtExcelCerrar">Cerrar</button>
         <button class="btn btn-primario" id="vtExcelBajar" disabled>Bajar Excel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Ventana: cómo te pagan (Binance Pay y el tipo de cambio) =====
+       El QR del banco es el de siempre. Con el de Binance cargado, la
+       tienda deja ver los precios en USDT y pagar por Binance Pay. -->
+  <div class="vt-fondo" id="vtFondoCobros">
+    <div class="vt-modal" role="dialog" aria-modal="true" aria-labelledby="vtCobrosTitulo">
+      <h3 id="vtCobrosTitulo">Cobros</h3>
+      <p class="sub">Además del QR del banco, tus clientes pueden pagar con Binance Pay
+         en USDT. La opción aparece en la tienda cuando subís tu QR de Binance.</p>
+
+      <label for="vtCobroTasa">Tipo de cambio: cuántos Bs vale 1 USDT</label>
+      <input type="number" id="vtCobroTasa" min="0.01" max="1000" step="0.01" inputmode="decimal" placeholder="10">
+      <p class="vt-nota" id="vtCobroEjemplo" style="margin:0 0 14px;"></p>
+
+      <label for="vtCobroPayId">Binance Pay ID <span style="font-weight:400;">(opcional)</span></label>
+      <input type="text" id="vtCobroPayId" placeholder="Ej: 123456789" autocomplete="off">
+      <p class="vt-nota" style="margin:0 0 14px;">El cliente lo puede copiar si no puede escanear el QR.</p>
+
+      <label>QR de Binance Pay</label>
+      <div class="vt-cobro-qr">
+        <div id="vtCobroVista"><div class="vacio">Sin QR</div></div>
+        <div class="vt-cobro-btns">
+          <button type="button" class="btn btn-fantasma" id="vtCobroElegir">Subir QR</button>
+          <button type="button" class="btn btn-fantasma" id="vtCobroQuitar" style="display:none;">Quitar</button>
+        </div>
+        <input type="file" id="vtCobroArchivo" accept="image/png,image/jpeg,image/webp" hidden>
+      </div>
+      <p class="vt-nota">En tu app de Binance, en Pay → Recibir, guardá la imagen de tu QR
+         y subila acá. Sin QR, la tienda sigue solo con el del banco.</p>
+
+      <div class="vt-alerta ojo" id="vtCobroError" style="display:none; margin:14px 0 0;"></div>
+
+      <div class="vt-pie">
+        <button class="btn btn-fantasma" id="vtCobrosCerrar">Cerrar</button>
+        <button class="btn btn-primario" id="vtCobrosGuardar">Guardar</button>
       </div>
     </div>
   </div>
@@ -889,7 +949,7 @@ function filaCompra(c) {
     <div class="vt-fila ${clase}" data-ver="${escapar(c.clave)}">
       <span class="vt-f-num">${numerosDeCompra(L)}</span>
       <span class="vt-f-fecha">${dia}<small>${hora.join(' ')}</small></span>
-      <span class="vt-f-bs">${bsTxt(c.total)}</span>
+      <span class="vt-f-bs">${bsTxt(c.total)}${usdtDe(c) ? `<small>${usdtDe(c)}</small>` : ''}</span>
       <span class="vt-f-estado">${cartelDe(c)}</span>
       <button class="vt-ver" data-ver="${escapar(c.clave)}">Ver</button>
     </div>`;
@@ -963,6 +1023,16 @@ function cerrarVer() {
 
 const bsTxt = n => `${Number(n || 0).toFixed(2)} Bs`;
 
+// Eligió pagar por Binance Pay: lo que tiene que llegarte, en USDT, con el
+// tipo de cambio de cuando lo eligió (el mismo cálculo que la tienda:
+// hacia arriba, al centavo). '' si paga con el QR del banco.
+function usdtDe(c) {
+  const b = c.lineas.find(o => o.metodo_pago === 'binance' && Number(o.usdt_bs) > 0);
+  if (!b) return '';
+  const usdt = Math.ceil(Number((Number(c.total || 0) / Number(b.usdt_bs) * 100).toFixed(6))) / 100;
+  return `${usdt.toFixed(2)} USDT`;
+}
+
 const badgeEstado = (estado, txt) => {
   const e = ESTADOS[estado] || ESTADOS.cancelado;
   return `<span class="vt-badge" style="color:${e.color};background:${e.bg}">${txt || e.txt}</span>`;
@@ -1002,6 +1072,16 @@ function detalleCompra(c, { porEstado = false } = {}) {
                : c.lineas.every(o => o.estado === 'cancelado') ? 'Total'
                : 'Total pagado';
 
+  // Con Binance, lo que mirás en la app es el monto en USDT
+  const usdt = usdtDe(c);
+  const tasa = usdt ? Number(c.lineas.find(o => o.metodo_pago === 'binance').usdt_bs) : 0;
+  const enUsdt = usdt ? `
+      <div class="vt-linea usdt">
+        <span class="vt-l-cant"></span>
+        <span class="vt-l-nom">Por Binance Pay<small>1 USDT = ${tasa.toFixed(2)} Bs</small></span>
+        <span class="vt-l-bs">${usdt}</span>
+      </div>` : '';
+
   return `
     <div class="vt-lineas">
       ${filas}${descuento}
@@ -1009,7 +1089,7 @@ function detalleCompra(c, { porEstado = false } = {}) {
         <span class="vt-l-cant"></span>
         <span class="vt-l-nom">${rotulo}</span>
         <span class="vt-l-bs">${bsTxt(c.total)}</span>
-      </div>
+      </div>${enUsdt}
     </div>`;
 }
 
@@ -1239,6 +1319,7 @@ function pintarCompra(c) {
 
       <div class="vt-der">
         <span class="vt-precio" title="Lo que paga el cliente${c.descuento > 0 ? ', ya con el descuento combo' : ''}">${bsTxt(c.total)}</span>
+        ${usdtDe(c) ? `<span class="vt-usdt" title="Eligió pagar por Binance Pay">Binance Pay · ${usdtDe(c)}</span>` : ''}
         ${cartel}
         ${acciones}
       </div>
@@ -1471,6 +1552,9 @@ function abrirConfirmacion(pedidoId) {
       `y lo demás (${escapar(cob.faltan.join(', '))}) queda sin stock`;
   $('vtAlerta').innerHTML = yaPago
     ? `Este pago ya estaba registrado. Al confirmar, ${entrega}, y no se puede deshacer.`
+    : usdtDe(c)
+      ? `Confirmá solo si <strong>ya te entraron ${usdtDe(c)}</strong> en tu Binance. ` +
+        `Al confirmar, ${entrega}, y no se puede deshacer.`
     : `Confirmá solo si <strong>ya te entraron ${bsTxt(c.total)}</strong> en tu cuenta. ` +
       `Al confirmar, ${entrega}, y no se puede deshacer.`;
 
@@ -2141,6 +2225,136 @@ $('vtExcelCerrar').addEventListener('click', cerrarExcel);
 $('vtFondoExcel').addEventListener('click', e => { if (e.target === $('vtFondoExcel')) cerrarExcel(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('vtFondoExcel').classList.contains('abierto')) cerrarExcel();
+});
+
+
+// ============================================================
+// 8b. COBROS: BINANCE PAY Y EL TIPO DE CAMBIO
+// ============================================================
+// Lo que lee la tienda con datos_de_cobro(). Se guarda con
+// guardar_datos_de_cobro(), que solo deja al admin (ver
+// supabase/15-pago-binance.sql).
+let cobroQr = '';   // la URL guardada, una foto nueva sin subir (data URI) o '' = sin QR
+
+function errorCobro(texto) {
+  const el = $('vtCobroError');
+  el.textContent = texto || '';
+  el.style.display = texto ? '' : 'none';
+}
+
+function pintarQrCobro() {
+  $('vtCobroVista').innerHTML = cobroQr
+    ? `<img src="${escapar(cobroQr)}" alt="Tu QR de Binance Pay">`
+    : '<div class="vacio">Sin QR</div>';
+  $('vtCobroElegir').textContent = cobroQr ? 'Cambiar QR' : 'Subir QR';
+  $('vtCobroQuitar').style.display = cobroQr ? '' : 'none';
+}
+
+// "Un plan de 35 Bs se ve a 3.50 USDT": para ver de un vistazo si el
+// número que pusiste es el que querías
+function pintarEjemploCobro() {
+  const tasa = Number($('vtCobroTasa').value);
+  $('vtCobroEjemplo').textContent = tasa > 0
+    ? `Ejemplo: un plan de 35 Bs se muestra a ${(Math.ceil(Number((35 / tasa * 100).toFixed(6))) / 100).toFixed(2)} USDT.`
+    : 'Poné cuántos bolivianos vale 1 USDT (por ejemplo 10).';
+}
+
+async function abrirCobros() {
+  errorCobro('');
+  $('vtCobrosGuardar').disabled = true;
+  $('vtFondoCobros').classList.add('abierto');
+  const { data, error } = await sbAdmin.rpc('datos_de_cobro');
+  if (error || !data) {
+    errorCobro('No se pudieron leer los datos de cobro. Probá de nuevo.');
+    return;
+  }
+  $('vtCobroTasa').value  = Number(data.usdt_bs) > 0 ? Number(data.usdt_bs) : 10;
+  $('vtCobroPayId').value = data.binance_pay_id || '';
+  cobroQr = data.binance_qr || '';
+  pintarQrCobro();
+  pintarEjemploCobro();
+  $('vtCobrosGuardar').disabled = false;
+}
+function cerrarCobros() { $('vtFondoCobros').classList.remove('abierto'); }
+
+// La foto del QR, de hasta 1200 px y en PNG: un QR comprimido en JPG se
+// escanea peor. El fondo blanco es para las imágenes con transparencia.
+function qrComoImagen(archivo) {
+  return new Promise((ok, mal) => {
+    const lector = new FileReader();
+    lector.onerror = () => mal(new Error('No se pudo leer la imagen.'));
+    lector.onload = () => {
+      const img = new Image();
+      img.onerror = () => mal(new Error('Esa imagen no se puede abrir. Probá con una PNG o JPG.'));
+      img.onload = () => {
+        const escala = Math.min(1, 1200 / Math.max(img.width, img.height));
+        const lienzo = document.createElement('canvas');
+        lienzo.width  = Math.round(img.width  * escala);
+        lienzo.height = Math.round(img.height * escala);
+        const ctx = lienzo.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, lienzo.width, lienzo.height);
+        ctx.drawImage(img, 0, 0, lienzo.width, lienzo.height);
+        ok(lienzo.toDataURL('image/png'));
+      };
+      img.src = lector.result;
+    };
+    lector.readAsDataURL(archivo);
+  });
+}
+
+async function guardarCobros() {
+  const tasa = Number($('vtCobroTasa').value);
+  if (!(tasa > 0 && tasa <= 1000)) {
+    errorCobro('El tipo de cambio tiene que ser un número mayor a 0, por ejemplo 10.');
+    $('vtCobroTasa').focus();
+    return;
+  }
+  errorCobro('');
+  const boton = $('vtCobrosGuardar');
+  boton.disabled = true;
+  boton.textContent = 'Guardando…';
+  try {
+    // Una foto nueva se sube al depósito y se guarda su URL, no la imagen entera
+    const qr = await prepararImagen(cobroQr, 'qr-binance');
+    const { error } = await sbAdmin.rpc('guardar_datos_de_cobro', {
+      p_usdt_bs:        tasa,
+      p_binance_pay_id: $('vtCobroPayId').value.trim(),
+      p_binance_qr:     qr
+    });
+    if (error) throw error;
+    cobroQr = qr;
+    cerrarCobros();
+    aviso(qr ? 'Listo: la tienda ya acepta Binance Pay' : 'Listo: la tienda queda solo con el QR del banco', 'ok');
+  } catch (e) {
+    errorCobro(e.message || 'No se pudo guardar.');
+  } finally {
+    boton.disabled = false;
+    boton.textContent = 'Guardar';
+  }
+}
+
+$('vtCobros').addEventListener('click', abrirCobros);
+$('vtCobroTasa').addEventListener('input', pintarEjemploCobro);
+$('vtCobroElegir').addEventListener('click', () => $('vtCobroArchivo').click());
+$('vtCobroArchivo').addEventListener('change', async e => {
+  const archivo = e.target.files && e.target.files[0];
+  e.target.value = '';   // así se puede volver a elegir la misma
+  if (!archivo) return;
+  try {
+    cobroQr = await qrComoImagen(archivo);
+    errorCobro('');
+    pintarQrCobro();
+  } catch (err) {
+    errorCobro(err.message);
+  }
+});
+$('vtCobroQuitar').addEventListener('click', () => { cobroQr = ''; pintarQrCobro(); });
+$('vtCobrosGuardar').addEventListener('click', guardarCobros);
+$('vtCobrosCerrar').addEventListener('click', cerrarCobros);
+$('vtFondoCobros').addEventListener('click', e => { if (e.target === $('vtFondoCobros')) cerrarCobros(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && $('vtFondoCobros').classList.contains('abierto')) cerrarCobros();
 });
 
 

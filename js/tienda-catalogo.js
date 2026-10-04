@@ -13,7 +13,7 @@
       from './productos-service.js';
     import { subscribeJuegos } from './juegos-service.js';
     import { mapaDeStock, mapaDeRebajas } from './stock-tienda.js';
-    import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-base.js';
+    import { SUPABASE_URL, SUPABASE_ANON_KEY, sb } from './supabase-base.js';
 
     // Los IDs de la base son texto (un uuid), pero la tienda usa números
     // en los onclick: abrirCheckout(12). Para productos migrados usamos idLegacy;
@@ -157,6 +157,14 @@
         }).catch(() => {});   // si no llega, no se entera nadie: es estadística
       } catch (e) { /* idem */ }
     };
+
+    // ---------- COBRO: TIPO DE CAMBIO Y BINANCE ----------
+    // Cuántos Bs vale 1 USDT y si ya cargaste tu QR de Binance (Ventas →
+    // Cobros en el panel). Sin eso la tienda queda solo en Bs, como antes.
+    sb.rpc('datos_de_cobro').then(({ data, error }) => {
+      if (error || !data || !window.__aplicarCobro) return;
+      window.__aplicarCobro(data);
+    }).catch(() => { /* sin datos: solo Bs */ });
 
     // ---------- REBAJAS ----------
     // Igual que el stock: llegan aparte y, si hay alguna, se repinta. El

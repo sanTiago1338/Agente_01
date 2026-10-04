@@ -28,9 +28,11 @@
 //   entrega cuentas sin verificar quien la llama es un regalo.
 //
 // CONFIGURACION (una sola vez, cuando tengas los datos de la pasarela)
-//   Supabase, Edge Functions, webhook-pago, Secrets:
-//     WEBHOOK_SECRETO   una clave larga inventada por vos. La misma que
-//                       le cargas a la pasarela para que la mande.
+//   Panel → Ventas → Cobros → QR Bolivia automático → "Generar clave".
+//   Es la que le cargás a la pasarela para que la mande en cada aviso
+//   (se guarda en ajustes.bs_webhook_secreto, ver supabase/18-qr-bs-automatico.sql).
+//   Si no hay clave en el panel, se usa la de Supabase → Edge Functions →
+//   webhook-pago → Secrets → WEBHOOK_SECRETO, como antes.
 //   SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY ya vienen puestas solas.
 // ============================================================
 
@@ -38,7 +40,45 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const SECRETO      = Deno.env.get("WEBHOOK_SECRETO");
+const SECRETO_ENV  = Deno.env.get("WEBHOOK_SECRETO");
+
+const CABECERAS_BASE = {
+  "Content-Type": "application/json",
+  "apikey": SERVICE_KEY,
+  "Authorization": `Bearer ${SERVICE_KEY}`
+};
+
+// La clave que generaste en el panel; si no hay, la de los Secrets.
+// Se lee en cada aviso: si la cambiás en el panel, vale al instante.
+async function leerSecreto(): Promise<string | null> {
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/ajustes?clave=eq.bs_webhook_secreto&select=valor`,
+      { headers: CABECERAS_BASE });
+    if (r.ok) {
+      const filas = await r.json();
+      const valor = filas?.[0]?.valor;
+      if (typeof valor === "string" && valor.trim() !== "") return valor.trim();
+    }
+  } catch { /* sin base: se prueba con la de los Secrets */ }
+  return SECRETO_ENV || null;
+}
+
+// Deja anotado el último aviso, para que el panel muestre que la pasarela
+// está avisando (y si se entendió o no). Los que se entienden los anota
+// la base, en confirmar_pago_webhook().
+async function anotarAviso(datos: Record<string, unknown>): Promise<void> {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/ajustes?on_conflict=clave`, {
+      method: "POST",
+      headers: { ...CABECERAS_BASE, "Prefer": "resolution=merge-duplicates" },
+      body: JSON.stringify({
+        clave: "bs_ultimo_aviso",
+        valor: JSON.stringify({ ...datos, en: new Date().toISOString() })
+      })
+    });
+  } catch { /* es solo para mostrar en el panel */ }
+}
 
 // Las pasarelas reintentan si no contestas rapido, y a veces mandan el
 // mismo aviso dos veces por las dudas. Eso no es problema: entregar es
@@ -53,8 +93,9 @@ Deno.serve(async (req: Request) => {
   }
 
   // ---------- 2. Sin secreto configurado, no se hace nada ----------
+  const SECRETO = await leerSecreto();
   if (!SECRETO) {
-    console.error("WEBHOOK_SECRETO sin configurar: se rechaza todo hasta que lo pongas");
+    console.error("sin clave del webhook: generala en el panel (Ventas → Cobros); se rechaza todo hasta entonces");
     return json({ error: "webhook sin configurar" }, 503);
   }
 
@@ -73,7 +114,7 @@ Deno.serve(async (req: Request) => {
   }));
 
   // ---------- 4. ¿Viene de la pasarela? ----------
-  if (!secretoValido(req, crudo)) {
+  if (!secretoValido(req, SECRETO)) {
     console.warn("aviso RECHAZADO: secreto invalido");
     // 401 y nada mas. No se explica que fallo: si alguien esta probando,
     // que no aprenda nada de la respuesta.
@@ -97,6 +138,7 @@ Deno.serve(async (req: Request) => {
     // es que todavia no sabemos leer su formato. El log de arriba tiene lo
     // que hace falta para completarlo.
     console.warn("no se pudo entender el aviso: revisa leerAviso() con el log de arriba");
+    await anotarAviso({ ok: false, motivo: "no_interpretado" });
     return json({ ok: true, nota: "recibido pero no interpretado" }, 200);
   }
 
@@ -104,6 +146,7 @@ Deno.serve(async (req: Request) => {
     // Hay avisos que no son de pago: QR generado, QR vencido, pago
     // rechazado. Se aceptan y se ignoran.
     console.log(`aviso ignorado (no es un pago confirmado): pedido ${aviso.numero}`);
+    await anotarAviso({ ok: false, motivo: "no_es_pago", numero: aviso.numero });
     return json({ ok: true, nota: "no es un pago confirmado" }, 200);
   }
 
@@ -114,11 +157,7 @@ Deno.serve(async (req: Request) => {
   // que me pagaron", asi que vive en la base y no aca.
   const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/confirmar_pago_webhook`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": SERVICE_KEY,
-      "Authorization": `Bearer ${SERVICE_KEY}`
-    },
+    headers: CABECERAS_BASE,
     body: JSON.stringify({
       p_numero:     aviso.numero,
       p_monto:      aviso.monto,
@@ -154,14 +193,14 @@ Deno.serve(async (req: Request) => {
 //    compartida) en vez de mandar el secreto tal cual, esto NO alcanza:
 //    hay que calcular el hash y compararlo. Se hace con crypto.subtle.
 //    Preguntales cual de las dos usan; es la primera pregunta tecnica.
-function secretoValido(req: Request, _cuerpo: string): boolean {
+function secretoValido(req: Request, secreto: string): boolean {
   const candidatos = [
     req.headers.get("x-webhook-secret"),
     req.headers.get("x-api-key"),
     (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "")
   ];
 
-  return candidatos.some(c => c && comparacionSegura(c, SECRETO!));
+  return candidatos.some(c => c && comparacionSegura(c, secreto));
 }
 
 // Comparar con === se rinde en el primer caracter distinto, y ese tiempo
@@ -228,7 +267,7 @@ function leerAviso(cuerpo: unknown, _headers: Headers): Aviso | null {
   const pagado = estado === ""
     || /pagad|pagado|complet|success|approved|confirmad|acredit|paid|ok/.test(estado);
 
-  return { numero, monto, referencia, pagado, origen: "webhook:openbcb" };
+  return { numero, monto, referencia, pagado, origen: "webhook:qr-bs" };
 }
 
 function aNumero(v: unknown): number | null {

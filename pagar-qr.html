@@ -657,6 +657,11 @@
     transition: border-color .2s, box-shadow .2s, color .2s;
   }
   .metodo-op b { font-size: .9rem; color: var(--tinta); }
+  /* Los mismos íconos que las tarjetas del carrito: rojo el QR, dorado Binance */
+  .metodo-ico { width: 22px; height: 22px; margin-bottom: .2rem; color: var(--rojo); }
+  .metodo-ico.binance { color: #b7860b; }
+  .pay-order-usdt { text-align: right; font-size: .82rem; font-weight: 700; color: #8a6508; margin-top: .3rem; }
+  .pay-order-usdt[hidden] { display: none; }
   .metodo-op small { font-size: .74rem; }
   .metodo-op.activo {
     border-color: var(--rojo);
@@ -737,10 +742,10 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261004141042">
-  <script src="js/barra-vidrio.js?v=20261004141042" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261004141937">
+  <script src="js/barra-vidrio.js?v=20261004141937" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261004141042"></script>
+  <script src="js/tenido.js?v=20261004141937"></script>
 </head>
 <body>
 
@@ -792,12 +797,14 @@
           <span class="label">TOTAL</span>
           <span class="total" id="orderTotal">0.00 Bs</span>
         </div>
+        <!-- Con Binance Pay: lo que se paga en USDT, debajo del total -->
+        <div class="pay-order-usdt" id="orderTotalUsdt" hidden></div>
       </div>
 
       <!-- Datos de cliente (correo / usuario) - aparece solo si el producto lo requiere -->
       <div id="customerDataBox" style="display:none; background:rgba(255,215,0,0.06); border:1px solid rgba(255,215,0,0.25); border-radius:12px; padding:1rem; margin-bottom:0.75rem;">
         <div style="font-weight:700; font-size:0.9rem; color:var(--oro); margin-bottom:0.25rem;">Datos para activar tu cuenta</div>
-        <div style="font-size:0.75rem; color:var(--tinta-suave); margin-bottom:0.75rem;" id="customerDataHint">Estos datos se enviaran junto al comprobante por WhatsApp.</div>
+        <div style="font-size:0.75rem; color:var(--tinta-suave); margin-bottom:0.75rem;" id="customerDataHint">Estos datos se enviarán junto al comprobante por WhatsApp.</div>
 
         <div id="emailField" style="display:none; margin-bottom:0.6rem;">
           <label for="customerEmail" style="display:block; font-size:0.78rem; color:var(--tinta-media); margin-bottom:0.3rem; font-weight:600;">CORREO:</label>
@@ -821,10 +828,10 @@
         border-radius:12px; text-decoration:none; letter-spacing:0.5px;
         box-shadow:0 4px 20px rgba(37,211,102,0.4);
         animation: pulse-wa 2s ease-in-out infinite;
-      ">YA PAGUE - ENVIAR COMPROBANTE</a>
+      ">YA PAGUÉ · ENVIAR COMPROBANTE</a>
 
       <p id="ayudaYaPague" style="text-align:center;font-size:0.75rem;color:var(--tinta-suave);margin-bottom:1.25rem;">
-        Si ya pagaste, toca el boton o espera la redireccion automatica
+        Si ya pagaste, toca el botón o espera la redirección automática
       </p>
 
       <style>
@@ -899,7 +906,7 @@
         <div style="font-size:0.78rem; color:var(--tinta-suave); margin-top:0.8rem; line-height:1.55;">
           Esta compra queda guardada en
           <a href="mis-compras.html" style="color:var(--verde-wa); font-weight:700;">Mis compras</a>,
-          en este mismo navegador. Desde ahi la volves a abrir cuando quieras.
+          en este mismo navegador. Desde ahí la volvés a abrir cuando quieras.
         </div>
       </div>
 
@@ -911,8 +918,8 @@
           Recibimos tu pago
         </div>
         <div style="font-size:0.85rem; color:var(--texto); line-height:1.6;">
-          Justo se nos agoto este producto. Te la mandamos por WhatsApp apenas
-          la tengamos, hoy mismo. Tu plata esta registrada.
+          Justo se nos agotó este producto. Te la mandamos por WhatsApp apenas
+          la tengamos, hoy mismo. Tu pago está registrado.
         </div>
       </div>
 
@@ -931,7 +938,7 @@
           <strong>Si ya transferiste</strong>, escribinos por WhatsApp con tu
           comprobante y lo resolvemos en el momento.
         </div>
-        <a href="https://wa.me/59157707335?text=Hola!%20Mi%20pedido%20figura%20cancelado%20y%20queria%20consultar"
+        <a href="https://wa.me/59157707335?text=Hola,%20mi%20pedido%20figura%20cancelado%20y%20quer%C3%ADa%20consultar"
            target="_blank" rel="noopener"
            style="display:block; text-align:center; margin-top:0.9rem; padding:0.75rem;
                   background:var(--verde-wa); color:#fff; border-radius:9px;
@@ -963,10 +970,12 @@
       <div class="metodo-sel" id="metodoSel" role="radiogroup" aria-label="Cómo pagás" hidden>
         <button type="button" class="metodo-op activo" data-metodo="qr" role="radio" aria-checked="true"
                 onclick="elegirMetodoPago('qr')">
-          <b>QR Bolivia</b><small>Bolivianos</small>
+          <svg class="metodo-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+          <b>QR Bolivia</b><small>Bolivianos (Bs)</small>
         </button>
         <button type="button" class="metodo-op" data-metodo="binance" role="radio" aria-checked="false"
                 onclick="elegirMetodoPago('binance')">
+          <svg class="metodo-ico binance" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/></svg>
           <b>Binance Pay</b><small>USDT</small>
         </button>
       </div>
@@ -1005,7 +1014,7 @@
           </div>
           <div class="step">
             <div class="step-num">4</div>
-            <div class="step-text" id="paso4Texto">Confirma el pago y seras <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
+            <div class="step-text" id="paso4Texto">Confirma el pago y serás <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
           </div>
         </div>
         <!-- Los pasos para pagar con Binance Pay (en USDT) -->
@@ -1016,15 +1025,15 @@
           </div>
           <div class="step" id="pasoPayId">
             <div class="step-num">2</div>
-            <div class="step-text">O envia al Pay ID: <strong id="binancePayId" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
+            <div class="step-text">O envía al Pay ID: <strong id="binancePayId" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
           </div>
           <div class="step">
             <div class="step-num">3</div>
-            <div class="step-text">Envia exactamente: <strong id="instrMontoUsdt" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
+            <div class="step-text">Envía exactamente: <strong id="instrMontoUsdt" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
           </div>
           <div class="step">
             <div class="step-num">4</div>
-            <div class="step-text" id="paso4Binance">Confirma el pago y seras <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
+            <div class="step-text" id="paso4Binance">Confirma el pago y serás <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
           </div>
         </div>
 
@@ -1098,6 +1107,9 @@
       document.getElementById('payAmountLabel').textContent = binance
         ? `Monto a enviar por Binance Pay (${Number(s.total).toFixed(2)} Bs)`
         : 'Monto a transferir';
+      const enUsdt = document.getElementById('orderTotalUsdt');
+      enUsdt.textContent = binance ? `Por Binance Pay: ${monto}` : '';
+      enUsdt.hidden = !binance;
       const img = document.getElementById('qrImage');
       img.src = binance ? COBRO.binanceQr : 'Img/QR%20Bolivianos.jpg';
       img.alt = binance ? 'QR Binance Pay' : 'QR BancoSol';
@@ -1179,7 +1191,7 @@
       try {
         items = JSON.parse(decodeURIComponent(cartData));
       } catch (e) {
-        showError('Datos del carrito invalidos.');
+        showError('Datos del carrito inválidos.');
         return;
       }
 
@@ -1300,7 +1312,7 @@
         ? `${aUsdt(s.total).toFixed(2)} USDT (${s.total.toFixed(2)} Bs)`
         : `${s.total.toFixed(2)} Bs`;
       const metodoTxt = binance ? 'Binance Pay' : 'QR Bolivia';
-      const whatsappMsg = `*TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n*Codigo:* ${window._pedidoNumero || s.ref}\n*Fecha de orden:* ${fechaOrden(window._pedidoCreado)}\n*Metodo de pago:* ${metodoTxt}\n*Monto:* ${montoTxt}\n*Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}${diasDe(i)}`).join('\n')}${customerBlock}${renovBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realice el pago por ${binance ? 'Binance Pay' : 'QR'}.\nAdjunto captura del comprobante.${passwordBlock}`;
+      const whatsappMsg = `*TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n*Código:* ${window._pedidoNumero || s.ref}\n*Fecha de orden:* ${fechaOrden(window._pedidoCreado)}\n*Método de pago:* ${metodoTxt}\n*Monto:* ${montoTxt}\n*Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}${diasDe(i)}`).join('\n')}${customerBlock}${renovBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realicé el pago por ${binance ? 'Binance Pay' : 'QR'}.\nAdjunto captura del comprobante.${passwordBlock}`;
       window._waUrl = `https://wa.me/59157707335?text=${encodeURIComponent(whatsappMsg)}`;
     }
 
@@ -1342,7 +1354,7 @@
       if (s.needsEmail) {
         const email = (document.getElementById('customerEmail').value || '').trim();
         if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          errors.push('Ingresa un correo valido.');
+          errors.push('Ingresa un correo válido.');
           document.getElementById('customerEmail').focus();
         }
       }
@@ -1535,23 +1547,23 @@
       const fuerte = (t) => `<strong style="color:var(--tinta);">${t}</strong>`;
 
       $('pedidoPromesa').innerHTML = vencido
-        ? 'Paso bastante tiempo desde que armaste este pedido. ' +
+        ? 'Pasó bastante tiempo desde que armaste este pedido. ' +
           fuerte('Si ya pagaste, mandanos el comprobante por WhatsApp') +
           ' y te lo entregamos igual.'
         : !hayEntregaAlInstante()
           // Ninguna tiene stock: se dice derecho.
           ? fuerte('No hay cuentas subidas por el momento') +
             '. Solo entregas por WhatsApp: ' +
-            fuerte('envia tu pedido junto a tu comprobante') + '.'
+            fuerte('envía tu pedido junto a tu comprobante') + '.'
           : coberturaCompleta()
-            ? fuerte(r.lineas.length > 1 ? 'Tus cuentas se entregan aca' : 'Tu cuenta se entrega aca') +
-              '. Estamos verificando el pago, no cierres esta pagina.<br><br>' +
+            ? fuerte(r.lineas.length > 1 ? 'Tus cuentas se entregan acá' : 'Tu cuenta se entrega acá') +
+              '. Estamos verificando el pago, no cierres esta página.<br><br>' +
               'Si no te aparece en 10 a 30 minutos, ' +
-              fuerte('envianos un mensaje al WhatsApp junto a tu comprobante') + '.'
+              fuerte('envíanos un mensaje al WhatsApp junto a tu comprobante') + '.'
             // A MEDIAS: algunas si y otras no. Decir "no hay cuentas" seria
             // falso, y decir "se entregan aca" tambien. Se dice el numero,
             // que es lo unico cierto.
-            : fuerte(`${cobertura.hay} de tus ${cobertura.de} cuentas se entregan aca`) +
+            : fuerte(`${cobertura.hay} de tus ${cobertura.de} cuentas se entregan acá`) +
               ', apenas verifiquemos el pago. ' +
               fuerte(`${cobertura.de - cobertura.hay > 1 ? 'Las otras' : 'La otra'} te ${cobertura.de - cobertura.hay > 1 ? 'las' : 'la'} mandamos por WhatsApp`) +
               ' hoy mismo.';
@@ -1568,7 +1580,7 @@
       if (ayudaYaPague) ayudaYaPague.style.display = todoConStock ? 'none' : 'block';
       // El último paso, igual en las dos guías (QR del banco y Binance)
       const paso4 = !todoConStock
-        ? 'Confirma el pago y seras <strong>redirigido a WhatsApp</strong> para enviar tu comprobante'
+        ? 'Confirma el pago y serás <strong>redirigido a WhatsApp</strong> para enviar tu comprobante'
         : cobertura.de > 1
           ? 'Confirma el pago: tus cuentas <strong>aparecen en esta pantalla</strong>, no la cierres'
           : 'Confirma el pago: tu cuenta <strong>aparece en esta pantalla</strong>, no la cierres';
@@ -1580,7 +1592,7 @@
           ? 'Seguimos atentos a tu pedido'
           : hayEntregaAlInstante()
             ? 'Revisando cada pocos segundos…'
-            : 'Si conseguimos una antes, te aparece aca';
+            : 'Si conseguimos una antes, te aparece acá';
       }
     }
 
@@ -1705,8 +1717,8 @@
 
     // El navegador lo resalta en la pestana aunque el cliente este en otra app
     document.title = r.entregadas.length > 1
-      ? 'Tus cuentas estan listas - Tiago Store'
-      : 'Tu cuenta esta lista - Tiago Store';
+      ? 'Tus cuentas están listas - Tiago Store'
+      : 'Tu cuenta está lista - Tiago Store';
   }
 
   // Con el pago ya resuelto, todo lo de PAGAR sobra y encima confunde.
@@ -1747,8 +1759,8 @@
            // Entregado a mano: mandarlo a mirar abajo seria mandarlo a un
            // recuadro que no tiene su cuenta.
            ? 'Pago confirmado. Te lo entregamos por WhatsApp'
-           : r.entregadas.length > 1 ? 'Pago confirmado. Tus cuentas estan abajo'
-                                     : 'Pago confirmado. Tu cuenta esta abajo')
+           : r.entregadas.length > 1 ? 'Pago confirmado. Tus cuentas están abajo'
+                                     : 'Pago confirmado. Tu cuenta está abajo')
       : 'Pago recibido. Te contactamos por WhatsApp';
   }
 
@@ -1868,7 +1880,7 @@
         engancharCompra(deLaUrl, compra);
         return;
       }
-      if (!s) { showError('No encontramos ese pedido. Revisa que el link este completo.'); return; }
+      if (!s) { showError('No encontramos ese pedido. Revisa que el enlace esté completo.'); return; }
     }
 
     // -------------------------------------------------------
@@ -1942,6 +1954,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20261004141042" defer></script>
+  <script src="bg-burbujas.js?v=20261004141937" defer></script>
 </body>
 </html>

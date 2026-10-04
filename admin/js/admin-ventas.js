@@ -676,26 +676,22 @@ $('vistaVentas').innerHTML = `
            si no puede escanear el QR.</p>
       </div>
 
-      <!-- USDT por red BSC (BEP20): tu dirección de depósito de Binance
-           (supabase/19-usdt-red-bsc.sql) -->
+      <!-- Configurar Binance: dirección BSC + API de solo lectura, juntas.
+           No es otra forma de pago: el cliente paga con Binance (tu QR) o,
+           desde otra billetera, por la red BSC a tu dirección; en los dos
+           casos llega a tu cuenta de Binance y se confirma solo
+           (supabase/16-api-binance.sql y 19-usdt-red-bsc.sql). -->
       <div class="vt-cobro-sec">
-        <div class="vt-cobro-sec-cab"><h4>USDT por red BSC (BEP20)</h4><span class="vt-chip" id="vtBscChip">Sin dirección</span></div>
-        <p class="vt-nota">Para clientes que pagan desde otra billetera o exchange. Con la dirección
-           cargada aparece en la tienda como "USDT · Red BSC".</p>
-        <label for="vtBscDireccion">Tu dirección de depósito USDT · BSC</label>
-        <input type="text" id="vtBscDireccion" placeholder="0x…" autocomplete="off" spellcheck="false">
-        <p class="vt-nota" style="margin:0;">En Binance: Depositar → Cripto → USDT → red
-           <strong>BNB Smart Chain (BEP20)</strong> → copiá la dirección. Se confirma solo con la API de abajo.</p>
-      </div>
-
-      <!-- API de Binance (solo lectura) -->
-      <div class="vt-cobro-sec">
-        <div class="vt-cobro-sec-cab"><h4>API de Binance <span style="font-weight:400; color:var(--gris);">(opcional)</span></h4>
+        <div class="vt-cobro-sec-cab"><h4>Configurar Binance</h4>
           <span class="vt-chip" id="vtApiChip">Sin conectar</span></div>
-        <p class="vt-nota">Con la API conectada, los pagos en USDT (Binance Pay y red BSC) se
-           confirman solos y la cuenta se entrega sin que toques nada. Usá una API de solo lectura: con ella no se
-           puede mover tu dinero.</p>
+        <p class="vt-nota">Con esto, los pagos por Binance se confirman solos y la cuenta se entrega
+           sin que toques nada. Usá una API de solo lectura: con ella no se puede mover tu dinero.</p>
         <div class="vt-api-campos">
+          <label for="vtBscDireccion">Dirección BSC <span style="font-weight:400;">(opcional)</span></label>
+          <input type="text" id="vtBscDireccion" placeholder="0x…" autocomplete="off" spellcheck="false">
+          <p class="vt-nota" style="margin:0 0 8px;">Tu dirección de depósito de USDT por la red
+             <strong>BNB Smart Chain (BEP20)</strong> (Binance → Depositar → USDT → BSC). Así también se
+             confirma solo el cliente que te paga desde otra billetera.</p>
           <label for="vtApiKey">API Key</label>
           <input type="text" id="vtApiKey" autocomplete="off" spellcheck="false" placeholder="Pegá la API Key">
           <label for="vtApiSecret" style="margin-top:8px;">Secret Key</label>
@@ -1187,8 +1183,9 @@ const bsTxt = n => `${Number(n || 0).toFixed(2)} Bs`;
 // llegarte, con el tipo de cambio de cuando lo eligió (el mismo cálculo
 // que la tienda: hacia arriba, al centavo). '' si paga con el QR del banco.
 const lineaUsdt = c => c.lineas.find(o => (o.metodo_pago === 'binance' || o.metodo_pago === 'bsc') && Number(o.usdt_bs) > 0);
-// "Binance Pay" o "Red BSC"
-const metodoUsdt = c => (lineaUsdt(c)?.metodo_pago === 'bsc' ? 'Red BSC' : 'Binance Pay');
+// "Binance Pay", o "Binance · red BSC" si te llegó desde otra billetera por la red BSC
+const metodoUsdt = c => (c.lineas.some(o => /red BSC/.test(o.confirmado_por || '') || o.metodo_pago === 'bsc')
+  ? 'Binance · red BSC' : 'Binance Pay');
 
 function usdtDe(c) {
   const b = lineaUsdt(c);
@@ -2498,6 +2495,7 @@ async function probarApi() {
   boton.disabled = true;
   boton.textContent = 'Probando…';
   try {
+    await guardarBscSiCambio();
     await guardarApiSiCambio();
     if (!apiEstado.configurada) throw new Error('Primero pegá la API Key y la Secret Key.');
     const { data, error } = await sbAdmin.rpc('probar_api_binance');
@@ -2732,7 +2730,6 @@ async function abrirCobros() {
   $('vtCobroPayId').value = data.binance_pay_id || '';
   bscCargada = data.bsc_direccion || '';
   $('vtBscDireccion').value = bscCargada;
-  pintarBscChip();
   cobroQr = data.binance_qr || '';
   pintarQrCobro();
   pintarEjemploCobro();
@@ -2766,14 +2763,26 @@ function qrComoImagen(archivo) {
   });
 }
 
-// ---- USDT por red BSC (supabase/19-usdt-red-bsc.sql) ----
+// ---- Dirección BSC, en "Configurar Binance" (supabase/19-usdt-red-bsc.sql) ----
 let bscCargada = '';   // la dirección guardada, para saber si cambió
 
-function pintarBscChip() {
-  const hay = !!bscCargada;
-  const chip = $('vtBscChip');
-  chip.textContent = hay ? 'Activo en la tienda' : 'Sin dirección';
-  chip.className = 'vt-chip' + (hay ? ' ok' : '');
+// La dirección escrita, o un error si no tiene la forma de una dirección BSC
+function direccionBscEscrita() {
+  const bsc = $('vtBscDireccion').value.trim();
+  if (bsc && !/^0x[0-9a-fA-F]{40}$/.test(bsc)) {
+    $('vtBscDireccion').focus();
+    throw new Error('La dirección BSC empieza con 0x y tiene 42 caracteres: copiala de nuevo desde Binance.');
+  }
+  return bsc;
+}
+
+// Se guarda al tocar "Guardar" o "Probar conexión", si cambió
+async function guardarBscSiCambio() {
+  const bsc = direccionBscEscrita();
+  if (bsc === bscCargada) return;
+  const { error } = await sbAdmin.rpc('guardar_direccion_bsc', { p_direccion: bsc });
+  if (error) throw error;
+  bscCargada = bsc;
 }
 
 async function guardarCobros() {
@@ -2783,10 +2792,10 @@ async function guardarCobros() {
     $('vtCobroTasa').focus();
     return;
   }
-  const bsc = $('vtBscDireccion').value.trim();
-  if (bsc && !/^0x[0-9a-fA-F]{40}$/.test(bsc)) {
-    errorCobro('La dirección BSC empieza con 0x y tiene 42 caracteres: copiala de nuevo desde Binance.');
-    $('vtBscDireccion').focus();
+  try {
+    direccionBscEscrita();
+  } catch (e) {
+    errorCobro(e.message);
     return;
   }
   errorCobro('');
@@ -2806,12 +2815,7 @@ async function guardarCobros() {
     pintarQrCobro();
 
     // La dirección BSC, si cambió
-    if (bsc !== bscCargada) {
-      const r = await sbAdmin.rpc('guardar_direccion_bsc', { p_direccion: bsc });
-      if (r.error) throw r.error;
-      bscCargada = bsc;
-      pintarBscChip();
-    }
+    await guardarBscSiCambio();
 
     // Los datos de la pasarela del QR en Bs, si cambiaron
     await guardarBsSiCambio();

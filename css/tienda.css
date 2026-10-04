@@ -291,7 +291,7 @@
        método, abajo el nombre y el total en su moneda. La elegida lleva
        el borde rojo y el tilde en la esquina. */
     .cr-metodos-tit { display: block; font-size: 0.9rem; color: var(--tinta); margin-bottom: 0.7rem; }
-    /* Hasta tres tarjetas en fila; en el celular, de a dos */
+    /* Las tarjetas en fila, de hasta 180 px; en el celular, de a dos */
     .cr-metodos-op {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(118px, 180px));
@@ -351,12 +351,6 @@
     .cr-metodo-img.binance {
       color: #f0b90b;
       background: linear-gradient(135deg, #1e2026 0%, #2f333b 100%);
-    }
-    /* La red BSC: dorado oscuro sobre claro, para no confundirla con Binance Pay */
-    .cr-metodo-img.bsc {
-      color: #9a6a00;
-      background: linear-gradient(135deg, #fffaeb 0%, #fdefc4 100%);
-      border: 1px solid rgba(183,134,11,.18);
     }
     .cr-metodo-nombre { font-weight: 800; font-size: 0.92rem; color: var(--tinta); }
     .cr-metodo-sub { font-size: 0.7rem; line-height: 1.3; color: var(--tinta-suave); }

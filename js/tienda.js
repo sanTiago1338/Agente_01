@@ -518,29 +518,18 @@
     // Cobros), redondeados para arriba al centavo: nunca se pide de menos.
     // Binance aparece recién cuando cargaste tu QR (lo manda
     // js/tienda-catalogo.js a __aplicarCobro, desde datos_de_cobro()).
-    // USDT se puede pagar de dos formas: Binance Pay (con tu QR de Binance)
-    // o depósito por la red BSC (con tu dirección 0x...). Cada una aparece
-    // cuando la cargaste en el panel.
-    const COBRO = { usdtBs: 10, binanceQr: null, binancePayId: null, bscDireccion: null };
+    // USDT se paga con Binance: Binance Pay con tu QR, o (desde otra
+    // billetera) depósito por la red BSC a tu dirección, que la página de
+    // pago muestra dentro de la misma opción. No es otra forma de pago.
+    const COBRO = { usdtBs: 10, binanceQr: null, binancePayId: null };
     let MONEDA = (() => {
       try { return localStorage.getItem('tiago-moneda') === 'USDT' ? 'USDT' : 'Bs'; }
       catch (e) { return 'Bs'; }
     })();
-    // Con USDT, cuál de las dos eligió la última vez
-    let METODO_USDT = (() => {
-      try { return localStorage.getItem('tiago-metodo-usdt') === 'bsc' ? 'bsc' : 'binance'; }
-      catch (e) { return 'binance'; }
-    })();
     const hayBinance = () => !!COBRO.binanceQr;
-    const hayBsc     = () => !!COBRO.bscDireccion;
-    const hayUsdt    = () => hayBinance() || hayBsc();
-    const enUsdt     = () => MONEDA === 'USDT' && hayUsdt();
-    // 'qr', 'binance' o 'bsc': lo que se paga con lo elegido y lo cargado
-    function metodoActual() {
-      if (!enUsdt()) return 'qr';
-      if (METODO_USDT === 'bsc' && hayBsc()) return 'bsc';
-      return hayBinance() ? 'binance' : 'bsc';
-    }
+    const enUsdt     = () => MONEDA === 'USDT' && hayBinance();
+    // 'qr' o 'binance': lo que se paga con lo elegido
+    const metodoActual = () => (enUsdt() ? 'binance' : 'qr');
     const aUsdt      = nBs => Math.ceil(Number(((Number(nBs) || 0) / COBRO.usdtBs * 100).toFixed(6))) / 100;
     const moneda     = () => (enUsdt() ? 'USDT' : 'Bs');
 
@@ -580,8 +569,7 @@
       correo:   '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
       qr:       '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
       moneda:   '<circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/>',
-      check:    '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
-      red:      '<circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M10.8 7.2 6.2 16.8M13.2 7.2l4.6 9.6M7.5 19h9"/>'
+      check:    '<path d="m5 12.5 4.5 4.5L19 7.5"/>'
     };
     function icono(nombre) {
       return `<svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor"
@@ -1889,15 +1877,6 @@
                   <span class="cr-metodo-sub">En USDT, desde tu cuenta de Binance</span>
                   <span class="cr-metodo-monto" data-monto="binance"></span>
                 </button>` : ''}
-                ${hayBsc() ? `
-                <button type="button" class="cr-metodo" data-metodo="bsc" role="radio"
-                        onclick="elegirMetodo('bsc')">
-                  <span class="cr-metodo-check" aria-hidden="true">${icono('check')}</span>
-                  <span class="cr-metodo-img bsc">${icono('red')}<small>BEP20</small></span>
-                  <span class="cr-metodo-nombre">USDT · Red BSC</span>
-                  <span class="cr-metodo-sub">Desde cualquier billetera o exchange</span>
-                  <span class="cr-metodo-monto" data-monto="bsc"></span>
-                </button>` : ''}
               </div>
             </div>
 
@@ -2097,12 +2076,9 @@
         b.setAttribute('aria-checked', String(elegido));
       });
       document.querySelectorAll('[data-monto="qr"]').forEach(e => { e.textContent = textoBs(total); });
-      document.querySelectorAll('[data-monto="binance"], [data-monto="bsc"]')
-        .forEach(e => { e.textContent = textoUsdt(total); });
+      document.querySelectorAll('[data-monto="binance"]').forEach(e => { e.textContent = textoUsdt(total); });
       if (el('crPagarTexto')) {
-        el('crPagarTexto').textContent = metodo === 'binance' ? 'Pagar con Binance Pay'
-                                       : metodo === 'bsc'     ? 'Pagar con USDT · Red BSC'
-                                       : 'Pagar con QR Bolivia';
+        el('crPagarTexto').textContent = metodo === 'binance' ? 'Pagar con Binance Pay' : 'Pagar con QR Bolivia';
       }
 
       // Con 2 o más: el descuento aplicado. Con 1: la invitación a sumar otro.
@@ -2115,14 +2091,10 @@
       }
     }
 
-    // Elegir cómo pagar en el paso 3: QR Bolivia = Bs; Binance Pay o la red
-    // BSC = USDT (y se recuerda cuál de las dos, para la próxima)
+    // Elegir cómo pagar en el paso 3: es lo mismo que el selector de
+    // moneda de arriba (QR Bolivia = Bs, Binance Pay = USDT)
     function elegirMetodo(metodo) {
-      if (metodo === 'binance' || metodo === 'bsc') {
-        METODO_USDT = metodo;
-        try { localStorage.setItem('tiago-metodo-usdt', metodo); } catch (e) { /* da igual */ }
-      }
-      cambiarMoneda(metodo === 'qr' ? 'Bs' : 'USDT');
+      cambiarMoneda(metodo === 'binance' ? 'USDT' : 'Bs');
     }
 
     // Los montos de la ventana del carrito, en la moneda nueva, sin
@@ -2185,7 +2157,7 @@
       const txt = document.getElementById('monedaTxt');
       if (txt) txt.textContent = enUsdt() ? 'Binance USDT' : 'Bolivianos Bs';
       const sel = document.getElementById('monedaSel');
-      if (sel) sel.hidden = !hayUsdt();
+      if (sel) sel.hidden = !hayBinance();
 
       firmaOfertas = null;                 // las ofertas se vuelven a dibujar con la moneda nueva
       if (catalogoCargado) actualizarFotosDePlataforma();
@@ -2209,7 +2181,6 @@
       COBRO.usdtBs       = tasa > 0 ? tasa : 10;
       COBRO.binanceQr    = datos.binance_qr || null;
       COBRO.binancePayId = datos.binance_pay_id || null;
-      COBRO.bscDireccion = datos.bsc_direccion || null;
       repintarMoneda();
     };
 
@@ -2400,8 +2371,8 @@
         cart: encodeURIComponent(JSON.stringify(cartData)),
         total: total.toFixed(2),
       });
-      // Cómo eligió pagar: la página de pago muestra solo ese ('qr',
-      // 'binance' o 'bsc'). El total viaja siempre en Bs, que es lo que cobra la base.
+      // Cómo eligió pagar: la página de pago muestra solo ese ('qr' o
+      // 'binance'). El total viaja siempre en Bs, que es lo que cobra la base.
       params.set('metodo', metodoActual());
       // El aviso de renovación viaja con el número (lo lee pagar-qr.html)
       if (quiereAviso) {

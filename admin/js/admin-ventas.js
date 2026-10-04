@@ -665,8 +665,9 @@ $('vistaVentas').innerHTML = `
       <div class="vt-cobro-sec">
         <div class="vt-cobro-sec-cab"><h4>API de Binance <span style="font-weight:400; color:var(--gris);">(opcional)</span></h4>
           <span class="vt-chip" id="vtApiChip">Sin conectar</span></div>
-        <p class="vt-nota">Para leer desde el panel los pagos que te entran por Binance Pay.
-           Usá una API de solo lectura: con ella no se puede mover tu dinero.</p>
+        <p class="vt-nota">Con la API conectada, los pagos de Binance Pay se confirman solos y la
+           cuenta se entrega sin que toques nada. Usá una API de solo lectura: con ella no se
+           puede mover tu dinero.</p>
         <div class="vt-api-campos">
           <label for="vtApiKey">API Key</label>
           <input type="text" id="vtApiKey" autocomplete="off" spellcheck="false" placeholder="Pegá la API Key">
@@ -678,6 +679,7 @@ $('vistaVentas').innerHTML = `
           <button type="button" class="btn btn-fantasma" id="vtApiQuitar" style="display:none;">Quitar API</button>
         </div>
         <div class="vt-api-estado" id="vtApiEstado" style="display:none;"></div>
+        <p class="vt-nota" id="vtApiAuto" style="display:none; margin-top:10px;"></p>
         <details class="vt-api-ayuda">
           <summary>Cómo crear la API en Binance</summary>
           <ol>
@@ -1099,9 +1101,16 @@ const bsTxt = n => `${Number(n || 0).toFixed(2)} Bs`;
 function usdtDe(c) {
   const b = c.lineas.find(o => o.metodo_pago === 'binance' && Number(o.usdt_bs) > 0);
   if (!b) return '';
-  const usdt = Math.ceil(Number((Number(c.total || 0) / Number(b.usdt_bs) * 100).toFixed(6))) / 100;
+  // El monto único que se le pidió (supabase/17-binance-automatico.sql);
+  // los pedidos de antes no lo tienen y se calcula como antes
+  const usdt = Number(b.usdt_monto) > 0
+    ? Number(b.usdt_monto)
+    : Math.ceil(Number((Number(c.total || 0) / Number(b.usdt_bs) * 100).toFixed(6))) / 100;
   return `${usdt.toFixed(2)} USDT`;
 }
+
+// Lo confirmó solo el revisor de Binance, no vos desde el panel
+const confirmadoSolo = c => c.lineas.some(o => o.confirmado_por === 'Binance automático');
 
 const badgeEstado = (estado, txt) => {
   const e = ESTADOS[estado] || ESTADOS.cancelado;
@@ -1389,7 +1398,8 @@ function pintarCompra(c) {
 
       <div class="vt-der">
         <span class="vt-precio" title="Lo que paga el cliente${c.descuento > 0 ? ', ya con el descuento combo' : ''}">${bsTxt(c.total)}</span>
-        ${usdtDe(c) ? `<span class="vt-usdt" title="Eligió pagar por Binance Pay">Binance Pay · ${usdtDe(c)}</span>` : ''}
+        ${usdtDe(c) ? `<span class="vt-usdt" title="Eligió pagar por Binance Pay">Binance Pay · ${usdtDe(c)}${
+          confirmadoSolo(c) ? ' · confirmado solo' : ''}</span>` : ''}
         ${cartel}
         ${acciones}
       </div>
@@ -2348,6 +2358,26 @@ function pintarApi() {
     linea.style.display = '';
   } else {
     linea.style.display = 'none';
+  }
+
+  // Con la API andando, los pagos de Binance se confirman solos
+  // (supabase/17-binance-automatico.sql)
+  const auto = $('vtApiAuto');
+  if (e.configurada && p && p.ok) {
+    const n = Number(e.confirmados) || 0;
+    const revisado = e.revisado_en
+      ? new Date(e.revisado_en).toLocaleString('es-BO', { dateStyle: 'short', timeStyle: 'short' })
+      : '';
+    auto.innerHTML =
+      '<strong>Confirmación automática activa.</strong> Mientras haya pedidos esperando pago por ' +
+      'Binance, cada minuto se revisan tus pagos: si uno coincide con el monto exacto de un pedido, ' +
+      'se confirma y la cuenta se entrega sola. Los que no coinciden te llegan por Telegram para ' +
+      'que los confirmes a mano.' +
+      `<br>${n === 1 ? '1 pago confirmado solo' : `${n} pagos confirmados solos`}` +
+      (revisado ? ` · última revisión: ${escapar(revisado)}` : '');
+    auto.style.display = '';
+  } else {
+    auto.style.display = 'none';
   }
 }
 

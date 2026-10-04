@@ -628,7 +628,8 @@
     border: 1px solid var(--vidrio-borde);
     box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
   }
-  .pay-instructions[hidden] { display: none; }
+  .pay-instructions[hidden],
+  .pay-instructions .step[hidden] { display: none; }
 
   /* ---------- Cómo paga: QR Bolivia o Binance Pay ----------
      Dos lentes lado a lado; la elegida con el borde rojo. */
@@ -742,10 +743,10 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261004141937">
-  <script src="js/barra-vidrio.js?v=20261004141937" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261004143207">
+  <script src="js/barra-vidrio.js?v=20261004143207" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261004141937"></script>
+  <script src="js/tenido.js?v=20261004143207"></script>
 </head>
 <body>
 
@@ -1029,7 +1030,8 @@
           </div>
           <div class="step">
             <div class="step-num">3</div>
-            <div class="step-text">Envía exactamente: <strong id="instrMontoUsdt" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
+            <div class="step-text">Envía exactamente: <strong id="instrMontoUsdt" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong>
+              <span id="binanceAuto" hidden><br>Con el monto exacto, tu pago <strong>se confirma solo</strong> en 1 o 2 minutos.</span></div>
           </div>
           <div class="step">
             <div class="step-num">4</div>
@@ -1069,11 +1071,15 @@
     // cargás en el panel, Ventas → Cobros; llegan por __aplicarCobro desde
     // el módulo de abajo. Sin QR de Binance cargado, todo queda como antes:
     // solo el QR del banco.
-    const COBRO = { usdtBs: 10, binanceQr: null, binancePayId: null };
+    const COBRO = { usdtBs: 10, binanceQr: null, binancePayId: null, automatico: false };
     let METODO = new URLSearchParams(location.search).get('metodo') === 'binance' ? 'binance' : 'qr';
     // El tipo de cambio con el que se armó el pedido, si ya eligió Binance
     // antes: el monto que se le pidió no cambia aunque cambies el tipo.
     let TASA_PEDIDO = null;
+    // El monto único que le asignó la base (ver supabase/17-binance-automatico.sql):
+    // es el que identifica su pago, así se confirma solo. Puede tener unos
+    // centavos más que la cuenta si otro cliente espera el mismo monto.
+    let MONTO_PEDIDO = null;
 
     const hayBinance = () => !!COBRO.binanceQr;
     const conBinance = () => METODO === 'binance' && hayBinance();
@@ -1082,11 +1088,17 @@
       const tasa = TASA_PEDIDO || COBRO.usdtBs;
       return Math.ceil(Number(((Number(nBs) || 0) / tasa * 100).toFixed(6))) / 100;
     };
+    // Lo que tiene que enviar en USDT: el monto del pedido o, mientras la
+    // base no lo asigna, la cuenta
+    function usdtAPagar() {
+      const s = window._payState;
+      return MONTO_PEDIDO || aUsdt(s ? Number(s.total) || 0 : 0);
+    }
     // "1.50 USDT" o "15.00 Bs"
     function montoAPagar() {
       const s = window._payState;
       const total = s ? Number(s.total) || 0 : 0;
-      return conBinance() ? aUsdt(total).toFixed(2) + ' USDT' : total.toFixed(2) + ' Bs';
+      return conBinance() ? usdtAPagar().toFixed(2) + ' USDT' : total.toFixed(2) + ' Bs';
     }
 
     function aplicarMetodo() {
@@ -1118,7 +1130,8 @@
       document.getElementById('instruccionesBinance').hidden = !binance;
       const usdt = document.getElementById('instrMontoUsdt');
       usdt.textContent = monto;
-      usdt.dataset.copiar = binance ? aUsdt(s.total).toFixed(2) : '';
+      usdt.dataset.copiar = binance ? usdtAPagar().toFixed(2) : '';
+      document.getElementById('binanceAuto').hidden = !COBRO.automatico;
       const payId = document.getElementById('binancePayId');
       payId.textContent = COBRO.binancePayId || '';
       document.getElementById('pasoPayId').hidden = !COBRO.binancePayId;
@@ -1133,6 +1146,7 @@
       if (nuevo === METODO) return;
       METODO = nuevo;
       TASA_PEDIDO = null;           // se guarda con el tipo de cambio de hoy
+      MONTO_PEDIDO = null;          // y la base le asigna el monto de nuevo
       // Que al recargar siga el mismo, y que la tienda lo recuerde
       try {
         const u = new URL(location.href);
@@ -1152,14 +1166,17 @@
       COBRO.usdtBs       = tasa > 0 ? tasa : 10;
       COBRO.binanceQr    = datos.binance_qr || null;
       COBRO.binancePayId = datos.binance_pay_id || null;
+      COBRO.automatico   = datos.automatico === true;
       aplicarMetodo();
       buildWhatsappUrl();
     };
 
-    // Lo que dice el pedido en la base (el cliente que vuelve por su link)
-    window.__metodoDelPedido = function (metodo, tasa) {
+    // Lo que dice el pedido en la base: al volver por su link, o la
+    // respuesta de la base al elegir Binance (con su monto único)
+    window.__metodoDelPedido = function (metodo, tasa, monto) {
       METODO = metodo === 'binance' ? 'binance' : 'qr';
-      TASA_PEDIDO = METODO === 'binance' && Number(tasa) > 0 ? Number(tasa) : null;
+      TASA_PEDIDO  = METODO === 'binance' && Number(tasa)  > 0 ? Number(tasa)  : null;
+      MONTO_PEDIDO = METODO === 'binance' && Number(monto) > 0 ? Number(monto) : null;
       aplicarMetodo();
       buildWhatsappUrl();
     };
@@ -1309,7 +1326,7 @@
       // Cómo pagó: con Binance va el monto en USDT y, al lado, lo que son en Bs
       const binance = conBinance();
       const montoTxt = binance
-        ? `${aUsdt(s.total).toFixed(2)} USDT (${s.total.toFixed(2)} Bs)`
+        ? `${usdtAPagar().toFixed(2)} USDT (${s.total.toFixed(2)} Bs)`
         : `${s.total.toFixed(2)} Bs`;
       const metodoTxt = binance ? 'Binance Pay' : 'QR Bolivia';
       const whatsappMsg = `*TIAGO STORE - COMPROBANTE*\n━━━━━━━━━━━━━━━━━━\n*Código:* ${window._pedidoNumero || s.ref}\n*Fecha de orden:* ${fechaOrden(window._pedidoCreado)}\n*Método de pago:* ${metodoTxt}\n*Monto:* ${montoTxt}\n*Pedido:*\n${s.items.map(i => `  - ${i.qty}x ${i.name}${diasDe(i)}`).join('\n')}${customerBlock}${renovBlock}${linkPedido}\n━━━━━━━━━━━━━━━━━━\nYa realicé el pago por ${binance ? 'Binance Pay' : 'QR'}.\nAdjunto captura del comprobante.${passwordBlock}`;
@@ -1416,10 +1433,18 @@
 
   // El cliente cambió de QR: queda anotado en su pedido, así en Ventas ves
   // si te pagó en Bs o en USDT (y a cuánto estaba el USDT)
+  //
+  // Con Binance, la base le responde con su monto único: ese es el que se
+  // muestra. Si mientras tanto cambió de opción otra vez, la respuesta
+  // vieja se ignora.
   window.__guardarMetodo = metodo => {
     if (!tokenActual) return;
     sb.rpc('elegir_metodo_pago', { p_token: tokenActual, p_metodo: metodo })
-      .then(() => {}, () => {});
+      .then(({ data, error }) => {
+        if (error || !data || !window.__metodoDelPedido) return;
+        if (window.__metodoElegido && window.__metodoElegido() !== data.metodo) return;
+        window.__metodoDelPedido(data.metodo, data.usdt_bs, data.usdt_monto);
+      }, () => {});
   };
   const escapar = s => String(s ?? '').replace(/[&<>"]/g,
     c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1828,12 +1853,15 @@
   async function sincronizarMetodo(compra) {
     await cobroListo;
     const enLaBase = compra.metodo === 'binance' ? 'binance' : 'qr';
-    if (new URLSearchParams(location.search).has('metodo')) {
-      const elegido = window.__metodoElegido ? window.__metodoElegido() : 'qr';
-      if (elegido !== enLaBase) window.__guardarMetodo(elegido);
-      else if (enLaBase === 'binance' && window.__metodoDelPedido) window.__metodoDelPedido('binance', compra.usdt_bs);
+    const elegido = new URLSearchParams(location.search).has('metodo')
+      ? (window.__metodoElegido ? window.__metodoElegido() : 'qr')
+      : enLaBase;
+    // Binance sin monto asignado (un pedido de antes del monto único):
+    // se le pide uno a la base, así también se puede confirmar solo
+    if (elegido !== enLaBase || (elegido === 'binance' && !compra.usdt_monto)) {
+      window.__guardarMetodo(elegido);
     } else if (window.__metodoDelPedido) {
-      window.__metodoDelPedido(enLaBase, compra.usdt_bs);
+      window.__metodoDelPedido(enLaBase, compra.usdt_bs, compra.usdt_monto);
     }
   }
 
@@ -1954,6 +1982,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20261004141937" defer></script>
+  <script src="bg-burbujas.js?v=20261004143207" defer></script>
 </body>
 </html>

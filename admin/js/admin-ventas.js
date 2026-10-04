@@ -676,12 +676,24 @@ $('vistaVentas').innerHTML = `
            si no puede escanear el QR.</p>
       </div>
 
+      <!-- USDT por red BSC (BEP20): tu dirección de depósito de Binance
+           (supabase/19-usdt-red-bsc.sql) -->
+      <div class="vt-cobro-sec">
+        <div class="vt-cobro-sec-cab"><h4>USDT por red BSC (BEP20)</h4><span class="vt-chip" id="vtBscChip">Sin dirección</span></div>
+        <p class="vt-nota">Para clientes que pagan desde otra billetera o exchange. Con la dirección
+           cargada aparece en la tienda como "USDT · Red BSC".</p>
+        <label for="vtBscDireccion">Tu dirección de depósito USDT · BSC</label>
+        <input type="text" id="vtBscDireccion" placeholder="0x…" autocomplete="off" spellcheck="false">
+        <p class="vt-nota" style="margin:0;">En Binance: Depositar → Cripto → USDT → red
+           <strong>BNB Smart Chain (BEP20)</strong> → copiá la dirección. Se confirma solo con la API de abajo.</p>
+      </div>
+
       <!-- API de Binance (solo lectura) -->
       <div class="vt-cobro-sec">
         <div class="vt-cobro-sec-cab"><h4>API de Binance <span style="font-weight:400; color:var(--gris);">(opcional)</span></h4>
           <span class="vt-chip" id="vtApiChip">Sin conectar</span></div>
-        <p class="vt-nota">Con la API conectada, los pagos de Binance Pay se confirman solos y la
-           cuenta se entrega sin que toques nada. Usá una API de solo lectura: con ella no se
+        <p class="vt-nota">Con la API conectada, los pagos en USDT (Binance Pay y red BSC) se
+           confirman solos y la cuenta se entrega sin que toques nada. Usá una API de solo lectura: con ella no se
            puede mover tu dinero.</p>
         <div class="vt-api-campos">
           <label for="vtApiKey">API Key</label>
@@ -1171,11 +1183,15 @@ function cerrarVer() {
 
 const bsTxt = n => `${Number(n || 0).toFixed(2)} Bs`;
 
-// Eligió pagar por Binance Pay: lo que tiene que llegarte, en USDT, con el
-// tipo de cambio de cuando lo eligió (el mismo cálculo que la tienda:
-// hacia arriba, al centavo). '' si paga con el QR del banco.
+// Eligió pagar en USDT (Binance Pay o la red BSC): lo que tiene que
+// llegarte, con el tipo de cambio de cuando lo eligió (el mismo cálculo
+// que la tienda: hacia arriba, al centavo). '' si paga con el QR del banco.
+const lineaUsdt = c => c.lineas.find(o => (o.metodo_pago === 'binance' || o.metodo_pago === 'bsc') && Number(o.usdt_bs) > 0);
+// "Binance Pay" o "Red BSC"
+const metodoUsdt = c => (lineaUsdt(c)?.metodo_pago === 'bsc' ? 'Red BSC' : 'Binance Pay');
+
 function usdtDe(c) {
-  const b = c.lineas.find(o => o.metodo_pago === 'binance' && Number(o.usdt_bs) > 0);
+  const b = lineaUsdt(c);
   if (!b) return '';
   // El monto único que se le pidió (supabase/17-binance-automatico.sql);
   // los pedidos de antes no lo tienen y se calcula como antes
@@ -1185,8 +1201,10 @@ function usdtDe(c) {
   return `${usdt.toFixed(2)} USDT`;
 }
 
-// Lo confirmó solo el revisor de Binance, no vos desde el panel
-const confirmadoSolo = c => c.lineas.some(o => o.confirmado_por === 'Binance automático');
+// Lo confirmó solo el revisor de Binance (Binance Pay o red BSC), no vos
+// desde el panel: "Binance automático", "Binance Pay automático" o
+// "USDT por red BSC automático"
+const confirmadoSolo = c => c.lineas.some(o => / automático$/.test(o.confirmado_por || ''));
 
 const badgeEstado = (estado, txt) => {
   const e = ESTADOS[estado] || ESTADOS.cancelado;
@@ -1229,11 +1247,11 @@ function detalleCompra(c, { porEstado = false } = {}) {
 
   // Con Binance, lo que mirás en la app es el monto en USDT
   const usdt = usdtDe(c);
-  const tasa = usdt ? Number(c.lineas.find(o => o.metodo_pago === 'binance').usdt_bs) : 0;
+  const tasa = usdt ? Number(lineaUsdt(c).usdt_bs) : 0;
   const enUsdt = usdt ? `
       <div class="vt-linea usdt">
         <span class="vt-l-cant"></span>
-        <span class="vt-l-nom">Por Binance Pay<small>1 USDT = ${tasa.toFixed(2)} Bs</small></span>
+        <span class="vt-l-nom">Por ${metodoUsdt(c)}<small>1 USDT = ${tasa.toFixed(2)} Bs</small></span>
         <span class="vt-l-bs">${usdt}</span>
       </div>` : '';
 
@@ -1474,7 +1492,7 @@ function pintarCompra(c) {
 
       <div class="vt-der">
         <span class="vt-precio" title="Lo que paga el cliente${c.descuento > 0 ? ', ya con el descuento combo' : ''}">${bsTxt(c.total)}</span>
-        ${usdtDe(c) ? `<span class="vt-usdt" title="Eligió pagar por Binance Pay">Binance Pay · ${usdtDe(c)}${
+        ${usdtDe(c) ? `<span class="vt-usdt" title="Eligió pagar en USDT">${metodoUsdt(c)} · ${usdtDe(c)}${
           confirmadoSolo(c) ? ' · confirmado solo' : ''}</span>` : ''}
         ${cartel}
         ${acciones}
@@ -2445,8 +2463,9 @@ function pintarApi() {
       ? new Date(e.revisado_en).toLocaleString('es-BO', { dateStyle: 'short', timeStyle: 'short' })
       : '';
     auto.innerHTML =
-      '<strong>Confirmación automática activa.</strong> Mientras haya pedidos esperando pago por ' +
-      'Binance, cada minuto se revisan tus pagos: si uno coincide con el monto exacto de un pedido, ' +
+      '<strong>Confirmación automática activa.</strong> Mientras haya pedidos esperando pago en ' +
+      'USDT, cada minuto se revisan tus pagos de Binance Pay y tus depósitos por la red BSC: si uno ' +
+      'coincide con el monto exacto de un pedido, ' +
       'se confirma y la cuenta se entrega sola. Los que no coinciden te llegan por Telegram para ' +
       'que los confirmes a mano.' +
       `<br>${n === 1 ? '1 pago confirmado solo' : `${n} pagos confirmados solos`}` +
@@ -2711,6 +2730,9 @@ async function abrirCobros() {
   }
   $('vtCobroTasa').value  = Number(data.usdt_bs) > 0 ? Number(data.usdt_bs) : 10;
   $('vtCobroPayId').value = data.binance_pay_id || '';
+  bscCargada = data.bsc_direccion || '';
+  $('vtBscDireccion').value = bscCargada;
+  pintarBscChip();
   cobroQr = data.binance_qr || '';
   pintarQrCobro();
   pintarEjemploCobro();
@@ -2744,11 +2766,27 @@ function qrComoImagen(archivo) {
   });
 }
 
+// ---- USDT por red BSC (supabase/19-usdt-red-bsc.sql) ----
+let bscCargada = '';   // la dirección guardada, para saber si cambió
+
+function pintarBscChip() {
+  const hay = !!bscCargada;
+  const chip = $('vtBscChip');
+  chip.textContent = hay ? 'Activo en la tienda' : 'Sin dirección';
+  chip.className = 'vt-chip' + (hay ? ' ok' : '');
+}
+
 async function guardarCobros() {
   const tasa = Number($('vtCobroTasa').value);
   if (!(tasa > 0 && tasa <= 1000)) {
     errorCobro('El tipo de cambio tiene que ser un número mayor a 0, por ejemplo 10.');
     $('vtCobroTasa').focus();
+    return;
+  }
+  const bsc = $('vtBscDireccion').value.trim();
+  if (bsc && !/^0x[0-9a-fA-F]{40}$/.test(bsc)) {
+    errorCobro('La dirección BSC empieza con 0x y tiene 42 caracteres: copiala de nuevo desde Binance.');
+    $('vtBscDireccion').focus();
     return;
   }
   errorCobro('');
@@ -2766,6 +2804,14 @@ async function guardarCobros() {
     if (error) throw error;
     cobroQr = qr;
     pintarQrCobro();
+
+    // La dirección BSC, si cambió
+    if (bsc !== bscCargada) {
+      const r = await sbAdmin.rpc('guardar_direccion_bsc', { p_direccion: bsc });
+      if (r.error) throw r.error;
+      bscCargada = bsc;
+      pintarBscChip();
+    }
 
     // Los datos de la pasarela del QR en Bs, si cambiaron
     await guardarBsSiCambio();

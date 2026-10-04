@@ -109,6 +109,7 @@ correr de nuevo sin romper nada.
 | `16-api-binance.sql` | La API de Binance (solo lectura) en Ventas → Cobros: se guarda protegida y se prueba la conexión |
 | `17-binance-automatico.sql` | Los pagos de Binance se confirman solos: monto único por pedido y revisión cada minuto (pg_cron) |
 | `18-qr-bs-automatico.sql` | QR en Bs automático, listo para la pasarela: datos y clave del webhook en Ventas → Cobros; el webhook confirma la compra entera |
+| `19-usdt-red-bsc.sql` | USDT por la red BSC (BEP20) a tu dirección de Binance, confirmado solo con la misma API: el revisor lee también los depósitos |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 
 ---

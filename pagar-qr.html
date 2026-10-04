@@ -762,10 +762,10 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261004154150">
-  <script src="js/barra-vidrio.js?v=20261004154150" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261004154445">
+  <script src="js/barra-vidrio.js?v=20261004154445" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261004154150"></script>
+  <script src="js/tenido.js?v=20261004154445"></script>
 </head>
 <body>
 
@@ -1021,10 +1021,9 @@
             <div class="step-num">3</div>
             <div class="step-text">En Glosa/Adjunto escribe: <strong style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar">VARIOS</strong></div>
           </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-text" id="paso4Texto">Confirma el pago y serás <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
-          </div>
+          <!-- Sin paso "Confirma el pago y serás redirigido a WhatsApp": con
+               stock la cuenta aparece en esta página, y sin stock ya está
+               el botón "Ya pagué · enviar comprobante" abajo. -->
         </div>
         <!-- Los pasos para pagar con Binance Pay (en USDT) -->
         <div class="pay-instructions" id="instruccionesBinance" hidden>
@@ -1040,10 +1039,6 @@
             <div class="step-num">3</div>
             <div class="step-text">Envía exactamente: <strong id="instrMontoUsdt" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong>
               <span id="binanceAuto" hidden><br>Con el monto exacto, tu pago <strong>se confirma solo</strong> en 1 o 2 minutos.</span></div>
-          </div>
-          <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-text" id="paso4Binance">Confirma el pago y serás <strong>redirigido a WhatsApp</strong> para enviar tu comprobante</div>
           </div>
         </div>
 
@@ -1631,13 +1626,6 @@
       // stock), cuando el pedido vencio y cuando no se pudo averiguar el
       // stock (cobertura null): ahi el comprobante por WhatsApp es el camino.
       mostrarYaPague(!todoConStock);
-      // El último paso, igual en las dos guías (QR del banco y Binance)
-      const paso4 = !todoConStock
-        ? 'Confirma el pago y serás <strong>redirigido a WhatsApp</strong> para enviar tu comprobante'
-        : cobertura.de > 1
-          ? 'Confirma el pago: tus cuentas <strong>aparecen en esta pantalla</strong>, no la cierres'
-          : 'Confirma el pago: tu cuenta <strong>aparece en esta pantalla</strong>, no la cierres';
-      ['paso4Texto', 'paso4Binance'].forEach(id => { const el = $(id); if (el) el.innerHTML = paso4; });
 
       const latido = $('pedidoLatido');
       if (latido) {
@@ -2012,6 +2000,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20261004154150" defer></script>
+  <script src="bg-burbujas.js?v=20261004154445" defer></script>
 </body>
 </html>

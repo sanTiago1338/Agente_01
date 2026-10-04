@@ -737,10 +737,10 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261004140626">
-  <script src="js/barra-vidrio.js?v=20261004140626" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261004141042">
+  <script src="js/barra-vidrio.js?v=20261004141042" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261004140626"></script>
+  <script src="js/tenido.js?v=20261004141042"></script>
 </head>
 <body>
 
@@ -1099,7 +1099,7 @@
         ? `Monto a enviar por Binance Pay (${Number(s.total).toFixed(2)} Bs)`
         : 'Monto a transferir';
       const img = document.getElementById('qrImage');
-      img.src = binance ? COBRO.binanceQr : 'Img/Qr.jpg';
+      img.src = binance ? COBRO.binanceQr : 'Img/QR%20Bolivianos.jpg';
       img.alt = binance ? 'QR Binance Pay' : 'QR BancoSol';
 
       document.getElementById('instruccionesPago').hidden = binance;
@@ -1194,7 +1194,7 @@
 
       document.getElementById('payAmount').textContent = `${total.toFixed(2)} Bs`;
       document.getElementById('instrMonto').textContent = `${total.toFixed(2)} Bs`;
-      document.getElementById('qrImage').src = 'Img/Qr.jpg';
+      document.getElementById('qrImage').src = 'Img/QR%20Bolivianos.jpg';
       document.getElementById('orderTotal').textContent = `${total.toFixed(2)} Bs`;
       document.getElementById('payRef').textContent = `Ref: ${ref}`;
 
@@ -1942,6 +1942,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20261004140626" defer></script>
+  <script src="bg-burbujas.js?v=20261004141042" defer></script>
 </body>
 </html>

@@ -224,7 +224,7 @@
     const LOCAL_LOGOS = {
       // Más específicas primero (para evitar matches genéricos)
       // Sin Netflix, IPTV, Flujo, Hallow, Pixlr, Linear, Apple Music, Drama
-      // Box, Tele Latino, Zona IPTV ni las "completas" de Disney y Claude:
+      // Box, Tele Latino, Zona IPTV, ChatGPT Pro ni las "completas" de Disney y Claude:
       // esas fotos se borraron de Img/opt y los productos ya tienen la suya
       // en Storage. Si alguno se queda sin imagen, cae al logo de Google de
       // más abajo en vez de a un cuadro roto.
@@ -232,7 +232,6 @@
       'youtube premium':        'Img/You%20Tube.jpg',
       'canva pro':              'Img/Canva%20Pro.jpeg',
       'canva edu':              'Img/Canva%20EDU.jpg',
-      'chatgpt pro':            'Img/ChatGPT%20Pro.svg',
       'hbo max (3 meses':       'Img/Hho%20Max%203%20meses.jpg',
       'notion business':        'Img/NOTION%20BUSINESS%20AI.png',
       'rixx':                   'Img/RIXX%20PRO%20AI.png',

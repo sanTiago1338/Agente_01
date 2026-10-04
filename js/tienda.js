@@ -512,11 +512,42 @@
       return n || String(nombre || '').trim();
     }
 
-    // Precio con el mismo formato que usa el resto de la tienda
-    function formatoBs(n) {
-      const num = Number(n) || 0;
-      return Number.isInteger(num) ? num + 'Bs' : num.toFixed(2) + 'Bs';
+    // ---------- Bolivianos o USDT ----------
+    // Los precios se guardan siempre en Bs. Si el cliente elige ver en
+    // USDT (el selector de arriba, o "Binance Pay" al pagar), se muestran
+    // divididos por el tipo de cambio que cargás en el panel (Ventas →
+    // Cobros), redondeados para arriba al centavo: nunca se pide de menos.
+    // Binance aparece recién cuando cargaste tu QR (lo manda
+    // js/tienda-catalogo.js a __aplicarCobro, desde datos_de_cobro()).
+    const COBRO = { usdtBs: 10, binanceQr: null, binancePayId: null };
+    let MONEDA = (() => {
+      try { return localStorage.getItem('tiago-moneda') === 'USDT' ? 'USDT' : 'Bs'; }
+      catch (e) { return 'Bs'; }
+    })();
+    const hayBinance = () => !!COBRO.binanceQr;
+    const enUsdt     = () => MONEDA === 'USDT' && hayBinance();
+    const aUsdt      = nBs => Math.ceil(Number(((Number(nBs) || 0) / COBRO.usdtBs * 100).toFixed(6))) / 100;
+    const moneda     = () => (enUsdt() ? 'USDT' : 'Bs');
+
+    // El número sin la moneda: "15", "15.50" o "1.55" (en USDT, siempre 2 decimales)
+    function montoNumero(nBs) {
+      if (enUsdt()) return aUsdt(nBs).toFixed(2);
+      const n = Number(nBs) || 0;
+      return Number.isInteger(n) ? String(n) : n.toFixed(2);
     }
+    // Las dos monedas por separado, para las tarjetas de "Elegí cómo pagar"
+    const textoBs   = nBs => { const n = Number(nBs) || 0; return (Number.isInteger(n) ? String(n) : n.toFixed(2)) + ' Bs'; };
+    const textoUsdt = nBs => aUsdt(nBs).toFixed(2) + ' USDT';
+
+    // Precio con el mismo formato que usa el resto de la tienda, en la
+    // moneda elegida: "15Bs" o "1.50USDT"
+    function formatoBs(n) {
+      return montoNumero(n) + moneda();
+    }
+
+    // El precio de antes (tachado) viene del catálogo como texto en Bs
+    // ("24.50Bs"): se vuelve a escribir en la moneda elegida
+    const antesTxt = p => (p && p.precioAntes ? formatoBs(parseFloat(p.precioAntes)) : '');
 
     // ---------- Íconos ----------
     // Dibujos de línea en vez de emojis: se ven iguales en todos los
@@ -531,7 +562,9 @@
       globo:    '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
       carrito:  '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.5L22 7H6"/>',
       reloj:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-      correo:   '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>'
+      correo:   '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+      qr:       '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
+      moneda:   '<circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/>'
     };
     function icono(nombre) {
       return `<svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor"
@@ -863,8 +896,8 @@
         // "15 Bs" grande, y abajo lo que costaba tachado con el descuento
         const precioHtml = sinPrecio(pl)
           ? '<div class="plan-precio consultar">A consultar</div>'
-          : `<div class="plan-precio">${formatoBs(pl.price).replace(/Bs$/, '')}<small>Bs</small></div>
-             ${pl.precioAntes ? `<div class="plan-ahorro"><s>${pl.precioAntes}</s>${pl.descuento ? `<span class="plan-desc">-${pl.descuento}%</span>` : ''}</div>` : ''}`;
+          : `<div class="plan-precio">${montoNumero(pl.price)}<small>${moneda()}</small></div>
+             ${pl.precioAntes ? `<div class="plan-ahorro"><s>${antesTxt(pl)}</s>${pl.descuento ? `<span class="plan-desc">-${pl.descuento}%</span>` : ''}</div>` : ''}`;
 
         return `
         <div class="plan-item${agotado ? ' plan-item--agotado' : ''}">
@@ -1711,15 +1744,13 @@
     // así ir y volver no borra los términos tildados ni el número de
     // WhatsApp. Por lo mismo, cambiar una cantidad redibuja solo su fila.
     // ==========================================================
-    const fmtBsCarrito = n => {
-      const num = Number(n) || 0;
-      return (Number.isInteger(num) ? String(num) : num.toFixed(2)) + ' Bs';
-    };
+    // En la moneda elegida: "15 Bs" o "1.50 USDT"
+    const fmtBsCarrito = n => montoNumero(n) + ' ' + moneda();
 
     // La guía de los tres pasos. Los ya hechos son botones para volver a
     // ellos; hacia adelante no se salta desde acá (hay que pasar por el
     // botón de cada pantalla, que es el que controla lo que falta).
-    const PASOS = ['Elegir', 'Carrito', 'Pagar con QR'];
+    const PASOS = ['Elegir', 'Carrito', 'Pagar'];
     const VOLVER_A_PASO = ['seguirComprando()', 'volverAlCarrito()'];
 
     function pasosHtml(actual) {
@@ -1813,9 +1844,31 @@
           </div>
         </section>
 
-        <!-- ===== PASO 3: PAGAR CON QR ===== -->
+        <!-- ===== PASO 3: PAGAR ===== -->
         <section class="cr-paso" id="crPaso3" hidden>
           <div class="cr-scroll">
+            <!-- Cómo paga: QR del banco en Bs, o Binance Pay en USDT (esa
+                 tarjeta aparece cuando cargaste tu QR en el panel). Elegir
+                 una cambia los montos a esa moneda y el botón de abajo. -->
+            <div class="ck-caja cr-metodos">
+              <b class="cr-metodos-tit">Elegí cómo pagar</b>
+              <div class="cr-metodos-op" role="radiogroup" aria-label="Método de pago">
+                <button type="button" class="cr-metodo" data-metodo="qr" role="radio"
+                        onclick="elegirMetodo('qr')">
+                  <span class="cr-metodo-ico">${icono('qr')}</span>
+                  <span class="cr-metodo-txt"><b>QR Bolivia</b><small>En bolivianos, desde cualquier banco</small></span>
+                  <span class="cr-metodo-monto" data-monto="qr"></span>
+                </button>
+                ${hayBinance() ? `
+                <button type="button" class="cr-metodo" data-metodo="binance" role="radio"
+                        onclick="elegirMetodo('binance')">
+                  <span class="cr-metodo-ico binance">${icono('moneda')}</span>
+                  <span class="cr-metodo-txt"><b>Binance Pay</b><small>En USDT, desde tu cuenta de Binance</small></span>
+                  <span class="cr-metodo-monto" data-monto="binance"></span>
+                </button>` : ''}
+              </div>
+            </div>
+
             <div class="ck-caja cr-pedido">
               <div class="cr-pedido-cab">
                 <b>Tu pedido</b>
@@ -1866,7 +1919,7 @@
             <div class="cr-acciones">
               <button type="button" class="cr-atras" onclick="volverAlCarrito()">← Volver al carrito</button>
               <button type="button" class="ck-pagar" id="cartPagarQR" disabled onclick="payWithQR()">
-                Pagar con QR <span class="cr-pagar-monto" id="crPagarMonto"></span>
+<span id="crPagarTexto">Pagar con QR Bolivia</span> <span class="cr-pagar-monto" id="crPagarMonto"></span>
               </button>
             </div>
             <p class="ck-aviso" id="crAvisoPagar">Te llevamos al QR para completar el pago.</p>
@@ -1901,7 +1954,7 @@
 
       document.getElementById('crPasos').innerHTML = pasosHtml(n);
       const titulo = document.getElementById('crTitulo');
-      titulo.textContent = n === 3 ? 'Pagar con QR' : 'Tu carrito';
+      titulo.textContent = n === 3 ? 'Pagar' : 'Tu carrito';
       if (n === 3) { pintarResumen(); anotarPaso('pago'); }
 
       pasoActual = n;
@@ -1956,7 +2009,7 @@
       const f = productFlags(item);
       const entrega = item.stock > 0
         ? `<span class="cr-ya">Entrega inmediata</span> · ${item.stock === 1 ? 'queda 1' : `quedan ${item.stock}`}`
-        : '⏱ Entrega de 5 a 30 min';
+        : 'Entrega de 5 a 30 min';
       return `
         <li class="cr-item" data-idx="${idx}">
           <img class="cr-img" src="${url}" alt="" loading="lazy"
@@ -1964,7 +2017,7 @@
           <div class="cr-info">
             <div class="cr-nombre">${escaparHtml(item.name)}</div>
             <div class="cr-meta">${entrega}${f.needsEmail || f.needsUsername ? ' · pide tu correo' : ''}</div>
-            <div class="cr-unit">${fmtBsCarrito(item.price)} c/u${item.precioAntes ? ` <s>${item.precioAntes}</s>` : ''}</div>
+            <div class="cr-unit">${fmtBsCarrito(item.price)} c/u${item.precioAntes ? ` <s>${antesTxt(item)}</s>` : ''}</div>
             ${item.diasQuedan ? `<div class="cr-dias">Suscripción: ${item.diasQuedan} días (de ${item.diasPlan})</div>` : ''}
             <div class="cr-aviso" ${ajustado ? '' : 'hidden'}>${ajustado ? mensajeTope(item) : ''}</div>
           </div>
@@ -2003,6 +2056,20 @@
       });
       el('crPagarMonto').textContent = '· ' + fmtBsCarrito(total);
 
+      // Las tarjetas de "Elegí cómo pagar": cada una con el total en su
+      // moneda, la elegida marcada, y el botón dice con cuál se paga
+      const metodo = enUsdt() ? 'binance' : 'qr';
+      document.querySelectorAll('.cr-metodo').forEach(b => {
+        const elegido = b.dataset.metodo === metodo;
+        b.classList.toggle('elegido', elegido);
+        b.setAttribute('aria-checked', String(elegido));
+      });
+      document.querySelectorAll('[data-monto="qr"]').forEach(e => { e.textContent = textoBs(total); });
+      document.querySelectorAll('[data-monto="binance"]').forEach(e => { e.textContent = textoUsdt(total); });
+      if (el('crPagarTexto')) {
+        el('crPagarTexto').textContent = metodo === 'binance' ? 'Pagar con Binance Pay' : 'Pagar con QR Bolivia';
+      }
+
       // Con 2 o más: el descuento aplicado. Con 1: la invitación a sumar otro.
       const combo = el('crCombo');
       if (combo) {
@@ -2012,6 +2079,99 @@
           : `<span>Sumá otro producto y ahorrá <b>${fmtBsCarrito(DESCUENTO_COMBO)}</b> con el descuento combo</span>`;
       }
     }
+
+    // Elegir cómo pagar en el paso 3: es lo mismo que el selector de
+    // moneda de arriba (QR Bolivia = Bs, Binance Pay = USDT)
+    function elegirMetodo(metodo) {
+      cambiarMoneda(metodo === 'binance' ? 'USDT' : 'Bs');
+    }
+
+    // Los montos de la ventana del carrito, en la moneda nueva, sin
+    // redibujarla (así no se pierden los términos tildados ni el número)
+    function repintarMontosDelCarrito() {
+      document.querySelectorAll('.cr-item').forEach(fila => {
+        const item = cart[Number(fila.dataset.idx)];
+        if (!item) return;
+        const unit = fila.querySelector('.cr-unit');
+        if (unit) unit.innerHTML = `${fmtBsCarrito(item.price)} c/u${item.precioAntes ? ` <s>${antesTxt(item)}</s>` : ''}`;
+        const sub = fila.querySelector('.cr-sub');
+        if (sub) sub.textContent = fmtBsCarrito(item.price * item.qty);
+      });
+      pintarResumen();
+      pintarTotales();
+    }
+
+    // Cambia la moneda de toda la tienda: el selector de arriba, las
+    // ofertas, las sugerencias, la ventana de planes y el carrito
+    function cambiarMoneda(nueva) {
+      MONEDA = nueva === 'USDT' ? 'USDT' : 'Bs';
+      try { localStorage.setItem('tiago-moneda', MONEDA); } catch (e) { /* da igual */ }
+      cerrarMenuMoneda();
+      repintarMoneda();
+    }
+
+    // El desplegable de arriba del buscador: abre y cierra la lista
+    function alternarMenuMoneda() {
+      const menu = document.getElementById('monedaMenu');
+      if (!menu) return;
+      if (menu.hidden) {
+        menu.hidden = false;
+        document.getElementById('monedaBtn').setAttribute('aria-expanded', 'true');
+      } else {
+        cerrarMenuMoneda();
+      }
+    }
+
+    function cerrarMenuMoneda() {
+      const menu = document.getElementById('monedaMenu');
+      if (!menu || menu.hidden) return;
+      menu.hidden = true;
+      document.getElementById('monedaBtn').setAttribute('aria-expanded', 'false');
+    }
+
+    // Se cierra al tocar afuera o con Escape
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#monedaSel')) cerrarMenuMoneda();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') cerrarMenuMoneda();
+    });
+
+    function repintarMoneda() {
+      document.querySelectorAll('.moneda-op').forEach(b => {
+        const activo = b.dataset.moneda === moneda();
+        b.classList.toggle('activo', activo);
+        b.setAttribute('aria-selected', String(activo));
+      });
+      const txt = document.getElementById('monedaTxt');
+      if (txt) txt.textContent = enUsdt() ? 'Binance USDT' : 'Bolivianos Bs';
+      const sel = document.getElementById('monedaSel');
+      if (sel) sel.hidden = !hayBinance();
+
+      firmaOfertas = null;                 // las ofertas se vuelven a dibujar con la moneda nueva
+      if (catalogoCargado) actualizarFotosDePlataforma();
+
+      if (!ventanaAbierta()) return;
+      if (document.getElementById('crPaso2')) { repintarMontosDelCarrito(); return; }
+      const s = history.state;
+      if (s && s.tienda === 'planes' && PLATAFORMAS_VISIBLES.some(g => g.clave === s.clave)) {
+        const sheet = document.getElementById('9');
+        const arriba = sheet ? sheet.scrollTop : 0;
+        restaurando = true;                // que no sume otra pantalla al historial
+        try { abrirPlataforma(s.clave); } finally { restaurando = false; }
+        if (sheet) sheet.scrollTop = arriba;
+      }
+    }
+
+    // Llega desde js/tienda-catalogo.js (datos_de_cobro() en la base)
+    window.__aplicarCobro = function (datos) {
+      if (!datos) return;
+      const tasa = Number(datos.usdt_bs);
+      COBRO.usdtBs       = tasa > 0 ? tasa : 10;
+      COBRO.binanceQr    = datos.binance_qr || null;
+      COBRO.binancePayId = datos.binance_pay_id || null;
+      repintarMoneda();
+    };
 
     // Términos + aviso de renovación: los mismos candados que tenía la
     // ventana de compra de un solo producto.
@@ -2200,6 +2360,9 @@
         cart: encodeURIComponent(JSON.stringify(cartData)),
         total: total.toFixed(2),
       });
+      // Cómo eligió pagar: la página del QR muestra ese (el de Binance si
+      // eligió USDT). El total viaja siempre en Bs, que es lo que cobra la base.
+      params.set('metodo', enUsdt() ? 'binance' : 'qr');
       // El aviso de renovación viaja con el número (lo lee pagar-qr.html)
       if (quiereAviso) {
         params.set('recordar', '1');
@@ -2282,7 +2445,7 @@
         .sort((a, b) => b.plan.descuento - a.plan.descuento);
     }
 
-    const conEspacio = precio => String(precio).replace(/Bs$/, ' Bs');
+    const conEspacio = precio => String(precio).replace(/(Bs|USDT)$/, ' $1');
 
     function tarjetaOferta({ g, plan }) {
       const [c1, c2] = String(g.base.imgColor || '').split(',').map(s => s.trim());
@@ -2292,7 +2455,7 @@
       const foto = new URL(getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl), location.href)
         .href.replace(/"/g, '%22');
       const precio = conEspacio(formatoBs(plan.price));
-      const antes  = plan.precioAntes ? conEspacio(plan.precioAntes) : '';
+      const antes  = plan.precioAntes ? conEspacio(antesTxt(plan)) : '';
       return `
         <button type="button" class="oferta-card" data-clave="${escaparHtml(g.clave)}"
                 data-foto="${escaparHtml(foto)}"

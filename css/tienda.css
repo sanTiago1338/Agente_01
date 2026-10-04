@@ -227,7 +227,103 @@
 
     /* Desplegable de sugerencias y búsquedas recientes.
        Cuelga de .search-box, que es el que tiene position:relative. */
-    .search-box { position: relative; }
+    .search-box { position: relative; flex: 1; min-width: 0; }
+
+    /* Arriba del buscador, el desplegable de moneda: "Bolivianos Bs ⌄" */
+    .search-bar { display: flex; flex-direction: column; align-items: stretch; gap: 0.2rem; }
+    .moneda-sel {
+      order: -1;                      /* va primero, arriba del buscador */
+      position: relative;
+      align-self: flex-start;
+    }
+    .moneda-sel[hidden] { display: none; }
+    .moneda-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border: none;
+      background: none;
+      padding: 0.25rem 0.15rem;
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--tinta-suave);
+      cursor: pointer;
+    }
+    .moneda-btn svg { transition: transform .2s; }
+    .moneda-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+    .moneda-btn:hover { color: var(--tinta); }
+    .moneda-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 5;
+      min-width: 13rem;
+      padding: 0.3rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,.96);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: 0 10px 30px rgba(20,22,26,.16);
+    }
+    .moneda-menu[hidden] { display: none; }
+    .moneda-op {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: none;
+      background: none;
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--tinta-suave);
+      cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .moneda-op:hover { background: rgba(20,22,26,.05); color: var(--tinta); }
+    .moneda-op.activo { background: var(--marca); color: #fff; font-weight: 700; }
+
+    /* ---- Elegí cómo pagar (paso 3 del carrito) ---- */
+    .cr-metodos-tit { display: block; font-size: 0.9rem; color: var(--tinta); margin-bottom: 0.6rem; }
+    .cr-metodos-op { display: grid; gap: 0.5rem; }
+    .cr-metodo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      border-radius: 14px;
+      border: 1.5px solid rgba(20,22,26,.12);
+      background: rgba(255,255,255,.55);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .2s, background .2s, box-shadow .2s;
+    }
+    .cr-metodo:hover { border-color: rgba(20,22,26,.25); }
+    .cr-metodo.elegido {
+      border-color: var(--marca);
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 0 0 3px rgba(229,9,20,.12);
+    }
+    .cr-metodo-ico {
+      flex: none;
+      width: 40px; height: 40px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      font-size: 1.3rem;
+      color: var(--marca);
+      background: rgba(229,9,20,.08);
+    }
+    .cr-metodo-ico.binance { color: #b7860b; background: rgba(240,185,11,.16); }
+    .cr-metodo-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .cr-metodo-txt b { font-size: 0.92rem; color: var(--tinta); }
+    .cr-metodo-txt small { font-size: 0.74rem; color: var(--tinta-suave); }
+    .cr-metodo-monto { flex: none; font-weight: 800; font-size: 0.9rem; color: var(--tinta); font-variant-numeric: tabular-nums; }
 
     .search-sug {
       position: absolute;

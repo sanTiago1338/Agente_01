@@ -631,44 +631,29 @@
   .pay-instructions[hidden],
   .pay-instructions .step[hidden] { display: none; }
 
-  /* ---------- Cómo paga: QR Bolivia o Binance Pay ----------
-     Dos lentes lado a lado; la elegida con el borde rojo. */
-  .metodo-sel {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: .5rem;
-    margin-bottom: .9rem;
-  }
-  .metodo-sel[hidden] { display: none; }
-  .metodo-op {
-    display: flex;
-    flex-direction: column;
+  /* ---------- Con qué paga ----------
+     Solo el método que eligió en el carrito, arriba del monto: los mismos
+     colores que su tarjeta (QR rojo sobre claro, Binance dorado sobre
+     oscuro). */
+  .pay-metodo {
+    display: inline-flex;
     align-items: center;
-    gap: .1rem;
-    padding: .6rem .5rem;
-    border-radius: 16px;
-    background: var(--vidrio);
-    -webkit-backdrop-filter: var(--vidrio-blur);
-    backdrop-filter: var(--vidrio-blur);
-    border: 1.5px solid var(--vidrio-borde);
-    box-shadow: 0 4px 14px rgba(20,22,26,.06), var(--vidrio-brillo);
-    font: inherit;
-    color: var(--texto-dim);
-    cursor: pointer;
-    transition: border-color .2s, box-shadow .2s, color .2s;
+    gap: .4rem;
+    padding: .32rem .8rem;
+    margin-bottom: .6rem;
+    border-radius: 999px;
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    color: var(--rojo);
+    background: rgba(229,9,20,.07);
+    border: 1px solid rgba(229,9,20,.14);
   }
-  .metodo-op b { font-size: .9rem; color: var(--tinta); }
-  /* Los mismos íconos que las tarjetas del carrito: rojo el QR, dorado Binance */
-  .metodo-ico { width: 22px; height: 22px; margin-bottom: .2rem; color: var(--rojo); }
-  .metodo-ico.binance { color: #b7860b; }
+  .pay-metodo:empty { display: none; }
+  .pay-metodo svg { width: 16px; height: 16px; flex: none; }
+  .pay-metodo.binance { color: #f0b90b; background: #1e2026; border-color: #1e2026; }
   .pay-order-usdt { text-align: right; font-size: .82rem; font-weight: 700; color: #8a6508; margin-top: .3rem; }
   .pay-order-usdt[hidden] { display: none; }
-  .metodo-op small { font-size: .74rem; }
-  .metodo-op.activo {
-    border-color: var(--rojo);
-    box-shadow: 0 0 0 3px rgba(229,9,20,.12), 0 4px 14px rgba(20,22,26,.06);
-  }
-  .metodo-op.activo b { color: var(--rojo); }
   @media (min-width: 760px) {
     .pay-container { max-width: 980px; }
     .pago-grid {
@@ -705,7 +690,6 @@
     .pago-izq, .pago-der { display: contents; }
     #pasosPago        { order: 1; }
     #statusBar        { order: 2; }
-    #metodoSel        { order: 3; }
     #qrCard           { order: 4; }
     #instruccionesPago,
     #instruccionesBinance { order: 5; }
@@ -743,10 +727,10 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261004143207">
-  <script src="js/barra-vidrio.js?v=20261004143207" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261004153813">
+  <script src="js/barra-vidrio.js?v=20261004153813" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261004143207"></script>
+  <script src="js/tenido.js?v=20261004153813"></script>
 </head>
 <body>
 
@@ -965,25 +949,12 @@
         <span id="statusText">Esperando pago...</span>
       </div>
 
-      <!-- Cómo paga: el QR del banco en Bs, o Binance Pay en USDT. Viene
-           elegido desde el carrito y se puede cambiar acá. La opción de
-           Binance aparece cuando cargaste tu QR en el panel. -->
-      <div class="metodo-sel" id="metodoSel" role="radiogroup" aria-label="Cómo pagás" hidden>
-        <button type="button" class="metodo-op activo" data-metodo="qr" role="radio" aria-checked="true"
-                onclick="elegirMetodoPago('qr')">
-          <svg class="metodo-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
-          <b>QR Bolivia</b><small>Bolivianos (Bs)</small>
-        </button>
-        <button type="button" class="metodo-op" data-metodo="binance" role="radio" aria-checked="false"
-                onclick="elegirMetodoPago('binance')">
-          <svg class="metodo-ico binance" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/></svg>
-          <b>Binance Pay</b><small>USDT</small>
-        </button>
-      </div>
-
       <!-- QR Card -->
       <div class="pay-card" id="qrCard">
         <div class="pay-card-header">
+          <!-- Con qué paga: el método que eligió en el carrito, solo ese.
+               Lo escribe aplicarMetodo(). -->
+          <div class="pay-metodo" id="payMetodo"></div>
           <div class="pay-amount" id="payAmount">0.00 Bs</div>
           <div class="pay-amount-label" id="payAmountLabel">Monto a transferir</div>
         </div>
@@ -1066,12 +1037,15 @@
     }
 
     // ---------- CÓMO PAGA: QR BOLIVIA (Bs) O BINANCE PAY (USDT) ----------
-    // Viene elegido desde el carrito (?metodo=binance) y se puede cambiar
-    // acá. Los datos de Binance (QR, Pay ID y cuántos Bs vale 1 USDT) los
+    // Viene elegido desde el carrito (?metodo=binance) y acá se muestra
+    // solo ese: para cambiarlo, vuelve al carrito. Los datos de Binance (QR, Pay ID y cuántos Bs vale 1 USDT) los
     // cargás en el panel, Ventas → Cobros; llegan por __aplicarCobro desde
     // el módulo de abajo. Sin QR de Binance cargado, todo queda como antes:
     // solo el QR del banco.
-    const COBRO = { usdtBs: 10, binanceQr: null, binancePayId: null, automatico: false };
+    // cargado: ya llegaron los datos de la base. Antes de eso no se sabe si
+    // hay QR de Binance, y mostrar el del banco a quien eligió Binance es
+    // invitarlo a escanear el que no es.
+    const COBRO = { usdtBs: 10, binanceQr: null, binancePayId: null, automatico: false, cargado: false };
     let METODO = new URLSearchParams(location.search).get('metodo') === 'binance' ? 'binance' : 'qr';
     // El tipo de cambio con el que se armó el pedido, si ya eligió Binance
     // antes: el monto que se le pidió no cambia aunque cambies el tipo.
@@ -1101,19 +1075,40 @@
       return conBinance() ? usdtAPagar().toFixed(2) + ' USDT' : total.toFixed(2) + ' Bs';
     }
 
+    // Los íconos del encabezado "con qué paga" (los mismos del carrito)
+    const ICONO_METODO = {
+      qr:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>',
+      binance: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/></svg>'
+    };
+
+    // Muestra SOLO el método que eligió en el carrito: su encabezado, su
+    // monto, su QR y sus pasos. Para cambiarlo, vuelve al carrito.
     function aplicarMetodo() {
       const s = window._payState;
       const binance = conBinance();
-      const sel = document.getElementById('metodoSel');
-      if (sel) {
-        sel.hidden = !hayBinance();
-        sel.querySelectorAll('.metodo-op').forEach(b => {
-          const activo = b.dataset.metodo === (binance ? 'binance' : 'qr');
-          b.classList.toggle('activo', activo);
-          b.setAttribute('aria-checked', String(activo));
-        });
-      }
       if (!s) return;
+
+      const cab = document.getElementById('payMetodo');
+      const img = document.getElementById('qrImage');
+
+      // Eligió Binance y todavía no llegaron los datos: "cargando", sin QR
+      if (METODO === 'binance' && !COBRO.cargado) {
+        cab.className = 'pay-metodo binance';
+        cab.innerHTML = `${ICONO_METODO.binance} Pagás con Binance Pay · USDT`;
+        document.getElementById('payAmount').textContent = '…';
+        document.getElementById('payAmountLabel').textContent = 'Cargando el QR de Binance…';
+        img.style.visibility = 'hidden';
+        document.getElementById('instruccionesPago').hidden = true;
+        document.getElementById('instruccionesBinance').hidden = true;
+        return;
+      }
+      img.style.visibility = '';
+
+      cab.className = 'pay-metodo' + (binance ? ' binance' : '');
+      cab.innerHTML = binance
+        ? `${ICONO_METODO.binance} Pagás con Binance Pay · USDT`
+        : `${ICONO_METODO.qr} Pagás con QR Bolivia · Bolivianos`;
+
       const monto = montoAPagar();
       document.getElementById('payAmount').textContent = monto;
       document.getElementById('payAmountLabel').textContent = binance
@@ -1122,7 +1117,6 @@
       const enUsdt = document.getElementById('orderTotalUsdt');
       enUsdt.textContent = binance ? `Por Binance Pay: ${monto}` : '';
       enUsdt.hidden = !binance;
-      const img = document.getElementById('qrImage');
       img.src = binance ? COBRO.binanceQr : 'Img/QR%20Bolivianos.jpg';
       img.alt = binance ? 'QR Binance Pay' : 'QR BancoSol';
 
@@ -1140,25 +1134,6 @@
         .forEach((n, i) => { n.textContent = i + 1; });
     }
 
-    // El cliente toca la otra opción
-    function elegirMetodoPago(metodo) {
-      const nuevo = metodo === 'binance' && hayBinance() ? 'binance' : 'qr';
-      if (nuevo === METODO) return;
-      METODO = nuevo;
-      TASA_PEDIDO = null;           // se guarda con el tipo de cambio de hoy
-      MONTO_PEDIDO = null;          // y la base le asigna el monto de nuevo
-      // Que al recargar siga el mismo, y que la tienda lo recuerde
-      try {
-        const u = new URL(location.href);
-        u.searchParams.set('metodo', METODO);
-        history.replaceState(history.state, '', u);
-        localStorage.setItem('tiago-moneda', METODO === 'binance' ? 'USDT' : 'Bs');
-      } catch (e) { /* da igual */ }
-      aplicarMetodo();
-      buildWhatsappUrl();
-      if (window.__guardarMetodo) window.__guardarMetodo(METODO);
-    }
-
     // Llega del módulo de abajo (datos_de_cobro() en la base)
     window.__aplicarCobro = function (datos) {
       if (!datos) return;
@@ -1167,9 +1142,13 @@
       COBRO.binanceQr    = datos.binance_qr || null;
       COBRO.binancePayId = datos.binance_pay_id || null;
       COBRO.automatico   = datos.automatico === true;
+      COBRO.cargado      = true;
       aplicarMetodo();
       buildWhatsappUrl();
     };
+    // Si el módulo de abajo no llega a cargar (sin conexión con la base),
+    // a los 8 segundos se muestra el QR del banco en vez de "cargando"
+    setTimeout(() => { if (!COBRO.cargado) window.__aplicarCobro({}); }, 8000);
 
     // Lo que dice el pedido en la base: al volver por su link, o la
     // respuesta de la base al elegir Binance (con su monto único)
@@ -1428,8 +1407,8 @@
   // El QR de Binance, el Pay ID y el tipo de cambio (los cargás en el
   // panel). Si no llegan, la página sigue solo con el QR del banco.
   const cobroListo = sb.rpc('datos_de_cobro')
-    .then(({ data, error }) => { if (!error && data && window.__aplicarCobro) window.__aplicarCobro(data); })
-    .catch(() => { /* sin datos: solo el QR del banco */ });
+    .then(({ data, error }) => { if (window.__aplicarCobro) window.__aplicarCobro(!error && data ? data : {}); })
+    .catch(() => { if (window.__aplicarCobro) window.__aplicarCobro({}); });   // sin datos: el QR del banco
 
   // El cliente cambió de QR: queda anotado en su pedido, así en Ventas ves
   // si te pagó en Bs o en USDT (y a cuánto estaba el USDT)
@@ -1756,7 +1735,7 @@
   // El resumen del pedido y "Volver a la tienda" se quedan: uno es su
   // comprobante de que compro y el otro es por donde sigue.
   function esconderLoDePagar() {
-    ['metodoSel', 'qrCard', 'instruccionesPago', 'instruccionesBinance',
+    ['qrCard', 'instruccionesPago', 'instruccionesBinance',
      'btnYaPague', 'ayudaYaPague', 'customerDataBox'].forEach(id => {
       const el = $(id);
       if (el) el.style.display = 'none';
@@ -1982,6 +1961,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20261004143207" defer></script>
+  <script src="bg-burbujas.js?v=20261004153813" defer></script>
 </body>
 </html>

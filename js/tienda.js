@@ -563,7 +563,8 @@
       reloj:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
       correo:   '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
       qr:       '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
-      moneda:   '<circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/>'
+      moneda:   '<circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/>',
+      check:    '<path d="m5 12.5 4.5 4.5L19 7.5"/>'
     };
     function icono(nombre) {
       return `<svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor"
@@ -1847,22 +1848,28 @@
         <section class="cr-paso" id="crPaso3" hidden>
           <div class="cr-scroll">
             <!-- Cómo paga: QR del banco en Bs, o Binance Pay en USDT (esa
-                 tarjeta aparece cuando cargaste tu QR en el panel). Elegir
-                 una cambia los montos a esa moneda y el botón de abajo. -->
+                 tarjeta aparece cuando cargaste tu QR en el panel). Tarjetas
+                 cuadradas, una al lado de la otra. Elegir una cambia los
+                 montos a esa moneda y el botón de abajo; la página de pago
+                 muestra solo la elegida. -->
             <div class="ck-caja cr-metodos">
-              <b class="cr-metodos-tit">Elegí cómo pagar</b>
+              <b class="cr-metodos-tit">Seleccioná una opción de pago</b>
               <div class="cr-metodos-op" role="radiogroup" aria-label="Método de pago">
                 <button type="button" class="cr-metodo" data-metodo="qr" role="radio"
                         onclick="elegirMetodo('qr')">
-                  <span class="cr-metodo-ico">${icono('qr')}</span>
-                  <span class="cr-metodo-txt"><b>QR Bolivia</b><small>En bolivianos, desde cualquier banco</small></span>
+                  <span class="cr-metodo-check" aria-hidden="true">${icono('check')}</span>
+                  <span class="cr-metodo-img qr">${icono('qr')}<small>Pago QR</small></span>
+                  <span class="cr-metodo-nombre">QR Bolivia</span>
+                  <span class="cr-metodo-sub">En bolivianos, desde cualquier banco</span>
                   <span class="cr-metodo-monto" data-monto="qr"></span>
                 </button>
                 ${hayBinance() ? `
                 <button type="button" class="cr-metodo" data-metodo="binance" role="radio"
                         onclick="elegirMetodo('binance')">
-                  <span class="cr-metodo-ico binance">${icono('moneda')}</span>
-                  <span class="cr-metodo-txt"><b>Binance Pay</b><small>En USDT, desde tu cuenta de Binance</small></span>
+                  <span class="cr-metodo-check" aria-hidden="true">${icono('check')}</span>
+                  <span class="cr-metodo-img binance">${icono('moneda')}<small>USDT</small></span>
+                  <span class="cr-metodo-nombre">Binance Pay</span>
+                  <span class="cr-metodo-sub">En USDT, desde tu cuenta de Binance</span>
                   <span class="cr-metodo-monto" data-monto="binance"></span>
                 </button>` : ''}
               </div>

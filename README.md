@@ -110,6 +110,7 @@ correr de nuevo sin romper nada.
 | `17-binance-automatico.sql` | Los pagos de Binance se confirman solos: monto único por pedido y revisión cada minuto (pg_cron) |
 | `18-qr-bs-automatico.sql` | QR en Bs automático, listo para la pasarela: datos y clave del webhook en Ventas → Cobros; el webhook confirma la compra entera |
 | `19-usdt-red-bsc.sql` | "Configurar Binance": dirección BSC + API. Dentro de la misma opción Binance, el cliente también puede pagar por la red BSC desde otra billetera, y se confirma solo |
+| `20-cerrar-funciones-viejas.sql` | Sin acceso público para crear_pedido() y ver_mi_pedido(), que ya no usa nadie |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 
 ---

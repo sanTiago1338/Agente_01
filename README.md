@@ -106,6 +106,7 @@ correr de nuevo sin romper nada.
 | `13-telegram-sin-emojis.sql` | El mensaje de prueba de Telegram, sin emojis |
 | `14-renovar-con-un-toque.sql` | El mensaje de vencimiento trae "Renová acá": abre la tienda con el producto en el carrito |
 | `15-pago-binance.sql` | Pagar con Binance Pay en USDT: el QR, el Pay ID y el tipo de cambio se cargan en Ventas → Cobros |
+| `16-api-binance.sql` | La API de Binance (solo lectura) en Ventas → Cobros: se guarda protegida y se prueba la conexión |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 
 ---

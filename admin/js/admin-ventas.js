@@ -390,7 +390,36 @@ css.textContent = `
     display: flex; align-items: center; justify-content: center;
     border-style: dashed; font-size: 12px; color: var(--gris-dim);
   }
-  .vt-cobro-btns { display: flex; flex-direction: column; gap: 8px; }
+  .vt-cobro-btns { display: flex; flex-direction: column; gap: 8px; min-width: 130px; }
+  .vt-cobro-btns .btn { justify-content: center; }
+
+  /* Tres secciones: tipo de cambio, Binance Pay y la API */
+  .vt-modal.vt-cobros-modal { max-width: 520px; }
+  .vt-cobro-sec { border-top: 1px solid var(--borde); padding-top: 16px; margin-top: 16px; }
+  .vt-cobro-sec-cab {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-bottom: 4px;
+  }
+  .vt-cobro-sec-cab h4 { margin: 0; font-size: 14.5px; color: var(--tinta); }
+  .vt-cobro-sec > .vt-nota:first-of-type { margin: 0 0 12px; }
+  .vt-chip {
+    font-size: 11.5px; font-weight: 700; white-space: nowrap;
+    padding: 3px 10px; border-radius: 99px;
+    background: var(--panel-2); color: var(--gris);
+  }
+  .vt-chip.ok   { background: rgba(21,128,61,.1);  color: #15803d; }
+  .vt-chip.ojo  { background: rgba(180,83,9,.1);   color: #92400e; }
+  /* "1 USDT = [10] Bs" en un renglón */
+  .vt-cambio { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--tinta); font-size: 14px; }
+  .vt-modal .vt-cambio input { width: 110px; margin: 0; text-align: center; font-weight: 700; }
+  .vt-api-campos { display: grid; gap: 0 10px; }
+  .vt-api-estado { font-size: 12.5px; line-height: 1.5; margin: 8px 0 0; padding: 8px 11px; border-radius: 8px; }
+  .vt-api-estado.ok  { background: rgba(21,128,61,.08); color: #166534; }
+  .vt-api-estado.mal { background: rgba(180,83,9,.09);  color: #7c3d06; }
+  .vt-api-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .vt-api-ayuda { margin-top: 12px; font-size: 12.5px; color: var(--gris); }
+  .vt-api-ayuda summary { cursor: pointer; font-weight: 600; color: var(--tinta); }
+  .vt-api-ayuda ol { margin: 8px 0 0; padding-left: 18px; line-height: 1.6; }
   .vt-ver {
     background: none; border: 1px solid var(--borde); color: var(--tinta);
     border-radius: 99px; padding: 6px 13px;
@@ -590,36 +619,77 @@ $('vistaVentas').innerHTML = `
     </div>
   </div>
 
-  <!-- ===== Ventana: cómo te pagan (Binance Pay y el tipo de cambio) =====
+  <!-- ===== Ventana: cómo te pagan =====
        El QR del banco es el de siempre. Con el de Binance cargado, la
-       tienda deja ver los precios en USDT y pagar por Binance Pay. -->
+       tienda deja ver los precios en USDT y pagar por Binance Pay. La API
+       de Binance (opcional, solo lectura) es para leer desde acá los pagos
+       que te entran: ver supabase/16-api-binance.sql. -->
   <div class="vt-fondo" id="vtFondoCobros">
-    <div class="vt-modal" role="dialog" aria-modal="true" aria-labelledby="vtCobrosTitulo">
+    <div class="vt-modal vt-cobros-modal" role="dialog" aria-modal="true" aria-labelledby="vtCobrosTitulo">
       <h3 id="vtCobrosTitulo">Cobros</h3>
-      <p class="sub">Además del QR del banco, tus clientes pueden pagar con Binance Pay
-         en USDT. La opción aparece en la tienda cuando subís tu QR de Binance.</p>
+      <p class="sub" style="margin-bottom:0;">Cómo te pagan tus clientes: con el QR del banco en
+         bolivianos o con Binance Pay en USDT.</p>
 
-      <label for="vtCobroTasa">Tipo de cambio: cuántos Bs vale 1 USDT</label>
-      <input type="number" id="vtCobroTasa" min="0.01" max="1000" step="0.01" inputmode="decimal" placeholder="10">
-      <p class="vt-nota" id="vtCobroEjemplo" style="margin:0 0 14px;"></p>
-
-      <label for="vtCobroPayId">Binance Pay ID <span style="font-weight:400;">(opcional)</span></label>
-      <input type="text" id="vtCobroPayId" placeholder="Ej: 123456789" autocomplete="off">
-      <p class="vt-nota" style="margin:0 0 14px;">El cliente lo puede copiar si no puede escanear el QR.</p>
-
-      <label>QR de Binance Pay</label>
-      <div class="vt-cobro-qr">
-        <div id="vtCobroVista"><div class="vacio">Sin QR</div></div>
-        <div class="vt-cobro-btns">
-          <button type="button" class="btn btn-fantasma" id="vtCobroElegir">Subir QR</button>
-          <button type="button" class="btn btn-fantasma" id="vtCobroQuitar" style="display:none;">Quitar</button>
-        </div>
-        <input type="file" id="vtCobroArchivo" accept="image/png,image/jpeg,image/webp" hidden>
+      <!-- Tipo de cambio -->
+      <div class="vt-cobro-sec">
+        <div class="vt-cobro-sec-cab"><h4>Tipo de cambio</h4></div>
+        <p class="vt-nota">Con esto la tienda pasa los precios de Bs a USDT.</p>
+        <label class="vt-cambio" for="vtCobroTasa">
+          1 USDT = <input type="number" id="vtCobroTasa" min="0.01" max="1000" step="0.01" inputmode="decimal" placeholder="10"> Bs
+        </label>
+        <p class="vt-nota" id="vtCobroEjemplo"></p>
       </div>
-      <p class="vt-nota">En tu app de Binance, en Pay → Recibir, guardá la imagen de tu QR
-         y subila acá. Sin QR, la tienda sigue solo con el del banco.</p>
 
-      <div class="vt-alerta ojo" id="vtCobroError" style="display:none; margin:14px 0 0;"></div>
+      <!-- Binance Pay: el QR y el Pay ID -->
+      <div class="vt-cobro-sec">
+        <div class="vt-cobro-sec-cab"><h4>Binance Pay</h4><span class="vt-chip" id="vtCobroChip">Sin QR</span></div>
+        <p class="vt-nota">Sin QR, la tienda sigue solo con el del banco.</p>
+        <label>Tu QR de Binance Pay</label>
+        <div class="vt-cobro-qr">
+          <div id="vtCobroVista"><div class="vacio">Sin QR</div></div>
+          <div class="vt-cobro-btns">
+            <button type="button" class="btn btn-fantasma" id="vtCobroElegir">Subir QR</button>
+            <button type="button" class="btn btn-fantasma" id="vtCobroQuitar" style="display:none;">Quitar</button>
+          </div>
+          <input type="file" id="vtCobroArchivo" accept="image/png,image/jpeg,image/webp" hidden>
+        </div>
+        <p class="vt-nota" style="margin:0 0 14px;">En la app de Binance: Pay → Recibir → guardá la imagen del QR.</p>
+
+        <label for="vtCobroPayId">Pay ID <span style="font-weight:400;">(opcional)</span></label>
+        <input type="text" id="vtCobroPayId" placeholder="Ej: 123456789" autocomplete="off" inputmode="numeric">
+        <p class="vt-nota" style="margin:0;">El número que figura en Binance → Pay → Recibir. El cliente lo copia
+           si no puede escanear el QR.</p>
+      </div>
+
+      <!-- API de Binance (solo lectura) -->
+      <div class="vt-cobro-sec">
+        <div class="vt-cobro-sec-cab"><h4>API de Binance <span style="font-weight:400; color:var(--gris);">(opcional)</span></h4>
+          <span class="vt-chip" id="vtApiChip">Sin conectar</span></div>
+        <p class="vt-nota">Para leer desde el panel los pagos que te entran por Binance Pay.
+           Usá una API de solo lectura: con ella no se puede mover tu dinero.</p>
+        <div class="vt-api-campos">
+          <label for="vtApiKey">API Key</label>
+          <input type="text" id="vtApiKey" autocomplete="off" spellcheck="false" placeholder="Pegá la API Key">
+          <label for="vtApiSecret" style="margin-top:8px;">Secret Key</label>
+          <input type="password" id="vtApiSecret" autocomplete="new-password" spellcheck="false" placeholder="Pegá la Secret Key">
+        </div>
+        <div class="vt-api-btns">
+          <button type="button" class="btn btn-fantasma" id="vtApiProbar">Probar conexión</button>
+          <button type="button" class="btn btn-fantasma" id="vtApiQuitar" style="display:none;">Quitar API</button>
+        </div>
+        <div class="vt-api-estado" id="vtApiEstado" style="display:none;"></div>
+        <details class="vt-api-ayuda">
+          <summary>Cómo crear la API en Binance</summary>
+          <ol>
+            <li>En Binance: Perfil → Gestión de API → Crear API → "Generada por el sistema".</li>
+            <li>Dejá activado solo <strong>Habilitar lectura</strong>. Nada de trading ni retiros.</li>
+            <li>Restricción de IP: sin restringir (el servidor no tiene una IP fija).</li>
+            <li>Copiá la API Key y la Secret Key acá. La Secret Key Binance la muestra una sola vez.</li>
+          </ol>
+        </details>
+      </div>
+
+      <div class="vt-alerta ojo" id="vtCobroError" style="display:none; margin:16px 0 0;"></div>
 
       <div class="vt-pie">
         <button class="btn btn-fantasma" id="vtCobrosCerrar">Cerrar</button>
@@ -2229,11 +2299,12 @@ document.addEventListener('keydown', e => {
 
 
 // ============================================================
-// 8b. COBROS: BINANCE PAY Y EL TIPO DE CAMBIO
+// 8b. COBROS: TIPO DE CAMBIO, BINANCE PAY Y LA API DE BINANCE
 // ============================================================
 // Lo que lee la tienda con datos_de_cobro(). Se guarda con
 // guardar_datos_de_cobro(), que solo deja al admin (ver
-// supabase/15-pago-binance.sql).
+// supabase/15-pago-binance.sql). La API, con guardar_api_binance() y
+// probar_api_binance() (supabase/16-api-binance.sql).
 let cobroQr = '';   // la URL guardada, una foto nueva sin subir (data URI) o '' = sin QR
 
 function errorCobro(texto) {
@@ -2248,6 +2319,98 @@ function pintarQrCobro() {
     : '<div class="vacio">Sin QR</div>';
   $('vtCobroElegir').textContent = cobroQr ? 'Cambiar QR' : 'Subir QR';
   $('vtCobroQuitar').style.display = cobroQr ? '' : 'none';
+  const chip = $('vtCobroChip');
+  chip.textContent = cobroQr ? 'Activo en la tienda' : 'Sin QR';
+  chip.className = 'vt-chip' + (cobroQr ? ' ok' : '');
+}
+
+// ---- La API de Binance (supabase/16-api-binance.sql) ----
+// La Secret Key nunca vuelve al panel: solo se sabe si está cargada y
+// cómo terminó la última prueba.
+let apiEstado = { configurada: false, key_fin: null, prueba: null };
+
+function pintarApi() {
+  const e = apiEstado;
+  const p = e.prueba;
+  const chip = $('vtApiChip');
+  chip.textContent = !e.configurada ? 'Sin conectar' : !p ? 'Sin probar' : p.ok ? 'Conectada' : 'Con error';
+  chip.className = 'vt-chip' + (e.configurada && p ? (p.ok ? ' ok' : ' ojo') : '');
+
+  $('vtApiKey').placeholder    = e.configurada ? `Guardada · termina en ${e.key_fin || '····'}` : 'Pegá la API Key';
+  $('vtApiSecret').placeholder = e.configurada ? 'Guardada · no se muestra' : 'Pegá la Secret Key';
+  $('vtApiQuitar').style.display = e.configurada ? '' : 'none';
+
+  const linea = $('vtApiEstado');
+  if (e.configurada && p) {
+    const cuando = p.en ? new Date(p.en).toLocaleString('es-BO', { dateStyle: 'short', timeStyle: 'short' }) : '';
+    linea.textContent = p.mensaje + (cuando ? ` (probada el ${cuando})` : '');
+    linea.className = 'vt-api-estado ' + (p.ok ? 'ok' : 'mal');
+    linea.style.display = '';
+  } else {
+    linea.style.display = 'none';
+  }
+}
+
+// Si pegaste claves nuevas, se guardan. Devuelve true si guardó algo.
+async function guardarApiSiCambio() {
+  const key    = $('vtApiKey').value.trim();
+  const secret = $('vtApiSecret').value.trim();
+  if (!key && !secret) return false;
+  if (!key) throw new Error(apiEstado.configurada ? 'Pegá también la API Key.' : 'Falta la API Key.');
+  if (!secret && !apiEstado.configurada) throw new Error('Falta la Secret Key.');
+  const { data, error } = await sbAdmin.rpc('guardar_api_binance', { p_api_key: key, p_api_secret: secret });
+  if (error) throw error;
+  apiEstado = data;
+  $('vtApiKey').value = '';
+  $('vtApiSecret').value = '';
+  pintarApi();
+  return true;
+}
+
+async function probarApi() {
+  errorCobro('');
+  const boton = $('vtApiProbar');
+  boton.disabled = true;
+  boton.textContent = 'Probando…';
+  try {
+    await guardarApiSiCambio();
+    if (!apiEstado.configurada) throw new Error('Primero pegá la API Key y la Secret Key.');
+    const { data, error } = await sbAdmin.rpc('probar_api_binance');
+    if (error) throw error;
+    apiEstado = { ...apiEstado, prueba: data };
+    pintarApi();
+  } catch (e) {
+    errorCobro(e.message || 'No se pudo probar la conexión.');
+  } finally {
+    boton.disabled = false;
+    boton.textContent = 'Probar conexión';
+  }
+}
+
+// Quitar pide un segundo toque: "Tocá de nuevo para quitar"
+let quitarApiHasta = 0;
+async function quitarApi() {
+  const boton = $('vtApiQuitar');
+  if (Date.now() > quitarApiHasta) {
+    quitarApiHasta = Date.now() + 4000;
+    boton.textContent = 'Tocá de nuevo para quitar';
+    setTimeout(() => { if (Date.now() > quitarApiHasta) boton.textContent = 'Quitar API'; }, 4100);
+    return;
+  }
+  quitarApiHasta = 0;
+  boton.disabled = true;
+  try {
+    const { data, error } = await sbAdmin.rpc('guardar_api_binance', { p_api_key: '', p_api_secret: '' });
+    if (error) throw error;
+    apiEstado = data;
+    pintarApi();
+    aviso('Se quitó la API de Binance', 'ok');
+  } catch (e) {
+    errorCobro(e.message || 'No se pudo quitar la API.');
+  } finally {
+    boton.disabled = false;
+    boton.textContent = 'Quitar API';
+  }
 }
 
 // "Un plan de 35 Bs se ve a 3.50 USDT": para ver de un vistazo si el
@@ -2262,8 +2425,17 @@ function pintarEjemploCobro() {
 async function abrirCobros() {
   errorCobro('');
   $('vtCobrosGuardar').disabled = true;
+  $('vtApiKey').value = '';
+  $('vtApiSecret').value = '';
   $('vtFondoCobros').classList.add('abierto');
-  const { data, error } = await sbAdmin.rpc('datos_de_cobro');
+  const [cobro, api] = await Promise.all([
+    sbAdmin.rpc('datos_de_cobro'),
+    sbAdmin.rpc('estado_api_binance')
+  ]);
+  // La API es aparte: si no se pudo leer, lo demás se edita igual
+  if (!api.error && api.data) apiEstado = api.data;
+  pintarApi();
+  const { data, error } = cobro;
   if (error || !data) {
     errorCobro('No se pudieron leer los datos de cobro. Probá de nuevo.');
     return;
@@ -2324,8 +2496,20 @@ async function guardarCobros() {
     });
     if (error) throw error;
     cobroQr = qr;
+    pintarQrCobro();
+
+    // Claves nuevas de la API: se guardan y se prueban, y la ventana queda
+    // abierta para que veas si Binance las aceptó
+    if (await guardarApiSiCambio()) {
+      const prueba = await sbAdmin.rpc('probar_api_binance');
+      if (!prueba.error && prueba.data) apiEstado = { ...apiEstado, prueba: prueba.data };
+      pintarApi();
+      aviso('Cobros guardados', 'ok');
+      return;
+    }
+
     cerrarCobros();
-    aviso(qr ? 'Listo: la tienda ya acepta Binance Pay' : 'Listo: la tienda queda solo con el QR del banco', 'ok');
+    aviso(qr ? 'Cobros guardados: la tienda acepta Binance Pay' : 'Cobros guardados: la tienda queda solo con el QR del banco', 'ok');
   } catch (e) {
     errorCobro(e.message || 'No se pudo guardar.');
   } finally {
@@ -2350,6 +2534,8 @@ $('vtCobroArchivo').addEventListener('change', async e => {
   }
 });
 $('vtCobroQuitar').addEventListener('click', () => { cobroQr = ''; pintarQrCobro(); });
+$('vtApiProbar').addEventListener('click', probarApi);
+$('vtApiQuitar').addEventListener('click', quitarApi);
 $('vtCobrosGuardar').addEventListener('click', guardarCobros);
 $('vtCobrosCerrar').addEventListener('click', cerrarCobros);
 $('vtFondoCobros').addEventListener('click', e => { if (e.target === $('vtFondoCobros')) cerrarCobros(); });

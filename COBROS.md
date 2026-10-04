@@ -152,17 +152,24 @@ https://doydkjztynjqecwdvoto.supabase.co/functions/v1/webhook-pago
 
 ## Cuando tengas las credenciales
 
-### 1. Poner el secreto
+### 1. Cargar los datos y generar la clave (en el panel)
 
-**Supabase → Edge Functions → webhook-pago → Secrets**
+**Panel → Ventas → Cobros → QR Bolivia automático**
 
-```
-WEBHOOK_SECRETO = una clave larga inventada por vos
-```
+- Elegí la pasarela y pegá lo que te den: URL de la API, código de
+  comercio, API Key y Secret Key. Se guardan protegidas, como las de
+  Binance (`supabase/18-qr-bs-automatico.sql`).
+- Copiá la **dirección de avisos (webhook)** y dásela a la pasarela.
+- Tocá **Generar clave** y copiala: es la que la pasarela manda en cada
+  aviso. Se muestra una sola vez; si la perdés, generás otra.
 
-La misma que le cargás a la pasarela. **Hasta que esto esté, la función
-rechaza todo con 503** — a propósito: es preferible que no ande a que ande sin
-protección.
+**Hasta que haya clave, la función rechaza todo con 503** — a propósito: es
+preferible que no ande a que ande sin protección. (Si no hay clave en el
+panel, todavía sirve la vieja forma: `WEBHOOK_SECRETO` en Supabase → Edge
+Functions → webhook-pago → Secrets.)
+
+El panel muestra el **último aviso** que llegó y qué se hizo con él: así
+sabés si la pasarela ya está avisando, y si se entendió su formato.
 
 ### 2. Descubrir el formato sin que te lo expliquen
 
@@ -187,7 +194,8 @@ curl -X POST https://doydkjztynjqecwdvoto.supabase.co/functions/v1/webhook-pago 
 ```
 
 Cambiá `1043` por el número de un pedido real que esté esperando y `100` por
-su precio exacto. Si la cuenta se entrega, el circuito está cerrado.
+su precio exacto (en una compra de varios productos, el total de la compra:
+se confirma entera). Si la cuenta se entrega, el circuito está cerrado.
 
 ---
 

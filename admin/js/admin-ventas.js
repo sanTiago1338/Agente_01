@@ -19,7 +19,7 @@
 // Solo plataformas, no juegos: ver el comentario de admin-stock.js.
 // ============================================================
 
-import { sbAdmin } from '../../js/supabase-config.js';
+import { sbAdmin, SUPABASE_URL } from '../../js/supabase-config.js';
 import { tengoPermiso, carteSinPermiso } from './admin-permiso.js';
 import { agruparCompras, numerosDeCompra, productosDeCompra, nombreDeCompra,
          estadoPrincipal, cuantasCompras } from './admin-compras.js';
@@ -420,6 +420,21 @@ css.textContent = `
   .vt-api-ayuda { margin-top: 12px; font-size: 12.5px; color: var(--gris); }
   .vt-api-ayuda summary { cursor: pointer; font-weight: 600; color: var(--tinta); }
   .vt-api-ayuda ol { margin: 8px 0 0; padding-left: 18px; line-height: 1.6; }
+  .vt-select {
+    width: 100%; padding: 10px 12px; margin-bottom: 6px;
+    background: var(--panel-2); border: 1px solid var(--borde);
+    border-radius: 8px; color: var(--texto); font-size: 14px; font-family: inherit;
+  }
+  .vt-select:focus { outline: none; border-color: var(--rojo); }
+  /* Un texto para copiar (la dirección del webhook, la clave) con su botón */
+  .vt-copiable { display: flex; align-items: center; gap: 8px; }
+  .vt-copiable code {
+    flex: 1; min-width: 0; overflow-wrap: anywhere;
+    padding: 9px 11px; border-radius: 8px;
+    background: var(--panel-2); border: 1px solid var(--borde);
+    font-family: ui-monospace, Consolas, monospace; font-size: 12px; color: var(--tinta);
+  }
+  .vt-copiable .btn { flex: none; }
   .vt-ver {
     background: none; border: 1px solid var(--borde); color: var(--tinta);
     border-radius: 99px; padding: 6px 13px;
@@ -688,6 +703,67 @@ $('vistaVentas').innerHTML = `
             <li>Restricción de IP: sin restringir (el servidor no tiene una IP fija).</li>
             <li>Copiá la API Key y la Secret Key acá. La Secret Key Binance la muestra una sola vez.</li>
           </ol>
+        </details>
+      </div>
+
+      <!-- QR Bolivia automático: la pasarela de QR en Bs (supabase/18-qr-bs-automatico.sql) -->
+      <div class="vt-cobro-sec">
+        <div class="vt-cobro-sec-cab"><h4>QR Bolivia automático <span style="font-weight:400; color:var(--gris);">(próximamente)</span></h4>
+          <span class="vt-chip" id="vtBsChip">Sin configurar</span></div>
+        <p class="vt-nota">Cuando tu pasarela de QR en bolivianos esté habilitada, los pagos en Bs
+           se confirman solos, igual que Binance. Cargá acá los datos que te den.</p>
+
+        <label for="vtBsProveedor">Pasarela</label>
+        <select id="vtBsProveedor" class="vt-select">
+          <option value="">Elegí una…</option>
+          <option>OpenBCB (Banco Central)</option>
+          <option>BCP · QR Simple</option>
+          <option>PagosNet</option>
+          <option>CUCU</option>
+          <option>Otra</option>
+        </select>
+        <div class="vt-mano-campos" style="margin-top:8px;">
+          <div><label for="vtBsUrl">URL de la API</label>
+            <input type="url" id="vtBsUrl" placeholder="https://…" autocomplete="off" spellcheck="false"></div>
+          <div><label for="vtBsComercio">Código de comercio</label>
+            <input type="text" id="vtBsComercio" placeholder="El que te asignen" autocomplete="off" spellcheck="false"></div>
+          <div><label for="vtBsKey">API Key</label>
+            <input type="text" id="vtBsKey" placeholder="Pegá la API Key" autocomplete="off" spellcheck="false"></div>
+          <div><label for="vtBsSecret">Secret Key</label>
+            <input type="password" id="vtBsSecret" placeholder="Pegá la Secret Key" autocomplete="new-password" spellcheck="false"></div>
+        </div>
+
+        <label style="margin-top:10px;">Dirección de avisos (webhook)</label>
+        <div class="vt-copiable">
+          <code id="vtBsWebhook"></code>
+          <button type="button" class="btn btn-fantasma" id="vtBsCopiarUrl">Copiar</button>
+        </div>
+        <p class="vt-nota" style="margin:4px 0 10px;">Dásela a la pasarela: ahí te avisa cada pago.</p>
+
+        <label>Clave del webhook</label>
+        <div class="vt-api-btns" style="margin-top:0;">
+          <button type="button" class="btn btn-fantasma" id="vtBsGenerar">Generar clave</button>
+          <button type="button" class="btn btn-fantasma" id="vtBsQuitar" style="display:none;">Quitar datos</button>
+        </div>
+        <div class="vt-copiable" id="vtBsClaveCaja" style="display:none; margin-top:8px;">
+          <code id="vtBsClave"></code>
+          <button type="button" class="btn btn-fantasma" id="vtBsCopiarClave">Copiar</button>
+        </div>
+        <p class="vt-nota" id="vtBsClaveNota" style="margin:6px 0 0;"></p>
+
+        <div class="vt-api-estado" id="vtBsAviso" style="display:none;"></div>
+
+        <details class="vt-api-ayuda">
+          <summary>Qué preguntarle a la pasarela</summary>
+          <ol>
+            <li>¿Me aceptan sin NIT, como persona natural?</li>
+            <li>¿Cuánto cobran por transacción?</li>
+            <li>¿La plata cae en mi cuenta? ¿En cuántos días?</li>
+            <li>¿Me dan un QR por pedido, con monto y referencia propios, y avisos (webhook)?</li>
+            <li>¿El aviso manda la clave tal cual, o firma con HMAC?</li>
+          </ol>
+          <p style="margin:8px 0 0;">Cuando te den el manual, se termina de conectar: cómo se arma el QR
+             de cada pedido y cómo se lee su aviso (ver COBROS.md).</p>
         </details>
       </div>
 
@@ -2452,19 +2528,182 @@ function pintarEjemploCobro() {
     : 'Poné cuántos bolivianos vale 1 USDT (por ejemplo 10).';
 }
 
+// ---- QR Bolivia automático (supabase/18-qr-bs-automatico.sql) ----
+// La pasarela de QR en Bs: sus datos, la dirección de avisos (webhook) y
+// la clave que manda en cada aviso. La Secret Key nunca vuelve al panel,
+// y la clave del webhook se muestra una sola vez, al generarla.
+const WEBHOOK_BS = `${SUPABASE_URL}/functions/v1/webhook-pago`;
+let bsEstado = { configurada: false, webhook_listo: false, ultimo_aviso: null };
+
+// Qué pasó con el último aviso, en palabras
+const MOTIVO_AVISO = {
+  no_interpretado:      'llegó, pero todavía no se entiende su formato: falta terminar de conectarla con el manual de la pasarela',
+  no_es_pago:           'no era un pago (un QR generado o vencido, por ejemplo)',
+  monto_insuficiente:   'pagó de menos: no se entregó',
+  pedido_no_encontrado: 'no coincide con ningún pedido'
+};
+
+function pintarBsCampos() {
+  const e = bsEstado;
+  const sel = $('vtBsProveedor');
+  // Si la guardada no está en la lista, se agrega para no perderla
+  if (e.proveedor && ![...sel.options].some(o => o.value === e.proveedor)) {
+    sel.add(new Option(e.proveedor, e.proveedor));
+  }
+  sel.value          = e.proveedor || '';
+  $('vtBsUrl').value      = e.api_url  || '';
+  $('vtBsComercio').value = e.comercio || '';
+  $('vtBsKey').value    = '';
+  $('vtBsSecret').value = '';
+  $('vtBsWebhook').textContent = WEBHOOK_BS;
+}
+
+function pintarBsEstado() {
+  const e = bsEstado;
+  const a = e.ultimo_aviso;
+  const algo = e.configurada || e.webhook_listo || e.proveedor || e.api_url || e.comercio;
+
+  const chip = $('vtBsChip');
+  chip.textContent = !algo ? 'Sin configurar'
+    : a ? (a.ok ? 'Recibiendo pagos' : 'Aviso para revisar')
+    : e.webhook_listo ? 'Esperando el primer aviso'
+    : 'Falta la clave del webhook';
+  chip.className = 'vt-chip' + (a ? (a.ok ? ' ok' : ' ojo') : '');
+
+  $('vtBsKey').placeholder    = e.configurada ? `Guardada · termina en ${e.key_fin || '····'}` : 'Pegá la API Key';
+  $('vtBsSecret').placeholder = e.configurada ? 'Guardada · no se muestra' : 'Pegá la Secret Key';
+  $('vtBsQuitar').style.display = (e.configurada || e.proveedor || e.api_url || e.comercio) ? '' : 'none';
+  $('vtBsGenerar').textContent = e.webhook_listo ? 'Generar otra clave' : 'Generar clave';
+  if ($('vtBsClaveCaja').style.display === 'none') {
+    $('vtBsClaveNota').textContent = e.webhook_listo
+      ? `Ya hay una clave guardada (termina en ${e.webhook_fin || '····'}). Si la perdiste, generá otra y cargásela de nuevo a la pasarela.`
+      : 'Todavía no hay clave: hasta que la generes, la dirección de avisos rechaza todo.';
+  }
+
+  const linea = $('vtBsAviso');
+  if (a) {
+    const cuando = a.en ? new Date(a.en).toLocaleString('es-BO', { dateStyle: 'short', timeStyle: 'short' }) : '';
+    const que = a.ok
+      ? `pago confirmado${a.numero ? ` del pedido #${a.numero}` : ''}${a.estado === 'sin_stock' ? ' (no había stock: entregalo a mano)' : ''}`
+      : (MOTIVO_AVISO[a.motivo] || a.motivo || 'sin detalle');
+    linea.textContent = `Último aviso${cuando ? ` (${cuando})` : ''}: ${que}.`;
+    linea.className = 'vt-api-estado ' + (a.ok ? 'ok' : 'mal');
+    linea.style.display = '';
+  } else {
+    linea.style.display = 'none';
+  }
+}
+
+// Guarda los datos de la pasarela si cambiaron. Devuelve true si guardó.
+async function guardarBsSiCambio() {
+  const e = bsEstado;
+  const datos = {
+    p_proveedor:  $('vtBsProveedor').value,
+    p_api_url:    $('vtBsUrl').value.trim(),
+    p_comercio:   $('vtBsComercio').value.trim(),
+    p_api_key:    $('vtBsKey').value.trim(),
+    p_api_secret: $('vtBsSecret').value.trim()
+  };
+  const cambio = datos.p_proveedor !== (e.proveedor || '') ||
+                 datos.p_api_url   !== (e.api_url   || '') ||
+                 datos.p_comercio  !== (e.comercio  || '') ||
+                 datos.p_api_key !== '' || datos.p_api_secret !== '';
+  if (!cambio) return false;
+  if (!e.configurada && datos.p_api_key && !datos.p_api_secret) throw new Error('QR Bolivia: falta la Secret Key.');
+  if (!e.configurada && datos.p_api_secret && !datos.p_api_key) throw new Error('QR Bolivia: falta la API Key.');
+  const { data, error } = await sbAdmin.rpc('guardar_api_bs', datos);
+  if (error) throw error;
+  bsEstado = data;
+  pintarBsCampos();
+  pintarBsEstado();
+  return true;
+}
+
+// Copia un texto y lo dice en el mismo botón
+async function copiarConAviso(texto, boton) {
+  try {
+    await navigator.clipboard.writeText(texto);
+    const antes = boton.textContent;
+    boton.textContent = 'Copiado';
+    setTimeout(() => { boton.textContent = antes; }, 1500);
+  } catch (e) {
+    errorCobro('No se pudo copiar: seleccionalo y copialo a mano.');
+  }
+}
+
+// Generar otra clave deja sin efecto la anterior: pide un segundo toque
+let generarBsHasta = 0;
+async function generarClaveBs() {
+  const boton = $('vtBsGenerar');
+  if (bsEstado.webhook_listo && Date.now() > generarBsHasta) {
+    generarBsHasta = Date.now() + 4000;
+    boton.textContent = 'La anterior deja de valer: tocá de nuevo';
+    setTimeout(() => { if (Date.now() > generarBsHasta) pintarBsEstado(); }, 4100);
+    return;
+  }
+  generarBsHasta = 0;
+  boton.disabled = true;
+  try {
+    const { data, error } = await sbAdmin.rpc('generar_clave_webhook_bs');
+    if (error) throw error;
+    $('vtBsClave').textContent = data;
+    $('vtBsClaveCaja').style.display = '';
+    $('vtBsClaveNota').textContent = 'Copiala ahora y cargala en la pasarela: por seguridad no se vuelve a mostrar.';
+    bsEstado = { ...bsEstado, webhook_listo: true, webhook_fin: String(data).slice(-4) };
+    pintarBsEstado();
+  } catch (e) {
+    errorCobro(e.message || 'No se pudo generar la clave.');
+  } finally {
+    boton.disabled = false;
+  }
+}
+
+// Quitar los datos de la pasarela (la clave del webhook se queda)
+let quitarBsHasta = 0;
+async function quitarBs() {
+  const boton = $('vtBsQuitar');
+  if (Date.now() > quitarBsHasta) {
+    quitarBsHasta = Date.now() + 4000;
+    boton.textContent = 'Tocá de nuevo para quitar';
+    setTimeout(() => { if (Date.now() > quitarBsHasta) boton.textContent = 'Quitar datos'; }, 4100);
+    return;
+  }
+  quitarBsHasta = 0;
+  boton.disabled = true;
+  try {
+    const { data, error } = await sbAdmin.rpc('guardar_api_bs', {
+      p_proveedor: '', p_api_url: '', p_comercio: '', p_api_key: '', p_api_secret: '', p_quitar: true });
+    if (error) throw error;
+    bsEstado = data;
+    pintarBsCampos();
+    pintarBsEstado();
+    aviso('Se quitaron los datos de la pasarela', 'ok');
+  } catch (e) {
+    errorCobro(e.message || 'No se pudieron quitar los datos.');
+  } finally {
+    boton.disabled = false;
+    boton.textContent = 'Quitar datos';
+  }
+}
+
 async function abrirCobros() {
   errorCobro('');
   $('vtCobrosGuardar').disabled = true;
   $('vtApiKey').value = '';
   $('vtApiSecret').value = '';
   $('vtFondoCobros').classList.add('abierto');
-  const [cobro, api] = await Promise.all([
+  $('vtBsClaveCaja').style.display = 'none';
+  const [cobro, api, bs] = await Promise.all([
     sbAdmin.rpc('datos_de_cobro'),
-    sbAdmin.rpc('estado_api_binance')
+    sbAdmin.rpc('estado_api_binance'),
+    sbAdmin.rpc('estado_api_bs')
   ]);
-  // La API es aparte: si no se pudo leer, lo demás se edita igual
+  // Las APIs son aparte: si no se pudieron leer, lo demás se edita igual
   if (!api.error && api.data) apiEstado = api.data;
   pintarApi();
+  if (!bs.error && bs.data) bsEstado = bs.data;
+  pintarBsCampos();
+  pintarBsEstado();
   const { data, error } = cobro;
   if (error || !data) {
     errorCobro('No se pudieron leer los datos de cobro. Probá de nuevo.');
@@ -2528,6 +2767,9 @@ async function guardarCobros() {
     cobroQr = qr;
     pintarQrCobro();
 
+    // Los datos de la pasarela del QR en Bs, si cambiaron
+    await guardarBsSiCambio();
+
     // Claves nuevas de la API: se guardan y se prueban, y la ventana queda
     // abierta para que veas si Binance las aceptó
     if (await guardarApiSiCambio()) {
@@ -2566,6 +2808,10 @@ $('vtCobroArchivo').addEventListener('change', async e => {
 $('vtCobroQuitar').addEventListener('click', () => { cobroQr = ''; pintarQrCobro(); });
 $('vtApiProbar').addEventListener('click', probarApi);
 $('vtApiQuitar').addEventListener('click', quitarApi);
+$('vtBsGenerar').addEventListener('click', generarClaveBs);
+$('vtBsQuitar').addEventListener('click', quitarBs);
+$('vtBsCopiarUrl').addEventListener('click', e => copiarConAviso(WEBHOOK_BS, e.currentTarget));
+$('vtBsCopiarClave').addEventListener('click', e => copiarConAviso($('vtBsClave').textContent, e.currentTarget));
 $('vtCobrosGuardar').addEventListener('click', guardarCobros);
 $('vtCobrosCerrar').addEventListener('click', cerrarCobros);
 $('vtFondoCobros').addEventListener('click', e => { if (e.target === $('vtFondoCobros')) cerrarCobros(); });

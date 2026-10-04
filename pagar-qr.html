@@ -725,12 +725,47 @@
     box-shadow: inset 0 1px 0 #fff, 0 0 0 .5px rgba(20,22,26,.1);
   }
 
+  /* ---------- COMPACTO ----------
+     Menos aire en todo: la marca de arriba, las tarjetas, el QR y los
+     pasos. Va al final para pisar los valores de arriba, incluidos los de
+     compu (min-width: 760px). */
+  .pay-header { padding: .5rem 1rem; margin-top: .45rem; border-radius: 18px; }
+  .pay-header a { font-size: 1.25rem; letter-spacing: 2.5px; }
+  .pay-container { padding-top: .75rem; padding-bottom: .75rem; }
+  .cr-pasos { margin-bottom: .6rem; }
+  .pay-status-bar,
+  .pago-der .pay-status-bar { padding: .5rem .85rem; margin-bottom: .6rem; font-size: .8rem; }
+  .pay-card,
+  .pago-der .pay-card { margin-bottom: .6rem; border-radius: 20px; }
+  .pay-card-header { padding: .6rem .8rem .5rem; }
+  .pay-metodo { margin-bottom: .3rem; }
+  .pay-amount { font-size: 2.4rem; }
+  .pay-amount-label { margin-top: .1rem; font-size: .76rem; }
+  .pay-qr-wrap { padding: .6rem; margin: .5rem .7rem; border-radius: 14px; }
+  .pay-qr-wrap img { max-width: 220px; }
+  .pay-timer { padding: .35rem .5rem .5rem; font-size: .8rem; }
+  .pay-instructions { padding: .6rem .85rem; margin-bottom: .6rem; border-radius: 20px; }
+  .pay-instructions .step { gap: .55rem; margin-bottom: .4rem; align-items: center; }
+  .step-num { width: 20px; height: 20px; font-size: .68rem; }
+  .step-text { font-size: .78rem; line-height: 1.35; }
+  .pay-order-summary { padding: .75rem .9rem; margin-bottom: .6rem; border-radius: 20px; }
+  .pay-order-title { margin-bottom: .35rem; }
+  .pay-order-item { padding: .35rem 0; }
+  .pay-order-total { padding-top: .5rem; margin-top: .3rem; }
+  #btnYaPague { padding: .8rem !important; margin-bottom: .35rem !important; font-size: .95rem !important; }
+  #ayudaYaPague { margin-bottom: .6rem !important; }
+  .btn-back { padding: .6rem; margin-bottom: .5rem; font-size: .85rem; }
+  @media (min-width: 760px) {
+    .pago-grid { gap: .9rem; }
+    .pay-qr-wrap img { max-width: 200px; }
+  }
+
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261004153813">
-  <script src="js/barra-vidrio.js?v=20261004153813" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261004154150">
+  <script src="js/barra-vidrio.js?v=20261004154150" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261004153813"></script>
+  <script src="js/tenido.js?v=20261004154150"></script>
 </head>
 <body>
 
@@ -805,8 +840,10 @@
       </div>
 
       <!-- Boton Ya Pague -->
+      <!-- Arranca oculto: aparece solo si falta stock (la cuenta no llega
+           sola en esta página) o si no se puede saber. Ver mostrarYaPague(). -->
       <a href="#" id="btnYaPague" onclick="irAWhatsApp(event)" style="
-        display:flex; align-items:center; justify-content:center; gap:0.6rem;
+        display:none; align-items:center; justify-content:center; gap:0.6rem;
         width:100%; padding:1rem; margin-bottom:0.5rem;
         background:linear-gradient(135deg,#25D366,#128C7E); color:white;
         font-family:'Outfit',sans-serif; font-weight:800; font-size:1rem;
@@ -815,7 +852,7 @@
         animation: pulse-wa 2s ease-in-out infinite;
       ">YA PAGUÉ · ENVIAR COMPROBANTE</a>
 
-      <p id="ayudaYaPague" style="text-align:center;font-size:0.75rem;color:var(--tinta-suave);margin-bottom:1.25rem;">
+      <p id="ayudaYaPague" style="display:none;text-align:center;font-size:0.75rem;color:var(--tinta-suave);margin-bottom:1.25rem;">
         Si ya pagaste, toca el botón o espera la redirección automática
       </p>
 
@@ -974,7 +1011,7 @@
         <div class="pay-instructions" id="instruccionesPago">
           <div class="step">
             <div class="step-num">1</div>
-            <div class="step-text">Abre tu app de <strong>BancoSol</strong> u otro banco y escanea el QR</div>
+            <div class="step-text">Abre la app de tu banco y escanea el QR</div>
           </div>
           <div class="step">
             <div class="step-num">2</div>
@@ -1149,6 +1186,21 @@
     // Si el módulo de abajo no llega a cargar (sin conexión con la base),
     // a los 8 segundos se muestra el QR del banco en vez de "cargando"
     setTimeout(() => { if (!COBRO.cargado) window.__aplicarCobro({}); }, 8000);
+
+    // "YA PAGUÉ · ENVIAR COMPROBANTE": solo cuando la cuenta NO llega sola
+    // en esta página (falta stock) o cuando no se puede saber. Con stock
+    // sobra: la cuenta aparece acá apenas se confirma el pago. Lo decide el
+    // módulo de abajo; si en 8 segundos no decidió (no contesta la base),
+    // aparece, porque entonces el comprobante por WhatsApp es el camino.
+    let yaPagueDecidido = false;
+    function mostrarYaPague(si) {
+      yaPagueDecidido = true;
+      const boton = document.getElementById('btnYaPague');
+      const ayuda = document.getElementById('ayudaYaPague');
+      if (boton) boton.style.display = si ? 'flex' : 'none';
+      if (ayuda) ayuda.style.display = si ? 'block' : 'none';
+    }
+    setTimeout(() => { if (!yaPagueDecidido && window._payState) mostrarYaPague(true); }, 8000);
 
     // Lo que dice el pedido en la base: al volver por su link, o la
     // respuesta de la base al elegir Binance (con su monto único)
@@ -1578,10 +1630,7 @@
       // llega. El boton queda cuando falta algo (compra a medias o sin
       // stock), cuando el pedido vencio y cuando no se pudo averiguar el
       // stock (cobertura null): ahi el comprobante por WhatsApp es el camino.
-      const btnYaPague = $('btnYaPague');
-      const ayudaYaPague = $('ayudaYaPague');
-      if (btnYaPague)   btnYaPague.style.display   = todoConStock ? 'none' : 'flex';
-      if (ayudaYaPague) ayudaYaPague.style.display = todoConStock ? 'none' : 'block';
+      mostrarYaPague(!todoConStock);
       // El último paso, igual en las dos guías (QR del banco y Binance)
       const paso4 = !todoConStock
         ? 'Confirma el pago y serás <strong>redirigido a WhatsApp</strong> para enviar tu comprobante'
@@ -1735,8 +1784,8 @@
   // El resumen del pedido y "Volver a la tienda" se quedan: uno es su
   // comprobante de que compro y el otro es por donde sigue.
   function esconderLoDePagar() {
-    ['qrCard', 'instruccionesPago', 'instruccionesBinance',
-     'btnYaPague', 'ayudaYaPague', 'customerDataBox'].forEach(id => {
+    mostrarYaPague(false);     // y queda decidido: el reloj de 8 s no lo vuelve a mostrar
+    ['qrCard', 'instruccionesPago', 'instruccionesBinance', 'customerDataBox'].forEach(id => {
       const el = $(id);
       if (el) el.style.display = 'none';
     });
@@ -1915,7 +1964,9 @@
     // -------------------------------------------------------
     // 3. Compra nueva
     // -------------------------------------------------------
-    if (!lineas) return;   // hay un juego mezclado, o algo sin migrar
+    // Sin entrega automática (un juego mezclado, o algo sin migrar): el
+    // comprobante por WhatsApp es el único camino
+    if (!lineas) { mostrarYaPague(true); return; }
 
     // Se pregunta ANTES de pintar, para que el cartel diga la verdad desde
     // el primer segundo y no despues de que el cliente ya pago.
@@ -1932,13 +1983,13 @@
       whatsapp: wa,
       renovar:  url.get('recordar') === '1' && wa !== ''
     });
-    if (!compra) return;   // Supabase no contesto: sigue el flujo viejo
+    if (!compra) { mostrarYaPague(true); return; }   // Supabase no contesto: sigue el flujo viejo
 
     // Se vuelve a preguntar por la compra recien creada en vez de armarla a
     // mano: asi la pantalla se dibuja con la misma forma que en todos los
     // demas caminos, y no hay dos maneras de construir lo mismo.
     const completa = await mirarPedido(compra.token);
-    if (!completa) return;
+    if (!completa) { mostrarYaPague(true); return; }
 
     // El que cobra es la base. Si su total no es el que se mostro (cambio un
     // precio o la rebaja automatica mientras el carrito estaba abierto), se
@@ -1961,6 +2012,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20261004153813" defer></script>
+  <script src="bg-burbujas.js?v=20261004154150" defer></script>
 </body>
 </html>

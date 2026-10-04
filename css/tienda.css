@@ -286,44 +286,100 @@
     .moneda-op:hover { background: rgba(20,22,26,.05); color: var(--tinta); }
     .moneda-op.activo { background: var(--marca); color: #fff; font-weight: 700; }
 
-    /* ---- Elegí cómo pagar (paso 3 del carrito) ---- */
-    .cr-metodos-tit { display: block; font-size: 0.9rem; color: var(--tinta); margin-bottom: 0.6rem; }
-    .cr-metodos-op { display: grid; gap: 0.5rem; }
-    .cr-metodo {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      width: 100%;
-      padding: 0.7rem 0.85rem;
-      border-radius: 14px;
-      border: 1.5px solid rgba(20,22,26,.12);
-      background: rgba(255,255,255,.55);
-      font: inherit;
-      text-align: left;
-      cursor: pointer;
-      transition: border-color .2s, background .2s, box-shadow .2s;
+    /* ---- Seleccioná una opción de pago (paso 3 del carrito) ----
+       Tarjetas cuadradas, una al lado de la otra: arriba el "logo" del
+       método, abajo el nombre y el total en su moneda. La elegida lleva
+       el borde rojo y el tilde en la esquina. */
+    .cr-metodos-tit { display: block; font-size: 0.9rem; color: var(--tinta); margin-bottom: 0.7rem; }
+    .cr-metodos-op {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 180px));
+      gap: 0.6rem;
     }
-    .cr-metodo:hover { border-color: rgba(20,22,26,.25); }
+    @media (max-width: 480px) {
+      .cr-metodo-img { height: 64px; font-size: 1.7rem; }
+      /* El total está justo arriba del botón: adentro sobraba y lo partía
+         en dos renglones ("Pagar con Binance Pay · 1.29 USDT") */
+      .cr-pie .cr-pagar-monto { display: none; }
+    }
+    .cr-metodo {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.15rem;
+      padding: 0.55rem 0.55rem 0.75rem;
+      border-radius: 16px;
+      border: 1.5px solid rgba(20,22,26,.12);
+      background: rgba(255,255,255,.6);
+      font: inherit;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s, box-shadow .2s, transform .2s;
+    }
+    .cr-metodo:hover { border-color: rgba(20,22,26,.28); transform: translateY(-1px); }
     .cr-metodo.elegido {
       border-color: var(--marca);
-      background: rgba(255,255,255,.9);
-      box-shadow: 0 0 0 3px rgba(229,9,20,.12);
+      background: rgba(255,255,255,.95);
+      box-shadow: 0 0 0 3px rgba(229,9,20,.12), 0 6px 16px rgba(20,22,26,.08);
     }
-    .cr-metodo-ico {
-      flex: none;
-      width: 40px; height: 40px;
+    /* El "logo": QR rojo sobre claro; Binance dorado sobre oscuro */
+    .cr-metodo-img {
+      width: 100%;
+      height: 74px;
+      margin-bottom: 0.45rem;
       border-radius: 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+      font-size: 1.9rem;
+    }
+    .cr-metodo-img small {
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    .cr-metodo-img.qr {
+      color: var(--marca);
+      background: linear-gradient(135deg, #fff 0%, #fdecee 100%);
+      border: 1px solid rgba(229,9,20,.12);
+    }
+    .cr-metodo-img.binance {
+      color: #f0b90b;
+      background: linear-gradient(135deg, #1e2026 0%, #2f333b 100%);
+    }
+    .cr-metodo-nombre { font-weight: 800; font-size: 0.92rem; color: var(--tinta); }
+    .cr-metodo-sub { font-size: 0.7rem; line-height: 1.3; color: var(--tinta-suave); }
+    .cr-metodo-monto {
+      margin-top: 0.35rem;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--tinta);
+      font-variant-numeric: tabular-nums;
+    }
+    .cr-metodo-check {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      z-index: 1;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
       display: grid;
       place-items: center;
-      font-size: 1.3rem;
-      color: var(--marca);
-      background: rgba(229,9,20,.08);
+      font-size: 0.8rem;
+      color: #fff;
+      background: var(--marca);
+      box-shadow: 0 2px 6px rgba(229,9,20,.35);
+      opacity: 0;
+      transform: scale(.5);
+      transition: opacity .2s, transform .2s;
     }
-    .cr-metodo-ico.binance { color: #b7860b; background: rgba(240,185,11,.16); }
-    .cr-metodo-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-    .cr-metodo-txt b { font-size: 0.92rem; color: var(--tinta); }
-    .cr-metodo-txt small { font-size: 0.74rem; color: var(--tinta-suave); }
-    .cr-metodo-monto { flex: none; font-weight: 800; font-size: 0.9rem; color: var(--tinta); font-variant-numeric: tabular-nums; }
+    .cr-metodo-check .ico { stroke-width: 3; }
+    .cr-metodo.elegido .cr-metodo-check { opacity: 1; transform: none; }
 
     .search-sug {
       position: absolute;
@@ -1891,8 +1947,10 @@
     .cr-atras:hover { color: var(--marca); }
     .cr-pie .ck-aviso { margin-top: .35rem; font-size: .76rem; }
 
-    /* Desde 760 px, el pie entra en una fila: volver · total · botón */
-    @media (min-width: 760px) {
+    /* Desde 900 px, el pie entra en una fila: volver · total · botón.
+       Antes era desde 760, pero con los montos en USDT ("1.29 USDT",
+       "Pagar con Binance Pay") no entraban y se salían de su caja. */
+    @media (min-width: 900px) {
       .cr-pie {
         display: grid;
         grid-template-columns: minmax(max-content, 1fr) auto minmax(200px, 340px);

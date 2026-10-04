@@ -652,12 +652,16 @@
   .pay-metodo:empty { display: none; }
   .pay-metodo svg { width: 16px; height: 16px; flex: none; }
   .pay-metodo.binance { color: #f0b90b; background: #1e2026; border-color: #1e2026; }
-  /* Red BSC: el aviso de la red, bien visible, y la dirección larga que
-     se puede cortar en cualquier parte (si no, se sale de la tarjeta) */
+  /* Desde otra billetera, por la red BSC: debajo de los pasos de Binance,
+     separado. El aviso de la red bien visible, y la dirección larga que se
+     puede cortar en cualquier parte (si no, se sale de la tarjeta) */
+  .otra-red { border-top: 1px dashed rgba(20,22,26,.15); margin-top: .55rem; padding-top: .55rem; }
+  .otra-red[hidden] { display: none; }
+  .otra-red-tit { font-size: .78rem; font-weight: 700; color: var(--tinta); margin-bottom: .25rem; }
   .aviso-red {
-    font-size: .76rem; line-height: 1.4; color: var(--tinta);
+    font-size: .74rem; line-height: 1.4; color: var(--tinta);
     background: rgba(229,9,20,.07); border: 1px solid rgba(229,9,20,.25);
-    border-radius: 10px; padding: .45rem .65rem; margin-bottom: .55rem;
+    border-radius: 10px; padding: .45rem .65rem; margin-top: .45rem;
   }
   .direccion-red {
     word-break: break-all; font-family: ui-monospace, Consolas, monospace;
@@ -704,8 +708,7 @@
     #statusBar        { order: 2; }
     #qrCard           { order: 4; }
     #instruccionesPago,
-    #instruccionesBinance,
-    #instruccionesBsc { order: 5; }
+    #instruccionesBinance { order: 5; }
     #customerDataBox  { order: 6; }
     #btnYaPague       { order: 7; }
     #ayudaYaPague     { order: 8; }
@@ -775,10 +778,10 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261004181253">
-  <script src="js/barra-vidrio.js?v=20261004181253" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261004182018">
+  <script src="js/barra-vidrio.js?v=20261004182018" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261004181253"></script>
+  <script src="js/tenido.js?v=20261004182018"></script>
 </head>
 <body>
 
@@ -1053,25 +1056,15 @@
             <div class="step-text">Envía exactamente: <strong id="instrMontoUsdt" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong>
               <span id="binanceAuto" hidden><br>Con el monto exacto, tu pago <strong>se confirma solo</strong> en 1 o 2 minutos.</span></div>
           </div>
-        </div>
-        <!-- Los pasos para pagar con USDT por la red BSC (BEP20), desde
-             cualquier billetera o exchange, a tu dirección de Binance -->
-        <div class="pay-instructions" id="instruccionesBsc" hidden>
-          <div class="aviso-red">Enviá solo <strong>USDT</strong> por la red <strong>BNB Smart Chain (BEP20)</strong>.
-            Por otra red, el pago se pierde.</div>
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-text">En tu billetera o exchange, elige <strong>Enviar / Retirar USDT</strong> por la red <strong>BSC (BEP20)</strong></div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-text">A esta dirección: <strong id="bscDireccion" class="direccion-red" onclick="copyText(this)" title="Toca para copiar"></strong></div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-text">Tienen que llegar exactamente: <strong id="instrMontoBsc" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong>
-              <br><small>Si tu exchange descuenta la comisión de red, súmala al enviar.</small>
-              <span id="bscAuto" hidden><br>Con el monto exacto, tu pago <strong>se confirma solo</strong> unos minutos después de llegar.</span></div>
+          <!-- Desde otra billetera o exchange: USDT por la red BSC (BEP20) a tu
+               dirección de depósito de Binance. Es la misma opción, solo otra
+               forma de mandar la plata; también se confirma sola. -->
+          <div class="otra-red" id="pasoBsc" hidden>
+            <div class="otra-red-tit">¿Pagas desde otra billetera o exchange?</div>
+            <div class="step-text">Envía <strong>USDT</strong> por la red <strong>BNB Smart Chain (BEP20)</strong> a:
+              <strong id="bscDireccion" class="direccion-red" onclick="copyText(this)" title="Toca para copiar"></strong></div>
+            <div class="aviso-red">Solo por la red <strong>BSC (BEP20)</strong>: por otra red, el pago se pierde.
+              Tienen que llegar exactamente <strong id="instrMontoBsc"></strong>; si tu exchange descuenta la comisión, súmala.</div>
           </div>
         </div>
 
@@ -1108,33 +1101,27 @@
     // el módulo de abajo. Sin QR de Binance cargado, todo queda como antes:
     // solo el QR del banco.
     // cargado: ya llegaron los datos de la base. Antes de eso no se sabe si
-    // hay QR de Binance o dirección BSC, y mostrar el QR del banco a quien
-    // eligió USDT es invitarlo a pagar por donde no es.
+    // hay QR de Binance, y mostrar el del banco a quien eligió Binance es
+    // invitarlo a escanear el que no es.
     const COBRO = { usdtBs: 10, binanceQr: null, binancePayId: null, bscDireccion: null,
                     automatico: false, cargado: false };
-    // 'qr' (QR Bolivia, Bs), 'binance' (Binance Pay) o 'bsc' (USDT por la
-    // red BSC, a tu dirección de depósito de Binance)
-    const METODOS = ['qr', 'binance', 'bsc'];
+    // 'qr' (QR Bolivia, Bs) o 'binance' (USDT: Binance Pay con tu QR, o
+    // desde otra billetera por la red BSC a tu dirección; es UNA opción)
     const METODO_URL = new URLSearchParams(location.search).get('metodo');
-    let METODO = METODOS.includes(METODO_URL) ? METODO_URL : 'qr';
-    // El tipo de cambio con el que se armó el pedido, si ya eligió USDT
+    let METODO = (METODO_URL === 'binance' || METODO_URL === 'bsc') ? 'binance' : 'qr';
+    // El tipo de cambio con el que se armó el pedido, si ya eligió Binance
     // antes: el monto que se le pidió no cambia aunque cambies el tipo.
     let TASA_PEDIDO = null;
-    // El monto único que le asignó la base (ver supabase/17-binance-automatico.sql
-    // y 19-usdt-red-bsc.sql): es el que identifica su pago, así se confirma
-    // solo. Puede tener unos centavos más si otro cliente espera el mismo.
+    // El monto único que le asignó la base (ver supabase/17-binance-automatico.sql):
+    // es el que identifica su pago, así se confirma solo. Puede tener unos
+    // centavos más que la cuenta si otro cliente espera el mismo monto.
     let MONTO_PEDIDO = null;
 
     const hayBinance = () => !!COBRO.binanceQr;
-    const hayBsc     = () => !!COBRO.bscDireccion;
-    // El que de verdad se muestra: el elegido si está cargado; si no, el QR del banco
-    function metodoEfectivo() {
-      if (METODO === 'binance' && hayBinance()) return 'binance';
-      if (METODO === 'bsc' && hayBsc()) return 'bsc';
-      return 'qr';
-    }
-    const conUsdt = () => metodoEfectivo() !== 'qr';
-    const NOMBRE_METODO = { qr: 'QR Bolivia', binance: 'Binance Pay', bsc: 'USDT por red BSC (BEP20)' };
+    const conBinance = () => METODO === 'binance' && hayBinance();
+    // El que de verdad se muestra (Binance sin QR cargado = QR del banco)
+    const metodoEfectivo = () => (conBinance() ? 'binance' : 'qr');
+    const NOMBRE_METODO = { qr: 'QR Bolivia', binance: 'Binance (USDT)' };
 
     // Igual que en la tienda: hacia arriba, al centavo
     const aUsdt = nBs => {
@@ -1151,110 +1138,72 @@
     function montoAPagar() {
       const s = window._payState;
       const total = s ? Number(s.total) || 0 : 0;
-      return conUsdt() ? usdtAPagar().toFixed(2) + ' USDT' : total.toFixed(2) + ' Bs';
+      return conBinance() ? usdtAPagar().toFixed(2) + ' USDT' : total.toFixed(2) + ' Bs';
     }
 
     // Los íconos del encabezado "con qué paga" (los mismos del carrito)
     const ICONO_METODO = {
       qr:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>',
-      binance: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/></svg>',
-      bsc:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M10.8 7.2 6.2 16.8M13.2 7.2l4.6 9.6M7.5 19h9"/></svg>'
+      binance: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/></svg>'
     };
-    const CABECERA_METODO = {
-      qr:      'Pagás con QR Bolivia · Bolivianos',
-      binance: 'Pagás con Binance Pay · USDT',
-      bsc:     'Pagás con USDT · Red BSC (BEP20)'
-    };
-
-    // El QR de tu dirección BSC: se arma acá mismo (qrcodejs, de cdnjs), así
-    // no hace falta subir una imagen. La librería se baja solo si alguien
-    // eligió pagar por la red BSC.
-    let qrBsc = { dir: null, src: null, bajando: false };
-    function qrDeDireccion(dir) {
-      if (qrBsc.dir === dir && qrBsc.src) return qrBsc.src;
-      if (window.QRCode) {
-        const caja = document.createElement('div');
-        new window.QRCode(caja, { text: dir, width: 300, height: 300,
-                                  correctLevel: window.QRCode.CorrectLevel.M });
-        const lienzo = caja.querySelector('canvas');
-        const imagen = caja.querySelector('img');
-        qrBsc = { dir, src: lienzo ? lienzo.toDataURL('image/png') : (imagen && imagen.src) || null, bajando: false };
-        return qrBsc.src;
-      }
-      if (!qrBsc.bajando) {
-        qrBsc.bajando = true;
-        const s = document.createElement('script');
-        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-        s.onload  = () => { qrBsc.bajando = false; aplicarMetodo(); };
-        s.onerror = () => { qrBsc.bajando = false; };   // sin QR: la dirección igual está para copiar
-        document.head.appendChild(s);
-      }
-      return null;
-    }
 
     // Muestra SOLO el método que eligió en el carrito: su encabezado, su
     // monto, su QR y sus pasos. Para cambiarlo, vuelve al carrito.
     function aplicarMetodo() {
       const s = window._payState;
+      const binance = conBinance();
       if (!s) return;
 
       const cab = document.getElementById('payMetodo');
       const img = document.getElementById('qrImage');
-      const guias = { qr: 'instruccionesPago', binance: 'instruccionesBinance', bsc: 'instruccionesBsc' };
 
-      // Eligió USDT y todavía no llegaron los datos: "cargando", sin QR
-      if (METODO !== 'qr' && !COBRO.cargado) {
+      // Eligió Binance y todavía no llegaron los datos: "cargando", sin QR
+      if (METODO === 'binance' && !COBRO.cargado) {
         cab.className = 'pay-metodo binance';
-        cab.innerHTML = `${ICONO_METODO[METODO]} ${CABECERA_METODO[METODO]}`;
+        cab.innerHTML = `${ICONO_METODO.binance} Pagás con Binance · USDT`;
         document.getElementById('payAmount').textContent = '…';
-        document.getElementById('payAmountLabel').textContent = 'Cargando los datos de pago…';
+        document.getElementById('payAmountLabel').textContent = 'Cargando el QR de Binance…';
         img.style.visibility = 'hidden';
-        Object.values(guias).forEach(id => { document.getElementById(id).hidden = true; });
+        document.getElementById('instruccionesPago').hidden = true;
+        document.getElementById('instruccionesBinance').hidden = true;
         return;
       }
+      img.style.visibility = '';
 
-      const m = metodoEfectivo();
-      const usdt = m !== 'qr';
-      cab.className = 'pay-metodo' + (usdt ? ' binance' : '');
-      cab.innerHTML = `${ICONO_METODO[m]} ${CABECERA_METODO[m]}`;
+      cab.className = 'pay-metodo' + (binance ? ' binance' : '');
+      cab.innerHTML = binance
+        ? `${ICONO_METODO.binance} Pagás con Binance · USDT`
+        : `${ICONO_METODO.qr} Pagás con QR Bolivia · Bolivianos`;
 
       const monto = montoAPagar();
       document.getElementById('payAmount').textContent = monto;
-      document.getElementById('payAmountLabel').textContent =
-        m === 'binance' ? `Monto a enviar por Binance Pay (${Number(s.total).toFixed(2)} Bs)`
-      : m === 'bsc'     ? `Monto exacto que te tiene que llegar (${Number(s.total).toFixed(2)} Bs)`
-      : 'Monto a transferir';
+      document.getElementById('payAmountLabel').textContent = binance
+        ? `Monto a enviar en USDT (${Number(s.total).toFixed(2)} Bs)`
+        : 'Monto a transferir';
       const enUsdt = document.getElementById('orderTotalUsdt');
-      enUsdt.textContent = usdt ? `Por ${m === 'bsc' ? 'red BSC' : 'Binance Pay'}: ${monto}` : '';
-      enUsdt.hidden = !usdt;
+      enUsdt.textContent = binance ? `Por Binance: ${monto}` : '';
+      enUsdt.hidden = !binance;
+      img.src = binance ? COBRO.binanceQr : 'Img/QR%20Bolivianos.jpg';
+      img.alt = binance ? 'QR Binance Pay' : 'QR BancoSol';
 
-      // El QR: el del banco, el de Binance Pay o el de tu dirección BSC
-      const src = m === 'binance' ? COBRO.binanceQr
-                : m === 'bsc'     ? qrDeDireccion(COBRO.bscDireccion)
-                : 'Img/QR%20Bolivianos.jpg';
-      if (src) img.src = src;
-      img.style.visibility = src ? '' : 'hidden';
-      img.alt = m === 'binance' ? 'QR Binance Pay' : m === 'bsc' ? 'QR de la dirección USDT (BSC)' : 'QR BancoSol';
-
-      Object.entries(guias).forEach(([clave, id]) => { document.getElementById(id).hidden = clave !== m; });
-
-      // Binance Pay
-      const montoBinance = document.getElementById('instrMontoUsdt');
-      montoBinance.textContent = monto;
-      montoBinance.dataset.copiar = m === 'binance' ? usdtAPagar().toFixed(2) : '';
+      document.getElementById('instruccionesPago').hidden = binance;
+      document.getElementById('instruccionesBinance').hidden = !binance;
+      const usdt = document.getElementById('instrMontoUsdt');
+      usdt.textContent = monto;
+      usdt.dataset.copiar = binance ? usdtAPagar().toFixed(2) : '';
       document.getElementById('binanceAuto').hidden = !COBRO.automatico;
-      document.getElementById('binancePayId').textContent = COBRO.binancePayId || '';
+      const payId = document.getElementById('binancePayId');
+      payId.textContent = COBRO.binancePayId || '';
       document.getElementById('pasoPayId').hidden = !COBRO.binancePayId;
       // Sin Pay ID, el paso 2 no está: los números se corren
       document.querySelectorAll('#instruccionesBinance .step:not([hidden]) .step-num')
         .forEach((n, i) => { n.textContent = i + 1; });
 
-      // Red BSC
+      // Desde otra billetera o exchange: USDT por la red BSC a tu dirección
+      // de Binance. Es la misma opción, solo otra forma de mandar la plata.
+      document.getElementById('pasoBsc').hidden = !COBRO.bscDireccion;
       document.getElementById('bscDireccion').textContent = COBRO.bscDireccion || '';
-      const montoBsc = document.getElementById('instrMontoBsc');
-      montoBsc.textContent = monto;
-      montoBsc.dataset.copiar = m === 'bsc' ? usdtAPagar().toFixed(2) : '';
-      document.getElementById('bscAuto').hidden = !COBRO.automatico;
+      document.getElementById('instrMontoBsc').textContent = monto;
     }
 
     // Llega del módulo de abajo (datos_de_cobro() en la base)
@@ -1292,7 +1241,7 @@
     // Lo que dice el pedido en la base: al volver por su link, o la
     // respuesta de la base al elegir USDT (con su monto único)
     window.__metodoDelPedido = function (metodo, tasa, monto) {
-      METODO = METODOS.includes(metodo) ? metodo : 'qr';
+      METODO = (metodo === 'binance' || metodo === 'bsc') ? 'binance' : 'qr';
       const usdt = METODO !== 'qr';
       TASA_PEDIDO  = usdt && Number(tasa)  > 0 ? Number(tasa)  : null;
       MONTO_PEDIDO = usdt && Number(monto) > 0 ? Number(monto) : null;
@@ -1866,7 +1815,7 @@
   // comprobante de que compro y el otro es por donde sigue.
   function esconderLoDePagar() {
     mostrarYaPague(false);     // y queda decidido: el reloj de 8 s no lo vuelve a mostrar
-    ['qrCard', 'instruccionesPago', 'instruccionesBinance', 'instruccionesBsc', 'customerDataBox'].forEach(id => {
+    ['qrCard', 'instruccionesPago', 'instruccionesBinance', 'customerDataBox'].forEach(id => {
       const el = $(id);
       if (el) el.style.display = 'none';
     });
@@ -1961,7 +1910,7 @@
   // mismo QR y el mismo monto que la primera vez.
   async function sincronizarMetodo(compra) {
     await cobroListo;
-    const enLaBase = ['binance', 'bsc'].includes(compra.metodo) ? compra.metodo : 'qr';
+    const enLaBase = ['binance', 'bsc'].includes(compra.metodo) ? 'binance' : 'qr';
     const elegido = new URLSearchParams(location.search).has('metodo')
       ? (window.__metodoElegido ? window.__metodoElegido() : 'qr')
       : enLaBase;
@@ -2093,6 +2042,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20261004181253" defer></script>
+  <script src="bg-burbujas.js?v=20261004182018" defer></script>
 </body>
 </html>

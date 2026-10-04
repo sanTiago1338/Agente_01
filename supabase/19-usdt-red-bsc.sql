@@ -1,17 +1,20 @@
 -- ============================================================
--- TIAGO STORE · USDT por red BSC (BEP20), confirmado solo
+-- TIAGO STORE · USDT por red BSC (BEP20), dentro de Binance
 -- ============================================================
--- Además de Binance Pay, el cliente puede mandarte USDT desde cualquier
--- billetera o exchange (Trust Wallet, OKX, Bybit...) a tu dirección de
--- depósito de Binance, por la red BNB Smart Chain (BEP20).
+-- Para el cliente sigue siendo UNA forma de pago: Binance. Paga con
+-- Binance Pay (tu QR) o, si usa otra billetera o exchange (Trust Wallet,
+-- OKX, Bybit...), manda USDT por la red BNB Smart Chain (BEP20) a tu
+-- dirección de depósito de Binance. En los dos casos la plata llega a tu
+-- cuenta de Binance.
 --
--- Con la misma API de solo lectura (16-api-binance.sql), el revisor de
--- cada minuto lee también tus depósitos de USDT por BSC y, si uno
--- coincide con el monto único de un pedido, lo confirma y entrega la
--- cuenta. Igual que Binance Pay (17-binance-automatico.sql).
+-- En el panel se configura junto, como "Configurar Binance": dirección
+-- BSC, API Key y Secret Key. Con la misma API de solo lectura
+-- (16-api-binance.sql), el revisor de cada minuto lee los pagos de Binance
+-- Pay y también tus depósitos de USDT por BSC, y si uno coincide con el
+-- monto único de un pedido, lo confirma y entrega la cuenta.
 --
 --   ajustes.bsc_direccion   tu dirección de depósito USDT · BSC (0x...)
---   pedidos.metodo_pago     'qr', 'binance' o 'bsc'
+--   pedidos.metodo_pago     'qr' o 'binance' ('bsc' también se acepta)
 -- ============================================================
 
 
@@ -204,11 +207,14 @@ revoke execute on function public.binance_get(text, text) from public, anon, aut
 -- 6. Emparejar los pagos con los pedidos (uso interno)
 -- ------------------------------------------------------------
 -- Recibe los movimientos ya en un solo formato, vengan de Binance Pay o de
--- un depósito por BSC:
---   { id, monto, moneda, cuando (ms), pagador, metodo: 'binance' | 'bsc' }
--- Si uno coincide con el monto único de UNA compra que espera pago por ese
--- método, la confirma (lo mismo que "Confirmar y entregar" en el panel).
--- Los que no coinciden se anotan como vistos y te llegan por Telegram.
+-- un depósito por BSC a tu dirección:
+--   { id, monto, moneda, cuando (ms), pagador, origen: 'pay' | 'bsc' }
+-- Para el cliente es UNA forma de pago (Binance): pague por Binance Pay o
+-- mande USDT por BSC, la plata llega a tu cuenta de Binance. Por eso
+-- cualquier movimiento sirve para cualquier pedido en USDT: lo que decide
+-- es el monto único. Si coincide con UNA compra, la confirma (lo mismo que
+-- "Confirmar y entregar" en el panel). Los que no coinciden se anotan como
+-- vistos y te llegan por Telegram.
 create or replace function public.conciliar_pagos_usdt(p_movs jsonb)
 returns integer
 language plpgsql
@@ -220,7 +226,6 @@ declare
   v_id      text;
   v_monto   numeric;
   v_moneda  text;
-  v_metodo  text;
   v_nombre  text;
   v_cuando  timestamptz;
   v_pagador text;
@@ -239,9 +244,8 @@ begin
   loop
     v_id      := v_mov ->> 'id';
     v_moneda  := v_mov ->> 'moneda';
-    v_metodo  := v_mov ->> 'metodo';
     v_pagador := nullif(v_mov ->> 'pagador', '');
-    v_nombre  := case when v_metodo = 'bsc' then 'USDT por red BSC' else 'Binance Pay' end;
+    v_nombre  := case when v_mov ->> 'origen' = 'bsc' then 'USDT por red BSC' else 'Binance Pay' end;
     begin
       v_monto  := (v_mov ->> 'monto')::numeric;
       v_cuando := to_timestamp((v_mov ->> 'cuando')::bigint / 1000.0);
@@ -252,13 +256,13 @@ begin
     continue when v_id is null or v_monto is null or v_monto <= 0;
     continue when exists (select 1 from public.pagos_binance b where b.transaccion = v_id);
 
-    -- Las compras que esperan justo ese monto por ese método, armadas antes del pago
+    -- Las compras en USDT que esperan justo ese monto, armadas antes del pago
     v_compras := null;
     if v_moneda = 'USDT' then
       select array_agg(distinct coalesce(p.grupo::text, p.id::text)) into v_compras
       from public.pedidos p
       where p.estado = 'esperando_pago'
-        and p.metodo_pago = v_metodo
+        and p.metodo_pago in ('binance', 'bsc')
         and abs(p.usdt_monto - v_monto) < 0.005
         and p.creado_en <= v_cuando + interval '1 minute'
         and p.creado_en > now() - interval '48 hours';
@@ -274,7 +278,7 @@ begin
         trim(to_char(v_monto, 'FM999999990.00999999')) || ' ' || coalesce(v_moneda, '') ||
         coalesce(' de ' || v_pagador, '') || chr(10) || chr(10) ||
         case when coalesce(array_length(v_compras, 1), 0) = 0
-             then 'No coincide con ningún pedido que espere ese pago. Si es de un cliente, confirmalo a mano en el panel.'
+             then 'No coincide con ningún pedido que espere pago en USDT. Si es de un cliente, confirmalo a mano en el panel.'
              else 'Coincide con más de un pedido. Confirmá a mano el que corresponde.' end);
       continue;
     end if;
@@ -321,10 +325,10 @@ revoke execute on function public.conciliar_pagos_usdt(jsonb) from public, anon,
 -- ------------------------------------------------------------
 -- 7. El revisor de cada minuto: Binance Pay y depósitos por BSC
 -- ------------------------------------------------------------
--- Solo le pregunta a Binance por lo que hace falta: Binance Pay si hay
--- pedidos esperando por Binance Pay, depósitos si hay pedidos esperando
--- por BSC. Sin ninguno, no hace nada. Mismo nombre y mismo pg_cron que
--- en 17-binance-automatico.sql.
+-- Si hay pedidos esperando pago en USDT, le pide a Binance los pagos de
+-- Binance Pay y, si cargaste tu dirección BSC, también los depósitos de
+-- USDT por BSC. Sin pedidos en USDT, no hace nada. Mismo nombre y mismo
+-- pg_cron que en 17-binance-automatico.sql.
 create or replace function public.verificar_pagos_binance()
 returns integer
 language plpgsql
@@ -339,6 +343,7 @@ declare
   v_movs    jsonb;
   v_cuantos integer := 0;
   v_codigo  text;
+  v_ok      boolean := false;
 begin
   if coalesce(auth.role(), '') in ('anon', 'authenticated') and not public.es_admin() then
     raise exception 'Solo el administrador puede revisar los pagos' using errcode = '42501';
@@ -348,45 +353,43 @@ begin
     return 0;
   end if;
 
-  -- ---- Binance Pay ----
   select min(p.creado_en) into v_desde from public.pedidos p
-  where p.estado = 'esperando_pago' and p.metodo_pago = 'binance'
+  where p.estado = 'esperando_pago' and p.metodo_pago in ('binance', 'bsc')
     and p.usdt_monto is not null and p.creado_en > now() - interval '48 hours';
-
-  if v_desde is not null then
-    begin
-      v_r := public.binance_get('/sapi/v1/pay/transactions',
-        'startTime=' || ((extract(epoch from v_desde) - 300) * 1000)::bigint || '&limit=100');
-      v_json := v_r.content::jsonb;
-    exception when others then
-      v_r := null; v_json := null;
-    end;
-
-    if v_r.status between 200 and 299 and v_json is not null then
-      select jsonb_agg(jsonb_build_object(
-               'id',      t ->> 'transactionId',
-               'monto',   t ->> 'amount',
-               'moneda',  t ->> 'currency',
-               'cuando',  t ->> 'transactionTime',
-               'pagador', coalesce(nullif(t #>> '{payerInfo,name}', ''), t #>> '{payerInfo,binanceId}'),
-               'metodo',  'binance'))
-        into v_movs
-      from jsonb_array_elements(coalesce(v_json -> 'data', '[]'::jsonb)) t
-      where coalesce(t ->> 'orderType', '') in ('C2C', 'PAY')
-        and coalesce(t ->> 'amount', '') ~ '^[0-9.]+$';           -- solo lo que entró (positivo)
-      v_cuantos := v_cuantos + public.conciliar_pagos_usdt(v_movs);
-    else
-      v_codigo := v_json ->> 'code';
-    end if;
+  if v_desde is null then
+    return 0;
   end if;
 
-  -- ---- Depósitos de USDT por BSC ----
-  v_dir := lower(nullif((select valor from public.ajustes where clave = 'bsc_direccion'), ''));
-  select min(p.creado_en) into v_desde from public.pedidos p
-  where p.estado = 'esperando_pago' and p.metodo_pago = 'bsc'
-    and p.usdt_monto is not null and p.creado_en > now() - interval '48 hours';
+  -- ---- Binance Pay ----
+  begin
+    v_r := public.binance_get('/sapi/v1/pay/transactions',
+      'startTime=' || ((extract(epoch from v_desde) - 300) * 1000)::bigint || '&limit=100');
+    v_json := v_r.content::jsonb;
+  exception when others then
+    v_r := null; v_json := null;
+  end;
 
-  if v_desde is not null and v_dir is not null then
+  if v_r.status between 200 and 299 and v_json is not null then
+    v_ok := true;
+    select jsonb_agg(jsonb_build_object(
+             'id',      t ->> 'transactionId',
+             'monto',   t ->> 'amount',
+             'moneda',  t ->> 'currency',
+             'cuando',  t ->> 'transactionTime',
+             'pagador', coalesce(nullif(t #>> '{payerInfo,name}', ''), t #>> '{payerInfo,binanceId}'),
+             'origen',  'pay'))
+      into v_movs
+    from jsonb_array_elements(coalesce(v_json -> 'data', '[]'::jsonb)) t
+    where coalesce(t ->> 'orderType', '') in ('C2C', 'PAY')
+      and coalesce(t ->> 'amount', '') ~ '^[0-9.]+$';            -- solo lo que entró (positivo)
+    v_cuantos := v_cuantos + public.conciliar_pagos_usdt(v_movs);
+  else
+    v_codigo := v_json ->> 'code';
+  end if;
+
+  -- ---- Depósitos de USDT por BSC a tu dirección ----
+  v_dir := lower(nullif((select valor from public.ajustes where clave = 'bsc_direccion'), ''));
+  if v_dir is not null and v_codigo is null then
     begin
       v_r := public.binance_get('/sapi/v1/capital/deposit/hisrec',
         'coin=USDT&startTime=' || ((extract(epoch from v_desde) - 300) * 1000)::bigint || '&limit=1000');
@@ -396,6 +399,7 @@ begin
     end;
 
     if v_r.status between 200 and 299 and jsonb_typeof(v_json) = 'array' then
+      v_ok := true;
       -- Acreditados (1 = listo, 6 = acreditado), por BSC, a tu dirección
       select jsonb_agg(jsonb_build_object(
                'id',      'dep:' || coalesce(t ->> 'txId', t ->> 'id'),
@@ -403,7 +407,7 @@ begin
                'moneda',  t ->> 'coin',
                'cuando',  t ->> 'insertTime',
                'pagador', null,
-               'metodo',  'bsc'))
+               'origen',  'bsc'))
         into v_movs
       from jsonb_array_elements(v_json) t
       where t ->> 'coin' = 'USDT'
@@ -411,7 +415,7 @@ begin
         and (t ->> 'status') in ('1', '6')
         and lower(coalesce(t ->> 'address', '')) = v_dir;
       v_cuantos := v_cuantos + public.conciliar_pagos_usdt(v_movs);
-    elsif v_codigo is null then
+    else
       v_codigo := v_json ->> 'code';
     end if;
   end if;
@@ -425,7 +429,7 @@ begin
         'mensaje', 'Binance dejó de aceptar la API (código ' || v_codigo ||
                    '). Los pagos en USDT se confirman a mano hasta que la cargues de nuevo.')::text)
     on conflict (clave) do update set valor = excluded.valor, actualizado_en = now();
-  elsif v_r.status between 200 and 299 then
+  elsif v_ok then
     insert into public.ajustes (clave, valor) values ('binance_auto_revisado', now()::text)
     on conflict (clave) do update set valor = excluded.valor, actualizado_en = now();
   end if;

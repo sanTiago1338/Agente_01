@@ -461,8 +461,9 @@ async function cargarTodo() {
       .select('id, nombre, imagen, descripcion, categoria, activo, rebaja_auto, precio, precio_oferta, oferta')
       .order('nombre'),
     sbAdmin.from('cuentas').select('*').order('creada_en', { ascending: false }),
-    // Lo que se vendió (pagado) en el último mes, una fila por cuenta
-    sbAdmin.from('pedidos').select('producto_id').gte('pagado_en', hace30),
+    // Lo que se vendió (pagado) en el último mes, una fila por cuenta. Las
+    // compras de prueba no son ventas (supabase/20-modo-prueba.sql).
+    sbAdmin.from('pedidos').select('producto_id').gte('pagado_en', hace30).eq('prueba', false),
     // Cuánto le toca hoy a cada producto con la rebaja prendida. La cuenta
     // la hace la base, que es la que cobra: acá solo se muestra.
     sbAdmin.rpc('rebajas_vigentes')

@@ -778,10 +778,10 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261004182018">
-  <script src="js/barra-vidrio.js?v=20261004182018" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261005102520">
+  <script src="js/barra-vidrio.js?v=20261005102520" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261004182018"></script>
+  <script src="js/tenido.js?v=20261005102520"></script>
 </head>
 <body>
 
@@ -1867,7 +1867,10 @@
   function engancharCompra(token, compra) {
     tokenActual = token;
     window._pedidoLink   = location.origin + location.pathname + '#t=' + token;
-    window._pedidoNumero = 'Pedido #' + compra.numero;
+    // Una compra hecha en modo prueba (js/modo-prueba.js) lo dice al lado
+    // del número, también en el mensaje de WhatsApp
+    const etiqueta = 'Pedido #' + compra.numero + (compra.prueba ? ' (prueba)' : '');
+    window._pedidoNumero = etiqueta;
     // La fecha con la que se armo la compra, para el mensaje de WhatsApp.
     // Viene de la base, que es la misma que se ve en el panel.
     window._pedidoCreado = compra.creado_en || null;
@@ -1877,7 +1880,7 @@
     // el cliente te escribe "ZV-1G0Z3AUV" y en el panel vos ves "#7". Gana
     // el numero de pedido, que es el que existe de los dos lados.
     const ref = $('payRef');
-    if (ref) ref.textContent = 'Pedido #' + compra.numero;
+    if (ref) ref.textContent = etiqueta;
 
     if (typeof buildWhatsappUrl === 'function') buildWhatsappUrl();
     pintar(compra);
@@ -2042,6 +2045,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20261004182018" defer></script>
+  <script src="bg-burbujas.js?v=20261005102520" defer></script>
 </body>
 </html>

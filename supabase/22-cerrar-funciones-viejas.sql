@@ -1,6 +1,10 @@
 -- ============================================================
--- TIAGO STORE · Cerrar dos funciones viejas
+-- TIAGO STORE · 22 · Cerrar dos funciones viejas
 -- ============================================================
+-- Aplicado con la migración:
+--   cerrar_funciones_viejas   (4/10/2026, antes que el 20 y el 21: da
+--   igual el orden, solo quita permisos)
+--
 -- crear_pedido() y ver_mi_pedido() son de cuando la tienda vendía un
 -- producto por pedido. Las reemplazaron crear_compra() y ver_mi_compra()
 -- (compras de varios productos), y ni la tienda ni el panel ni otra

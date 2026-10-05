@@ -2,7 +2,7 @@
 -- TIAGO STORE · 21 · RENOVAR DIRECTO AL PAGO
 -- ============================================================
 -- Aplicado con la migración:
---   renovar_directo_al_pago
+--   renovar_directo_al_pago   (5/10/2026, después de publicar la tienda)
 -- OJO: va DESPUÉS de publicar la tienda que entiende #renovar=
 -- (renovarDesdeElLink en js/tienda.js). Con la tienda de antes, el
 -- enlace abre la tienda y nada más.

@@ -42,6 +42,8 @@
       restaurarPantalla();
       // "Comprar de nuevo" desde Mis compras
       recomprarDesdeElLink();
+      // "Renovala con un toque", desde el aviso de vencimiento
+      renovarDesdeElLink();
     };
 
     // "Comprar de nuevo" (mis-compras.html) llega con #comprar=<id>,<id>:
@@ -75,6 +77,56 @@
       guardarCarrito();
       openCart({ agregado });
     }
+
+    // El aviso de vencimiento que le mandás por WhatsApp (ver
+    // supabase/21-renovar-directo-al-pago.sql) trae #renovar=<id>&wa=<celular>:
+    // el carrito queda con ese producto solo y se abre directo en "Pagar",
+    // con el recordatorio prendido y su número puesto si la otra vez lo
+    // había pedido. Toca, paga y listo.
+    //
+    // Lo que hubiera en el carrito se saca: casi siempre es lo de la compra
+    // anterior, y pagarlo de nuevo sin darse cuenta sería peor que tener que
+    // volver a elegirlo. Si ese plan ya no se vende, se le muestran los otros
+    // planes de la misma plataforma.
+    function renovarDesdeElLink() {
+      if (recompraHecha) return;
+      const m = location.hash.match(/^#renovar=([0-9a-f-]{36})(?:&wa=([67]\d{7}))?$/i);
+      if (!m) return;
+      recompraHecha = true;
+      try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) { /* da igual */ }
+
+      const p = PRODUCTS.find(x => x.fid === m[1].toLowerCase());
+      if (!p) return;                               // ya no existe: queda la tienda
+      if (p.soldOut || sinPrecio(p)) {
+        const g = grupoDe(p.id);
+        if (g) abrirPlataforma(g.clave);
+        return;
+      }
+
+      cart = [{ ...p, qty: 1 }];
+      updateCartCount();
+      guardarCarrito();
+      openCart({ agregado: p.id, renovando: true });
+      irAPaso(3);
+
+      // Que le avisemos también la próxima vez, al mismo número
+      const renovar  = document.getElementById('crRenovar');
+      const campoTel = document.getElementById('crTel');
+      if (m[2] && renovar && campoTel) {
+        renovar.checked = true;
+        document.getElementById('crRenovarTel').hidden = false;
+        campoTel.value = m[2];
+      }
+    }
+
+    // Los dos links también pueden llegar con la tienda ya abierta en esta
+    // pestaña: ahí no se recarga la página, solo cambia lo de después del #.
+    window.addEventListener('hashchange', () => {
+      if (!catalogoCargado || !/^#(comprar|renovar)=/i.test(location.hash)) return;
+      recompraHecha = false;
+      recomprarDesdeElLink();
+      renovarDesdeElLink();
+    });
 
     // Si Supabase falla, lo mostramos en la grilla en vez de dejarla vacía.
     window.__errorCatalogo = function (mensaje) {
@@ -1776,7 +1828,9 @@
     // redibujar: se llama para rearmar el carrito que ya está a la vista
     // (se quitó el último producto, se perdió una fila); no es una
     // pantalla nueva y no va al historial.
-    function openCart({ agregado = null, redibujar = false } = {}) {
+    // renovando: vino del aviso de vencimiento (renovarDesdeElLink), y el
+    // paso 3 lo dice arriba.
+    function openCart({ agregado = null, redibujar = false, renovando = false } = {}) {
       if (!redibujar) anotarPantalla('carrito');
 
       // Si bajó el stock desde que lo agregó, se ajusta la cantidad
@@ -1852,6 +1906,7 @@
         <!-- ===== PASO 3: PAGAR ===== -->
         <section class="cr-paso" id="crPaso3" hidden>
           <div class="cr-scroll">
+            ${renovando && recien ? `<div class="cr-agregado" role="status">${icono('renovar')} Renovás <b>${escaparHtml(recien.name)}</b>: elegí cómo pagar y listo.</div>` : ''}
             <!-- Cómo paga: QR del banco en Bs, o Binance Pay en USDT (esa
                  tarjeta aparece cuando cargaste tu QR en el panel). Tarjetas
                  cuadradas, una al lado de la otra. Elegir una cambia los

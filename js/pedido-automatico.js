@@ -29,6 +29,7 @@
 // ============================================================
 
 import { sb } from './supabase-base.js';
+import { clavePrueba } from './modo-prueba.js';
 
 // Cada cuánto se le pregunta a la base si ya confirmaron el pago.
 // 4 segundos es un equilibrio: más rápido no aporta nada (el pago lo
@@ -105,7 +106,9 @@ export async function crearCompra(lineas, cliente = {}) {
       p_email:    (cliente.email    || '').slice(0, 120),
       // Pidio que le avisemos antes de que se le venza. La fecha no viaja:
       // la calcula la base, que es la que sabe cuando se le entrego.
-      p_renovar:  cliente.renovar === true
+      p_renovar:  cliente.renovar === true,
+      // En modo prueba la compra sale marcada (ver js/modo-prueba.js)
+      ...(clavePrueba() ? { p_prueba: clavePrueba() } : {})
     });
 
     if (error) {
@@ -143,7 +146,9 @@ export function huellaDeCarrito(lineas) {
   return (lineas || [])
     .map(l => `${l.producto_id}x${l.cantidad}`)
     .sort()
-    .join('|');
+    .join('|')
+    // Una compra de prueba no se retoma como si fuera de verdad, ni al revés
+    + (clavePrueba() ? '|prueba' : '');
 }
 
 
@@ -378,7 +383,10 @@ export function compraRecordada() {
       olvidar();
       return null;
     }
-    return { token: guardado.token, fid: guardado.fid || null };
+    // Con la huella: sin ella, pagar-qr.html no reconocía el carrito como
+    // el mismo y cada "Pagar con QR" creaba otro pedido igual (los
+    // "Pedido duplicado" del panel).
+    return { token: guardado.token, huella: guardado.huella || null };
   } catch {
     return null;
   }

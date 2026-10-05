@@ -221,6 +221,8 @@
     font-variant-numeric: tabular-nums;
   }
   .contador[hidden] { display: none; }
+  /* "Probar la tienda" aparece recién cuando llegó la clave (js/admin-prueba.js) */
+  [data-probar][hidden] { display: none !important; }
   .lateral .contador { margin-left: auto; }
   .menu-movil .vista-tab { position: relative; }
   .menu-movil .contador {
@@ -897,9 +899,9 @@
 </style>
 <!-- Liquid glass: lo común a todo el sitio y lo propio del panel. Van
      después de los estilos de arriba. -->
-<link rel="stylesheet" href="../css/vidrio.css?v=20261004182018">
-<script src="../js/barra-vidrio.js?v=20261004182018" defer></script>
-<link rel="stylesheet" href="css/vidrio-panel.css?v=20261004182018">
+<link rel="stylesheet" href="../css/vidrio.css?v=20261005102520">
+<script src="../js/barra-vidrio.js?v=20261005102520" defer></script>
+<link rel="stylesheet" href="css/vidrio-panel.css?v=20261005102520">
 </head>
 <body>
 
@@ -920,6 +922,7 @@
   <symbol id="i-tienda" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
   <symbol id="i-editar" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.38 3.62a2.12 2.12 0 1 1 3 3L7.37 18.64a2 2 0 0 1-.86.5l-2.87.84a.5.5 0 0 1-.62-.62l.84-2.87a2 2 0 0 1 .5-.86z"/></symbol>
   <symbol id="i-borrar" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></symbol>
+  <symbol id="i-probar" viewBox="0 0 24 24"><path d="M10 2v7.31"/><path d="M14 9.3V2"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></symbol>
   <symbol id="i-salir" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></symbol>
 </svg>
 
@@ -948,6 +951,12 @@
       <a class="menu-link" href="../index.html" target="_blank" rel="noopener">
         <svg class="ico"><use href="#i-tienda"/></svg>Ver tienda
       </a>
+      <!-- La tienda en modo prueba: lo que compres ahí no cuenta como venta
+           ni te avisa por Telegram (ver js/modo-prueba.js) -->
+      <a class="menu-link" href="../index.html" target="_blank" rel="noopener" data-probar hidden
+         title="Lo que compres ahí no cuenta como venta ni te avisa por Telegram">
+        <svg class="ico"><use href="#i-probar"/></svg>Probar la tienda
+      </a>
       <div class="cuenta">
         <span class="avatar" id="avatar" aria-hidden="true"></span>
         <span class="usuario" id="usuarioEmail"></span>
@@ -972,6 +981,10 @@
         <span class="barra-fecha" id="fechaHoy"></span>
         <a class="icono-btn" href="../index.html" target="_blank" rel="noopener" title="Ver tienda" aria-label="Ver tienda">
           <svg class="ico"><use href="#i-tienda"/></svg>
+        </a>
+        <a class="icono-btn" href="../index.html" target="_blank" rel="noopener" data-probar hidden
+           title="Probar la tienda: no cuenta como venta" aria-label="Probar la tienda">
+          <svg class="ico"><use href="#i-probar"/></svg>
         </a>
         <button class="icono-btn js-salir" title="Cerrar sesión" aria-label="Cerrar sesión">
           <svg class="ico"><use href="#i-salir"/></svg>
@@ -1614,24 +1627,27 @@ window.addEventListener('popstate', () => {
 </script>
 
 <!-- Inicio: el resumen de ventas, pendientes y stock -->
-<script type="module" src="js/admin-inicio.js?v=20261004182018"></script>
+<script type="module" src="js/admin-inicio.js?v=20261005102520"></script>
 
 <!-- CRUD de productos: se trae su propia interfaz (modales + estilos) -->
-<script type="module" src="js/admin-productos.js?v=20261004182018"></script>
+<script type="module" src="js/admin-productos.js?v=20261005102520"></script>
 
 <!-- Subida de imágenes: se engancha al editor de arriba, va después -->
-<script type="module" src="js/admin-imagenes.js?v=20261004182018"></script>
+<script type="module" src="js/admin-imagenes.js?v=20261005102520"></script>
 
 <!-- Administración de juegos de recarga: construye la vista Juegos -->
-<script type="module" src="js/admin-juegos.js?v=20261004182018"></script>
+<script type="module" src="js/admin-juegos.js?v=20261005102520"></script>
 
 <!-- Ventas y stock: construyen las vistas Ventas y Stock.
      Le hablan a Supabase directo, sin pasar por el puente
      js/panel-datos.js que usan Productos y Juegos. -->
-<script type="module" src="js/admin-ventas.js?v=20261004182018"></script>
-<script type="module" src="js/admin-stock.js?v=20261004182018"></script>
+<script type="module" src="js/admin-ventas.js?v=20261005102520"></script>
+<script type="module" src="js/admin-stock.js?v=20261005102520"></script>
+
+<!-- "Probar la tienda": le pone la clave del modo prueba a esos enlaces -->
+<script type="module" src="js/admin-prueba.js?v=20261005102520"></script>
 
 <!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
-<script src="../bg-burbujas.js?v=20261004182018" defer></script>
+<script src="../bg-burbujas.js?v=20261005102520" defer></script>
 </body>
 </html>

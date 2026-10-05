@@ -279,6 +279,20 @@ css.textContent = `
   .vt-motivo.elegido { background: var(--tinta); border-color: var(--tinta); color: #fff; }
 
   /* El motivo escrito a mano, en la fila del pedido rechazado */
+  /* Compras hechas en modo prueba ("Probar la tienda"): el mismo cartel
+     oscuro que se ve arriba en la tienda mientras se prueba */
+  .vt-prueba {
+    display: inline-block; margin-left: 6px; vertical-align: 1px;
+    padding: 1px 8px; border-radius: 99px;
+    background: #1f2430; color: #fde68a;
+    font-family: inherit; font-size: 10.5px; font-weight: 800; letter-spacing: .03em;
+  }
+  .vt-prueba-fila {
+    grid-column: 1 / -1;
+    font-size: 12.5px; color: var(--gris);
+    padding: 7px 11px; border-radius: 8px;
+    background: var(--panel-2);
+  }
   .vt-motivo-fila {
     grid-column: 1 / -1;
     font-size: 12.5px; color: var(--gris);
@@ -947,10 +961,12 @@ async function cargarCredenciales() {
 // trae el descuento combo, la suma es lo que entró de verdad.
 function metricas() {
   const hoy = new Date().toDateString();
+  // Las compras de prueba no cuentan (ver esPrueba)
+  const reales = PEDIDOS.filter(p => !p.prueba);
 
-  const esperando = PEDIDOS.filter(p => p.estado === 'esperando_pago');
-  const problemas = PEDIDOS.filter(p => p.estado === 'sin_stock' || p.estado === 'pagado');
-  const dadosHoy  = PEDIDOS.filter(p =>
+  const esperando = reales.filter(p => p.estado === 'esperando_pago');
+  const problemas = reales.filter(p => p.estado === 'sin_stock' || p.estado === 'pagado');
+  const dadosHoy  = reales.filter(p =>
     p.estado === 'entregado' && p.entregado_en &&
     new Date(p.entregado_en).toDateString() === hoy);
 
@@ -976,9 +992,15 @@ const EN_ATENCION = ['sin_stock', 'pagado', 'esperando_pago'];
 
 const algunaEn = (c, estados) => c.lineas.some(o => estados.includes(o.estado));
 
+// Las compras hechas en modo prueba (supabase/20-modo-prueba.sql): se ven
+// en "Todos" y en la fecha, con su cartel, pero no piden atención, no
+// suenan y no cuentan en las cifras.
+const esPrueba = c => c.lineas.some(o => o.prueba);
+const deVerdadEn = (c, estados) => !esPrueba(c) && algunaEn(c, estados);
+
 function comprasDelFiltro(compras) {
-  if (filtro === 'atencion')  return compras.filter(c => algunaEn(c, EN_ATENCION));
-  if (filtro === 'entregado') return compras.filter(c => algunaEn(c, ['entregado']));
+  if (filtro === 'atencion')  return compras.filter(c => deVerdadEn(c, EN_ATENCION));
+  if (filtro === 'entregado') return compras.filter(c => deVerdadEn(c, ['entregado']));
   if (filtro === 'fecha') {
     const dia = $('vtFecha').value;
     return dia ? compras.filter(c => diaLocal(c.primera.creado_en) === dia) : [];
@@ -1041,13 +1063,13 @@ async function cargarDia(dia) {
 
 function listar() {
   const compras = agruparCompras(PEDIDOS);
-  const pendientes = compras.filter(c => algunaEn(c, EN_ATENCION)).length;
+  const pendientes = compras.filter(c => deVerdadEn(c, EN_ATENCION)).length;
 
   // En la pestaña se lee "(2) Panel Tiago Store" sin tener que entrar
   actualizarTitulo(pendientes);
 
   $('nAtencion').textContent  = pendientes || '';
-  $('nEntregado').textContent = compras.filter(c => algunaEn(c, ['entregado'])).length || '';
+  $('nEntregado').textContent = compras.filter(c => deVerdadEn(c, ['entregado'])).length || '';
   $('nTodos').textContent     = compras.length || '';
 
   const lista = comprasDelFiltro(compras);
@@ -1103,7 +1125,7 @@ function filaCompra(c) {
 
   return `
     <div class="vt-fila ${clase}" data-ver="${escapar(c.clave)}">
-      <span class="vt-f-num">${numerosDeCompra(L)}</span>
+      <span class="vt-f-num">${numerosDeCompra(L)}${esPrueba(c) ? '<span class="vt-prueba">Prueba</span>' : ''}</span>
       <span class="vt-f-fecha">${dia}<small>${hora.join(' ')}</small></span>
       <span class="vt-f-bs">${bsTxt(c.total)}${usdtDe(c) ? `<small>${usdtDe(c)}</small>` : ''}</span>
       <span class="vt-f-estado">${cartelDe(c)}</span>
@@ -1495,7 +1517,11 @@ function pintarCompra(c) {
         ${acciones}
       </div>
 
-      ${filaRecordatorio(c)}
+      ${esPrueba(c) ? `
+        <div class="vt-prueba-fila"><span class="vt-prueba" style="margin:0 6px 0 0">Prueba</span>Compra hecha en
+          modo prueba: no cuenta en las ventas ni te avisó por Telegram.${pend.some(o => o.estado === 'esperando_pago')
+          ? ' Si nadie la paga, se cancela sola a las 2 horas. Si la confirmás, se entrega una cuenta de verdad del stock.' : ''}</div>`
+        : filaRecordatorio(c)}
       ${n > 1 || c.descuento > 0 ? detalleCompra(c, { porEstado: mixto }) : ''}
       ${stock}
       ${cuentas}
@@ -2028,8 +2054,11 @@ $('vtManoOk').addEventListener('click', async () => {
     }
   } else {
     const motivo = motivoDelRechazo();
+    // "Prueba mía" la marca como prueba: sale de las cifras igual que las
+    // hechas en modo prueba
     ({ error } = await sbAdmin.from('pedidos')
-      .update({ estado: 'cancelado', motivo: motivo || null }).in('id', ids));
+      .update({ estado: 'cancelado', motivo: motivo || null,
+                ...(motivo === 'Prueba mía' ? { prueba: true } : {}) }).in('id', ids));
   }
 
   btn.disabled = false;
@@ -2105,7 +2134,8 @@ function anotarParaAvisar(p, esNuevo) {
 }
 
 function avisarComprasNuevas() {
-  const compras = agruparCompras([...porAvisar.values()]);
+  // Las de prueba no suenan: las estás haciendo vos
+  const compras = agruparCompras([...porAvisar.values()]).filter(c => !esPrueba(c));
   porAvisar.clear();
   if (!compras.length) return;
   sonarCampana();
@@ -2242,6 +2272,7 @@ async function leerVentasDelMes(mes) {
 
   const rPed = await sbAdmin.from('pedidos').select('*')
     .in('estado', VENDIDOS)
+    .eq('prueba', false)
     .gte('creado_en', margen.toISOString())
     .lt('creado_en', hasta.toISOString())
     .order('creado_en', { ascending: true });

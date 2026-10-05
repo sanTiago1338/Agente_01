@@ -14,6 +14,8 @@
     import { subscribeJuegos } from './juegos-service.js';
     import { mapaDeStock, mapaDeRebajas } from './stock-tienda.js';
     import { SUPABASE_URL, SUPABASE_ANON_KEY, sb } from './supabase-base.js';
+    // Además de lo de abajo, pone el cartel "Modo prueba" si toca
+    import { clavePrueba } from './modo-prueba.js';
 
     // Los IDs de la base son texto (un uuid), pero la tienda usa números
     // en los onclick: abrirCheckout(12). Para productos migrados usamos idLegacy;
@@ -142,6 +144,7 @@
     const anotados = new Set();   // cada paso una vez por visita: la base igual lo filtra por día
 
     window.__anotarPaso = paso => {
+      if (clavePrueba()) return;   // probando la tienda: no es un cliente
       if (anotados.has(paso)) return;
       anotados.add(paso);
       try {

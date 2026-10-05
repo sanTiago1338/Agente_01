@@ -479,11 +479,14 @@ async function cargar() {
 
     const hace35 = new Date(Date.now() - 35 * 864e5).toISOString();
 
+    // Las compras hechas en modo prueba (supabase/20-modo-prueba.sql) no
+    // cuentan en nada de esta pantalla: .eq('prueba', false) en las tres.
     const [rPedidos, rEsperando, rAtender, rCuentas, rProductos] = await Promise.all([
       // Cinco semanas alcanzan para "hoy", "7 días contra los 7 anteriores",
       // el gráfico de 14 días y lo más vendido del mes.
       sbAdmin.from('pedidos')
         .select('id, numero, producto_id, producto_nombre, precio, descuento, estado, grupo, cliente_nombre, creado_en, entregado_en')
+        .eq('prueba', false)
         .gte('creado_en', hace35)
         .order('creado_en', { ascending: false })
         .limit(2000),
@@ -491,9 +494,9 @@ async function cargar() {
       // cuenta. Viene el grupo para contar compras y no cuentas: la de 3
       // productos es un pago por confirmar, no tres (igual que en Ventas).
       sbAdmin.from('pedidos').select('id, grupo')
-        .eq('estado', 'esperando_pago'),
+        .eq('estado', 'esperando_pago').eq('prueba', false),
       sbAdmin.from('pedidos').select('id, grupo')
-        .in('estado', ['sin_stock', 'pagado']),
+        .in('estado', ['sin_stock', 'pagado']).eq('prueba', false),
       // Sin credenciales: producto y estado, para el stock
       sbAdmin.from('cuentas').select('producto_id, estado').neq('estado', 'anulada'),
       sbAdmin.from('productos').select('id, nombre, activo')
@@ -773,6 +776,7 @@ async function pintarClientes() {
   const { data, error } = await sbAdmin.from('pedidos')
     .select('id, grupo, cliente_nombre, cliente_whatsapp, precio, entregado_en')
     .eq('estado', 'entregado')
+    .eq('prueba', false)
     .order('entregado_en', { ascending: false })
     .limit(5000);
   if (error) {

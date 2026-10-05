@@ -378,7 +378,10 @@ export function compraRecordada() {
       olvidar();
       return null;
     }
-    return { token: guardado.token, fid: guardado.fid || null };
+    // Con la huella: sin ella, pagar-qr.html no reconocía el carrito como
+    // el mismo y cada "Pagar con QR" creaba otro pedido igual (los
+    // "Pedido duplicado" del panel).
+    return { token: guardado.token, huella: guardado.huella || null };
   } catch {
     return null;
   }

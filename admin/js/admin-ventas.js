@@ -817,9 +817,13 @@ $('vistaVentas').innerHTML = `
            captura, y no le decía nada a nadie. -->
       <label for="vtCliente">Nombre del cliente <span style="font-weight:400;">(opcional)</span></label>
       <input type="text" id="vtCliente" placeholder="Ej: María Pérez" autocomplete="off">
+      <label for="vtClienteWa" style="margin-top:10px;">Su WhatsApp <span style="font-weight:400;">(opcional)</span></label>
+      <input type="tel" id="vtClienteWa" inputmode="numeric" placeholder="Ej: 71234567" autocomplete="off">
       <p class="vt-nota">
-        El nombre que te figura en la transferencia. Queda guardado en el
-        pedido, así después sabés de quién fue esta venta.
+        El nombre que te figura en la transferencia y el número del que te
+        escribió. Quedan guardados en el pedido: así sabés de quién fue esta
+        venta y, cuando se le esté por vencer, te llega el aviso con el
+        enlace para escribirle.
       </p>
 
       <div class="vt-pie">
@@ -849,6 +853,21 @@ $('vistaVentas').innerHTML = `
           <input type="text" id="vtManoPin"     placeholder="PIN"              autocomplete="off">
         </div>
         <p class="vt-nota" id="vtManoNota"></p>
+      </div>
+
+      <!-- Quién es. Si entregaste por WhatsApp, ya estás hablando con él:
+           es el momento de guardar el número. Sin número no te llega el
+           enlace para escribirle cuando se le esté por vencer. -->
+      <div id="vtManoCliente" hidden>
+        <label>El cliente <span style="font-weight:400;">(opcional)</span></label>
+        <div class="vt-mano-campos">
+          <input type="text" id="vtManoNombre" placeholder="Nombre"                    autocomplete="off">
+          <input type="tel"  id="vtManoWa"     placeholder="WhatsApp (ej: 71234567)" inputmode="numeric" autocomplete="off">
+        </div>
+        <p class="vt-nota">
+          Con su WhatsApp, cuando se le esté por vencer te llega el aviso con
+          el enlace para escribirle.
+        </p>
       </div>
 
       <!-- Por qué lo rechazás. Dentro de un mes, seis pedidos rechazados
@@ -1755,7 +1774,8 @@ function abrirConfirmacion(pedidoId) {
     : `Confirmá solo si <strong>ya te entraron ${bsTxt(c.total)}</strong> en tu cuenta. ` +
       `Al confirmar, ${entrega}, y no se puede deshacer.`;
 
-  $('vtCliente').value = p.cliente_nombre || '';
+  $('vtCliente').value   = clienteDe(c).nombre;
+  $('vtClienteWa').value = clienteDe(c).whatsapp;
   $('vtFondo').classList.add('abierto');
   $('vtCliente').focus();
 }
@@ -1776,27 +1796,17 @@ $('vtConfirmar').addEventListener('click', async () => {
   btn.disabled = true;
   btn.textContent = 'Confirmando…';
 
-  const nombre = $('vtCliente').value.trim();
   const quien  = 'panel:' + ($('usuarioEmail')?.textContent || 'admin');
 
-  // El nombre se guarda en el pedido ANTES de confirmar: si se guardara
+  // El nombre y el WhatsApp se guardan ANTES de confirmar: si se guardaran
   // después y algo fallara, la cuenta ya estaría entregada y la venta
-  // quedaría sin dueño. En una compra de varios va a todas sus líneas,
-  // que son una sola venta.
-  if (nombre) {
-    const ids = p.grupo
-      ? PEDIDOS.filter(o => o.grupo === p.grupo).map(o => o.id)
-      : [p.id];
-    const { error: errNombre } = await sbAdmin.from('pedidos')
-      .update({ cliente_nombre: nombre }).in('id', ids);
-
-    if (errNombre) {
-      console.error(errNombre);
-      aviso(`No se pudo guardar el nombre: ${errNombre.message}`, 'error');
-      btn.disabled = false;
-      btn.textContent = 'Confirmar y entregar';
-      return;
-    }
+  // quedaría sin dueño.
+  const errCliente = await guardarCliente(p, $('vtCliente').value, $('vtClienteWa').value);
+  if (errCliente) {
+    aviso(errCliente, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Confirmar y entregar';
+    return;
   }
 
   // Si el pedido es parte de una compra de varios productos, se confirma
@@ -1923,6 +1933,11 @@ function abrirCierreAMano(pedidoId, accion) {
       'aunque borre el chat de WhatsApp. Si lo dejás vacío, solo se marca entregado.';
   }
 
+  // Nombre y WhatsApp, con lo que ya tenga la compra
+  $('vtManoCliente').hidden = accion !== 'entregar';
+  $('vtManoNombre').value = clienteDe(c).nombre;
+  $('vtManoWa').value     = clienteDe(c).whatsapp;
+
   // El motivo solo al rechazar: al entregar no hay nada que explicar.
   const pideMotivo = accion !== 'entregar';
   $('vtManoMotivo').hidden = !pideMotivo;
@@ -1996,6 +2011,61 @@ function credencialesEscritas() {
 
 function cerrarMano() { $('vtFondoMano').classList.remove('abierto'); cerrandoAMano = null; }
 
+
+// ------------------------------------------------------------
+// El nombre y el WhatsApp del cliente
+// ------------------------------------------------------------
+// Los piden "Confirmar y entregar" y "Listo". Sin el número no te llega
+// el enlace para escribirle cuando se le esté por vencer: del 6/9 al
+// 6/10/2026, 42 de 80 compras entregadas no lo tenían.
+
+/** Lo que ya tiene la compra (cualquiera de sus líneas). */
+function clienteDe(c) {
+  return {
+    nombre:   (c.lineas.find(o => o.cliente_nombre)   || {}).cliente_nombre   || '',
+    whatsapp: (c.lineas.find(o => o.cliente_whatsapp) || {}).cliente_whatsapp || ''
+  };
+}
+
+// Como lo guarda la tienda: los 8 números del celular, sin el 591.
+// '' si no escribieron nada; null si no es un celular de Bolivia.
+function celularEscrito(texto) {
+  const t = String(texto || '').trim();
+  if (!t) return '';
+  let d = t.replace(/\D/g, '');
+  if (d.length === 11 && d.startsWith('591')) d = d.slice(3);
+  return /^[67]\d{7}$/.test(d) ? d : null;
+}
+
+/**
+ * Guarda nombre y WhatsApp en toda la compra (una compra de varios es una
+ * sola venta). Lo que se deja vacío no borra lo que había.
+ * @returns {Promise<string|null>} el error para mostrar, o null
+ */
+async function guardarCliente(p, nombreEscrito, waEscrito) {
+  const wa = celularEscrito(waEscrito);
+  if (wa === null) {
+    return 'Ese WhatsApp no parece un celular de Bolivia: son 8 números y empieza con 6 o 7.';
+  }
+
+  const antes  = clienteDe(compraDe(p));
+  const nombre = String(nombreEscrito || '').trim();
+  const datos  = {};
+  if (nombre && nombre !== antes.nombre)  datos.cliente_nombre   = nombre;
+  if (wa     && wa     !== antes.whatsapp) datos.cliente_whatsapp = wa;
+  if (!Object.keys(datos).length) return null;
+
+  const ids = p.grupo
+    ? PEDIDOS.filter(o => o.grupo === p.grupo).map(o => o.id)
+    : [p.id];
+  const { error } = await sbAdmin.from('pedidos').update(datos).in('id', ids);
+  if (error) {
+    console.error(error);
+    return `No se pudieron guardar los datos del cliente: ${error.message}`;
+  }
+  return null;
+}
+
 $('vtManoVolver').addEventListener('click', cerrarMano);
 $('vtFondoMano').addEventListener('click', e => { if (e.target === $('vtFondoMano')) cerrarMano(); });
 document.addEventListener('keydown', e => {
@@ -2017,6 +2087,16 @@ $('vtManoOk').addEventListener('click', async () => {
   let cred = null;
   if (accion === 'entregar') {
     const ahora = new Date().toISOString();
+
+    // Quién es, antes que nada: si el número está mal escrito, se avisa y
+    // no se cierra nada
+    const errCliente = await guardarCliente(pedido, $('vtManoNombre').value, $('vtManoWa').value);
+    if (errCliente) {
+      aviso(errCliente, 'error');
+      btn.disabled = false;
+      btn.textContent = texto;
+      return;
+    }
 
     // La cuenta se guarda ANTES de dar el pedido por entregado. Al revés,
     // si fallara esta parte el cliente vería su pedido entregado y sin

@@ -1775,7 +1775,7 @@ function abrirConfirmacion(pedidoId) {
       `Al confirmar, ${entrega}, y no se puede deshacer.`;
 
   $('vtCliente').value   = clienteDe(c).nombre;
-  $('vtClienteWa').value = clienteDe(c).whatsapp;
+  $('vtClienteWa').value = celularParaMostrar(clienteDe(c).whatsapp);
   $('vtFondo').classList.add('abierto');
   $('vtCliente').focus();
 }
@@ -1936,7 +1936,7 @@ function abrirCierreAMano(pedidoId, accion) {
   // Nombre y WhatsApp, con lo que ya tenga la compra
   $('vtManoCliente').hidden = accion !== 'entregar';
   $('vtManoNombre').value = clienteDe(c).nombre;
-  $('vtManoWa').value     = clienteDe(c).whatsapp;
+  $('vtManoWa').value     = celularParaMostrar(clienteDe(c).whatsapp);
 
   // El motivo solo al rechazar: al entregar no hay nada que explicar.
   const pideMotivo = accion !== 'entregar';
@@ -2027,15 +2027,20 @@ function clienteDe(c) {
   };
 }
 
-// Como lo guarda la tienda: los 8 números del celular, sin el 591.
-// '' si no escribieron nada; null si no es un celular de Bolivia.
+// Como lo guarda la tienda (normalizarTel en js/tienda.js): 591 y los 8
+// números del celular. Así sirve tal cual para wa.me, que es como lo usa
+// el aviso de vencimiento. '' si no escribieron nada; null si no es un
+// celular de Bolivia.
 function celularEscrito(texto) {
   const t = String(texto || '').trim();
   if (!t) return '';
   let d = t.replace(/\D/g, '');
   if (d.length === 11 && d.startsWith('591')) d = d.slice(3);
-  return /^[67]\d{7}$/.test(d) ? d : null;
+  return /^[67]\d{7}$/.test(d) ? '591' + d : null;
 }
+
+// En el campo se muestra sin el 591, como lo dicta cualquiera
+const celularParaMostrar = tel => String(tel || '').replace(/^591(?=\d{8}$)/, '');
 
 /**
  * Guarda nombre y WhatsApp en toda la compra (una compra de varios es una

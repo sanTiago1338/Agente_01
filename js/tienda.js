@@ -109,14 +109,9 @@
       openCart({ agregado: p.id, renovando: true });
       irAPaso(3);
 
-      // Que le avisemos también la próxima vez, al mismo número
-      const renovar  = document.getElementById('crRenovar');
+      // El mismo número de la otra vez, ya escrito
       const campoTel = document.getElementById('crTel');
-      if (m[2] && renovar && campoTel) {
-        renovar.checked = true;
-        document.getElementById('crRenovarTel').hidden = false;
-        campoTel.value = m[2];
-      }
+      if (m[2] && campoTel) campoTel.value = m[2];
     }
 
     // Los dos links también pueden llegar con la tienda ya abierta en esta
@@ -1953,26 +1948,24 @@
               </div>
             </div>` : ''}
 
+            <!-- Su WhatsApp, obligatorio para pagar: es por donde le avisamos
+                 antes de que se le venza y por donde le damos soporte. Antes
+                 era opcional (un interruptor "¿Te recordamos renovar?") y
+                 del 6/9 al 6/10/2026, 42 de 80 compras entregadas quedaron
+                 sin número: a esos el aviso de vencimiento no les llegaba. -->
             <div class="ck-caja ck-renovar">
-              <div class="ck-renovar-fila">
-                <div class="ck-renovar-txt">
-                  <b>¿Te recordamos renovar al vencer?</b>
-                  <p>Te escribimos por WhatsApp unos días antes del vencimiento para
-                     que no pierdas el servicio. No se cobra nada automáticamente.</p>
-                </div>
-                <label class="ck-switch">
-                  <input type="checkbox" id="crRenovar">
-                  <span class="ck-switch-pista"><span class="ck-switch-bola"></span></span>
-                </label>
+              <div class="ck-renovar-txt">
+                <b>Tu WhatsApp</b>
+                <p>Te escribimos por acá si hay algo con tu pedido y unos días antes
+                   de que venza, para que no pierdas el servicio. No se cobra nada
+                   automáticamente.</p>
               </div>
-              <!-- Aparece recién al prender el interruptor: si no vamos a
-                   escribirle, pedirle el número es preguntar por gusto. -->
-              <div class="ck-renovar-tel" id="crRenovarTel" hidden>
+              <div class="ck-renovar-tel" id="crRenovarTel">
                 <label for="crTel">¿A qué WhatsApp te escribimos?</label>
                 <div class="ck-tel-campo">
                   <span class="ck-tel-pais">+591</span>
                   <input type="tel" id="crTel" inputmode="numeric" maxlength="14"
-                         autocomplete="tel-national" placeholder="7 123 4567">
+                         autocomplete="tel-national" placeholder="7 123 4567" required>
                 </div>
                 <p class="ck-tel-error" id="crTelError" hidden></p>
               </div>
@@ -2239,28 +2232,30 @@
       repintarMoneda();
     };
 
-    // Términos + aviso de renovación: los mismos candados que tenía la
-    // ventana de compra de un solo producto.
+    // Su WhatsApp queda en este navegador: la próxima compra ya viene escrito
+    const LLAVE_WA = 'tiago-whatsapp';
+    function waRecordado() {
+      try { return localStorage.getItem(LLAVE_WA) || ''; } catch { return ''; }
+    }
+    function recordarWa(tel) {
+      try { localStorage.setItem(LLAVE_WA, tel); } catch { /* sin almacenamiento: lo escribe de nuevo */ }
+    }
+
+    // Términos + WhatsApp: los candados para pagar.
     function atarCarrito() {
       const terminos = document.getElementById('cartTerminos');
       const boton    = document.getElementById('cartPagarQR');
-      const renovar  = document.getElementById('crRenovar');
-      const cajaTel  = document.getElementById('crRenovarTel');
       const campoTel = document.getElementById('crTel');
       const errorTel = document.getElementById('crTelError');
 
-      // El aviso de abajo del botón (#crAvisoPagar) dice siempre lo mismo;
-      // que faltan los términos ya lo marca la caja en rojo.
+      // El botón lo traban solo los términos (la caja se marca en rojo). El
+      // WhatsApp se revisa al tocar Pagar, que es cuando se puede decir qué
+      // falta: un botón trabado sin explicación no le dice nada a nadie.
       const refrescar = () => {
-        boton.disabled = !terminos.checked || (renovar.checked && !telValido(campoTel.value));
+        boton.disabled = !terminos.checked;
       };
 
-      renovar.addEventListener('change', () => {
-        cajaTel.hidden = !renovar.checked;
-        if (renovar.checked) campoTel.focus();
-        else { errorTel.hidden = true; campoTel.classList.remove('mal'); }
-        refrescar();
-      });
+      if (!campoTel.value) campoTel.value = waRecordado();
 
       // Solo los 8 números del celular; si pega el 591 adelante, se saca
       campoTel.addEventListener('input', () => {
@@ -2396,19 +2391,24 @@
       const terminos = document.getElementById('cartTerminos');
       if (terminos && !terminos.checked) return;
 
-      // Si pidió que le recordemos renovar, tiene que haber a dónde escribirle
-      const renovar  = document.getElementById('crRenovar');
+      // Sin WhatsApp no se paga: es por donde le avisamos el vencimiento y
+      // le damos soporte
       const campoTel = document.getElementById('crTel');
-      const quiereAviso = !!(renovar && renovar.checked);
-      if (quiereAviso && !telValido(campoTel.value)) {
+      if (!campoTel || !telValido(campoTel.value)) {
         const error = document.getElementById('crTelError');
-        error.textContent = 'Escribí tu celular completo: 8 números que empiezan con 6 o 7.';
-        error.hidden = false;
-        campoTel.classList.add('mal');
-        campoTel.focus();
+        if (error && campoTel) {
+          error.textContent = campoTel.value.trim()
+            ? 'Escribí tu celular completo: 8 números que empiezan con 6 o 7.'
+            : 'Escribí tu WhatsApp para seguir: es por donde te avisamos y te damos soporte.';
+          error.hidden = false;
+          campoTel.classList.add('mal');
+          campoTel.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          campoTel.focus({ preventScroll: true });
+        }
         return;
       }
       if (cart.length === 0) return;
+      recordarWa(campoTel.value.replace(/\D/g, ''));
 
       // El total ya con el descuento combo: es el que se ve mientras la
       // base arma la compra (después manda el que calculó ella, que es el mismo)
@@ -2429,11 +2429,10 @@
       // Cómo eligió pagar: la página de pago muestra solo ese ('qr' o
       // 'binance'). El total viaja siempre en Bs, que es lo que cobra la base.
       params.set('metodo', metodoActual());
-      // El aviso de renovación viaja con el número (lo lee pagar-qr.html)
-      if (quiereAviso) {
-        params.set('recordar', '1');
-        params.set('wa', normalizarTel(campoTel.value));
-      }
+      // El número viaja siempre (lo lee pagar-qr.html), y con él el aviso
+      // de vencimiento: ahora a todos les avisamos
+      params.set('recordar', '1');
+      params.set('wa', normalizarTel(campoTel.value));
       anotarPaso('qr');
       window.location.href = `pagar-qr.html?${params.toString()}`;
     }

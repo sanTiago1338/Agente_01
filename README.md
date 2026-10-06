@@ -115,7 +115,9 @@ correr de nuevo sin romper nada.
 | `20-modo-prueba.sql` | "Probar la tienda": las compras de prueba no avisan por Telegram, no cuentan en ventas ni en el embudo y se cancelan solas |
 | `21-renovar-directo-al-pago.sql` | El aviso de vencimiento lleva el enlace arriba, con el precio, y abre la tienda directo en "Pagar" con ese producto solo |
 | `22-cerrar-funciones-viejas.sql` | Sin acceso público para crear_pedido() y ver_mi_pedido(), que ya no usa nadie |
+| `23-confirmar-desde-telegram.sql` | Los avisos de pedidos por QR Bolivia traen un botón para confirmar desde Telegram; sin stock, va por WhatsApp. Lo de Binance sigue confirmándose solo |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
+| `functions/telegram-boton/` | Recibe los toques de los botones de Telegram (solo con la clave y desde tu chat) |
 
 ---
 

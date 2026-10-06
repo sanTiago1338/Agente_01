@@ -116,6 +116,7 @@ correr de nuevo sin romper nada.
 | `21-renovar-directo-al-pago.sql` | El aviso de vencimiento lleva el enlace arriba, con el precio, y abre la tienda directo en "Pagar" con ese producto solo |
 | `22-cerrar-funciones-viejas.sql` | Sin acceso público para crear_pedido() y ver_mi_pedido(), que ya no usa nadie |
 | `23-confirmar-desde-telegram.sql` | Los avisos de pedidos por QR Bolivia traen un botón para confirmar desde Telegram; sin stock, va por WhatsApp. Lo de Binance sigue confirmándose solo |
+| `24-sin-pagar-desde-ayer.sql` | Todos los días a las 9:05, por Telegram, cada compra que sigue sin pagar desde ayer, con "Cancelar: nunca pagó / duplicado" o "Dejarlo". Nada se cancela solo |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 | `functions/telegram-boton/` | Recibe los toques de los botones de Telegram (solo con la clave y desde tu chat) |
 

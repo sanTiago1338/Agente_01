@@ -16,6 +16,14 @@
 // La pregunta del medio esta a proposito: un toque sin querer,
 // scrolleando el chat, no regala una cuenta.
 //
+// Y los del mensaje de la manana, "Sigue sin pagar" (avisar_sin_pagar,
+// ver supabase/24-sin-pagar-desde-ayer.sql):
+//   x  "Cancelar: nunca pago"   → cancelar_desde_telegram(motivo "Nunca pagó")
+//   u  "Cancelar: duplicado"    → cancelar_desde_telegram(motivo "Pedido duplicado")
+//   d  "Dejarlo"                → no toca nada; al otro dia pregunta de nuevo
+// Cancelar no regala nada (y si ya pago, la base no lo cancela): por eso
+// esos van de una, sin la pregunta del medio.
+//
 // QUIEN PUEDE
 //   1. Telegram manda en cada toque la clave de
 //      ajustes.telegram_webhook_secreto (cabecera
@@ -84,7 +92,7 @@ async function telegram(token: string, metodo: string, datos: Record<string, unk
   }
 }
 
-// Lo que devuelven las funciones de la base (ver el SQL 23)
+// Lo que devuelven las funciones de la base (ver los SQL 23 y 24)
 type Resultado = {
   texto: string;
   corto?: string;
@@ -93,12 +101,12 @@ type Resultado = {
   mensaje_wa?: string;
 };
 
-async function base(funcion: string, compra: string): Promise<Resultado | null> {
+async function base(funcion: string, compra: string, mas: Record<string, unknown> = {}): Promise<Resultado | null> {
   try {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${funcion}`, {
       method: "POST",
       headers: CABECERAS_BASE,
-      body: JSON.stringify({ p_compra: compra })
+      body: JSON.stringify({ p_compra: compra, ...mas })
     });
     const res = await r.json().catch(() => null);
     if (!r.ok || !res?.texto) {
@@ -236,6 +244,21 @@ Deno.serve(async (req: Request) => {
       await responder(res.corto ?? res.texto);
       break;
     }
+
+    case "x":
+    case "u": {
+      const motivo = letra === "x" ? "Nunca pagó" : "Pedido duplicado";
+      const res = await base("cancelar_desde_telegram", compra, { p_motivo: motivo });
+      if (!res) { await responder("No se pudo cancelar. Hacelo desde el panel.", true); break; }
+      await alPie(res);
+      await responder(res.corto ?? res.texto);
+      break;
+    }
+
+    case "d":
+      await alPie({ texto: "Lo dejaste esperando. Mañana te pregunto de nuevo." });
+      await responder("Lo dejaste esperando.");
+      break;
 
     default:
       await responder();

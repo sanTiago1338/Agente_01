@@ -1414,10 +1414,10 @@
     }
 
 
-    /* ---------- Recordatorio de renovación ---------- */
-    /* La caja ya no es una sola fila: adentro está el interruptor arriba y
-       el campo del número abajo, que aparece recién al prenderlo. */
-    .ck-renovar-fila { display: flex; align-items: center; gap: 1rem; }
+    /* ---------- Su WhatsApp (obligatorio para pagar) ---------- */
+    /* Arriba qué le vamos a mandar, abajo el campo. Antes era un
+       interruptor "¿Te recordamos renovar?" y el campo aparecía al
+       prenderlo; desde el 6/10/2026 el número se pide siempre. */
     .ck-renovar-txt { flex: 1; }
     .ck-renovar-txt b {
       display: block;
@@ -1521,38 +1521,6 @@
       color: var(--tinta-suave);
       line-height: 1.5;
     }
-
-    /* Interruptor sí / no */
-    .ck-switch { position: relative; flex-shrink: 0; cursor: pointer; }
-    .ck-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
-    .ck-switch-pista {
-      display: flex;
-      align-items: center;
-      width: 62px; height: 30px;
-      border-radius: 30px;
-      background: var(--separador-2);
-      transition: background .2s;
-      position: relative;
-    }
-    .ck-switch-bola {
-      position: absolute;
-      left: 3px;
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: #fff;
-      box-shadow: 0 1px 4px rgba(20,22,26,.28);
-      transition: left .2s;
-      display: grid;
-      place-items: center;
-      font-size: .5rem;
-      font-weight: 900;
-      color: var(--tinta-suave);
-    }
-    .ck-switch-bola::after { content: 'NO'; }
-    .ck-switch input:checked + .ck-switch-pista { background: var(--marca); }
-    .ck-switch input:checked + .ck-switch-pista .ck-switch-bola { left: 35px; color: var(--marca); }
-    .ck-switch input:checked + .ck-switch-pista .ck-switch-bola::after { content: 'SÍ'; }
-    .ck-switch input:focus-visible + .ck-switch-pista { outline: 2px solid var(--marca); outline-offset: 2px; }
 
     /* ---------- Términos ---------- */
     /* La caja late en rojo hasta que el cliente tilda la casilla,

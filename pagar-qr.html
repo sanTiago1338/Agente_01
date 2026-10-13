@@ -1467,7 +1467,14 @@
       }
       if (errorEl) errorEl.style.display = 'none';
       buildWhatsappUrl();
-      window.location.href = window._waUrl || 'https://wa.me/59157707335';
+      const irAlChat = () => { window.location.href = window._waUrl || 'https://wa.me/59157707335'; };
+      // Que el correo quede en el pedido antes de salir de la página (ver
+      // guardarCorreo, abajo). Si la base tarda, no se espera más de 1,2 s.
+      if (s.needsEmail && typeof window.guardarCorreoYa === 'function') {
+        Promise.race([window.guardarCorreoYa(), new Promise(r => setTimeout(r, 1200))]).finally(irAlChat);
+      } else {
+        irAlChat();
+      }
     }
 
     function showError(msg) {
@@ -1882,8 +1889,42 @@
   // -----------------------------------------------------------
   // Arranque
   // -----------------------------------------------------------
+  // El correo, en el pedido. Los productos "a correo de cliente" se
+  // activan sobre su cuenta, y el pedido se arma antes de que lo escriba:
+  // se guarda apenas es válido (y otra vez al tocar "Ya pagué"), así en el
+  // panel aparece en "Para atender" (supabase/28-correo-del-cliente.sql).
+  const CORREO_OK = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  let correoGuardado = '';
+  let esperaCorreo = null;
+  function guardarCorreo() {
+    clearTimeout(esperaCorreo);
+    const campo = $('customerEmail');
+    const correo = ((campo && campo.value) || '').trim().toLowerCase();
+    if (!tokenActual || !CORREO_OK.test(correo) || correo === correoGuardado) return Promise.resolve();
+    return sb.rpc('guardar_correo_compra', { p_token: tokenActual, p_email: correo })
+      .then(({ error }) => {
+        if (error) { console.warn('No se pudo guardar el correo en el pedido:', error.message); return; }
+        correoGuardado = correo;
+      })
+      .catch(e => console.warn('No se pudo guardar el correo en el pedido:', e.message));
+  }
+  // irAWhatsApp() (el otro script) lo llama antes de ir al chat
+  window.guardarCorreoYa = guardarCorreo;
+  {
+    const campo = $('customerEmail');
+    if (campo) {
+      campo.addEventListener('input', () => {
+        clearTimeout(esperaCorreo);
+        esperaCorreo = setTimeout(guardarCorreo, 900);
+      });
+      campo.addEventListener('change', guardarCorreo);
+    }
+  }
+
   function engancharCompra(token, compra) {
     tokenActual = token;
+    // Si ya lo había escrito (o lo completó el navegador), se guarda ahora
+    guardarCorreo();
     window._pedidoLink   = location.origin + location.pathname + '#t=' + token;
     // Una compra hecha en modo prueba (js/modo-prueba.js) lo dice al lado
     // del número, también en el mensaje de WhatsApp

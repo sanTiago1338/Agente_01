@@ -1366,6 +1366,8 @@ function escucharCatalogo() {
       llenarFiltroCategorias();
       contarParaRevisar();
       render();
+      // Ventas lo usa para saber qué productos son "a correo de cliente"
+      document.dispatchEvent(new CustomEvent('catalogo-cambiado'));
     },
     error => {
       cargado = true;

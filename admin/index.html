@@ -18,13 +18,13 @@
      (css/vidrio.css) y, al final del archivo, las burbujas que suben.
      Después, el estilo del panel (css/panel.css): menú, barra y tarjetas
      translúcidos encima de ese fondo. Va último para ganarle a vidrio.css. -->
-<link rel="stylesheet" href="../css/vidrio.css?v=20261013165401">
-<script src="../js/barra-vidrio.js?v=20261013165401" defer></script>
+<link rel="stylesheet" href="../css/vidrio.css?v=20261013165732">
+<script src="../js/barra-vidrio.js?v=20261013165732" defer></script>
 <!-- Transparente o teñido, el mismo control de la tienda (js/tenido.js):
      sin defer, así el vidrio ya sale como lo dejaste desde el primer
      cuadro. Lo elegido en la tienda vale también acá. -->
-<script src="../js/tenido.js?v=20261013165401"></script>
-<link rel="stylesheet" href="css/panel.css?v=20261013165401">
+<script src="../js/tenido.js?v=20261013165732"></script>
+<link rel="stylesheet" href="css/panel.css?v=20261013165732">
 </head>
 <body>
 
@@ -881,34 +881,34 @@ document.addEventListener('keydown', e => {
 </script>
 
 <!-- Inicio: el resumen de ventas, pendientes y stock -->
-<script type="module" src="js/admin-inicio.js?v=20261013165401"></script>
+<script type="module" src="js/admin-inicio.js?v=20261013165732"></script>
 
 <!-- CRUD de productos: se trae su propia interfaz (modales + estilos) -->
-<script type="module" src="js/admin-productos.js?v=20261013165401"></script>
+<script type="module" src="js/admin-productos.js?v=20261013165732"></script>
 
 <!-- Subida de imágenes: se engancha al editor de arriba, va después -->
-<script type="module" src="js/admin-imagenes.js?v=20261013165401"></script>
+<script type="module" src="js/admin-imagenes.js?v=20261013165732"></script>
 
 <!-- Administración de juegos de recarga: construye la vista Juegos -->
-<script type="module" src="js/admin-juegos.js?v=20261013165401"></script>
+<script type="module" src="js/admin-juegos.js?v=20261013165732"></script>
 
 <!-- Ventas y stock: construyen las vistas Ventas y Stock.
      Le hablan a Supabase directo, sin pasar por el puente
      js/panel-datos.js que usan Productos y Juegos. -->
-<script type="module" src="js/admin-ventas.js?v=20261013165401"></script>
-<script type="module" src="js/admin-stock.js?v=20261013165401"></script>
+<script type="module" src="js/admin-ventas.js?v=20261013165732"></script>
+<script type="module" src="js/admin-stock.js?v=20261013165732"></script>
 
 <!-- Clientes: registrados y compradores, por WhatsApp -->
-<script type="module" src="js/admin-clientes.js?v=20261013165401"></script>
+<script type="module" src="js/admin-clientes.js?v=20261013165732"></script>
 
 <!-- Ajustes: Telegram y la cuenta -->
-<script type="module" src="js/admin-ajustes.js?v=20261013165401"></script>
+<script type="module" src="js/admin-ajustes.js?v=20261013165732"></script>
 
 <!-- "Probar la tienda": le pone la clave del modo prueba a esos enlaces
      (va después de Ajustes, que también tiene uno) -->
-<script type="module" src="js/admin-prueba.js?v=20261013165401"></script>
+<script type="module" src="js/admin-prueba.js?v=20261013165732"></script>
 
 <!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
-<script src="../bg-burbujas.js?v=20261013165401" defer></script>
+<script src="../bg-burbujas.js?v=20261013165732" defer></script>
 </body>
 </html>

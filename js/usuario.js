@@ -84,6 +84,15 @@
     try {
       var d = JSON.parse(leerLocal(LLAVE) || 'null');
       if (d && typeof d.usuario === 'string' && /^[67]\d{7}$/.test(d.whatsapp)) return d;
+      // Registrado con la versión anterior de este archivo (13/10/2026,
+      // { nombre, wa }): se pasa a la de ahora y se sube a la base, así no
+      // se le vuelve a pedir
+      if (d && typeof d.nombre === 'string' && /^[67]\d{7}$/.test(d.wa) && usuarioValido(d.nombre)) {
+        var nuevo = { usuario: limpiarUsuario(d.nombre), whatsapp: d.wa, subido: false,
+                      desde: d.en || new Date().toISOString() };
+        guardar(nuevo);
+        return nuevo;
+      }
     } catch (e) { /* algo roto: como si no hubiera nada */ }
     return null;
   }
@@ -477,7 +486,8 @@
   // Pagar), ni si ya hay otra ventana abierta (un producto, el carrito).
   function quizasPedir() {
     if (!conVentana || leer()) return;
-    try { if (sessionStorage.getItem(LLAVE_NO)) return; } catch (e) { /* sigue */ }
+    // También el "Ahora no" de la versión anterior de este archivo
+    try { if (sessionStorage.getItem(LLAVE_NO) || sessionStorage.getItem('tiago-usuario-despues')) return; } catch (e) { /* sigue */ }
     if (/^#(renovar|prueba|t)=/.test(location.hash)) return;
 
     setTimeout(function () {

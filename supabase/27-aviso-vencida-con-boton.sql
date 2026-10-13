@@ -1,7 +1,7 @@
 -- ============================================================
 -- TIAGO STORE · 27 · AVISO DE VENCIMIENTO CON BOTÓN DE WHATSAPP
 -- ============================================================
--- Correr en Supabase → SQL Editor, DESPUÉS del 26 (usa wa_normal() y la
+-- Aplicado con la migración: aviso_vencida_con_boton (13/10/2026). Va DESPUÉS del 26 (usa wa_normal() y la
 -- tabla clientes). Se puede correr de nuevo.
 --
 -- Todos los días a las 9:00 de Bolivia (el reloj "avisar-renovaciones",

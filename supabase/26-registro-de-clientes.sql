@@ -1,7 +1,7 @@
 -- ============================================================
 -- TIAGO STORE · 26 · REGISTRO DE CLIENTES
 -- ============================================================
--- Correr en Supabase → SQL Editor, después del 25 y antes del 27 (el 27
+-- Aplicado con la migración: registro_de_clientes (13/10/2026), antes del 27 (el 27
 -- usa wa_normal() y la tabla clientes). Se puede correr de nuevo.
 --
 -- EL PROBLEMA

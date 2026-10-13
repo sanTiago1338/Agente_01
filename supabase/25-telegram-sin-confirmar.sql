@@ -1,7 +1,7 @@
 -- ============================================================
 -- TIAGO STORE · 25 · TELEGRAM SIN CONFIRMAR PAGOS
 -- ============================================================
--- Correr en Supabase → SQL Editor, antes del 26 y el 27. Se puede correr
+-- Aplicado con la migración: telegram_sin_confirmar (13/10/2026). Se puede correr
 -- de nuevo sin romper nada (no cambia el interruptor si ya lo tocaste).
 --
 -- EL PROBLEMA

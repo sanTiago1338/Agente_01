@@ -1,7 +1,7 @@
 -- ============================================================
 -- TIAGO STORE · 28 · EL CORREO DEL CLIENTE ("A CORREO DE CLIENTE")
 -- ============================================================
--- Correr en Supabase → SQL Editor, después del 27. Se puede correr de
+-- Aplicado con la migración: correo_del_cliente (13/10/2026), después del 27. Se puede correr de
 -- nuevo sin romper nada.
 --
 -- EL PROBLEMA

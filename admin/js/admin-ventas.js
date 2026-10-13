@@ -356,18 +356,17 @@ css.textContent = `
   .vt-f-correo b { font-weight: 700; overflow-wrap: anywhere; }
   .vt-f-correo .vt-mini { padding: 3px 10px; background: rgba(255,255,255,.8); }
   .vt-f-correo.falta { background: rgba(217,119,6,.11); color: #92400e; font-weight: 600; }
+  /* En "Ver", adentro de la tarjeta, como un renglón más del cliente */
   .vt-correo {
-    grid-column: 1 / -1;
-    display: grid; gap: 8px;
-    padding: 10px 12px; border-radius: 10px;
-    background: rgba(29,78,216,.06); border: 1px solid rgba(29,78,216,.14);
+    display: flex; align-items: center; gap: 6px 10px; flex-wrap: wrap;
+    margin-top: 7px; padding: 6px 10px; border-radius: 8px;
+    background: rgba(29,78,216,.07); color: #1e3a8a;
+    font-size: 12.5px;
   }
-  .vt-correo-tit { font-size: 12.5px; font-weight: 700; color: #1e3a8a; }
-  .vt-correo.falta { background: rgba(217,119,6,.08); border-color: rgba(217,119,6,.28); }
-  .vt-correo.falta .vt-correo-tit { color: #92400e; }
-  .vt-correo.falta span { font-size: 12.5px; color: #92400e; }
-  .vt-correo.falta .vt-mini { justify-self: start; text-decoration: none; background: rgba(255,255,255,.8); }
-  .vt-correo .vt-copiable code { font-size: 13.5px; background: rgba(255,255,255,.85); }
+  .vt-correo b { font-weight: 700; overflow-wrap: anywhere; }
+  .vt-correo .vt-mini { padding: 3px 10px; text-decoration: none; background: rgba(255,255,255,.8); }
+  .vt-correo.falta { background: rgba(217,119,6,.11); color: #92400e; font-weight: 600; }
+  .vt-correo.falta .vt-mini { color: #92400e; border-color: rgba(146,64,14,.3); }
 
   /* De qué producto es cada cuenta, cuando la compra tiene varias */
   .vt-cred-de { font-family: inherit; font-weight: 700; color: var(--tinta); }
@@ -1209,17 +1208,15 @@ function filaCorreo(c) {
     : `<div class="vt-f-correo falta">A correo del cliente: todavía no dejó su correo</div>`;
 }
 
-// En "Ver": el correo para copiar, o el enlace para pedírselo por WhatsApp
+// En "Ver", adentro de la tarjeta, debajo del cliente: el correo para
+// copiar, o que falta con el enlace para pedírselo por WhatsApp
 function cajaCorreo(c, wa) {
   const correo = correoDe(c);
   if (correo) {
     return `
       <div class="vt-correo">
-        <div class="vt-correo-tit">Se activa a correo del cliente</div>
-        <div class="vt-copiable">
-          <code>${escapar(correo)}</code>
-          <button class="btn btn-fantasma" data-copiar-correo="${escapar(correo)}">Copiar</button>
-        </div>
+        <span>A correo del cliente: <b>${escapar(correo)}</b></span>
+        <button class="vt-mini" data-copiar-correo="${escapar(correo)}">Copiar</button>
       </div>`;
   }
   // Ya entregada o cancelada: no hay nada que pedirle
@@ -1231,11 +1228,11 @@ function cajaCorreo(c, wa) {
                   `${numerosDeCompra(c.lineas)} (${que}). ¿A qué correo te activamos el servicio?`;
   return `
     <div class="vt-correo falta">
-      <div class="vt-correo-tit">Se activa a correo del cliente, y todavía no dejó su correo.</div>
+      <span>A correo del cliente: todavía no dejó su correo</span>
       ${wa
         ? `<a class="vt-mini" href="https://wa.me/${numeroWa(wa)}?text=${encodeURIComponent(mensaje)}"
               target="_blank" rel="noopener">Pedírselo por WhatsApp</a>`
-        : `<span>No dejó WhatsApp: llega con el mensaje del comprobante.</span>`}
+        : `<span>(no dejó WhatsApp: llega con el comprobante)</span>`}
     </div>`;
 }
 
@@ -1619,9 +1616,11 @@ function pintarCompra(c) {
         <div class="vt-cliente">
           ${escapar(p.cliente_nombre || 'Sin nombre')}
           ${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp ${escapar(p.cliente_whatsapp)}</a>` : ''}
-          ${p.cliente_email ? ` · ${escapar(p.cliente_email)}` : ''}
+          ${p.cliente_email && !pideCorreo(c) ? ` · ${escapar(p.cliente_email)}` : ''}
           ${comprobante ? ` · comprobante ${escapar(comprobante)}` : ''}
         </div>
+        <!-- "A correo de cliente": el correo adentro, junto a quién es -->
+        ${pideCorreo(c) ? cajaCorreo(c, wa) : ''}
       </div>
 
       <div class="vt-der">
@@ -1638,7 +1637,6 @@ function pintarCompra(c) {
           ? ' Si nadie la paga, se cancela sola a las 2 horas. Si la confirmás, se entrega una cuenta de verdad del stock.' : ''}</div>`
         : filaRecordatorio(c)}
       ${n > 1 || c.descuento > 0 ? detalleCompra(c, { porEstado: mixto }) : ''}
-      ${pideCorreo(c) ? cajaCorreo(c, wa) : ''}
       ${stock}
       ${cuentas}
 

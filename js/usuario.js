@@ -227,7 +227,10 @@
     '.tu-caja input::placeholder{color:var(--tinta-tenue,#656b77)}',
     '.tu-caja input:focus,.tu-tel:focus-within{outline:none;border-color:rgba(229,9,20,.4);background:rgba(255,255,255,.72);',
     '  box-shadow:0 0 0 4px rgba(229,9,20,.10),inset 0 1px 2px rgba(20,22,26,.06)}',
-    '.tu-caja input.mal,.tu-tel:has(input.mal){border-color:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.12)}',
+    /* Separadas: un navegador que no entiende :has() descartaría la regla
+       entera, también el rojo del campo Usuario */
+    '.tu-caja input.mal{border-color:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.12)}',
+    '.tu-tel:has(input.mal){border-color:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.12)}',
     '.tu-tel{display:flex;align-items:center;overflow:hidden}',
     '.tu-tel span{flex:none;align-self:stretch;display:grid;place-items:center;padding:0 .8rem;',
     '  border-right:1px solid rgba(20,22,26,.1);background:rgba(255,255,255,.3);',

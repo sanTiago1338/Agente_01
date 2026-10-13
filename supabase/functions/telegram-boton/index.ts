@@ -24,6 +24,14 @@
 // Cancelar no regala nada (y si ya pago, la base no lo cancela): por eso
 // esos van de una, sin la pregunta del medio.
 //
+// APAGADO (25-telegram-sin-confirmar.sql, 13/10/2026)
+//   Confirmar desde Telegram (c, p, s, n, o, w) se prende y se apaga en
+//   Panel → Ajustes → Telegram (ajustes.telegram_confirmar). Apagado, un
+//   toque en un aviso viejo no confirma nada: lo dice al pie y saca los
+//   botones. La base hace el mismo control, así que aunque esta función
+//   no se vuelva a publicar, tampoco confirma. Los de la mañana (x, u, d)
+//   siguen andando siempre.
+//
 // QUIEN PUEDE
 //   1. Telegram manda en cada toque la clave de
 //      ajustes.telegram_webhook_secreto (cabecera
@@ -59,18 +67,19 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // que habia despues de esto, en vez de ir sumando renglones.
 const SEPARADOR = "\n\nResultado: ";
 
-type Ajustes = { token: string; chat: string; secreto: string };
+type Ajustes = { token: string; chat: string; secreto: string; confirmar: boolean };
 
 // Se leen en cada toque: si cambias el bot o la clave, vale al instante.
 async function leerAjustes(): Promise<Ajustes | null> {
   try {
     const r = await fetch(
-      `${SUPABASE_URL}/rest/v1/ajustes?clave=in.(telegram_token,telegram_chat,telegram_webhook_secreto)&select=clave,valor`,
+      `${SUPABASE_URL}/rest/v1/ajustes?clave=in.(telegram_token,telegram_chat,telegram_webhook_secreto,telegram_confirmar)&select=clave,valor`,
       { headers: CABECERAS_BASE });
     if (!r.ok) return null;
     const filas: { clave: string; valor: string | null }[] = await r.json();
     const de = (clave: string) => (filas.find(f => f.clave === clave)?.valor ?? "").trim();
-    const a = { token: de("telegram_token"), chat: de("telegram_chat"), secreto: de("telegram_webhook_secreto") };
+    const a = { token: de("telegram_token"), chat: de("telegram_chat"), secreto: de("telegram_webhook_secreto"),
+                confirmar: de("telegram_confirmar") === "si" };
     return a.token && a.chat && a.secreto ? a : null;
   } catch {
     return null;
@@ -216,6 +225,14 @@ Deno.serve(async (req: Request) => {
   };
 
   // ---------- 6. Lo que se toco ----------
+  // Confirmar apagado: los botones de confirmar de un aviso viejo no
+  // hacen nada, y se sacan para que no queden ahí
+  if (!conf.confirmar && "cpsnow".includes(letra) && letra.length === 1) {
+    await alPie({ texto: "Confirmar desde Telegram está apagado: confirmalo desde el panel. No se tocó nada." });
+    await responder("Apagado: confirmalo desde el panel.");
+    return json({ ok: true }, 200);
+  }
+
   switch (letra) {
     case "c":
     case "p":

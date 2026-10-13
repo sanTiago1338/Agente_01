@@ -16,12 +16,19 @@
 
 <style>
   /* ============================================================
-     PANEL PROFESIONAL (13/10/2026)
+     PANEL PROFESIONAL · PANELES FLOTANTES (13/10/2026)
      ============================================================
-     Fondo gris muy claro, tarjetas blancas con borde fino, menú
-     lateral oscuro y una sola tipografía (Inter), como los paneles de
-     administración de siempre. Sin vidrio ni burbujas: acá se trabaja
-     leyendo números, y todo tiene que leerse de un vistazo.
+     El menú, la barra de arriba y las tarjetas son vidrio esmerilado
+     que flota sobre el fondo, separado 12 px de los bordes: el fondo se
+     ve alrededor y a través de todo. Una sola tipografía (Inter), bordes
+     finos y el rojo solo para marcar: acá se trabaja leyendo números, y
+     todo tiene que leerse de un vistazo.
+
+     EL FONDO ES EL DE SIEMPRE, y no se toca: el de la tienda
+     (css/vidrio.css: el gris clarito con las manchas de color) y las
+     burbujas de vidrio que suben (bg-burbujas.js, al final). Pedido del
+     dueño, 13/10/2026. Por eso nada de lo de acá lleva fondo opaco en
+     html, body, #app ni .contenido.
 
      Los nombres viejos (--negro, --panel, --texto…) quedan abajo como
      alias: los usan los módulos de cada vista y siguen funcionando sin
@@ -31,7 +38,7 @@
     --fuente: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
     /* Superficies */
-    --fondo:        #f4f5f7;   /* fondo de la página */
+    --fondo:        #f7f8fa;   /* el de css/vidrio.css, que es el que manda */
     --superficie:   #ffffff;   /* tarjetas y paneles */
     --superficie-2: #f8f9fb;   /* cabeceras de tabla, campos, filas */
     --superficie-3: #eef0f3;   /* botones de icono, etiquetas */
@@ -48,6 +55,9 @@
     --marca:        #e50914;
     --marca-oscura: #b8070f;
     --marca-suave:  rgba(229,9,20,.08);
+    /* El rojo de la letra chica ("Ir a Stock", "Ver todos"): el de la
+       marca, sobre vidrio y con una mancha detrás, quedaba justo en 4,5:1 */
+    --marca-texto:  #c4070f;
     --oro:          #9a7400;
 
     /* Estados */
@@ -56,17 +66,37 @@
     --error:    #dc2626;
     --info:     #1d4ed8;
 
-    /* Menú lateral */
-    --lat-fondo:  #0d1016;
-    --lat-borde:  rgba(255,255,255,.07);
-    --lat-texto:  #a9afba;
-    --lat-titulo: #626a77;
-    --lat-hover:  rgba(255,255,255,.06);
-    --lat-activo: rgba(255,255,255,.09);
+    /* Vidrio de los paneles. Blanco de sobra para que la letra se lea
+       igual sobre cualquier mancha o burbuja (AA) y esmerilado para que
+       lo de atrás quede en color, sin formas que distraigan. Los nombres
+       no empiezan con --vidrio: esos son de css/vidrio.css. */
+    --cristal:          rgba(255,255,255,.74);  /* menú y barra de arriba */
+    --cristal-denso:    rgba(255,255,255,.88);  /* cajón y barra de abajo: van encima del contenido */
+    --cristal-tarjeta:  rgba(255,255,255,.78);  /* tarjetas y tablas */
+    --cristal-campo:    rgba(255,255,255,.86);  /* buscador, selects y botones claros */
+    --cristal-tinte:    rgba(15,23,42,.03);     /* cabeceras de tabla, pies de tarjeta */
+    /* 10 px: con más, Chrome sin placa de video (y algunos celulares)
+       directamente no esmerila y lo de atrás se ve nítido */
+    --cristal-blur:     blur(10px) saturate(165%);
+    --cristal-blur-suave: blur(8px) saturate(150%);
+    --cristal-linea:    rgba(15,23,42,.09);     /* el borde fino, igual sobre cualquier color */
+    --cristal-linea-2:  rgba(15,23,42,.14);     /* el de campos y botones */
+    --cristal-raya:     rgba(15,23,42,.065);    /* separadores de adentro */
+    --cristal-canto:    inset 0 1px 0 rgba(255,255,255,.85);  /* el brillo de arriba */
+    --flotar:           0 1px 2px rgba(16,24,40,.04), 0 12px 32px -14px rgba(16,24,40,.16);
+    --aire:             12px;   /* lo que separa los paneles del borde y entre sí */
 
-    --radio:       12px;
-    --radio-chico: 8px;
-    --sombra:      0 1px 2px rgba(16,24,40,.05);
+    /* Menú lateral: vidrio claro, como la barra de arriba */
+    --lat-fondo:  var(--cristal);
+    --lat-borde:  var(--cristal-linea);
+    --lat-texto:  #3d4450;
+    --lat-titulo: #636975;
+    --lat-hover:  rgba(15,23,42,.045);
+    --lat-activo: rgba(255,255,255,.95);
+
+    --radio:       14px;
+    --radio-chico: 9px;
+    --sombra:      0 1px 2px rgba(16,24,40,.04), 0 4px 14px -8px rgba(16,24,40,.10);
     --sombra-alta: 0 12px 28px -6px rgba(16,24,40,.14), 0 4px 10px -4px rgba(16,24,40,.08);
     --anillo:      0 0 0 3px rgba(229,9,20,.14);
 
@@ -83,6 +113,29 @@
     --texto:    var(--tinta-media);
     --gris:     var(--tinta-suave);
     --gris-dim: var(--tinta-tenue);
+  }
+  /* Menos transparencia (lo pide el sistema) o un navegador que no sabe
+     esmerilar: el vidrio pasa a casi blanco, así lo de atrás nunca se
+     mete en la letra. Los paneles siguen flotando sobre el fondo. */
+  /* En una pantalla ancha, un poco más de aire alrededor de los paneles */
+  @media (min-width: 1280px) { :root { --aire: 16px; } }
+  @media (prefers-reduced-transparency: reduce) {
+    :root {
+      --cristal:         rgba(255,255,255,.96);
+      --cristal-denso:   #fff;
+      --cristal-tarjeta: #fff;
+      --cristal-campo:   #fff;
+      --cristal-blur:      none;
+      --cristal-blur-suave: none;
+    }
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    :root {
+      --cristal:         rgba(255,255,255,.94);
+      --cristal-denso:   rgba(255,255,255,.98);
+      --cristal-tarjeta: rgba(255,255,255,.95);
+      --cristal-campo:   rgba(255,255,255,.97);
+    }
   }
 
   * { box-sizing: border-box; }
@@ -104,10 +157,11 @@
   :focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
 
   /* ================= PANTALLA DE CARGA ================= */
+  /* Sin fondo propio: mientras carga ya se ve el fondo de siempre */
   #verificando {
     position: fixed;
     inset: 0;
-    background: var(--fondo);
+    background: transparent;
     display: grid;
     place-items: center;
     z-index: 100;
@@ -126,14 +180,16 @@
   @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.5s; } }
 
   /* ================= ESTRUCTURA =================
-     Compu (1024 px o más): menú oscuro fijo a la izquierda y el
-     contenido al lado.
-     Celular y tablet: barra arriba con el botón ☰ (abre el mismo menú
-     como cajón) y abajo una barra con las vistas de todos los días.
+     Compu (1024 px o más): el menú flota a la izquierda y la barra de
+     arriba flota sobre el contenido, las dos a 12 px de los bordes y
+     fijas al deslizar.
+     Celular y tablet: barra flotante arriba con el botón ☰ (abre el
+     mismo menú como cajón, también flotante) y abajo una píldora con
+     las vistas de todos los días.
 
      Cada vista tiene su botón [data-vista] en los menús; el script de
      abajo los marca a la par, así da igual cuál se toque. */
-  .contenido { min-width: 0; padding-bottom: 76px; }   /* aire para la barra de abajo */
+  .contenido { min-width: 0; padding-bottom: 96px; }   /* aire para la píldora de abajo */
 
   /* Íconos dibujados (trazos, no emojis): heredan el color del texto */
   .ico {
@@ -142,24 +198,47 @@
     stroke-linecap: round; stroke-linejoin: round;
   }
 
-  /* ---- Barra de arriba ---- */
+  /* ---- Barra de arriba: un panel de vidrio que flota ----
+     Queda fija a 10-12 px del borde de arriba; lo que pasa por debajo
+     al deslizar se esmerila y la letra de la barra se sigue leyendo. */
   .barra {
     position: sticky;
-    top: 0;
+    top: 10px;
     z-index: 30;
     display: flex;
     align-items: center;
     gap: 10px;
-    min-height: 60px;
-    padding: 10px 14px;
-    background: rgba(255,255,255,.94);
-    -webkit-backdrop-filter: saturate(180%) blur(10px);
-    backdrop-filter: saturate(180%) blur(10px);
-    border-bottom: 1px solid var(--separador);
+    min-height: 56px;
+    margin: 10px 10px 0;
+    padding: 8px 10px;
+    background: var(--cristal);
+    -webkit-backdrop-filter: var(--cristal-blur);
+    backdrop-filter: var(--cristal-blur);
+    border: 1px solid var(--cristal-linea);
+    border-radius: 16px;
+    box-shadow: var(--cristal-canto), var(--flotar);
+  }
+  /* El aire de arriba de la barra: al deslizar, las filas pasaban nítidas
+     por ahí. Esta franja (fija arriba, justo en ese aire) las esmerila; sin
+     borde ni blanco de más, así el fondo sigue viéndose en color. Va en
+     .contenido y no en la barra: un esmerilado dentro de otro no esmerila. */
+  .contenido::before {
+    content: '';
+    position: sticky;
+    top: 0;
+    z-index: 29;
+    display: block;
+    height: 10px;
+    margin-bottom: -10px;
+    background: rgba(247,248,250,.45);
+    -webkit-backdrop-filter: var(--cristal-blur);
+    backdrop-filter: var(--cristal-blur);
+    pointer-events: none;
   }
   .barra-menu { display: inline-grid; }
-  /* En el celular, solo el nombre de la vista; en la compu, con las
-     migas y la bajada */
+  /* En el celular, solo el nombre de la vista; en la compu, con la
+     bajada. Las migas ("Panel > Inicio") repetían el título de abajo:
+     quedan en el HTML pero no se muestran. */
   .barra-titulo { min-width: 0; }
   .barra-titulo .barra-migas, .barra-titulo p { display: none; }
   .barra-migas {
@@ -170,21 +249,26 @@
   .barra-migas svg { width: 12px; height: 12px; }
   .barra-titulo h2 {
     margin: 0;
-    font-size: clamp(17px, 4.6vw, 20px);
-    font-weight: 700;
+    font-size: clamp(17px, 4.6vw, 19px);
+    font-weight: 600;
     letter-spacing: -.02em;
     color: var(--tinta);
     line-height: 1.2;
   }
-  .barra-titulo p { margin: 1px 0 0; font-size: 13px; color: var(--tinta-suave); }
+  .barra-titulo p { margin: 2px 0 0; font-size: 12.5px; color: var(--tinta-suave); }
   .barra-acciones { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  /* En bloque (no flex): ::first-letter solo anda en bloques, y es lo
+     que pone "Martes" con mayúscula */
   .barra-fecha {
     display: none;
-    padding: 7px 11px;
-    border: 1px solid var(--separador);
+    height: 36px;
+    padding: 0 12px;
+    line-height: 34px;
+    border: 1px solid var(--cristal-linea);
     border-radius: 999px;
-    background: var(--superficie);
+    background: rgba(255,255,255,.55);
     font-size: 12.5px; font-weight: 500; color: var(--tinta-suave);
+    font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
   .barra-fecha::first-letter { text-transform: uppercase; }
@@ -192,17 +276,17 @@
 
   .icono-btn {
     position: relative;
-    width: 38px; height: 38px;
+    width: 36px; height: 36px;
     display: inline-grid; place-items: center;
-    border: 1px solid var(--separador);
+    border: 1px solid var(--cristal-linea);
     border-radius: 10px;
-    background: var(--superficie);
+    background: rgba(255,255,255,.6);
     color: var(--tinta-media);
     cursor: pointer;
     text-decoration: none;
     transition: background .15s, color .15s, border-color .15s;
   }
-  .icono-btn:hover { color: var(--tinta); background: var(--superficie-2); border-color: var(--separador-2); }
+  .icono-btn:hover { color: var(--tinta); background: #fff; border-color: var(--cristal-linea-2); }
   .icono-btn .contador {
     position: absolute; top: -6px; right: -6px;
     min-width: 18px; height: 18px; padding: 0 5px;
@@ -219,19 +303,27 @@
     text-transform: uppercase;
   }
 
-  /* ---- Barra de abajo (celular) ---- */
+  /* ---- Barra de abajo (celular): una píldora que flota ----
+     Separada de los bordes y por encima de la raya del iPhone, con el
+     fondo a la vista alrededor. La pestaña elegida lleva un tinte rojo
+     suave; la letra va en el rojo oscuro, que sobre ese tinte se lee. */
   .menu-movil {
     position: fixed;
-    left: 0; right: 0; bottom: 0;
+    left: 10px; right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
     z-index: 40;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
-    background: rgba(255,255,255,.97);
-    -webkit-backdrop-filter: saturate(180%) blur(10px);
-    backdrop-filter: saturate(180%) blur(10px);
-    border-top: 1px solid var(--separador);
-    box-shadow: 0 -4px 16px rgba(16,24,40,.05);
+    gap: 2px;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 5px;
+    background: var(--cristal-denso);
+    -webkit-backdrop-filter: var(--cristal-blur);
+    backdrop-filter: var(--cristal-blur);
+    border: 1px solid var(--cristal-linea);
+    border-radius: 22px;
+    box-shadow: var(--cristal-canto), 0 12px 32px -10px rgba(16,24,40,.24), 0 2px 6px rgba(16,24,40,.06);
   }
   .menu-movil .vista-tab, .menu-movil .mas-tab {
     position: relative;
@@ -241,18 +333,15 @@
     gap: 3px;
     padding: 7px 2px 6px;
     border: none;
-    border-radius: 10px;
+    border-radius: 17px;
     background: none;
     font: 600 11px var(--fuente);
     color: var(--tinta-suave);
     cursor: pointer;
+    transition: background .15s, color .15s;
   }
-  .menu-movil .vista-tab.activa { color: var(--rojo); }
-  .menu-movil .vista-tab.activa .ico { stroke-width: 2.3; }
-  .menu-movil .vista-tab.activa::before {
-    content: ''; position: absolute; top: -4px; left: 30%; right: 30%;
-    height: 3px; border-radius: 0 0 3px 3px; background: var(--rojo);
-  }
+  .menu-movil .vista-tab.activa { color: var(--marca-oscura); background: rgba(229,9,20,.08); }
+  .menu-movil .vista-tab.activa .ico { color: var(--marca); stroke-width: 2.2; }
 
   /* ---- Contadores rojos del menú ----
      Ventas: pedidos por atender. Stock: productos a los que se les acaba.
@@ -273,37 +362,47 @@
   .lateral .contador { margin-left: auto; }
   .menu-movil .contador {
     position: absolute;
-    top: 1px; left: calc(50% + 5px);
+    top: 2px; left: calc(50% + 5px);
     min-width: 18px; height: 18px;
     padding: 0 5px;
     font-size: 10px; line-height: 18px;
     box-shadow: 0 0 0 2px #fff;
   }
 
-  /* ---- Menú lateral: oscuro. En la compu fijo; en el celular, cajón ---- */
+  /* ---- Menú lateral: vidrio claro que flota ----
+     En la compu, fijo a la izquierda y separado de los bordes; en el
+     celular, el mismo panel entra de costado como cajón. Escondido se
+     corre un poco más que su ancho, así no asoma ni el borde ni la
+     sombra. */
   .lateral {
     position: fixed;
-    top: 0; bottom: 0; left: 0;
+    top: 10px; bottom: 10px; left: 10px;
     z-index: 60;
-    width: min(272px, 86vw);
+    width: min(272px, calc(100vw - 56px));
     display: flex;
     flex-direction: column;
     gap: 1px;
-    padding: 18px 12px 14px;
+    padding: 16px 10px 10px;
     overflow-y: auto;
-    background: var(--lat-fondo);
-    background-image: radial-gradient(120% 50% at 0% 0%, rgba(229,9,20,.10), transparent 60%);
-    border-right: 1px solid var(--lat-borde);
+    background: var(--cristal-denso);
+    -webkit-backdrop-filter: var(--cristal-blur);
+    backdrop-filter: var(--cristal-blur);
+    border: 1px solid var(--lat-borde);
+    border-radius: 20px;
     color: var(--lat-texto);
-    transform: translateX(-102%);
-    transition: transform .22s ease;
+    transform: translateX(calc(-100% - 24px));
+    transition: transform .24s cubic-bezier(.2,.8,.2,1);
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,.15) transparent;
+    scrollbar-color: rgba(15,23,42,.18) transparent;
   }
-  body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.35); }
+  body.menu-abierto .lateral {
+    transform: none;
+    box-shadow: var(--cristal-canto), 0 24px 60px -12px rgba(16,24,40,.35);
+  }
+  /* El velo apenas oscurece: el fondo se sigue viendo detrás del cajón */
   .velo {
     position: fixed; inset: 0; z-index: 55;
-    background: rgba(9,11,15,.45);
+    background: rgba(15,18,25,.28);
     opacity: 0; pointer-events: none;
     transition: opacity .22s ease;
   }
@@ -313,48 +412,64 @@
   @media (min-width: 1024px) {
     #app:not([hidden]) {
       display: grid;
-      grid-template-columns: 252px minmax(0, 1fr);
+      grid-template-columns: calc(248px + var(--aire)) minmax(0, 1fr);
       min-height: 100vh;
     }
     .contenido { padding-bottom: 0; }
     .menu-movil, .velo, .barra-menu, .lateral-cerrar { display: none !important; }
     .lateral {
       position: sticky;
+      top: var(--aire);
       width: auto;
-      height: 100vh;
+      height: calc(100vh - 2 * var(--aire));
+      margin: var(--aire) 0 0 var(--aire);
+      padding: 18px 12px 12px;
+      background: var(--lat-fondo);
+      border-radius: 18px;
       transform: none;
-      box-shadow: none !important;
+      box-shadow: var(--cristal-canto), var(--flotar) !important;
     }
-    .barra { min-height: 72px; padding: 12px 28px; }
+    /* Con el mismo tope que las vistas (1440 px menos el aire): en una
+       pantalla muy ancha la barra termina donde terminan las tarjetas */
+    .barra {
+      top: var(--aire);
+      max-width: calc(1440px - 2 * var(--aire));
+      min-height: 64px;
+      margin: var(--aire) var(--aire) 0;
+      padding: 10px 12px 10px 22px;
+      border-radius: 18px;
+    }
     .barra-fecha { display: block; }
-    .barra-titulo .barra-migas { display: flex; }
     .barra-titulo p { display: block; }
     .barra-tienda { display: inline-flex !important; }
+    .contenido::before { height: var(--aire); margin-bottom: calc(-1 * var(--aire)); }
   }
 
   .marca {
     display: flex;
     align-items: center;
     gap: 11px;
-    padding: 2px 8px 22px;
+    padding: 2px 8px 18px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--cristal-raya);
     text-decoration: none;
   }
   .marca-ico {
-    width: 36px; height: 36px; flex: none;
+    width: 34px; height: 34px; flex: none;
     display: grid; place-items: center;
     border-radius: 10px;
     background: linear-gradient(135deg, #ff1f2b, var(--marca-oscura));
     color: #fff;
-    font: 800 18px/1 var(--fuente);
+    font: 800 17px/1 var(--fuente);
     letter-spacing: -.03em;
-    box-shadow: 0 6px 16px rgba(229,9,20,.35), inset 0 1px 0 rgba(255,255,255,.25);
+    box-shadow: 0 4px 12px -2px rgba(229,9,20,.4), inset 0 1px 0 rgba(255,255,255,.28);
   }
   .marca-txt b {
     display: block;
-    font-size: 15.5px;
-    font-weight: 800;
-    letter-spacing: -.01em;
-    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -.015em;
+    color: var(--tinta);
     line-height: 1.2;
   }
   .marca-txt small {
@@ -369,13 +484,14 @@
     width: 32px; height: 32px;
     display: grid; place-items: center;
     border: 1px solid var(--lat-borde); border-radius: 9px;
-    background: none; color: var(--lat-texto); cursor: pointer;
+    background: rgba(255,255,255,.6); color: var(--lat-texto); cursor: pointer;
   }
+  .lateral-cerrar:hover { background: #fff; color: var(--tinta); }
   .menu-titulo {
     padding: 14px 12px 6px;
     font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: .12em;
+    font-weight: 600;
+    letter-spacing: .1em;
     text-transform: uppercase;
     color: var(--lat-titulo);
   }
@@ -385,31 +501,37 @@
     align-items: center;
     gap: 11px;
     width: 100%;
-    min-height: 40px;
-    padding: 9px 12px;
-    border: none;
-    border-radius: 9px;
+    min-height: 38px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 10px;
     background: none;
     font: 500 14px var(--fuente);
     color: var(--lat-texto);
     text-align: left;
     text-decoration: none;
     cursor: pointer;
-    transition: background .15s, color .15s;
+    transition: background .15s, color .15s, border-color .15s;
   }
-  .lateral .vista-tab .ico, .menu-link .ico { width: 19px; height: 19px; opacity: .85; }
-  .lateral .vista-tab:hover, .menu-link:hover { background: var(--lat-hover); color: #fff; }
+  .lateral .vista-tab .ico, .menu-link .ico { width: 18px; height: 18px; color: #6b7280; }
+  .lateral .vista-tab:hover, .menu-link:hover { background: var(--lat-hover); color: var(--tinta); }
+  .lateral .vista-tab:hover .ico, .menu-link:hover .ico { color: var(--tinta-media); }
+  /* La elegida: una ficha blanca que se despega del vidrio, con el
+     ícono en rojo. Es el único rojo del menú (además de los contadores). */
   .lateral .vista-tab.activa {
     background: var(--lat-activo);
-    color: #fff;
+    border-color: var(--cristal-linea);
+    color: var(--tinta);
     font-weight: 600;
+    box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 2px 8px -4px rgba(16,24,40,.12);
   }
-  .lateral .vista-tab.activa .ico { color: #ff3b45; opacity: 1; }
+  .lateral .vista-tab.activa .ico { color: var(--marca); }
   .lateral .vista-tab.activa::before {
     content: '';
     position: absolute;
-    left: -12px; top: 8px; bottom: 8px;
-    width: 3px;
+    left: 0; top: 50%;
+    width: 3px; height: 16px;
+    margin-top: -8px;
     border-radius: 0 3px 3px 0;
     background: var(--marca);
   }
@@ -420,15 +542,16 @@
     display: flex;
     flex-direction: column;
     gap: 1px;
-    padding-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--cristal-raya);
   }
   .cuenta {
     display: flex; align-items: center; gap: 10px;
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: 8px;
+    padding: 9px 9px 9px 10px;
     border: 1px solid var(--lat-borde);
-    border-radius: 12px;
-    background: rgba(255,255,255,.03);
+    border-radius: 13px;
+    background: rgba(255,255,255,.55);
   }
   .avatar {
     width: 34px; height: 34px; flex: none;
@@ -443,7 +566,7 @@
   .usuario { flex: 1; min-width: 0; line-height: 1.25; }
   .usuario b {
     display: block;
-    font-size: 13px; font-weight: 600; color: #fff;
+    font-size: 13px; font-weight: 600; color: var(--tinta);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .usuario small {
@@ -454,10 +577,10 @@
   .cuenta .icono-btn {
     width: 32px; height: 32px;
     border-color: var(--lat-borde);
-    background: transparent;
+    background: rgba(255,255,255,.7);
     color: var(--lat-texto);
   }
-  .cuenta .icono-btn:hover { background: var(--lat-hover); color: #fff; }
+  .cuenta .icono-btn:hover { background: #fff; color: var(--marca-oscura); }
 
   /* ================= BOTONES ================= */
   .btn {
@@ -480,8 +603,10 @@
   .btn:disabled { opacity: .45; cursor: not-allowed; }
   .btn-rojo   { background: var(--rojo); color: #fff; box-shadow: 0 1px 2px rgba(229,9,20,.25), inset 0 1px 0 rgba(255,255,255,.15); }
   .btn-rojo:hover:not(:disabled) { background: #d00812; filter: none; }
-  .btn-fantasma { background: var(--superficie); color: var(--tinta-media); border-color: var(--separador-2); box-shadow: var(--sombra); }
-  .btn-fantasma:hover:not(:disabled) { color: var(--tinta); background: var(--superficie-2); filter: none; }
+  /* Los botones claros son vidrio casi blanco: se leen igual encima de
+     una tarjeta o directo sobre el fondo */
+  .btn-fantasma { background: var(--cristal-campo); color: var(--tinta-media); border-color: var(--cristal-linea-2); box-shadow: 0 1px 2px rgba(16,24,40,.05); }
+  .btn-fantasma:hover:not(:disabled) { color: var(--tinta); background: #fff; filter: none; }
   .btn-icono {
     padding: 6px 9px;
     background: var(--superficie);
@@ -501,21 +626,23 @@
      las pantallas muy anchas. Juegos, Ventas y Stock traen su propio
      contenedor desde su módulo; con #app adelante esta regla les gana
      sin tocar esos archivos. */
+  /* Los costados, del mismo ancho que el aire de los paneles: las
+     tarjetas arrancan y terminan justo donde la barra de arriba. */
   #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap,
   #app .cl-wrap, #app .aj-wrap {
     max-width: 1440px;
     margin: 0;
-    padding: 24px 28px 48px;
+    padding: 20px var(--aire) 40px;
   }
   @media (max-width: 1023px) {
     #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap,
     #app .cl-wrap, #app .aj-wrap {
-      padding: 14px 12px 24px;
+      padding: 14px 10px 20px;
     }
   }
   /* ================= TARJETAS DE RESUMEN ================= */
-  /* Tarjetas sueltas, iguales a las del Inicio: blancas, con borde fino
-     y una sombra apenas. Las usan las cuatro vistas. */
+  /* Tarjetas sueltas, iguales a las del Inicio: vidrio claro con borde
+     fino y una sombra apenas. Las usan las cuatro vistas. */
   .resumen {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -523,10 +650,12 @@
     margin-bottom: 22px;
   }
   .metrica {
-    background: #fff;
-    border: 1px solid var(--borde);
-    border-radius: 14px;
-    box-shadow: var(--sombra);
+    background: var(--cristal-tarjeta);
+    -webkit-backdrop-filter: var(--cristal-blur);
+    backdrop-filter: var(--cristal-blur);
+    border: 1px solid var(--cristal-linea);
+    border-radius: var(--radio);
+    box-shadow: var(--cristal-canto), var(--sombra);
     padding: 15px 16px;
   }
   .metrica-n {
@@ -577,8 +706,10 @@
     box-shadow: 0 0 0 3px rgba(229,9,20,.13);
   }
   .buscador input::placeholder { color: var(--gris-dim); }
+  /* z-index: el campo es vidrio esmerilado y se pintaría encima */
   .buscador .lupa {
     position: absolute;
+    z-index: 1;
     left: 12px; top: 50%;
     transform: translateY(-50%);
     color: var(--gris-dim);
@@ -587,6 +718,7 @@
   }
   .buscador .limpiar {
     position: absolute;
+    z-index: 1;
     right: 8px; top: 50%;
     transform: translateY(-50%);
     background: none; border: none;
@@ -619,10 +751,12 @@
 
   /* ================= TABLA ================= */
   .tabla-caja {
-    background: #fff;
-    border: 1px solid var(--borde);
-    border-radius: 14px;
-    box-shadow: var(--sombra);
+    background: var(--cristal-tarjeta);
+    -webkit-backdrop-filter: var(--cristal-blur);
+    backdrop-filter: var(--cristal-blur);
+    border: 1px solid var(--cristal-linea);
+    border-radius: var(--radio);
+    box-shadow: var(--cristal-canto), var(--sombra);
     overflow: hidden;
   }
   .tabla-scroll { overflow-x: auto; }
@@ -1015,9 +1149,14 @@
     .fila-esqueleto { padding: 20px !important; }
   }
 </style>
+<!-- El fondo de siempre (el mismo de la tienda): el gris clarito con las
+     manchas de color, y la barra de desplazamiento fina. Va después de
+     los estilos de arriba. -->
+<link rel="stylesheet" href="../css/vidrio.css?v=20261013124418">
+<script src="../js/barra-vidrio.js?v=20261013124418" defer></script>
 <!-- Lo propio de cada vista (Inicio, Ventas, Stock, Juegos, ventanas),
-     ajustado al estilo del panel. Va después de los estilos de arriba. -->
-<link rel="stylesheet" href="css/panel.css?v=20261013110544">
+     ajustado al estilo del panel. -->
+<link rel="stylesheet" href="css/panel.css?v=20261013124418">
 </head>
 <body>
 
@@ -1356,6 +1495,8 @@ function escucharCatalogo() {
       llenarFiltroCategorias();
       contarParaRevisar();
       render();
+      // Ventas lo usa para saber qué productos son "a correo de cliente"
+      document.dispatchEvent(new CustomEvent('catalogo-cambiado'));
     },
     error => {
       cargado = true;
@@ -1796,30 +1937,33 @@ window.addEventListener('popstate', () => {
 </script>
 
 <!-- Inicio: el resumen de ventas, pendientes y stock -->
-<script type="module" src="js/admin-inicio.js?v=20261013110544"></script>
+<script type="module" src="js/admin-inicio.js?v=20261013124418"></script>
 
 <!-- CRUD de productos: se trae su propia interfaz (modales + estilos) -->
-<script type="module" src="js/admin-productos.js?v=20261013110544"></script>
+<script type="module" src="js/admin-productos.js?v=20261013124418"></script>
 
 <!-- Subida de imágenes: se engancha al editor de arriba, va después -->
-<script type="module" src="js/admin-imagenes.js?v=20261013110544"></script>
+<script type="module" src="js/admin-imagenes.js?v=20261013124418"></script>
 
 <!-- Administración de juegos de recarga: construye la vista Juegos -->
-<script type="module" src="js/admin-juegos.js?v=20261013110544"></script>
+<script type="module" src="js/admin-juegos.js?v=20261013124418"></script>
 
 <!-- Ventas y stock: construyen las vistas Ventas y Stock.
      Le hablan a Supabase directo, sin pasar por el puente
      js/panel-datos.js que usan Productos y Juegos. -->
-<script type="module" src="js/admin-ventas.js?v=20261013110544"></script>
-<script type="module" src="js/admin-stock.js?v=20261013110544"></script>
+<script type="module" src="js/admin-ventas.js?v=20261013124418"></script>
+<script type="module" src="js/admin-stock.js?v=20261013124418"></script>
 
 <!-- Clientes: los registrados en la tienda (Usuario + WhatsApp) y lo que
      compró cada uno. Ajustes: Telegram y tu cuenta. -->
-<script type="module" src="js/admin-clientes.js?v=20261013110544"></script>
-<script type="module" src="js/admin-ajustes.js?v=20261013110544"></script>
+<script type="module" src="js/admin-clientes.js?v=20261013124418"></script>
+<script type="module" src="js/admin-ajustes.js?v=20261013124418"></script>
 
 <!-- "Probar la tienda": le pone la clave del modo prueba a esos enlaces -->
-<script type="module" src="js/admin-prueba.js?v=20261013110544"></script>
+<script type="module" src="js/admin-prueba.js?v=20261013124418"></script>
+
+<!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
+<script src="../bg-burbujas.js?v=20261013124418" defer></script>
 
 </body>
 </html>

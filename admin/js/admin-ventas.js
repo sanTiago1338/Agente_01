@@ -393,6 +393,44 @@ css.textContent = `
   }
   .vt-linea.usdt .vt-l-nom, .vt-linea.usdt .vt-l-bs { color: #8a6508; }
 
+  /* ---------- "A correo de cliente": el correo a la vista ----------
+     Esos productos se activan sobre la cuenta del cliente. En la lista va
+     en su propio renglón, a lo ancho de la fila, con "Copiar"; si todavía
+     no lo dejó, en ámbar. */
+  .vt-f-correo {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-top: 2px; padding: 6px 10px; border-radius: 8px;
+    font-size: 12.5px; line-height: 1.4; color: #1e40af;
+    background: rgba(29,78,216,.07);
+  }
+  .vt-f-correo svg { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .vt-f-correo > span { flex: 1 1 0; min-width: 0; }
+  .vt-f-correo b { font-weight: 700; overflow-wrap: anywhere; }
+  .vt-f-correo.falta { color: #92400e; background: rgba(180,83,9,.09); }
+  .vt-copiar-correo {
+    margin-left: auto; padding: 4px 10px;
+    border: 1px solid rgba(29,78,216,.3); border-radius: 7px; background: #fff;
+    font: 600 12px var(--fuente, inherit); color: #1e40af; cursor: pointer; white-space: nowrap;
+  }
+  .vt-copiar-correo { flex: none; }
+  .vt-copiar-correo:hover { background: rgba(29,78,216,.08); }
+  /* En el celular toda la fila abre la compra: el botón, del tamaño de un dedo */
+  @media (max-width: 760px) { .vt-copiar-correo { min-height: 36px; padding: 8px 14px; } }
+  /* En "Ver": la caja con el correo, arriba de los botones */
+  .vt-correo-caja {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+    border: 1px solid rgba(29,78,216,.22); background: rgba(29,78,216,.06); color: #1e3a8a;
+    font-size: 13px; line-height: 1.45;
+  }
+  .vt-correo-caja svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .vt-correo-caja > div { flex: 1; min-width: 0; }
+  .vt-correo-caja b { display: block; font-size: 12px; letter-spacing: .02em; }
+  .vt-correo-caja .correo { font-weight: 700; font-size: 14px; overflow-wrap: anywhere; color: var(--tinta); }
+  .vt-correo-caja.falta { border-color: rgba(180,83,9,.28); background: rgba(180,83,9,.07); color: #7c2d12; }
+  .vt-correo-caja a { color: #15803d; font-weight: 700; }
+
   /* ---------- Cobros: el QR de Binance y el tipo de cambio ---------- */
   .vt-cobro-qr { display: flex; gap: 14px; align-items: center; margin-bottom: 4px; }
   .vt-cobro-qr img,
@@ -1119,13 +1157,14 @@ function listar() {
   if (pagina > paginas) pagina = paginas;
   const desde = (pagina - 1) * POR_PAGINA;
   const estas = lista.slice(desde, desde + POR_PAGINA);
+  const catalogo = catalogoPorId();
 
   $('vtLista').innerHTML = `
     <div class="vt-tabla">
       <div class="vt-fila vt-fila-cab">
         <span>Código</span><span>Fecha</span><span>Total</span><span>Estado</span><span></span>
       </div>
-      ${estas.map(filaCompra).join('')}
+      ${estas.map(c => filaCompra(c, catalogo)).join('')}
     </div>
     ${paginador(paginas, desde, estas.length, lista.length)}`;
 
@@ -1134,7 +1173,9 @@ function listar() {
 
 // Una fila de la lista: lo justo para encontrar la compra. Todo lo demás
 // (qué se compró, el cliente, las cuentas, los botones) está en "Ver".
-function filaCompra(c) {
+// Salvo el correo de los "a correo de cliente": es lo que hace falta para
+// atenderla, y va en su propio renglón.
+function filaCompra(c, catalogo = catalogoPorId()) {
   const L = c.lineas;
   const principal = estadoPrincipal(L);
   const clase = principal === 'sin_stock' ? 'urgente'
@@ -1149,6 +1190,7 @@ function filaCompra(c) {
       <span class="vt-f-bs">${bsTxt(c.total)}${usdtDe(c) ? `<small>${usdtDe(c)}</small>` : ''}</span>
       <span class="vt-f-estado">${cartelDe(c)}</span>
       <button class="vt-ver" data-ver="${escapar(c.clave)}">Ver</button>
+      ${lineaCorreo(c, catalogo)}
     </div>`;
 }
 
@@ -1227,6 +1269,63 @@ const lineaUsdt = c => c.lineas.find(o => (o.metodo_pago === 'binance' || o.meto
 // "Binance Pay", o "Binance · red BSC" si te llegó desde otra billetera por la red BSC
 const metodoUsdt = c => (c.lineas.some(o => /red BSC/.test(o.confirmado_por || '') || o.metodo_pago === 'bsc')
   ? 'Binance · red BSC' : 'Binance Pay');
+
+// "A correo de cliente" (Canva, Spotify renovable…): se activan sobre la
+// cuenta del cliente, así que hace falta su correo. Se reconocen por la
+// descripción del producto, con la misma regla que la tienda ("correo de
+// cliente"), o porque el pedido ya trae el correo. El correo lo guarda la
+// página de pago cuando el cliente lo escribe (supabase/28-correo-del-cliente.sql).
+const FRASE_CORREO = 'correo de cliente';
+const ICO_SOBRE = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>';
+
+// Los productos del catálogo que ya cargó Productos (admin/index.html)
+function catalogoPorId() {
+  const lista = typeof window.catalogoAdmin === 'function' ? window.catalogoAdmin() : [];
+  return new Map((lista || []).map(p => [p.id, p]));
+}
+
+// Un producto del catálogo que se activa en el correo del cliente
+const esACorreo = pr => `${pr.nombre || ''} ${pr.descripcion || ''}`.toLowerCase().includes(FRASE_CORREO);
+
+// Si el producto ya no está en el catálogo (se borró), se decide por si el
+// pedido trae correo; si está, manda su descripción. Así un Netflix con
+// correo no sale como "a correo".
+function pideCorreo(c, catalogo = catalogoPorId()) {
+  return c.lineas.some(o => {
+    const pr = catalogo.get(o.producto_id);
+    return pr ? esACorreo(pr) : !!String(o.cliente_email || '').trim();
+  });
+}
+
+const correoDe = c => c.lineas.map(o => String(o.cliente_email || '').trim()).find(Boolean) || '';
+
+// Espera algo de vos: la misma regla en la lista y en "Ver" (las de prueba
+// no piden nada, y "vencido" sí, porque si paga tarde se confirma)
+const esperaAlgo = c => !esPrueba(c) && c.lineas.some(o => CONFIRMABLES.includes(o.estado));
+
+// El renglón de la fila de la lista. Sin correo en el pedido no se sabe si
+// el cliente no lo dejó o si no llegó a guardarse (lo de antes de este
+// cambio, o si falló la red): casi siempre lo mandó en su WhatsApp.
+function lineaCorreo(c, catalogo) {
+  if (!pideCorreo(c, catalogo)) return '';
+  const correo = correoDe(c);
+  if (correo) {
+    return `<div class="vt-f-correo">${ICO_SOBRE}<span>A correo del cliente: <b>${escapar(correo)}</b></span>
+      <button type="button" class="vt-copiar-correo" data-copiar-correo="${escapar(correo)}">Copiar</button></div>`;
+  }
+  return esperaAlgo(c)
+    ? `<div class="vt-f-correo falta">${ICO_SOBRE}<span>A correo del cliente · el correo no quedó en el pedido: buscalo en su WhatsApp («Correo:») o pedíselo</span></div>`
+    : `<div class="vt-f-correo">${ICO_SOBRE}<span>A correo del cliente</span></div>`;
+}
+
+async function copiarCorreo(correo) {
+  try {
+    await navigator.clipboard.writeText(correo);
+    aviso(`Correo copiado: ${correo}`, 'ok');
+  } catch {
+    aviso(`No se pudo copiar. El correo es: ${correo}`);
+  }
+}
 
 function usdtDe(c) {
   const b = lineaUsdt(c);
@@ -1397,6 +1496,31 @@ function cartelDe(c) {
     : badgeEstado(principal);
 }
 
+// La caja del correo en "Ver", para los "a correo de cliente". Sin correo,
+// el enlace abre su WhatsApp con la pregunta ya escrita.
+function cajaCorreo(c, wa) {
+  if (!pideCorreo(c)) return '';
+  const correo = correoDe(c);
+  if (!correo && !esperaAlgo(c)) {
+    return `<div class="vt-correo-caja">${ICO_SOBRE}<div><b>A correo del cliente</b>Sin correo en el pedido.</div></div>`;
+  }
+  if (correo) {
+    return `
+      <div class="vt-correo-caja">${ICO_SOBRE}
+        <div><b>A correo del cliente · activalo en</b><span class="correo">${escapar(correo)}</span></div>
+        <button type="button" class="vt-copiar-correo" data-copiar-correo="${escapar(correo)}">Copiar correo</button>
+      </div>`;
+  }
+  const pregunta = `Hola, te escribimos de Tiago Store por tu pedido ${numerosDeCompra(c.lineas)} ` +
+                   `(${nombreDeCompra(c.lineas)}). ¿A qué correo te activamos el servicio?`;
+  return `
+    <div class="vt-correo-caja falta">${ICO_SOBRE}
+      <div><b>A correo del cliente</b>El correo no quedó en el pedido: buscalo en su WhatsApp («Correo:»).${wa
+        ? ` <a href="https://wa.me/${wa}?text=${encodeURIComponent(pregunta)}" target="_blank" rel="noopener">Pedíselo por WhatsApp</a>`
+        : ' Pedíselo cuando te escriba.'}</div>
+    </div>`;
+}
+
 function pintarCompra(c) {
   const L = c.lineas;
   const p = c.primera;
@@ -1411,7 +1535,9 @@ function pintarCompra(c) {
   const entregadas = L.filter(o => o.estado === 'entregado');
   const cartel = cartelDe(c);
 
-  const wa = (p.cliente_whatsapp || '').replace(/[^0-9]/g, '');
+  // Con el 591 adelante, como lo pide wa.me (un número viejo de 8 cifras
+  // abría un chat que no existe)
+  const wa = numeroWa(p.cliente_whatsapp);
   const comprobante = L.find(o => o.referencia_pago)?.referencia_pago;
   // Entregada, manda el momento de la entrega (la última, si fue de a
   // partes): es el dato que se busca cuando alguien reclama.
@@ -1523,9 +1649,10 @@ function pintarCompra(c) {
         <div class="vt-cliente">
           ${escapar(p.cliente_nombre || 'Sin nombre')}
           ${wa ? ` · <a href="https://wa.me/${wa}" target="_blank" rel="noopener">WhatsApp ${escapar(p.cliente_whatsapp)}</a>` : ''}
-          ${p.cliente_email ? ` · ${escapar(p.cliente_email)}` : ''}
+          ${p.cliente_email && !pideCorreo(c) ? ` · ${escapar(p.cliente_email)}` : ''}
           ${comprobante ? ` · comprobante ${escapar(comprobante)}` : ''}
         </div>
+        ${cajaCorreo(c, wa)}
       </div>
 
       <div class="vt-der">
@@ -1642,8 +1769,24 @@ $('vtLista').addEventListener('click', e => {
     return;
   }
 
+  // "Copiar" el correo, sin abrir la compra
+  const correo = e.target.closest('[data-copiar-correo]');
+  if (correo) { copiarCorreo(correo.dataset.copiarCorreo); return; }
+
   const ver = e.target.closest('[data-ver]');
   if (ver) abrirVer(ver.dataset.ver);
+});
+
+// El catálogo llega aparte (admin/index.html): con él se sabe qué
+// productos son "a correo de cliente", así que se repinta la lista
+// (solo si cambió cuáles lo son: el catálogo llega con cada cambio de
+// cualquier producto, y repintar cierra lo que tengas seleccionado en "Ver")
+let firmaACorreo = '';
+document.addEventListener('catalogo-cambiado', () => {
+  const firma = [...catalogoPorId().values()].filter(esACorreo).map(p => p.id).sort().join();
+  if (firma === firmaACorreo) return;
+  firmaACorreo = firma;
+  if (yaCargado) listar();
 });
 
 // La ventana de "Ver"
@@ -1670,6 +1813,9 @@ $('vtVerCuerpo').addEventListener('click', async e => {
 
   const copiar = e.target.closest('[data-copiar]');
   if (copiar) { await copiarParaMandar(copiar.dataset.copiar); return; }
+
+  const correo = e.target.closest('[data-copiar-correo]');
+  if (correo) { await copiarCorreo(correo.dataset.copiarCorreo); return; }
 
   const copiarCompra = e.target.closest('[data-copiar-compra]');
   if (copiarCompra) { await copiarCompraEntera(copiarCompra.dataset.copiarCompra); return; }

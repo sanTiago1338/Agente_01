@@ -100,7 +100,7 @@ css.textContent = `
     gap: 10px; margin-bottom: 14px;
   }
   .cl-det-datos div {
-    background: #fff; border: 1px solid var(--separador); border-radius: 8px; padding: 9px 11px;
+    background: rgba(255,255,255,.8); border: 1px solid var(--capa-canto, var(--separador)); border-radius: 8px; padding: 9px 11px;
   }
   .cl-det-datos span { display: block; font-size: 11.5px; color: var(--tinta-suave); }
   .cl-det-datos b { display: block; margin-top: 2px; font-size: 13.5px; font-weight: 600; color: var(--tinta); }
@@ -108,14 +108,14 @@ css.textContent = `
   .cl-subs { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 6px; }
   .cl-subs li {
     display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    background: #fff; border: 1px solid var(--separador); border-radius: 8px; padding: 8px 11px;
+    background: rgba(255,255,255,.8); border: 1px solid var(--capa-canto, var(--separador)); border-radius: 8px; padding: 8px 11px;
     font-size: 13px;
   }
   .cl-subs li b { color: var(--tinta); font-weight: 600; }
   .cl-subs li .cl-chip { margin-left: auto; }
-  .cl-ped-caja { background: #fff; border: 1px solid var(--separador); border-radius: 8px; overflow-x: auto; }
+  .cl-ped-caja { background: rgba(255,255,255,.8); border: 1px solid var(--capa-canto, var(--separador)); border-radius: 8px; overflow-x: auto; }
   .cl-ped { font-size: 13px; }
-  .cl-ped th { background: #fff; }
+  .cl-ped th { background: rgba(249,250,251,.6); }
   .cl-ped td, .cl-ped th { padding: 8px 11px; }
   .cl-ped tbody tr:hover td { background: transparent; }
   .cl-estado { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
@@ -138,7 +138,7 @@ css.textContent = `
       grid-template-areas: "cli gas" "wa com" "ult ult" "sub sub" "acc acc";
       gap: 4px 10px;
       margin-top: 8px; padding: 12px;
-      background: #fff; border: 1px solid var(--separador); border-radius: var(--radio);
+      background: rgba(255,255,255,.8); border: 1px solid var(--capa-canto, var(--separador)); border-radius: var(--radio);
       box-shadow: var(--sombra);
     }
     .cl-tabla > tbody > tr.cl-fila.abierta { border-radius: var(--radio) var(--radio) 0 0; }

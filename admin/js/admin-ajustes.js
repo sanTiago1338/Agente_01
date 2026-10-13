@@ -41,7 +41,7 @@ css.textContent = `
   @media (max-width: 1100px) { .aj-grid { grid-template-columns: minmax(0, 1fr); } }
 
   .aj-caja {
-    background: #fff; border: 1px solid var(--separador);
+    background: var(--capa-tarjeta, #fff); border: 1px solid var(--capa-canto, var(--separador)); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
     border-radius: var(--radio); box-shadow: var(--sombra);
   }
   .aj-cab {

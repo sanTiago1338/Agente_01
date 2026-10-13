@@ -69,9 +69,11 @@ En `admin/`, con login propio. Siete vistas, en el menú de la izquierda:
 **Inicio** · Negocio (**Ventas**, **Clientes**, **Stock**) · Catálogo
 (**Productos**, **Juegos**) · Sistema (**Ajustes**: Telegram y la cuenta).
 Cada una vive en su archivo de `admin/js/`, salvo Productos, que está en
-`admin/index.html`. El estilo entero (menú oscuro, barra blanca, tarjetas
-con borde fino, letra Inter) está en `admin/css/panel.css`, que usan también
-el login y cambiar contraseña.
+`admin/index.html`. El estilo (menú, barra con migas, tarjetas y tablas,
+letra Inter) está en `admin/css/panel.css`, que usan también el login y
+cambiar contraseña. El fondo es el de la tienda (`css/vidrio.css` y las
+burbujas de `bg-burbujas.js`): menú, barra y tarjetas son translúcidos para
+que se vea por detrás.
 
 En el celular: arriba ☰ y el nombre de la sección; abajo Inicio, Ventas,
 Productos, Stock y "Más", que abre el menú entero.
@@ -129,6 +131,7 @@ correr de nuevo sin romper nada.
 | `25-telegram-sin-confirmar.sql` | El aviso de pedido nuevo llega sin "Confirmar y entregar": se confirma desde el panel, y los botones de avisos viejos no confirman nada (lo frena la base). Se prende o apaga en Panel → Ajustes, que además muestra cómo está Telegram y manda un mensaje de prueba |
 | `26-registro-de-clientes.sql` | La tabla `clientes` (una fila por WhatsApp) y `registrar_cliente()` para la ventana de la tienda; el pedido que llega sin nombre toma el del registro; `clientes_panel()` para la vista Clientes |
 | `27-aviso-vencida-con-boton.sql` | El aviso de vencimiento trae el botón "Enviar por WhatsApp a <cliente>" (si Telegram no lo acepta, va el enlace en el texto) y no avisa a los que ya renovaron |
+| `28-correo-del-cliente.sql` | Los productos "a correo de cliente" quedan marcados en el pedido (`pide_correo`), y la página de pago guarda el correo con `guardar_correo_del_cliente()`: en Ventas → Para atender se ve a qué correo activar |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 | `functions/telegram-boton/` | Recibe los toques de los botones de Telegram (solo con la clave y desde tu chat) |
 

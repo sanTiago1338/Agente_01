@@ -1,10 +1,16 @@
 /* ============================================================
    TIAGO STORE · ESTILO DEL PANEL
    ============================================================
-   Un panel de empresa: menú lateral oscuro, barra de arriba blanca,
-   fondo gris claro y tarjetas blancas con borde fino. Letra Inter.
-   Sin vidrio ni burbujas: acá se trabaja leyendo números, nombres y
-   contraseñas, y tienen que leerse de un vistazo.
+   Un panel de empresa: menú lateral, barra de arriba con migas, tarjetas
+   y tablas limpias, letra Inter.
+
+   EL FONDO NO ES DE ACÁ: es el de siempre de la tienda (css/vidrio.css:
+   gris clarito con manchas rojas, doradas, azules y rosas) con las
+   burbujas de vidrio que suben (bg-burbujas.js). El panel carga los dos
+   antes que este archivo. Menú, barra y tarjetas son translúcidos para
+   que se vean por detrás, como siempre; las ventanas (confirmar, editar)
+   y los menús que se abren van casi blancos, porque ahí se lee y se
+   escribe. En el login, blanco con dos manchas suaves y las burbujas.
 
    Lo usan admin/index.html, login.html y cambiar-clave.html.
 
@@ -36,13 +42,20 @@
   --letra: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --letra-mono: ui-monospace, 'SF Mono', Consolas, monospace;
 
-  /* Superficies */
-  --fondo:        #f3f4f6;   /* el gris de la página */
-  --superficie:   #ffffff;   /* tarjetas */
-  --superficie-2: #f9fafb;   /* encabezados de tabla, campos */
-  --superficie-3: #f3f4f6;   /* botones de ícono, etiquetas */
-  --separador:    #e5e7eb;   /* bordes finos */
-  --separador-2:  #d1d5db;   /* bordes de campos y botones */
+  /* Superficies: translúcidas, sobre el fondo de css/vidrio.css */
+  --fondo:        #f7f8fa;                  /* el de css/vidrio.css, debajo de las manchas */
+  --superficie:   rgba(255,255,255,.72);    /* tarjetas */
+  --superficie-2: rgba(243,244,246,.6);     /* encabezados de tabla, cajitas adentro */
+  --superficie-3: rgba(229,231,235,.55);    /* botones de ícono, etiquetas */
+  --separador:    rgba(16,24,40,.09);       /* bordes finos */
+  --separador-2:  rgba(16,24,40,.16);       /* bordes de campos y botones */
+
+  /* Las capas translúcidas */
+  --capa:         rgba(255,255,255,.62);    /* menú, barras */
+  --capa-tarjeta: rgba(255,255,255,.72);    /* tarjetas y tablas */
+  --capa-campo:   rgba(255,255,255,.86);    /* campos y botones claros */
+  --capa-canto:   rgba(255,255,255,.8);     /* el borde claro del vidrio */
+  --capa-blur:    blur(18px) saturate(160%);
 
   /* Texto */
   --tinta:       #111827;
@@ -61,15 +74,14 @@
   --error: #dc2626;
   --info:  #1d4ed8;
 
-  /* El menú oscuro */
-  --menu-fondo:  #111827;
-  --menu-hover:  #1f2937;
-  --menu-texto:  #d1d5db;
-  --menu-tenue:  #6b7280;
+  /* El menú lateral */
+  --menu-hover:  rgba(255,255,255,.7);
+  --menu-texto:  #374151;
+  --menu-tenue:  #8a919c;
 
-  --radio:       10px;
-  --sombra:      0 1px 2px rgba(16,24,40,.05);
-  --sombra-alta: 0 12px 32px rgba(16,24,40,.14), 0 2px 6px rgba(16,24,40,.06);
+  --radio:       12px;
+  --sombra:      0 1px 2px rgba(16,24,40,.05), 0 0 0 .5px rgba(16,24,40,.06);
+  --sombra-alta: 0 16px 40px rgba(16,24,40,.16), 0 2px 6px rgba(16,24,40,.06);
 
   /* Alias históricos */
   --negro:    var(--fondo);
@@ -97,10 +109,12 @@
 
 html { -webkit-text-size-adjust: 100%; }
 
+/* Solo el color: las manchas (body::before) las pone css/vidrio.css y las
+   burbujas bg-burbujas.js */
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--fondo);
+  background-color: var(--fondo);
   color: var(--texto);
   font-family: var(--letra);
   font-size: 14px;
@@ -128,7 +142,7 @@ button, input, select, textarea { font-family: inherit; }
   place-items: center;
   align-content: center;
   gap: 14px;
-  background: var(--fondo);
+  background: transparent;      /* deja ver el fondo mientras carga */
 }
 .spinner {
   width: 34px; height: 34px;
@@ -153,7 +167,9 @@ button, input, select, textarea { font-family: inherit; }
 
 #app:not([hidden]) { min-height: 100vh; }
 
-/* ---------- Menú lateral ---------- */
+/* ---------- Menú lateral ----------
+   Vidrio claro: se ven el fondo y las burbujas por detrás. La sección en
+   la que estás, casi blanca, con la raya roja de la marca. */
 .lateral {
   position: fixed;
   top: 0; bottom: 0; left: 0;
@@ -161,7 +177,11 @@ button, input, select, textarea { font-family: inherit; }
   width: min(86vw, var(--menu-ancho));
   display: flex;
   flex-direction: column;
-  background: var(--menu-fondo);
+  background: var(--capa);
+  -webkit-backdrop-filter: var(--capa-blur);
+  backdrop-filter: var(--capa-blur);
+  border-right: 1px solid var(--capa-canto);
+  box-shadow: 1px 0 0 var(--separador);
   color: var(--menu-texto);
   /* En el celular es un cajón: fuera de la pantalla hasta abrirlo */
   transform: translateX(-102%);
@@ -169,7 +189,12 @@ button, input, select, textarea { font-family: inherit; }
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.35); }
+/* Abierto en el celular va más blanco: pasa por encima del contenido */
+body.menu-abierto .lateral {
+  transform: none;
+  background: rgba(255,255,255,.86);
+  box-shadow: 0 0 40px rgba(16,24,40,.22);
+}
 @media (prefers-reduced-motion: reduce) { .lateral { transition: none; } }
 
 /* Lo que queda detrás del cajón abierto */
@@ -177,7 +202,7 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   position: fixed;
   inset: 0;
   z-index: 65;
-  background: rgba(17,24,39,.5);
+  background: rgba(17,24,39,.32);
 }
 .cortina[hidden] { display: none; }
 
@@ -186,28 +211,29 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   align-items: center;
   gap: 11px;
   padding: 18px 18px 16px;
-  border-bottom: 1px solid rgba(255,255,255,.06);
+  border-bottom: 1px solid var(--separador);
 }
 .marca-ico {
   width: 34px; height: 34px; flex: none;
   display: grid; place-items: center;
-  border-radius: 8px;
+  border-radius: 9px;
   background: var(--marca);
   color: #fff;
   font: 800 17px/1 var(--letra);
+  box-shadow: 0 4px 12px rgba(229,9,20,.25);
 }
 .marca-txt b {
   display: block;
   font-size: 15px;
   font-weight: 700;
-  color: #fff;
+  color: var(--tinta);
   letter-spacing: -.01em;
 }
 .marca-txt small {
   display: block;
   margin-top: 1px;
   font-size: 12px;
-  color: var(--menu-tenue);
+  color: var(--tinta-suave);
 }
 .lateral-cerrar {
   margin-left: auto;
@@ -215,10 +241,10 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   display: grid; place-items: center;
   border: none; border-radius: 8px;
   background: transparent;
-  color: var(--menu-texto);
+  color: var(--tinta-media);
   cursor: pointer;
 }
-.lateral-cerrar:hover { background: var(--menu-hover); color: #fff; }
+.lateral-cerrar:hover { background: var(--menu-hover); color: var(--tinta); }
 
 .menu { padding: 10px 10px 8px; }
 .menu-titulo {
@@ -238,7 +264,7 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   width: 100%;
   padding: 9px 10px;
   border: none;
-  border-radius: 7px;
+  border-radius: 8px;
   background: none;
   font: 500 14px var(--letra);
   color: var(--menu-texto);
@@ -248,15 +274,16 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   transition: background .12s, color .12s;
 }
 .lateral .vista-tab .ico,
-.menu-link .ico { color: #9ca3af; }
+.menu-link .ico { color: var(--tinta-suave); }
 .lateral .vista-tab:hover,
-.menu-link:hover { background: var(--menu-hover); color: #fff; }
+.menu-link:hover { background: var(--menu-hover); color: var(--tinta); }
 .lateral .vista-tab.activa {
-  background: var(--menu-hover);
-  color: #fff;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 1px 3px rgba(16,24,40,.08), 0 0 0 .5px rgba(16,24,40,.06);
+  color: var(--tinta);
   font-weight: 600;
 }
-.lateral .vista-tab.activa .ico { color: #fff; }
+.lateral .vista-tab.activa .ico { color: var(--marca); }
 /* La raya roja de la sección en la que estás */
 .lateral .vista-tab.activa::before {
   content: '';
@@ -267,12 +294,12 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   background: var(--marca);
 }
 .lateral .vista-tab:focus-visible,
-.menu-link:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+.menu-link:focus-visible { outline: 2px solid var(--info); outline-offset: -2px; }
 
 .lateral-pie {
   margin-top: auto;
   padding: 10px;
-  border-top: 1px solid rgba(255,255,255,.06);
+  border-top: 1px solid var(--separador);
 }
 .cuenta {
   display: flex;
@@ -280,14 +307,13 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   gap: 10px;
   margin-top: 6px;
   padding: 10px 6px 4px 10px;
-  border-top: 1px solid rgba(255,255,255,.06);
+  border-top: 1px solid var(--separador);
 }
-.cuenta .avatar { background: #374151; color: #fff; }
 .usuario {
   flex: 1;
   min-width: 0;
   font-size: 12.5px;
-  color: #9ca3af;
+  color: var(--tinta-suave);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -295,12 +321,12 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
 .cuenta-salir {
   width: 32px; height: 32px; flex: none;
   display: grid; place-items: center;
-  border: none; border-radius: 7px;
+  border: none; border-radius: 8px;
   background: transparent;
-  color: #9ca3af;
+  color: var(--tinta-suave);
   cursor: pointer;
 }
-.cuenta-salir:hover { background: var(--menu-hover); color: #fff; }
+.cuenta-salir:hover { background: var(--menu-hover); color: var(--tinta); }
 
 /* ---------- Contadores rojos (Ventas, Stock, la campana) ---------- */
 .contador {
@@ -335,7 +361,7 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   gap: 10px;
   height: 56px;
   padding: 0 12px 0 6px;
-  background: #fff;
+  background: var(--capa); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
   border-bottom: 1px solid var(--separador);
 }
 .barra-menu {
@@ -388,7 +414,7 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   padding: 0 12px;
   border: 1px solid var(--separador-2);
   border-radius: 8px;
-  background: #fff;
+  background: var(--capa-campo);
   font-size: 13px;
   font-weight: 500;
   color: var(--tinta-media);
@@ -448,7 +474,7 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   z-index: 60;
   width: 250px;
   padding: 6px;
-  background: #fff;
+  background: rgba(255,255,255,.94); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
   border: 1px solid var(--separador);
   border-radius: var(--radio);
   box-shadow: var(--sombra-alta);
@@ -504,7 +530,7 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
-  background: #fff;
+  background: rgba(255,255,255,.72); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
   border-top: 1px solid var(--separador);
 }
 .menu-movil button {
@@ -535,7 +561,10 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
 
 /* ---------- Compu ---------- */
 @media (min-width: 900px) {
+  /* Fijo a la izquierda, pero debajo de las ventanas de los módulos
+     (confirmar, "Ver", editar: z-index 60) */
   .lateral {
+    z-index: 30;
     width: var(--menu-ancho);
     transform: none;
     transition: none;
@@ -595,13 +624,13 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
 .btn-rojo:hover:not(:disabled), .btn-primario:hover:not(:disabled) { background: var(--marca-oscura); }
 .btn-oscuro { background: var(--tinta); color: #fff; }
 .btn-oscuro:hover:not(:disabled) { background: #1f2937; }
-.btn-fantasma { background: #fff; color: var(--tinta-media); border-color: var(--separador-2); }
+.btn-fantasma { background: var(--capa-campo); color: var(--tinta-media); border-color: var(--separador-2); }
 .btn-fantasma:hover:not(:disabled) { background: var(--superficie-2); color: var(--tinta); }
-.btn-peligro { background: #fff; color: var(--error); border-color: #fecaca; }
+.btn-peligro { background: rgba(255,255,255,.86); color: var(--error); border-color: #fecaca; }
 .btn-peligro:hover:not(:disabled) { background: #fef2f2; }
 .btn-icono {
   padding: 6px 9px;
-  background: #fff;
+  background: var(--capa-campo);
   border: 1px solid var(--separador-2);
   border-radius: 7px;
   color: var(--tinta-suave);
@@ -621,8 +650,8 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   margin-bottom: 20px;
 }
 .metrica {
-  background: #fff;
-  border: 1px solid var(--separador);
+  background: var(--capa-tarjeta); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
+  border: 1px solid var(--capa-canto);
   border-radius: var(--radio);
   box-shadow: var(--sombra);
   padding: 14px 16px;
@@ -664,7 +693,7 @@ body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.3
   width: 100%;
   height: 38px;
   padding: 0 34px 0 34px;
-  background: #fff;
+  background: var(--capa-campo);
   border: 1px solid var(--separador-2);
   border-radius: 8px;
   color: var(--tinta);
@@ -709,7 +738,7 @@ select {
   height: 38px;
   min-width: 150px;
   padding: 0 32px 0 12px;
-  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center / 16px;
+  background: var(--capa-campo) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center / 16px;
   border: 1px solid var(--separador-2);
   border-radius: 8px;
   color: var(--tinta);
@@ -721,8 +750,8 @@ select {
 
 /* ---- Tablas ---- */
 .tabla-caja {
-  background: #fff;
-  border: 1px solid var(--separador);
+  background: var(--capa-tarjeta); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
+  border: 1px solid var(--capa-canto);
   border-radius: var(--radio);
   box-shadow: var(--sombra);
   overflow: hidden;
@@ -831,7 +860,7 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
   padding: 6px 0;
   border-radius: 7px;
   border: 1px solid var(--separador-2);
-  background: #fff;
+  background: var(--capa-campo);
   font: 600 13px var(--letra);
   color: var(--tinta-media);
   cursor: pointer;
@@ -847,7 +876,7 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
   display: inline-grid; place-items: center;
   border: 1px solid var(--separador-2);
   border-radius: 8px;
-  background: #fff;
+  background: var(--capa-campo);
   color: var(--tinta-media);
   cursor: pointer;
   font: 500 13px var(--letra);
@@ -967,7 +996,7 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
 .pag-btn {
   min-width: 34px;
   padding: 6px 10px;
-  background: #fff;
+  background: var(--capa-campo);
   border: 1px solid var(--separador-2);
   border-radius: 7px;
   color: var(--tinta-media);
@@ -1059,8 +1088,8 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
     position: relative;
     margin-bottom: 10px;
     padding: 13px;
-    background: #fff;
-    border: 1px solid var(--separador);
+    background: rgba(255,255,255,.8);
+    border: 1px solid var(--capa-canto);
     border-radius: var(--radio);
     box-shadow: var(--sombra);
   }
@@ -1094,29 +1123,31 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
    6. LO QUE TRAEN LOS MÓDULOS
    ============================================================
    Inicio, Ventas, Stock, Juegos y el editor de Productos traen sus
-   estilos. Acá se emparejan con el resto: las mismas tarjetas, el mismo
-   radio y las ventanas sobre un velo oscuro, sin esmerilado. */
+   estilos. Acá se emparejan con el resto: las mismas tarjetas
+   translúcidas y el mismo radio. Las ventanas van blancas, sobre un velo
+   apenas esmerilado: ahí se confirma, se edita y se leen contraseñas. */
 body :is(.ini-cifra, .ini-caja, .vt-pedido, .vt-tabla, .st-prod, .st-sugerir, .jg-card) {
-  background: #fff;
+  background: var(--capa-tarjeta); border-color: var(--capa-canto); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
   border-radius: var(--radio);
   box-shadow: var(--sombra);
 }
-body .vt-pedido.urgente { border-color: #fecaca; background: #fffafa; }
+body .vt-pedido.urgente { border-color: #fecaca; background: rgba(255,245,245,.8); }
 
 body :is(.zv-fondo, .st-fondo, .vt-fondo, .jg-fondo) {
-  background: rgba(17,24,39,.5);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  background: rgba(17,24,39,.32);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) {
-  border-radius: 12px;
+  background: #fff;
+  border-radius: 14px;
   border-color: var(--separador);
   box-shadow: 0 24px 60px rgba(16,24,40,.25);
 }
-body :is(.zv-cab) { border-radius: 12px 12px 0 0; }
+body :is(.zv-cab) { border-radius: 14px 14px 0 0; }
 
 /* Los filtros de Ventas y los rangos de Inicio: como pestañas sobrias */
-body .vt-filtro { border-radius: 8px; background: #fff; border-color: var(--separador-2); color: var(--tinta-media); font-weight: 500; }
+body .vt-filtro { border-radius: 8px; background: var(--capa-campo); border-color: var(--separador-2); color: var(--tinta-media); font-weight: 500; }
 body .vt-filtro:hover { border-color: var(--tinta-tenue); color: var(--tinta); }
 body .vt-filtro.activo { background: var(--tinta); border-color: var(--tinta); color: #fff; }
 
@@ -1135,24 +1166,32 @@ body :is(.zv-modal, .jg-modal, .st-modal, .vt-modal)
 /* ============================================================
    7. LOGIN Y CAMBIAR CONTRASEÑA
    ============================================================
-   La marca a la izquierda (oscura, como el menú del panel) y el
-   formulario a la derecha. En el celular, la marca arriba en una franja
-   y el formulario abajo. */
+   El fondo de siempre del login: blanco con dos manchas suaves (roja
+   arriba, dorada abajo a la derecha) y las burbujas de bg-burbujas.js.
+   Encima, la marca a la izquierda y el formulario a la derecha, en una
+   tarjeta translúcida. En el celular, la marca arriba y el formulario
+   abajo. */
+body.pagina-acceso {
+  background-color: #fff;
+  background-image:
+    radial-gradient(900px 420px at 50% -120px, rgba(229,9,20,.06),  transparent 65%),
+    radial-gradient(600px 300px at 85% 110%, rgba(245,197,24,.08), transparent 60%);
+  background-attachment: fixed;
+}
 .acceso {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto 1fr;    /* celular: la franja arriba, el formulario pegado abajo */
-  background: #fff;
+  background: transparent;
 }
 .acceso[hidden] { display: none; }
 .acceso-marca {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 22px 22px 26px;
-  background: var(--menu-fondo);
-  color: var(--menu-texto);
+  gap: 16px;
+  padding: 24px 22px 6px;
+  color: var(--tinta-media);
 }
 .acceso-marca .marca { padding: 0; border: none; }
 .acceso-marca h2 {
@@ -1161,9 +1200,9 @@ body :is(.zv-modal, .jg-modal, .st-modal, .vt-modal)
   font-weight: 700;
   letter-spacing: -.02em;
   line-height: 1.25;
-  color: #fff;
+  color: var(--tinta);
 }
-.acceso-marca p { margin: 0; font-size: 14px; line-height: 1.55; color: #9ca3af; }
+.acceso-marca p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--tinta-suave); }
 .acceso-lista {
   display: none;
   margin: 6px 0 0;
@@ -1176,17 +1215,27 @@ body :is(.zv-modal, .jg-modal, .st-modal, .vt-modal)
   gap: 10px;
   padding: 7px 0;
   font-size: 14px;
-  color: var(--menu-texto);
+  color: var(--tinta-media);
 }
-.acceso-lista .ico { color: #9ca3af; }
-.acceso-pie { display: none; font-size: 12.5px; color: var(--menu-tenue); }
+.acceso-lista .ico { color: var(--marca); }
+.acceso-pie { display: none; font-size: 12.5px; color: var(--tinta-tenue); }
 
 .acceso-form {
   display: grid;
   place-items: start center;
-  padding: 28px 20px 40px;
+  padding: 18px 14px 40px;
 }
-.acceso-caja { width: 100%; max-width: 380px; }
+.acceso-caja {
+  width: 100%;
+  max-width: 420px;
+  padding: 28px 24px 24px;
+  background: var(--capa-tarjeta);
+  -webkit-backdrop-filter: var(--capa-blur);
+  backdrop-filter: var(--capa-blur);
+  border: 1px solid var(--capa-canto);
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(16,24,40,.10), 0 0 0 .5px rgba(16,24,40,.06);
+}
 .acceso-caja h1 {
   margin: 0 0 6px;
   font-size: 24px;
@@ -1327,4 +1376,5 @@ body :is(.zv-modal, .jg-modal, .st-modal, .vt-modal)
   .acceso-marca p { max-width: 420px; }
   .acceso-lista, .acceso-pie { display: block; }
   .acceso-form { place-items: center; padding: 40px; }
+  .acceso-caja { padding: 36px 34px 30px; }
 }

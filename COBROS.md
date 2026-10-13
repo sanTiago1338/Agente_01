@@ -251,6 +251,14 @@ haga falta, con el disparador que indica que llegó el momento.
 
 ### Por qué no hay login para comprar
 
+> **Desde el 13/10/2026** la tienda pide **Usuario y WhatsApp**
+> (`js/usuario.js`, `supabase/26-registro-de-clientes.sql`): al entrar se
+> puede tocar "Ahora no" y seguir mirando, pero para pagar hace falta
+> ("Pagar" abre la misma ventana y sigue solo al QR). No es un login: no
+> hay contraseña ni correo, y no muestra compras de nadie. Sirve para
+> tener el contacto de cada cliente (Panel → Clientes) y que el pedido
+> salga a su nombre. Lo de abajo sigue valiendo para un login de verdad.
+
 Se evaluó pedirle usuario y contraseña a cada cliente, y se decidió que no.
 
 Obligar a registrarse antes de comprar es de las cosas que más ventas

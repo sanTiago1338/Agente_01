@@ -109,9 +109,9 @@
       openCart({ agregado: p.id, renovando: true });
       irAPaso(3);
 
-      // El mismo número de la otra vez, ya escrito
-      const campoTel = document.getElementById('crTel');
-      if (m[2] && campoTel) campoTel.value = m[2];
+      // El mismo número de la otra vez: si todavía no se registró en este
+      // navegador, la ventana de registro (al tocar Pagar) ya lo trae escrito
+      if (m[2]) recordarWa(m[2]);
     }
 
     // Los dos links también pueden llegar con la tienda ya abierta en esta
@@ -1948,29 +1948,9 @@
               </div>
             </div>` : ''}
 
-            <!-- Su WhatsApp, obligatorio para pagar: es por donde le avisamos
-                 antes de que se le venza y por donde le damos soporte. Antes
-                 era opcional (un interruptor "¿Te recordamos renovar?") y
-                 del 6/9 al 6/10/2026, 42 de 80 compras entregadas quedaron
-                 sin número: a esos el aviso de vencimiento no les llegaba. -->
-            <div class="ck-caja ck-renovar">
-              <div class="ck-renovar-txt">
-                <b>Tu WhatsApp</b>
-                <p>Te escribimos por acá si hay algo con tu pedido y unos días antes
-                   de que venza, para que no pierdas el servicio. No se cobra nada
-                   automáticamente.</p>
-              </div>
-              <div class="ck-renovar-tel" id="crRenovarTel">
-                <label for="crTel">¿A qué WhatsApp te escribimos?</label>
-                <div class="ck-tel-campo">
-                  <span class="ck-tel-pais">+591</span>
-                  <input type="tel" id="crTel" inputmode="numeric" maxlength="14"
-                         autocomplete="tel-national" placeholder="7 123 4567" required>
-                </div>
-                <p class="ck-tel-error" id="crTelError" hidden></p>
-              </div>
-            </div>
-
+            <!-- Sin la caja "Tu WhatsApp": el número sale del registro del
+                 cliente (js/usuario.js). Si no se registró, "Pagar" le abre
+                 esa ventana y sigue solo al pago cuando la completa. -->
             ${bloqueTerminos('cartTerminos')}
           </div>
           <div class="cr-pie">
@@ -2241,32 +2221,16 @@
       try { localStorage.setItem(LLAVE_WA, tel); } catch { /* sin almacenamiento: lo escribe de nuevo */ }
     }
 
-    // Términos + WhatsApp: los candados para pagar.
+    // Los términos: el candado del botón Pagar. El registro (usuario y
+    // WhatsApp) se pide al tocarlo, ver payWithQR().
     function atarCarrito() {
       const terminos = document.getElementById('cartTerminos');
       const boton    = document.getElementById('cartPagarQR');
-      const campoTel = document.getElementById('crTel');
-      const errorTel = document.getElementById('crTelError');
 
-      // El botón lo traban solo los términos (la caja se marca en rojo). El
-      // WhatsApp se revisa al tocar Pagar, que es cuando se puede decir qué
-      // falta: un botón trabado sin explicación no le dice nada a nadie.
+      // El botón lo traban solo los términos (la caja se marca en rojo)
       const refrescar = () => {
         boton.disabled = !terminos.checked;
       };
-
-      if (!campoTel.value) campoTel.value = waRecordado();
-
-      // Solo los 8 números del celular; si pega el 591 adelante, se saca
-      campoTel.addEventListener('input', () => {
-        let limpio = campoTel.value.replace(/\D/g, '');
-        if (limpio.length > 8 && limpio.startsWith('591')) limpio = limpio.slice(3);
-        limpio = limpio.slice(0, 8);
-        if (limpio !== campoTel.value) campoTel.value = limpio;
-        errorTel.hidden = true;
-        campoTel.classList.remove('mal');
-        refrescar();
-      });
 
       terminos.addEventListener('change', refrescar);
     }
@@ -2391,24 +2355,26 @@
       const terminos = document.getElementById('cartTerminos');
       if (terminos && !terminos.checked) return;
 
-      // Sin WhatsApp no se paga: es por donde le avisamos el vencimiento y
-      // le damos soporte
-      const campoTel = document.getElementById('crTel');
-      if (!campoTel || !telValido(campoTel.value)) {
-        const error = document.getElementById('crTelError');
-        if (error && campoTel) {
-          error.textContent = campoTel.value.trim()
-            ? 'Escribí tu celular completo: 8 números que empiezan con 6 o 7.'
-            : 'Escribí tu WhatsApp para seguir: es por donde te avisamos y te damos soporte.';
-          error.hidden = false;
-          campoTel.classList.add('mal');
-          campoTel.scrollIntoView({ block: 'center', behavior: 'smooth' });
-          campoTel.focus({ preventScroll: true });
-        }
-        return;
-      }
       if (cart.length === 0) return;
-      recordarWa(campoTel.value.replace(/\D/g, ''));
+
+      // Sin registro no se paga: usuario y WhatsApp (js/usuario.js). Es por
+      // donde le avisamos si hay algo con el pedido y antes de que venza, y
+      // el pedido sale a su nombre. Si no se registró, se le abre la
+      // ventana; al completarla, sigue solo al pago.
+      const registro = window.tiagoUsuario;
+      let wa = '';
+      if (registro && registro.pedir) {
+        const yo = registro.datos();
+        if (!yo) {
+          registro.pedir('pagar').then(d => { if (d) payWithQR(); });
+          return;
+        }
+        wa = yo.whatsappCompleto;
+      } else if (telValido(waRecordado())) {
+        // js/usuario.js no cargó: con el último número que dejó en este
+        // navegador, para no trabar la venta
+        wa = normalizarTel(waRecordado());
+      }
 
       // El total ya con el descuento combo: es el que se ve mientras la
       // base arma la compra (después manda el que calculó ella, que es el mismo)
@@ -2429,10 +2395,12 @@
       // Cómo eligió pagar: la página de pago muestra solo ese ('qr' o
       // 'binance'). El total viaja siempre en Bs, que es lo que cobra la base.
       params.set('metodo', metodoActual());
-      // El número viaja siempre (lo lee pagar-qr.html), y con él el aviso
-      // de vencimiento: ahora a todos les avisamos
-      params.set('recordar', '1');
-      params.set('wa', normalizarTel(campoTel.value));
+      // El número del registro viaja siempre (lo lee pagar-qr.html), y con
+      // él el aviso de vencimiento: a todos les avisamos
+      if (wa) {
+        params.set('recordar', '1');
+        params.set('wa', wa);
+      }
       anotarPaso('qr');
       window.location.href = `pagar-qr.html?${params.toString()}`;
     }

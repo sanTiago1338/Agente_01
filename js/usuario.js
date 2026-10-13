@@ -9,6 +9,10 @@
 // "Ahora no" la deja para la próxima visita (esta pestaña no la vuelve a
 // mostrar, aunque cambie de página).
 //
+// Al tocar "Pagar" (js/tienda.js) es obligatorio: si no se registró, se
+// abre la misma ventana ("Antes de pagar") y al completarla sigue solo
+// al pago, con ese WhatsApp. El checkout ya no pide el número aparte.
+//
 // Los botones con data-usuario ("Usuario" en la barra de abajo, en el
 // menú de Planes y Contacto, arriba en Mis compras) abren la misma
 // ventana para ver o cambiar los datos. Su .usuario-punto se prende en
@@ -16,8 +20,8 @@
 //
 // DÓNDE QUEDA
 //   · En el navegador (localStorage 'tiago-usuario'). El WhatsApp además
-//     va a 'tiago-whatsapp', la llave del checkout (js/tienda.js): así al
-//     pagar ya viene escrito.
+//     va a 'tiago-whatsapp', el que usaba el checkout: el enlace de
+//     renovar lo deja ahí y la ventana lo trae escrito.
 //   · En la base, una fila por WhatsApp (registrar_cliente, ver
 //     supabase/26-registro-de-clientes.sql). Si la base no contesta,
 //     queda en el navegador y se reintenta en la próxima visita.
@@ -272,17 +276,46 @@
     });
   }
 
+  // Los textos de cada modo:
+  //   registro  la ventana de los 2 segundos al entrar
+  //   pagar     al tocar "Pagar" sin registrarse (js/tienda.js, payWithQR)
+  //   editar    el botón "Usuario", ya registrado
+  var TEXTOS = {
+    registro: {
+      titulo: '¿Cómo te llamamos?',
+      sub: 'Dejanos tu usuario y tu WhatsApp: tus pedidos salen a tu nombre y te avisamos antes de que venza tu cuenta.',
+      ok: 'Guardar', no: 'Ahora no'
+    },
+    pagar: {
+      titulo: 'Antes de pagar',
+      sub: 'Dejanos tu usuario y tu WhatsApp: tu pedido sale a tu nombre y por ahí te avisamos si hay algo con tu compra y antes de que venza. No se cobra nada automáticamente.',
+      ok: 'Seguir al pago', no: 'Cancelar'
+    },
+    editar: {
+      titulo: 'Tus datos',
+      sub: 'Con estos datos salen tus pedidos y te avisamos por WhatsApp antes de que venza tu cuenta. Podés cambiarlos cuando quieras.',
+      ok: 'Guardar cambios', no: 'Cerrar'
+    }
+  };
+
+  // Quien pidió el registro para pagar, esperando la respuesta
+  var alTerminar = null;
+  function responder(valor) {
+    var f = alTerminar;
+    alTerminar = null;
+    if (f) f(valor);
+  }
+
   function abrir(cual) {
     armar();
     var d = leer();
     modo = cual || (d ? 'editar' : 'registro');
 
-    $('tuTitulo').textContent = modo === 'editar' ? 'Tus datos' : '¿Cómo te llamamos?';
-    $('tuSub').textContent = modo === 'editar'
-      ? 'Con estos datos salen tus pedidos y te avisamos por WhatsApp antes de que venza tu cuenta. Podés cambiarlos cuando quieras.'
-      : 'Dejanos tu usuario y tu WhatsApp: tus pedidos salen a tu nombre, al pagar el WhatsApp ya viene escrito y te avisamos antes de que venza tu cuenta.';
-    $('tuOk').textContent = modo === 'editar' ? 'Guardar cambios' : 'Guardar';
-    $('tuNo').textContent = modo === 'editar' ? 'Cerrar' : 'Ahora no';
+    var t = TEXTOS[modo] || TEXTOS.registro;
+    $('tuTitulo').textContent = t.titulo;
+    $('tuSub').textContent = t.sub;
+    $('tuOk').textContent = t.ok;
+    $('tuNo').textContent = t.no;
 
     $('tuUsuario').value = d ? d.usuario : '';
     $('tuWa').value = d ? d.whatsapp : soloCelular(leerLocal(LLAVE_WA) || '').slice(0, 8);
@@ -307,12 +340,15 @@
   }
 
   // "Ahora no", la X, tocar afuera o Escape. La primera vez cuenta como
-  // "ahora no": no se le vuelve a preguntar hasta la próxima visita.
+  // "ahora no": no se le vuelve a preguntar hasta la próxima visita. Si
+  // se la abrió "Pagar", no paga (y en la próxima vez que toque Pagar, se
+  // le vuelve a pedir).
   function ahoraNo() {
     if (modo === 'registro') {
       try { sessionStorage.setItem(LLAVE_NO, '1'); } catch (e) { /* nada */ }
     }
     cerrar();
+    responder(null);
   }
 
   function teclas(e) {
@@ -350,7 +386,7 @@
     }
 
     var antes = leer();
-    if (antes && antes.usuario === usuario && antes.whatsapp === cel) { cerrar(); return; }
+    if (antes && antes.usuario === usuario && antes.whatsapp === cel) { cerrar(); responder(datos()); return; }
 
     var d = { usuario: usuario, whatsapp: cel, subido: false,
               desde: (antes && antes.desde) || new Date().toISOString() };
@@ -364,18 +400,37 @@
     }
     guardar(d);
 
-    // El WhatsApp del checkout: ya escrito para la próxima compra
-    var anteriorWa = leerLocal(LLAVE_WA);
+    // El último WhatsApp de este navegador (lo usa js/tienda.js si este
+    // archivo no llegara a cargar)
     ponerLocal(LLAVE_WA, cel);
-    var campoTel = $('crTel');
-    if (campoTel && (!campoTel.value || soloCelular(campoTel.value) === anteriorWa)) campoTel.value = cel;
 
+    var paraPagar = modo === 'pagar';
     pintarBotones();
     cerrar();
-    avisar(antes ? 'Listo: tus datos quedaron guardados.'
-                 : 'Listo, ' + usuario.split(' ')[0] + ': quedaste registrado.');
+    if (!paraPagar) {
+      avisar(antes ? 'Listo: tus datos quedaron guardados.'
+                   : 'Listo, ' + usuario.split(' ')[0] + ': quedaste registrado.');
+    }
     try { document.dispatchEvent(new CustomEvent('usuario-cambiado', { detail: datos() })); } catch (e) { /* nada */ }
     subir();
+    // "Pagar" sigue solo, con estos datos
+    responder(datos());
+  }
+
+  /**
+   * Para "Pagar" (js/tienda.js): si ya se registró, sus datos en el acto;
+   * si no, abre la ventana y espera. Devuelve una promesa con
+   * { usuario, whatsapp, whatsappCompleto }, o null si la cerró sin
+   * completarla.
+   */
+  function pedir(cual) {
+    var d = datos();
+    if (d) return Promise.resolve(d);
+    responder(null);      // si había otro esperando, ese ya no paga
+    return new Promise(function (listo) {
+      alTerminar = listo;
+      abrir(cual || 'pagar');
+    });
   }
 
   function avisar(texto) {
@@ -409,6 +464,7 @@
     var b = e.target.closest && e.target.closest('[data-usuario]');
     if (!b) return;
     e.preventDefault();
+    responder(null);      // abrir "Usuario" no sigue a ningún pago pendiente
     abrir();
   });
 
@@ -439,7 +495,7 @@
     quizasPedir();
   }
 
-  window.tiagoUsuario = { datos: datos, abrir: function () { abrir(); } };
+  window.tiagoUsuario = { datos: datos, abrir: function () { abrir(); }, pedir: pedir };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', empezar);
   else empezar();

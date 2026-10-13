@@ -52,7 +52,7 @@ css.textContent = `
     display: inline-flex; align-items: center; gap: 6px;
     padding: 7px 12px; border-radius: 9px;
     border: 1px solid var(--borde-2); background: #fff;
-    font: 600 13px 'Outfit', sans-serif; color: var(--tinta-media); cursor: pointer;
+    font: 600 13px var(--fuente); color: var(--tinta-media); cursor: pointer;
   }
   .ini-refrescar:hover { background: var(--superficie-2); color: var(--tinta); }
   .ini-refrescar:disabled { opacity: .5; cursor: wait; }
@@ -125,7 +125,7 @@ css.textContent = `
   .ini-caja-cab > div { flex: 1; min-width: 0; }
   .ini-link {
     border: none; background: none; padding: 2px 0;
-    font: 700 12.5px 'Outfit', sans-serif; color: var(--rojo); cursor: pointer; white-space: nowrap;
+    font: 700 12.5px var(--fuente); color: var(--rojo); cursor: pointer; white-space: nowrap;
   }
   .ini-link:hover { text-decoration: underline; }
 
@@ -271,7 +271,7 @@ css.textContent = `
   .ini-caja-cab > .ini-rango { display: inline-flex; border: 1px solid var(--borde-2); border-radius: 9px; overflow: hidden; flex: none; }
   .ini-rango button {
     border: none; background: #fff; padding: 6px 11px;
-    font: 600 12.5px 'Outfit', sans-serif; color: var(--tinta-media); cursor: pointer;
+    font: 600 12.5px var(--fuente); color: var(--tinta-media); cursor: pointer;
   }
   .ini-rango button + button { border-left: 1px solid var(--borde-2); }
   .ini-rango button.on { background: var(--tinta); color: #fff; }
@@ -410,8 +410,13 @@ $('vistaInicio').innerHTML = `
 
     <div class="ini-fila ini-fila-sola">
       <section class="ini-caja">
-        <h3>Clientes frecuentes</h3>
-        <p class="ini-sub">Los que te compraron más de una vez</p>
+        <div class="ini-caja-cab">
+          <div>
+            <h3>Clientes frecuentes</h3>
+            <p class="ini-sub">Los que te compraron más de una vez</p>
+          </div>
+          <button class="ini-link" data-ir="clientes">Ver clientes</button>
+        </div>
         <ul class="ini-lista ini-dos" id="iniClientes"><li><div class="ini-esq" style="height:90px;flex:1"></div></li></ul>
       </section>
     </div>

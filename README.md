@@ -65,8 +65,24 @@ momento.
 
 ### El panel
 
-En `admin/`, con login propio. Cuatro vistas: **Productos**, **Juegos**,
-**Ventas** y **Stock**. Cada una vive en su archivo de `admin/js/`.
+En `admin/`, con login propio. Siete vistas: **Inicio**, **Ventas**,
+**Clientes**, **Stock**, **Productos**, **Juegos** y **Ajustes**. Cada una
+vive en su archivo de `admin/js/` (`admin-clientes.js` y `admin-ajustes.js`
+son las nuevas).
+
+El estilo es el de un panel de administración de siempre: menú lateral
+oscuro, barra de arriba blanca con la campana de pendientes, tarjetas
+blancas y una sola letra (Inter). La base está en el `<style>` de
+`admin/index.html`; lo de cada vista, en `admin/css/panel.css`. En el
+celular el menú es un cajón (☰ o "Más") y abajo quedan las vistas de
+todos los días.
+
+- **Clientes**: los registrados en la tienda (Usuario + WhatsApp) y los que
+  compraron dejando su número, con compras, gastado, última compra y cómo
+  está su suscripción. Filtros (por vencer, vencidas…), su WhatsApp con un
+  toque y "Exportar" a planilla.
+- **Ajustes**: el estado de Telegram, el interruptor "Confirmar pagos desde
+  Telegram" (apagado), "Mandar mensaje de prueba" y tu cuenta.
 
 Para entrar hace falta dos cosas: una cuenta en Supabase Auth **y** estar en
 la tabla `admins`. Lo primero solo te deja mirar; lo segundo es lo que te
@@ -85,6 +101,7 @@ deja guardar.
 | `js/historial.js`, `js/stock-tienda.js` | Historial del cliente y stock visible en la tienda |
 | `js/pedido-pendiente.js` | "Tenés un pedido esperando el pago → Ver QR", en la tienda y en Mis compras |
 | `js/modo-prueba.js` | El modo prueba de la tienda (lo abre "Probar la tienda" del panel, `admin/js/admin-prueba.js`) |
+| `js/usuario.js` | "Usuario" del cliente: si no se registró, le pide Usuario y WhatsApp al entrar (puede tocar "Ahora no") |
 
 ### La base
 
@@ -117,6 +134,9 @@ correr de nuevo sin romper nada.
 | `22-cerrar-funciones-viejas.sql` | Sin acceso público para crear_pedido() y ver_mi_pedido(), que ya no usa nadie |
 | `23-confirmar-desde-telegram.sql` | Los avisos de pedidos por QR Bolivia traen un botón para confirmar desde Telegram; sin stock, va por WhatsApp. Lo de Binance sigue confirmándose solo |
 | `24-sin-pagar-desde-ayer.sql` | Todos los días a las 9:05, por Telegram, cada compra que sigue sin pagar desde ayer, con "Cancelar: nunca pagó / duplicado" o "Dejarlo". Nada se cancela solo |
+| `25-telegram-sin-confirmar.sql` | Apaga "Confirmar pagos desde Telegram": el aviso de pedido nuevo llega sin botón y un botón viejo no confirma nada. Se prende y apaga en Panel → Ajustes |
+| `26-registro-de-clientes.sql` | La tabla `clientes` (Usuario + WhatsApp) y `registrar_cliente()`, que llama la tienda. El pedido toma el usuario si llega sin nombre |
+| `27-aviso-vencida-con-boton.sql` | El aviso de vencimiento/vencida por Telegram trae el botón "Enviar por WhatsApp" con el mensaje para el cliente ya escrito; no avisa si ya renovó |
 | `functions/webhook-pago/` | La puerta para que la pasarela confirme sola |
 | `functions/telegram-boton/` | Recibe los toques de los botones de Telegram (solo con la clave y desde tu chat) |
 

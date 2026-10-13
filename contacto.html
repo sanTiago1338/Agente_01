@@ -33,12 +33,12 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Tiago Store">
-  <link rel="stylesheet" href="styles.css?v=20261006120342">
+  <link rel="stylesheet" href="styles.css?v=20261013110544">
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261006120342">
-  <script src="js/barra-vidrio.js?v=20261006120342" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261013110544">
+  <script src="js/barra-vidrio.js?v=20261013110544" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261006120342"></script>
+  <script src="js/tenido.js?v=20261013110544"></script>
 </head>
 <body>
 
@@ -49,6 +49,7 @@
       <li><a href="index.html">Tienda</a></li>
       <li><a href="planes.html">Planes</a></li>
       <li><a href="contacto.html" class="active">Contacto</a></li>
+      <li><a href="#" data-usuario class="us-punto">Usuario</a></li>
       <li><a href="https://wa.me/59157707335" target="_blank" class="nav-wa">WhatsApp</a></li>
     </ul>
   </nav>
@@ -236,7 +237,10 @@
     <p style="margin-top:0.5rem;">+591 57707335 &nbsp;|&nbsp; &copy; 2024 Tiago Store Bolivia · Todos los derechos reservados</p>
   </footer>
 
-  <script src="wa-bubble.js?v=20261006120342" defer></script>
-  <script src="bg-burbujas.js?v=20261006120342" defer></script>
+  <!-- Usuario y WhatsApp del cliente: si no se registró, se le pide
+       (js/usuario.js, supabase/26-registro-de-clientes.sql) -->
+  <script type="module" src="js/usuario.js?v=20261013110544"></script>
+  <script src="wa-bubble.js?v=20261013110544" defer></script>
+  <script src="bg-burbujas.js?v=20261013110544" defer></script>
 </body>
 </html>

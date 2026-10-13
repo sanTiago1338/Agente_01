@@ -778,10 +778,10 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261006120342">
-  <script src="js/barra-vidrio.js?v=20261006120342" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261013110544">
+  <script src="js/barra-vidrio.js?v=20261013110544" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261006120342"></script>
+  <script src="js/tenido.js?v=20261013110544"></script>
 </head>
 <body>
 
@@ -1326,7 +1326,15 @@
         const box = document.getElementById('customerDataBox');
         box.style.display = 'block';
         if (needsEmail) document.getElementById('emailField').style.display = 'block';
-        if (needsUsername) document.getElementById('usernameField').style.display = 'block';
+        if (needsUsername) {
+          document.getElementById('usernameField').style.display = 'block';
+          // Ya registrado en la tienda (js/usuario.js): viene escrito
+          const campo = document.getElementById('customerUsername');
+          try {
+            const u = JSON.parse(localStorage.getItem('tiago-usuario') || 'null');
+            if (campo && !campo.value && u && u.nombre) campo.value = String(u.nombre).slice(0, 40);
+          } catch (e) { /* sin almacenamiento: lo escribe */ }
+        }
         const hint = needsUsername
           ? 'Necesitamos tu correo y nombre/usuario para crear y enviarte tu cuenta Claude Pro.'
           : 'Necesitamos tu correo para activar este servicio.';
@@ -1590,6 +1598,16 @@
   function conDatos(l) {
     const c = (l && l.credenciales) || {};
     return !!(c.usuario || c.clave || c.perfil || c.pin || c.notas);
+  }
+
+  // El usuario con el que se registró en la tienda (js/usuario.js lo deja
+  // en este navegador). Sin registro, vacío: la base igual lo busca por
+  // su WhatsApp (supabase/26-registro-de-clientes.sql).
+  function usuarioRegistrado() {
+    try {
+      const u = JSON.parse(localStorage.getItem('tiago-usuario') || 'null');
+      return (u && typeof u.nombre === 'string') ? u.nombre.slice(0, 40) : '';
+    } catch { return ''; }
   }
 
   function pintar(compra, resumen) {
@@ -2010,8 +2028,10 @@
     const url = new URLSearchParams(window.location.search);
     const wa  = (url.get('wa') || '').replace(/\D/g, '');
 
+    // El nombre: el que escribió acá (los productos que lo piden) o, si
+    // no, el usuario con el que se registró en la tienda (js/usuario.js)
     const compra = await crearCompra(lineas, {
-      nombre:   ($('customerUsername') || {}).value || '',
+      nombre:   ($('customerUsername') || {}).value || usuarioRegistrado(),
       email:    ($('customerEmail')    || {}).value || '',
       whatsapp: wa,
       renovar:  url.get('recordar') === '1' && wa !== ''
@@ -2045,6 +2065,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20261006120342" defer></script>
+  <script src="bg-burbujas.js?v=20261013110544" defer></script>
 </body>
 </html>

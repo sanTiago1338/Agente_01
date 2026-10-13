@@ -90,6 +90,21 @@
     padding: 1rem;
     text-align: center;
   }
+  /* El botón de Usuario, a la derecha del logo (js/usuario.js) */
+  .btn-usuario {
+    position: absolute;
+    right: .7rem; top: 50%;
+    transform: translateY(-50%);
+    width: 38px; height: 38px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--separador-2);
+    background: #fff;
+    color: var(--tinta);
+    cursor: pointer;
+  }
+  .btn-usuario svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .btn-usuario:hover { border-color: var(--marca); color: var(--marca); }
   header a.logo {
     text-decoration: none;
     font-family: 'Bebas Neue', sans-serif;
@@ -314,15 +329,19 @@
   }
 </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261006120342">
-  <script src="js/barra-vidrio.js?v=20261006120342" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261013110544">
+  <script src="js/barra-vidrio.js?v=20261013110544" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261006120342"></script>
+  <script src="js/tenido.js?v=20261013110544"></script>
 </head>
 <body>
 
 <header>
   <a class="logo" href="index.html">TIAGO STORE</a>
+  <!-- Usuario y WhatsApp del cliente (js/usuario.js) -->
+  <button type="button" class="btn-usuario us-punto" data-usuario aria-label="Usuario">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20.5a8 8 0 0 1 16 0"/></svg>
+  </button>
 </header>
 
 <main class="caja">
@@ -525,7 +544,10 @@ pintar();
 <!-- "Tenés un pedido esperando el pago → Ver QR": esta lista guarda solo
      las compras entregadas, y el que vuelve a buscar un pedido sin pagar
      lo encuentra acá -->
-<script type="module" src="js/pedido-pendiente.js?v=20261006120342"></script>
-<script src="bg-burbujas.js?v=20261006120342" defer></script>
+<script type="module" src="js/pedido-pendiente.js?v=20261013110544"></script>
+<!-- Usuario y WhatsApp del cliente: si no se registró, se le pide
+       (js/usuario.js, supabase/26-registro-de-clientes.sql) -->
+<script type="module" src="js/usuario.js?v=20261013110544"></script>
+<script src="bg-burbujas.js?v=20261013110544" defer></script>
 </body>
 </html>

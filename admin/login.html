@@ -12,24 +12,29 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-  /* Misma paleta clara que la tienda y que el panel. Los nombres viejos
-     quedan como alias para no reescribir el CSS de abajo. */
+  /* El mismo estilo del panel (admin/index.html): fondo gris muy claro,
+     tarjeta blanca con borde fino, una sola letra (Inter) y el oscuro del
+     menú lateral. En la compu, la marca a la izquierda y el formulario a
+     la derecha; en el celular, solo el formulario. */
   :root {
-    --fondo:       #ffffff;
-    --superficie:  #fbfbfc;
-    --superficie-2:#f4f5f7;
-    --separador:   rgba(20,22,26,.09);
-    --tinta:       #14161a;
-    --tinta-media: #3d424b;
-    --tinta-suave: #767c88;
-    --tinta-tenue: #9aa0ab;
+    --fuente:      'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --fondo:       #f4f5f7;
+    --superficie:  #ffffff;
+    --superficie-2:#f8f9fb;
+    --separador:   #e6e8ec;
+    --separador-2: #d5d9e0;
+    --tinta:       #101318;
+    --tinta-media: #374151;
+    --tinta-suave: #5f6673;
+    --tinta-tenue: #8b919c;
     --marca:       #e50914;
-    --oro:         #9a7400;
+    --marca-oscura:#b8070f;
+    --lat-fondo:   #0d1016;
 
-    --sombra-alta: 0 2px 6px rgba(20,22,26,.07), 0 12px 32px rgba(20,22,26,.10);
+    --sombra-alta: 0 12px 28px -6px rgba(16,24,40,.14), 0 4px 10px -4px rgba(16,24,40,.08);
 
     /* Alias históricos */
     --negro:    var(--fondo);
@@ -37,7 +42,6 @@
     --panel-2:  var(--superficie-2);
     --borde:    var(--separador);
     --rojo:     var(--marca);
-    --dorado:   var(--oro);
     --texto:    var(--tinta-media);
     --gris:     var(--tinta-suave);
     --gris-dim: var(--tinta-tenue);
@@ -50,58 +54,91 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background: var(--negro);
+    background: var(--fondo);
     color: var(--texto);
-    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-family: var(--fuente);
+    -webkit-font-smoothing: antialiased;
     display: grid;
-    place-items: center;
-    padding: 24px 18px;
-    background-image:
-      radial-gradient(900px 420px at 50% -120px, rgba(229,9,20,.06),  transparent 65%),
-      radial-gradient(600px 300px at 85% 110%, rgba(245,197,24,.08), transparent 60%);
+    grid-template-columns: minmax(0, 1fr);
   }
 
+  /* ---------- La marca (compu) ---------- */
+  .lado { display: none; }
+  @media (min-width: 960px) {
+    body { grid-template-columns: minmax(380px, 44%) minmax(0, 1fr); }
+    .lado {
+      display: flex;
+      flex-direction: column;
+      padding: 44px 48px;
+      background: var(--lat-fondo);
+      background-image:
+        radial-gradient(90% 60% at 0% 0%, rgba(229,9,20,.22), transparent 60%),
+        radial-gradient(70% 50% at 100% 100%, rgba(229,9,20,.10), transparent 60%);
+      color: #c3c8d1;
+    }
+  }
+  .lado-marca { display: flex; align-items: center; gap: 12px; }
+  .lado-marca b { display: block; font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -.01em; }
+  .lado-marca small { display: block; font-size: 12.5px; color: #7c8492; }
+  .lado-centro { margin: auto 0; max-width: 440px; }
+  .lado h2 {
+    margin: 0 0 14px;
+    font-size: 34px; line-height: 1.15; font-weight: 800; letter-spacing: -.03em;
+    color: #fff;
+  }
+  .lado p { margin: 0 0 28px; font-size: 15.5px; line-height: 1.6; color: #a3aab6; }
+  .lado ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .lado li { display: flex; align-items: flex-start; gap: 12px; font-size: 14.5px; line-height: 1.5; }
+  .lado li b { color: #fff; font-weight: 600; }
+  .lado li svg {
+    flex: none; width: 34px; height: 34px; padding: 8px;
+    border-radius: 9px; background: rgba(255,255,255,.07); color: #ff4d56;
+    fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .lado-pie { font-size: 12.5px; color: #626a77; }
+
+  .marca-ico {
+    width: 40px; height: 40px; flex: none;
+    display: grid; place-items: center;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #ff1f2b, var(--marca-oscura));
+    color: #fff;
+    font: 800 20px/1 var(--fuente);
+    box-shadow: 0 6px 16px rgba(229,9,20,.35), inset 0 1px 0 rgba(255,255,255,.25);
+  }
+
+  /* ---------- El formulario ---------- */
+  .zona-form { display: grid; place-items: center; padding: 32px 18px; min-height: 100vh; }
   .card {
     width: 100%;
-    max-width: 420px;
+    max-width: 400px;
     background: var(--panel);
     border: 1px solid var(--borde);
     border-radius: 16px;
-    padding: 34px 30px 28px;
+    padding: 32px 28px 26px;
     box-shadow: var(--sombra-alta);
   }
 
   /* ---------- Encabezado ---------- */
   .logo {
-    font-family: 'Bebas Neue', Impact, sans-serif;
-    font-size: 34px;
-    letter-spacing: .06em;
-    text-align: center;
-    margin: 0 0 2px;
-    line-height: 1;
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 0 22px;
+    font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2;
+    color: var(--tinta);
   }
-  .logo .zona { color: var(--rojo); }
-  .logo .vip  { color: var(--tinta); }
+  .logo small { display: block; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--tinta-suave); }
 
-  .subtitulo {
-    text-align: center;
-    font-size: 11.5px;
-    letter-spacing: .26em;
-    text-transform: uppercase;
-    color: var(--gris-dim);
-    margin: 0 0 30px;
-  }
+  .subtitulo { margin: 0 0 22px; font-size: 14px; line-height: 1.5; color: var(--tinta-suave); }
 
   /* ---------- Campos ---------- */
   .campo { margin-bottom: 16px; }
 
   label {
     display: block;
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 600;
-    color: var(--gris);
+    color: var(--tinta-media);
     margin-bottom: 7px;
-    letter-spacing: .02em;
   }
 
   .input-wrap { position: relative; }
@@ -110,14 +147,16 @@
   input[type=password],
   input[type=text] {
     width: 100%;
-    padding: 12px 14px;
-    background: var(--panel-2);
-    border: 1px solid var(--borde);
+    min-height: 44px;
+    padding: 11px 13px;
+    background: var(--superficie);
+    border: 1px solid var(--separador-2);
     border-radius: 9px;
-    color: var(--texto);
+    color: var(--tinta);
     font-size: 15px;
     font-family: inherit;
-    transition: border-color .15s;
+    box-shadow: 0 1px 2px rgba(16,24,40,.05);
+    transition: border-color .15s, box-shadow .15s;
   }
   input::placeholder { color: var(--gris-dim); }
   input:focus {
@@ -159,47 +198,49 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    margin: 0;
     font-size: 13px;
-    color: var(--gris);
+    font-weight: 500;
+    color: var(--tinta-suave);
     cursor: pointer;
     user-select: none;
   }
   .check input {
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     accent-color: var(--rojo);
     cursor: pointer;
   }
   .link-btn {
     background: none;
     border: none;
-    color: var(--dorado);
+    color: var(--rojo);
     font-size: 13px;
+    font-weight: 600;
     font-family: inherit;
     cursor: pointer;
     padding: 2px 0;
-    text-decoration: underline;
-    text-underline-offset: 3px;
   }
-  .link-btn:hover:not(:disabled) { filter: brightness(.9); }
+  .link-btn:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 3px; }
   .link-btn:disabled { opacity: .45; cursor: not-allowed; }
 
   /* ---------- Botón ---------- */
   .btn-entrar {
     width: 100%;
-    padding: 13px;
+    min-height: 46px;
+    padding: 12px;
     background: var(--rojo);
     color: #fff;
     border: none;
     border-radius: 9px;
-    font-size: 15.5px;
+    font-size: 15px;
     font-weight: 700;
     font-family: inherit;
     cursor: pointer;
-    letter-spacing: .02em;
-    transition: filter .15s;
+    box-shadow: 0 1px 2px rgba(229,9,20,.25), inset 0 1px 0 rgba(255,255,255,.15);
+    transition: background .15s;
   }
-  .btn-entrar:hover:not(:disabled) { filter: brightness(.95); }
+  .btn-entrar:hover:not(:disabled) { background: #d00812; }
   .btn-entrar:disabled { opacity: .5; cursor: not-allowed; }
 
   /* ---------- Mensajes ---------- */
@@ -213,29 +254,30 @@
   }
   .mensaje.visible { display: block; }
   .mensaje.error {
-    background: rgba(220,38,38,.08);
-    border: 1px solid rgba(220,38,38,.3);
+    background: rgba(220,38,38,.07);
+    border: 1px solid rgba(220,38,38,.28);
     color: #8f1616;
   }
   .mensaje.ok {
-    background: rgba(21,128,61,.08);
-    border: 1px solid rgba(21,128,61,.3);
+    background: rgba(21,128,61,.07);
+    border: 1px solid rgba(21,128,61,.28);
     color: #10502a;
   }
 
   /* ---------- Pie ---------- */
   .pie {
-    margin-top: 26px;
+    margin-top: 24px;
     padding-top: 18px;
     border-top: 1px solid var(--borde);
     text-align: center;
   }
   .pie a {
-    color: var(--gris-dim);
+    color: var(--tinta-suave);
     font-size: 13px;
+    font-weight: 500;
     text-decoration: none;
   }
-  .pie a:hover { color: var(--texto); }
+  .pie a:hover { color: var(--tinta); }
 
   /* ---------- Pantalla de carga inicial ---------- */
   #verificando {
@@ -266,9 +308,31 @@
 <!-- Tapa la página mientras chequeamos si ya hay sesión abierta -->
 <div id="verificando"><div class="spinner" role="status" aria-label="Verificando sesión"></div></div>
 
+<!-- La marca, a la izquierda (solo en la compu) -->
+<aside class="lado" aria-hidden="true">
+  <div class="lado-marca">
+    <span class="marca-ico">T</span>
+    <span><b>Tiago Store</b><small>Panel de administración</small></span>
+  </div>
+  <div class="lado-centro">
+    <h2>Tu tienda, en un solo lugar.</h2>
+    <p>Ventas, stock, clientes y avisos: todo lo que pasa en Tiago Store, en tiempo real.</p>
+    <ul>
+      <li><svg viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+        <span><b>Ventas al instante.</b> Cada pedido entra solo y se confirma con un toque.</span></li>
+      <li><svg viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+        <span><b>Entrega automática.</b> Con stock cargado, la cuenta le aparece sola al cliente.</span></li>
+      <li><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span><b>Clientes y vencimientos.</b> Su WhatsApp a mano y el aviso antes de que se le venza.</span></li>
+    </ul>
+  </div>
+  <div class="lado-pie">© Tiago Store Bolivia</div>
+</aside>
+
+<div class="zona-form">
 <main class="card" id="tarjeta" hidden>
-  <h1 class="logo"><span class="zona">TIAGO</span> <span class="vip">STORE</span></h1>
-  <p class="subtitulo">Panel de administración</p>
+  <h1 class="logo"><span class="marca-ico" aria-hidden="true">T</span><span>Tiago Store<small>Panel de administración</small></span></h1>
+  <p class="subtitulo">Entrá con tu correo y contraseña.</p>
 
   <form id="formLogin" novalidate>
     <div class="campo">
@@ -304,6 +368,7 @@
     <a href="../index.html">← Volver a la tienda</a>
   </div>
 </main>
+</div>
 
 <script type="module">
 // Todo sale de js/panel-auth.js, que le habla a Supabase. Este archivo no
@@ -437,7 +502,5 @@ $('btnReset').addEventListener('click', async () => {
 });
 </script>
 
-<!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
-<script src="../bg-burbujas.js?v=20261006120342" defer></script>
 </body>
 </html>

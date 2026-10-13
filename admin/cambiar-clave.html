@@ -41,7 +41,7 @@
      la misma pantalla y no una página perdida. */
   :root {
     --fuente:      'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --fondo:       #f4f5f7;
+    --fondo:       #ffffff;   /* el fondo de siempre: blanco con dos manchas suaves */
     --superficie:  #ffffff;
     --superficie-2:#f8f9fb;
     --separador:   #e6e8ec;
@@ -80,6 +80,9 @@
     display: grid;
     place-items: center;
     padding: 24px 18px;
+    background-image:
+      radial-gradient(900px 420px at 50% -120px, rgba(229,9,20,.06),  transparent 65%),
+      radial-gradient(600px 300px at 85% 110%, rgba(245,197,24,.08), transparent 60%);
   }
 
   .card {
@@ -489,5 +492,7 @@ $('formClave').addEventListener('submit', async e => {
 });
 </script>
 
+<!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
+<script src="../bg-burbujas.js?v=20261013110544" defer></script>
 </body>
 </html>

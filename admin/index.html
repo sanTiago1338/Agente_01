@@ -18,10 +18,15 @@
   /* ============================================================
      PANEL PROFESIONAL (13/10/2026)
      ============================================================
-     Fondo gris muy claro, tarjetas blancas con borde fino, menú
-     lateral oscuro y una sola tipografía (Inter), como los paneles de
-     administración de siempre. Sin vidrio ni burbujas: acá se trabaja
-     leyendo números, y todo tiene que leerse de un vistazo.
+     Tarjetas blancas con borde fino, menú lateral y una sola
+     tipografía (Inter), como los paneles de administración de siempre:
+     acá se trabaja leyendo números, y todo tiene que leerse de un
+     vistazo.
+
+     EL FONDO ES EL DE SIEMPRE, y no se toca: el de la tienda
+     (css/vidrio.css: el gris clarito con las manchas de color) y las
+     burbujas de vidrio que suben (bg-burbujas.js, al final). Pedido del
+     dueño, 13/10/2026.
 
      Los nombres viejos (--negro, --panel, --texto…) quedan abajo como
      alias: los usan los módulos de cada vista y siguen funcionando sin
@@ -31,7 +36,7 @@
     --fuente: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
     /* Superficies */
-    --fondo:        #f4f5f7;   /* fondo de la página */
+    --fondo:        #f7f8fa;   /* el de css/vidrio.css, que es el que manda */
     --superficie:   #ffffff;   /* tarjetas y paneles */
     --superficie-2: #f8f9fb;   /* cabeceras de tabla, campos, filas */
     --superficie-3: #eef0f3;   /* botones de icono, etiquetas */
@@ -1015,8 +1020,13 @@
     .fila-esqueleto { padding: 20px !important; }
   }
 </style>
+<!-- El fondo de siempre (el mismo de la tienda): el gris clarito con las
+     manchas de color, y la barra de desplazamiento fina. Va después de
+     los estilos de arriba. -->
+<link rel="stylesheet" href="../css/vidrio.css?v=20261013110544">
+<script src="../js/barra-vidrio.js?v=20261013110544" defer></script>
 <!-- Lo propio de cada vista (Inicio, Ventas, Stock, Juegos, ventanas),
-     ajustado al estilo del panel. Va después de los estilos de arriba. -->
+     ajustado al estilo del panel. -->
 <link rel="stylesheet" href="css/panel.css?v=20261013110544">
 </head>
 <body>
@@ -1820,6 +1830,9 @@ window.addEventListener('popstate', () => {
 
 <!-- "Probar la tienda": le pone la clave del modo prueba a esos enlaces -->
 <script type="module" src="js/admin-prueba.js?v=20261013110544"></script>
+
+<!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
+<script src="../bg-burbujas.js?v=20261013110544" defer></script>
 
 </body>
 </html>

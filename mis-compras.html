@@ -274,6 +274,35 @@
   }
   .link-suave:hover { color: var(--marca); }
 
+  /* "Usuario", a la derecha de la marca: abre el registro (js/usuario.js).
+     El header es sticky (más abajo): el botón se acomoda contra él. */
+  .btn-usuario {
+    position: absolute;
+    right: .6rem; top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .45rem .8rem;
+    border: none; border-radius: 999px;
+    background: rgba(255,255,255,.6);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 0 0 .5px rgba(20,22,26,.12);
+    color: var(--tinta);
+    font: 700 .8rem 'Outfit', sans-serif;
+    cursor: pointer;
+  }
+  .btn-usuario:hover { background: #fff; }
+  .btn-usuario svg {
+    width: 17px; height: 17px;
+    fill: none; stroke: currentColor; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .btn-usuario .usuario-punto { margin-left: 0; }
+  /* En los celulares más angostos no entra al lado de la marca: queda el
+     ícono (el nombre lo dice el aria-label) */
+  @media (max-width: 400px) {
+    .btn-usuario { padding: .45rem .55rem; }
+    .btn-usuario-txt { display: none; }
+  }
+
   /* ---------- LIQUID GLASS ----------
      El mismo vidrio que la tienda. Los tonos y el fondo con manchas de
      color están en css/vidrio.css (se carga después). Pisa solo fondos,
@@ -316,6 +345,8 @@
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
   <link rel="stylesheet" href="css/vidrio.css?v=20261006120342">
   <script src="js/barra-vidrio.js?v=20261006120342" defer></script>
+  <!-- El registro del cliente: usuario y WhatsApp (botón "Usuario" de arriba) -->
+  <script src="js/usuario.js?v=20261006120342" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
   <script src="js/tenido.js?v=20261006120342"></script>
 </head>
@@ -323,6 +354,10 @@
 
 <header>
   <a class="logo" href="index.html">TIAGO STORE</a>
+  <button type="button" class="btn-usuario" data-usuario>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20.5a8 8 0 0 1 16 0"/></svg>
+    <span class="btn-usuario-txt">Usuario</span><span class="usuario-punto" hidden></span>
+  </button>
 </header>
 
 <main class="caja">

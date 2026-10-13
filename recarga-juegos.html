@@ -1461,6 +1461,8 @@
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
   <link rel="stylesheet" href="css/vidrio.css?v=20261006120342">
   <script src="js/barra-vidrio.js?v=20261006120342" defer></script>
+  <!-- El registro del cliente: usuario y WhatsApp (botón "Usuario") -->
+  <script src="js/usuario.js?v=20261006120342" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
   <script src="js/tenido.js?v=20261006120342"></script>
 </head>
@@ -1472,8 +1474,9 @@
   <!-- HEADER -->
   <header class="header">
     <a href="index.html" class="header-logo">Tiago Store</a>
+    <!-- Sin la campana de "Notificaciones", que no hacía nada: el botón
+         Usuario está en la barra de abajo, como en la tienda -->
     <div class="header-actions">
-      <button class="header-icon-btn" title="Notificaciones" aria-label="Notificaciones"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></button>
       <div class="header-user">
         <div class="avatar"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 12h4M8 10v4"/><path d="M15 13h.01M18 11h.01"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg></div>
         <div>
@@ -1580,6 +1583,12 @@
       <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.3 7.6L3.5 20.5l1.3-4.3a8.5 8.5 0 1 1 15.7-4.7z"/></svg></span>
       Contacto
     </a>
+    <!-- El registro del cliente (js/usuario.js), igual que en index.html -->
+    <button class="nav-item" type="button" data-usuario>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20.5a8 8 0 0 1 16 0"/></svg></span>
+      <span class="usuario-punto" hidden></span>
+      Usuario
+    </button>
   </nav>
 
   <!-- MODAL -->

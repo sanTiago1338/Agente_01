@@ -37,6 +37,8 @@
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
   <link rel="stylesheet" href="css/vidrio.css?v=20261006120342">
   <script src="js/barra-vidrio.js?v=20261006120342" defer></script>
+  <!-- El registro del cliente: usuario y WhatsApp (botón "Usuario" del menú) -->
+  <script src="js/usuario.js?v=20261006120342" defer></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
   <script src="js/tenido.js?v=20261006120342"></script>
 </head>
@@ -49,6 +51,7 @@
       <li><a href="index.html">Tienda</a></li>
       <li><a href="planes.html">Planes</a></li>
       <li><a href="contacto.html" class="active">Contacto</a></li>
+      <li><a href="#" data-usuario>Usuario<span class="usuario-punto" hidden></span></a></li>
       <li><a href="https://wa.me/59157707335" target="_blank" class="nav-wa">WhatsApp</a></li>
     </ul>
   </nav>

@@ -363,9 +363,11 @@
       </div>
       Carro
     </button>
-    <button class="nav-item">
-      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.6 1.8H4.4z"/><path d="M10 20.5a2.1 2.1 0 0 0 4 0"/></svg></span>
-      Notificaciones
+    <!-- Antes "Notificaciones", que no hacía nada. Abre el usuario del
+         cliente (js/usuario.js): Usuario y WhatsApp. -->
+    <button class="nav-item" type="button" data-usuario>
+      <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20.5a8 8 0 0 1 16 0"/></svg></span>
+      Usuario
     </button>
   </nav>
 
@@ -395,6 +397,9 @@
        un pedido y no lo pagó, se le ofrece volver a ese mismo QR -->
   <script type="module" src="js/pedido-pendiente.js?v=20261006120342"></script>
 
+  <!-- Usuario y WhatsApp del cliente: si no se registró, se le pide
+       (js/usuario.js, supabase/26-registro-de-clientes.sql) -->
+  <script type="module" src="js/usuario.js?v=20261006120342"></script>
   <script src="wa-bubble.js?v=20261006120342" defer></script>
   <script src="bg-burbujas.js?v=20261006120342" defer></script>
 </body>

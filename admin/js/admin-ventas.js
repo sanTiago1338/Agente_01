@@ -842,12 +842,6 @@ $('vistaVentas').innerHTML = `
       <input type="text" id="vtCliente" placeholder="Ej: María Pérez" autocomplete="off">
       <label for="vtClienteWa" style="margin-top:10px;">Su WhatsApp <span style="font-weight:400;">(opcional)</span></label>
       <input type="tel" id="vtClienteWa" inputmode="numeric" placeholder="Ej: 71234567" autocomplete="off">
-      <p class="vt-nota">
-        El nombre que te figura en la transferencia y el número del que te
-        escribió. Quedan guardados en el pedido: así sabés de quién fue esta
-        venta y, cuando se le esté por vencer, te llega el aviso con el
-        enlace para escribirle.
-      </p>
 
       <div class="vt-pie">
         <button class="btn btn-fantasma" id="vtCancelar">Cancelar</button>

@@ -844,7 +844,7 @@
 
         <div id="emailField" style="display:none; margin-bottom:0.6rem;">
           <label for="customerEmail" style="display:block; font-size:0.78rem; color:var(--tinta-media); margin-bottom:0.3rem; font-weight:600;">CORREO:</label>
-          <input id="customerEmail" type="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" style="width:100%; padding:0.7rem 0.8rem; background:#fff; color:var(--tinta); border:1px solid var(--separador-2); border-radius:8px; font-size:0.9rem; font-family:'Outfit',sans-serif;">
+          <input id="customerEmail" type="email" maxlength="120" placeholder="tucorreo@ejemplo.com" autocomplete="email" style="width:100%; padding:0.7rem 0.8rem; background:#fff; color:var(--tinta); border:1px solid var(--separador-2); border-radius:8px; font-size:0.9rem; font-family:'Outfit',sans-serif;">
         </div>
 
         <div id="usernameField" style="display:none;">
@@ -1445,8 +1445,9 @@
       const errorEl = document.getElementById('customerDataError');
       const errors = [];
       if (s.needsEmail) {
-        const email = (document.getElementById('customerEmail').value || '').trim();
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        const email = (document.getElementById('customerEmail').value || '')
+          .replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').trim();
+        if (!email || email.length > 120 || !/^[^\s<>"'`@]+@[^\s<>"'`@]+\.[^\s<>"'`@]+$/.test(email)) {
           errors.push('Ingresa un correo válido.');
           document.getElementById('customerEmail').focus();
         }
@@ -1467,14 +1468,10 @@
       }
       if (errorEl) errorEl.style.display = 'none';
       buildWhatsappUrl();
-      const irAlChat = () => { window.location.href = window._waUrl || 'https://wa.me/59157707335'; };
-      // Que el correo quede en el pedido antes de salir de la página (ver
-      // guardarCorreo, abajo). Si la base tarda, no se espera más de 1,2 s.
-      if (s.needsEmail && typeof window.guardarCorreoYa === 'function') {
-        Promise.race([window.guardarCorreoYa(), new Promise(r => setTimeout(r, 1200))]).finally(irAlChat);
-      } else {
-        irAlChat();
-      }
+      // El correo, en el pedido, sin demorar la ida al chat (ver
+      // guardarCorreoAlSalir, abajo)
+      if (s.needsEmail && typeof window.guardarCorreoAlSalir === 'function') window.guardarCorreoAlSalir();
+      window.location.href = window._waUrl || 'https://wa.me/59157707335';
     }
 
     function showError(msg) {
@@ -1503,7 +1500,7 @@
     tokenDeLaUrl, compraRecordada, huellaDeCarrito, credencialesComoTexto, hayStock
   } from './js/pedido-automatico.js';
   import { guardarCompra } from './js/historial.js';
-  import { sb } from './js/supabase-base.js';
+  import { sb, SUPABASE_URL, SUPABASE_ANON_KEY } from './js/supabase-base.js';
 
   const $ = id => document.getElementById(id);
 
@@ -1715,7 +1712,7 @@
     if (listo || sinStock) {
       apagarReloj();
       avisarArriba(listo, r);
-      esconderLoDePagar();
+      esconderLoDePagar({ dejarCorreo: sinStock && faltaElCorreo() });
     }
 
     // Cancelado: se saca todo lo de pagar y se dice arriba, para que no
@@ -1838,12 +1835,19 @@
   //
   // El resumen del pedido y "Volver a la tienda" se quedan: uno es su
   // comprobante de que compro y el otro es por donde sigue.
-  function esconderLoDePagar() {
+  // dejarCorreo: pagó y falta su correo ("a correo de cliente"): esa caja
+  // queda, con su campo, para que lo escriba (se guarda solo al escribirlo)
+  function esconderLoDePagar({ dejarCorreo = false } = {}) {
     mostrarYaPague(false);     // y queda decidido: el reloj de 8 s no lo vuelve a mostrar
     ['qrCard', 'instruccionesPago', 'instruccionesBinance', 'customerDataBox'].forEach(id => {
       const el = $(id);
-      if (el) el.style.display = 'none';
+      if (el && !(dejarCorreo && id === 'customerDataBox')) el.style.display = 'none';
     });
+    if (dejarCorreo) {
+      const caja = $('customerDataBox'), hint = $('customerDataHint');
+      if (caja) caja.style.display = 'block';
+      if (hint) hint.textContent = 'Ya recibimos tu pago. Para activarlo necesitamos tu correo: escribilo acá y queda guardado en tu pedido.';
+    }
     // Una columna, con el aviso debajo del resumen (ver .pago-grid.sin-pago)
     const grilla = document.querySelector('.pago-grid');
     if (grilla) grilla.classList.add('sin-pago');
@@ -1893,23 +1897,58 @@
   // activan sobre su cuenta, y el pedido se arma antes de que lo escriba:
   // se guarda apenas es válido (y otra vez al tocar "Ya pagué"), así en el
   // panel aparece en "Para atender" (supabase/28-correo-del-cliente.sql).
-  const CORREO_OK = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //
+  // Las llamadas van de a una, en fila, y cada una lee el campo en el
+  // momento de salir: así nunca queda guardado un correo viejo porque una
+  // respuesta lenta llegó después de una más nueva.
+  const CORREO_OK = /^[^\s<>"'`@]+@[^\s<>"'`@]+\.[^\s<>"'`@]+$/;
+  // Los de ancho cero vienen pegados de otro lado y no se ven: se sacan
+  const limpiarCorreo = t => String(t || '').replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').trim().toLowerCase();
+  const correoValido = c => c.length <= 120 && CORREO_OK.test(c);
+  const correoDelCampo = () => limpiarCorreo(($('customerEmail') || {}).value);
   let correoGuardado = '';
   let esperaCorreo = null;
+  let filaCorreo = Promise.resolve();
+
+  async function enviarCorreo() {
+    const correo = correoDelCampo();
+    if (!tokenActual || !correoValido(correo) || correo === correoGuardado) return;
+    try {
+      const { error } = await sb.rpc('guardar_correo_compra', { p_token: tokenActual, p_email: correo });
+      if (error) { console.warn('No se pudo guardar el correo en el pedido:', error.message); return; }
+      correoGuardado = correo;
+      correoQuedoGuardado();
+    } catch (e) {
+      console.warn('No se pudo guardar el correo en el pedido:', e.message);
+    }
+  }
   function guardarCorreo() {
     clearTimeout(esperaCorreo);
-    const campo = $('customerEmail');
-    const correo = ((campo && campo.value) || '').trim().toLowerCase();
-    if (!tokenActual || !CORREO_OK.test(correo) || correo === correoGuardado) return Promise.resolve();
-    return sb.rpc('guardar_correo_compra', { p_token: tokenActual, p_email: correo })
-      .then(({ error }) => {
-        if (error) { console.warn('No se pudo guardar el correo en el pedido:', error.message); return; }
-        correoGuardado = correo;
-      })
-      .catch(e => console.warn('No se pudo guardar el correo en el pedido:', e.message));
+    filaCorreo = filaCorreo.then(enviarCorreo, enviarCorreo);
+    return filaCorreo;
   }
-  // irAWhatsApp() (el otro script) lo llama antes de ir al chat
-  window.guardarCorreoYa = guardarCorreo;
+
+  // "Ya pagué": se va a WhatsApp en el mismo toque (si no, en el iPhone
+  // wa.me a veces no abre la app). Si el correo todavía no quedó, sale con
+  // keepalive, que sigue aunque la página se vaya.
+  window.guardarCorreoAlSalir = function () {
+    clearTimeout(esperaCorreo);
+    const correo = correoDelCampo();
+    if (!tokenActual || !correoValido(correo) || correo === correoGuardado) return;
+    try {
+      fetch(`${SUPABASE_URL}/rest/v1/rpc/guardar_correo_compra`, {
+        method: 'POST',
+        keepalive: true,
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({ p_token: tokenActual, p_email: correo })
+      }).catch(() => { /* el correo igual va en el mensaje de WhatsApp */ });
+    } catch { /* idem */ }
+  };
+
   {
     const campo = $('customerEmail');
     if (campo) {
@@ -1921,10 +1960,44 @@
     }
   }
 
+  // Pagó (o se confirmó solo) y todavía falta el correo de un producto "a
+  // correo de cliente": el campo se queda a la vista para que lo escriba.
+  const faltaElCorreo = () => !!(window._payState && window._payState.needsEmail) && !correoGuardado;
+  function correoQuedoGuardado() {
+    const hint = $('customerDataHint');
+    if (hint && compraActual && resumirCompra(compraActual).estado === 'sin_stock') {
+      hint.textContent = 'Listo: guardamos tu correo. Te avisamos por WhatsApp cuando tu cuenta esté activa.';
+    }
+  }
+
+  // Volvió por su link (sin carrito): la página no sabe qué compró. Si algo
+  // es "a correo de cliente" y la compra sigue pendiente, se le pide el
+  // correo igual que la primera vez.
+  async function pedirCorreoSiHaceFalta(compra) {
+    const s = window._payState;
+    if (!s || s.needsEmail) return;
+    const estado = resumirCompra(compra).estado;
+    if (!['esperando_pago', 'vencido', 'sin_stock'].includes(estado)) return;
+    const ids = [...new Set((compra.lineas || []).map(l => l.producto_id).filter(Boolean))];
+    if (!ids.length) return;
+    const { data, error } = await sb.from('productos').select('id, nombre, descripcion').in('id', ids);
+    if (error || !data) return;
+    const pide = data.some(p => `${p.nombre || ''} ${p.descripcion || ''}`.toLowerCase().includes('correo de cliente'));
+    if (!pide) return;
+    s.needsEmail = true;
+    const caja = $('customerDataBox'), campo = $('emailField'), hint = $('customerDataHint');
+    if (caja) caja.style.display = 'block';
+    if (campo) campo.style.display = 'block';
+    if (hint) hint.textContent = 'Necesitamos tu correo para activar este servicio.';
+    if (typeof buildWhatsappUrl === 'function') buildWhatsappUrl();
+    if (compraActual) pintar(compraActual);
+  }
+
   function engancharCompra(token, compra) {
     tokenActual = token;
     // Si ya lo había escrito (o lo completó el navegador), se guarda ahora
     guardarCorreo();
+    pedirCorreoSiHaceFalta(compra);
     window._pedidoLink   = location.origin + location.pathname + '#t=' + token;
     // Una compra hecha en modo prueba (js/modo-prueba.js) lo dice al lado
     // del número, también en el mensaje de WhatsApp
@@ -2078,6 +2151,8 @@
       renovar:  url.get('recordar') === '1' && wa !== ''
     });
     if (!compra) { mostrarYaPague(true); return; }   // Supabase no contesto: sigue el flujo viejo
+    // El token ya sirve para guardar el correo, aunque la consulta de abajo falle
+    tokenActual = compra.token;
 
     // Se vuelve a preguntar por la compra recien creada en vez de armarla a
     // mano: asi la pantalla se dibuja con la misma forma que en todos los

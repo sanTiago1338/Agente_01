@@ -322,7 +322,7 @@ body.menu-abierto .lateral {
   padding: 10px;
   border-top: 1px solid var(--separador);
 }
-.cuenta {
+.lateral .cuenta {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -330,7 +330,7 @@ body.menu-abierto .lateral {
   padding: 10px 6px 4px 10px;
   border-top: 1px solid var(--separador);
 }
-.usuario {
+.lateral .usuario {
   flex: 1;
   min-width: 0;
   font-size: 12.5px;
@@ -1172,6 +1172,14 @@ body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) {
 /* Teñido: más blanco debajo, igual que en la tienda */
 html.tenido body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) { background-color: var(--vidrio-tinte); }
 
+/* Confirmar pago, Rechazar y Listo (Ventas): un 30 % más grandes en la
+   compu, todo junto (letras, botones y aire), para leerlas sin forzar la
+   vista. En el celular ya ocupan el ancho entero y quedan como están. */
+@media (min-width: 700px) {
+  body #vtFondo > .vt-modal,
+  body #vtFondoMano > .vt-modal { zoom: 1.3; }
+}
+
 /* El control "Transparente o teñido" (js/tenido.js): en el panel no hay
    burbuja de WhatsApp de referencia. Celular: arriba de la barra de
    abajo. Compu: al lado del menú, no encima de la cuenta. */
@@ -1284,8 +1292,8 @@ body.pagina-acceso {
 }
 .acceso-caja .bajada { margin: 0 0 26px; font-size: 14px; color: var(--tinta-suave); line-height: 1.5; }
 
-.campo { margin-bottom: 16px; }
-.campo label,
+.acceso .campo { margin-bottom: 16px; }
+.acceso .campo label,
 .acceso-caja > form > label {
   display: block;
   margin-bottom: 6px;
@@ -1293,7 +1301,7 @@ body.pagina-acceso {
   font-weight: 500;
   color: var(--tinta-media);
 }
-.input-wrap { position: relative; }
+.acceso .input-wrap { position: relative; }
 .acceso-caja input[type=email],
 .acceso-caja input[type=password],
 .acceso-caja input[type=text] {
@@ -1315,7 +1323,7 @@ body.pagina-acceso {
 }
 .acceso-caja input:disabled { opacity: .55; }
 .acceso-caja .input-wrap input { padding-right: 44px; }
-.ojo {
+.acceso .ojo {
   position: absolute;
   right: 4px; top: 50%;
   transform: translateY(-50%);
@@ -1328,10 +1336,10 @@ body.pagina-acceso {
   line-height: 1;
   cursor: pointer;
 }
-.ojo:hover { color: var(--tinta); }
-.ojo:focus-visible { outline: 2px solid var(--info); outline-offset: -2px; }
+.acceso .ojo:hover { color: var(--tinta); }
+.acceso .ojo:focus-visible { outline: 2px solid var(--info); outline-offset: -2px; }
 
-.fila-recordar {
+.acceso .fila-recordar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1339,7 +1347,7 @@ body.pagina-acceso {
   gap: 12px;
   margin: 2px 0 22px;
 }
-.check {
+.acceso .check {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1348,8 +1356,8 @@ body.pagina-acceso {
   cursor: pointer;
   user-select: none;
 }
-.check input { width: 15px; height: 15px; accent-color: var(--tinta); cursor: pointer; }
-.link-btn {
+.acceso .check input { width: 15px; height: 15px; accent-color: var(--tinta); cursor: pointer; }
+.acceso .link-btn {
   padding: 2px 0;
   border: none;
   background: none;
@@ -1357,10 +1365,10 @@ body.pagina-acceso {
   font: 500 13px var(--letra);
   cursor: pointer;
 }
-.link-btn:hover:not(:disabled) { text-decoration: underline; }
-.link-btn:disabled { opacity: .45; cursor: not-allowed; }
+.acceso .link-btn:hover:not(:disabled) { text-decoration: underline; }
+.acceso .link-btn:disabled { opacity: .45; cursor: not-allowed; }
 
-.btn-entrar {
+.acceso .btn-entrar {
   display: block;
   width: 100%;
   height: 42px;
@@ -1375,10 +1383,10 @@ body.pagina-acceso {
   cursor: pointer;
   transition: background .12s;
 }
-.btn-entrar:hover:not(:disabled) { background: #1f2937; }
-.btn-entrar:disabled { opacity: .5; cursor: not-allowed; }
+.acceso .btn-entrar:hover:not(:disabled) { background: #1f2937; }
+.acceso .btn-entrar:disabled { opacity: .5; cursor: not-allowed; }
 
-.mensaje {
+.acceso .mensaje {
   display: none;
   margin-top: 16px;
   padding: 11px 13px;
@@ -1386,9 +1394,9 @@ body.pagina-acceso {
   font-size: 13.5px;
   line-height: 1.5;
 }
-.mensaje.visible { display: block; }
-.mensaje.error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
-.mensaje.ok    { background: #ecfdf3; border: 1px solid #bbf7d0; color: #166534; }
+.acceso .mensaje.visible { display: block; }
+.acceso .mensaje.error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+.acceso .mensaje.ok    { background: #ecfdf3; border: 1px solid #bbf7d0; color: #166534; }
 
 .acceso-enlaces {
   display: flex;
@@ -1403,10 +1411,10 @@ body.pagina-acceso {
 .acceso-enlaces a:hover { color: var(--tinta); }
 
 /* La barra de fuerza de la contraseña nueva */
-.fuerza { margin: -6px 0 18px; }
-.fuerza-barra { height: 4px; border-radius: 99px; background: var(--superficie-3); overflow: hidden; }
-.fuerza-relleno { width: 0; height: 100%; border-radius: 99px; transition: width .2s, background-color .2s; }
-.fuerza-texto { min-height: 16px; margin-top: 6px; font-size: 12px; color: var(--tinta-suave); }
+.acceso .fuerza { margin: -6px 0 18px; }
+.acceso .fuerza-barra { height: 4px; border-radius: 99px; background: var(--superficie-3); overflow: hidden; }
+.acceso .fuerza-relleno { width: 0; height: 100%; border-radius: 99px; transition: width .2s, background-color .2s; }
+.acceso .fuerza-texto { min-height: 16px; margin-top: 6px; font-size: 12px; color: var(--tinta-suave); }
 
 @media (min-width: 900px) {
   .acceso { grid-template-columns: minmax(380px, 44%) 1fr; grid-template-rows: 1fr; }

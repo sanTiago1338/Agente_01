@@ -74,14 +74,21 @@
 
   /* ---------- El formulario ---------- */
   .zona-form { display: grid; place-items: center; padding: 32px 18px; min-height: 100vh; }
+  /* Vidrio claro que flota, como los paneles de adentro: las burbujas
+     pasan por detrás esmeriladas y la letra se lee igual */
   .card {
     width: 100%;
     max-width: 400px;
-    background: var(--panel);
-    border: 1px solid var(--borde);
-    border-radius: 16px;
+    background: rgba(255,255,255,.8);
+    -webkit-backdrop-filter: blur(10px) saturate(165%);
+    backdrop-filter: blur(10px) saturate(165%);
+    border: 1px solid rgba(15,23,42,.09);
+    border-radius: 18px;
     padding: 32px 28px 26px;
-    box-shadow: var(--sombra-alta);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 1px 2px rgba(16,24,40,.04), 0 24px 48px -20px rgba(16,24,40,.22);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .card { background: #fff; -webkit-backdrop-filter: none; backdrop-filter: none; }
   }
 
   /* ---------- Encabezado ---------- */

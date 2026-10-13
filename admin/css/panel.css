@@ -4,8 +4,15 @@
    La base (colores, menú, barra de arriba, botones) está en el <style>
    de admin/index.html. Acá, lo que trae cada vista desde su módulo
    (Inicio, Productos, Ventas, Stock, Juegos, Clientes, Ajustes y sus
-   ventanas), llevado al mismo estilo: tarjetas blancas con borde fino,
-   esquinas de 12 px, la misma letra y los mismos grises.
+   ventanas), llevado al mismo estilo: tarjetas de vidrio claro que
+   flotan sobre el fondo de siempre, con borde fino, esquinas de 14 px,
+   la misma letra y los mismos grises.
+
+   VIDRIO, PERO QUE SE LEA
+     Las tarjetas son blancas al 78 % y esmeriladas (variables --cristal
+     en admin/index.html): el fondo se ve a través en color, pero ninguna
+     mancha ni burbuja le baja el contraste a la letra. Las ventanas
+     (editar, ver compra) siguen blancas enteras: ahí se escribe.
 
    POR QUÉ TODO EMPIEZA CON "body"
      Cada módulo mete sus estilos en la página cuando arranca, o sea
@@ -16,20 +23,37 @@
    ============================================================ */
 
 
+/* ---------- Las tarjetas: todas el mismo vidrio ----------
+   Una sola regla para las de todas las vistas, así ninguna queda más
+   blanca o más transparente que otra. */
+body :is(.metrica, .tabla-caja, .ini-cifra, .ini-caja, .vt-pedido, .vt-tabla,
+         .st-prod, .st-sugerir, .jg-card, .aj-caja) {
+  background: var(--cristal-tarjeta);
+  -webkit-backdrop-filter: var(--cristal-blur);
+  backdrop-filter: var(--cristal-blur);
+  border: 1px solid var(--cristal-linea);
+  border-radius: var(--radio);
+  box-shadow: var(--cristal-canto), var(--sombra);
+}
+/* Dentro de una ventana (que ya es blanca) no hace falta esmerilar */
+body .vt-modal .vt-pedido { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--superficie); }
+
+
 /* ---------- Tarjetas de números ----------
    El nombre arriba, chico y gris; el número abajo, grande. Un punto de
    color dice de qué se trata (verde, ámbar, rojo, azul). */
-body .resumen { gap: 14px; margin-bottom: 20px; }
+body .resumen { gap: var(--aire); margin-bottom: 18px; }
+/* Los seis números de Productos: de a tres cuando no entran los seis en
+   un renglón (compu chica, tablet), así no queda uno solo abajo */
+@media (max-width: 1279px) {
+  body .resumen:has(> .metrica:nth-child(5)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 body .metrica {
   display: flex;
   flex-direction: column-reverse;
   justify-content: flex-end;
   gap: 8px;
   padding: 16px 18px;
-  background: var(--superficie);
-  border: 1px solid var(--separador);
-  border-radius: var(--radio);
-  box-shadow: var(--sombra);
 }
 body .metrica-l {
   display: flex; align-items: center; gap: 7px;
@@ -52,7 +76,7 @@ body .metrica:has(.metrica-n.info)   .metrica-l::before { background: #2563eb; }
 body .metrica-n {
   font-size: 28px;
   font-weight: 700;
-  letter-spacing: -.02em;
+  letter-spacing: -.025em;
   color: var(--tinta);
 }
 body .metrica-n.ok, body .metrica-n.warn, body .metrica-n.rojo,
@@ -79,12 +103,12 @@ body .zv-btn, body .jg-btn { border-radius: var(--radio-chico); }
 body .jg-btn.gris, body .zv-btn.gris { background: var(--superficie); color: var(--tinta-media); border-color: var(--separador-2); }
 body .vt-pag, body .vt-ver {
   border-radius: var(--radio-chico);
-  border-color: var(--separador-2);
-  background: var(--superficie);
+  border-color: var(--cristal-linea-2);
+  background: var(--cristal-campo);
   color: var(--tinta-media);
   font-weight: 600;
 }
-body .vt-ver:hover, body .vt-pag:hover { background: var(--superficie-2); color: var(--tinta); }
+body .vt-ver:hover, body .vt-pag:hover { background: #fff; color: var(--tinta); }
 body .vt-pag.activa { background: var(--tinta); border-color: var(--tinta); color: #fff; }
 
 /* Íconos de línea: miden lo que la letra de su caja y se apoyan en su
@@ -99,22 +123,28 @@ body .zvi-zona .icono { color: var(--gris-dim); }
 
 
 /* ---------- Herramientas: buscador, filtros y selects ---------- */
+/* Vidrio casi blanco y esmerilado: sobre el fondo se leen como campos,
+   no como agujeros, y lo que pasa por detrás no molesta al escribir. */
 body .buscador input,
 body select,
 body .st-buscar input,
 body input[type="search"] {
   min-height: 40px;
-  background: var(--superficie);
-  border: 1px solid var(--separador-2);
+  background-color: var(--cristal-campo);
+  -webkit-backdrop-filter: var(--cristal-blur-suave);
+  backdrop-filter: var(--cristal-blur-suave);
+  border: 1px solid var(--cristal-linea-2);
   border-radius: var(--radio-chico);
   color: var(--tinta);
   font-size: 14px;
-  box-shadow: var(--sombra);
-  transition: border-color .15s, box-shadow .15s;
+  box-shadow: 0 1px 2px rgba(16,24,40,.05);
+  transition: border-color .15s, box-shadow .15s, background-color .15s;
 }
+body .buscador input:hover,
+body select:hover { background-color: rgba(255,255,255,.94); }
 body .buscador input:focus,
 body select:focus,
-body input[type="search"]:focus { outline: none; border-color: var(--marca); box-shadow: var(--anillo); }
+body input[type="search"]:focus { outline: none; background-color: #fff; border-color: var(--marca); box-shadow: var(--anillo); }
 body select {
   -webkit-appearance: none; appearance: none;
   padding-right: 34px;
@@ -125,33 +155,29 @@ body select {
 
 
 /* ---------- Tablas ---------- */
-body .tabla-caja {
-  background: var(--superficie);
-  border: 1px solid var(--separador);
-  border-radius: var(--radio);
-  box-shadow: var(--sombra);
-}
+/* Sobre el vidrio, las rayas y la cabecera van con negro transparente
+   en vez de gris fijo: así se ven igual de finas sobre cualquier color. */
 body thead th {
-  background: var(--superficie-2);
+  background: var(--cristal-tinte);
   padding: 11px 16px;
   font-size: 11.5px;
   font-weight: 600;
   letter-spacing: .04em;
   color: var(--tinta-suave);
-  border-bottom: 1px solid var(--separador);
+  border-bottom: 1px solid var(--cristal-raya);
 }
 @media (min-width: 821px) {
-  body tbody td { padding: 12px 16px; border-bottom: 1px solid var(--separador); }
-  body tbody tr:hover td { background: #fafbfc; }
+  body tbody td { padding: 12px 16px; border-bottom: 1px solid var(--cristal-raya); }
+  body tbody tr:hover td { background: rgba(255,255,255,.6); }
 }
-body .tag-cat { background: var(--superficie-3); color: var(--tinta-media); font-weight: 600; }
-body .paginacion { border-top: 1px solid var(--separador); padding: 12px 16px; justify-content: flex-end; }
+body .tag-cat { background: rgba(15,23,42,.055); color: var(--tinta-media); font-weight: 600; }
+body .paginacion { border-top: 1px solid var(--cristal-raya); padding: 12px 16px; justify-content: flex-end; }
 body .pag-info { margin-right: auto; }
 body .pag-btn { background: var(--superficie); border-color: var(--separador-2); border-radius: 8px; color: var(--tinta-media); }
 body .pag-btn.activo { background: var(--tinta); border-color: var(--tinta); color: #fff; }
 
-body .accion-btn { border-radius: 8px; border-color: var(--separador-2); }
-body .miniatura { border-radius: 10px; border: 1px solid var(--separador); }
+body .accion-btn { border-radius: 8px; border-color: var(--cristal-linea-2); }
+body .miniatura { border-radius: 10px; border: 1px solid var(--cristal-linea); }
 
 
 /* ---------- Avisos (toast) ---------- */
@@ -168,17 +194,13 @@ body .aviso {
 }
 body .aviso.ok    { background: #0f5132; color: #fff; }
 body .aviso.error { background: #991b1b; color: #fff; }
-@media (max-width: 1023px) { body #avisos { bottom: 84px; right: 12px; left: 12px; max-width: none; } }
+/* En el celular, encima de la píldora de abajo */
+@media (max-width: 1023px) { body #avisos { bottom: calc(88px + env(safe-area-inset-bottom)); right: 12px; left: 12px; max-width: none; } }
 
 
 /* ---------- Inicio ---------- */
-body .ini-cifra,
-body .ini-caja {
-  background: var(--superficie);
-  border: 1px solid var(--separador);
-  border-radius: var(--radio);
-  box-shadow: var(--sombra);
-}
+body .ini-cifras, body .ini-fila { gap: var(--aire); }
+body .ini-cifras, body .ini-fila { margin-bottom: var(--aire); }
 body .ini-cifra { padding: 18px; }
 body .ini-cifra-l { font-weight: 500; color: var(--tinta-suave); }
 body .ini-cifra-l .ico {
@@ -187,18 +209,30 @@ body .ini-cifra-l .ico {
   background: var(--marca-suave);
   color: var(--marca);
 }
-body .ini-cifra-n { font-weight: 700; font-size: 28px; }
-body button.ini-cifra:hover { transform: none; border-color: var(--separador-2); box-shadow: var(--sombra-alta); }
+body .ini-cifra-n { font-weight: 700; font-size: 28px; letter-spacing: -.025em; }
+body button.ini-cifra:hover { transform: none; background: rgba(255,255,255,.9); border-color: var(--cristal-linea-2); box-shadow: var(--cristal-canto), var(--sombra-alta); }
 body .ini-caja { padding: 18px 20px; }
-body .ini-caja h3 { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+body .ini-caja h3 { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+/* Rieles y rayas de adentro: negro transparente, se ven sobre el vidrio */
+body .ini-paso-riel,
+body .ini-top .bar { background: rgba(15,23,42,.06); }
+body .ini-col:hover, body .ini-col:focus-visible { background: rgba(15,23,42,.04); }
+body #vistaInicio .ini-tabla td { border-bottom-color: var(--cristal-raya); }
 body .ini-barra { border-radius: 5px 5px 2px 2px; background: linear-gradient(180deg, #ff2a35, var(--marca)); }
-body .ini-refrescar, body .ini-rango button {
+body .ini-refrescar {
   min-height: 36px;
   border-radius: var(--radio-chico);
-  border-color: var(--separador-2);
-  background: var(--superficie);
-  box-shadow: var(--sombra);
+  border-color: var(--cristal-linea-2);
+  background: var(--cristal-campo);
+  box-shadow: 0 1px 2px rgba(16,24,40,.05);
 }
+body .ini-refrescar:hover { background: #fff; }
+/* 7 días / 30 días: un control segmentado, el elegido en oscuro */
+body .ini-caja-cab > .ini-rango { border-color: var(--cristal-linea-2); border-radius: var(--radio-chico); background: var(--cristal-campo); }
+body .ini-rango button { min-height: 32px; background: transparent; }
+body .ini-rango button + button { border-left-color: var(--cristal-linea-2); }
+body .ini-rango button:not(.on):hover { background: #fff; }
+body .ini-rango button.on { background: var(--tinta); color: #fff; }
 body .ini-hola { font-size: 15px; }
 
 
@@ -206,13 +240,13 @@ body .ini-hola { font-size: 15px; }
 body .vt-filtro {
   min-height: 36px;
   border-radius: var(--radio-chico);
-  border: 1px solid var(--separador-2);
-  background: var(--superficie);
+  border: 1px solid var(--cristal-linea-2);
+  background: var(--cristal-campo);
   color: var(--tinta-media);
   font-weight: 600;
-  box-shadow: var(--sombra);
+  box-shadow: 0 1px 2px rgba(16,24,40,.05);
 }
-body .vt-filtro:hover { background: var(--superficie-2); }
+body .vt-filtro:hover { background: #fff; color: var(--tinta); border-color: var(--cristal-linea-2); }
 body .vt-filtro.activo,
 body .vt-filtro[aria-pressed="true"] {
   background: var(--tinta);
@@ -221,15 +255,13 @@ body .vt-filtro[aria-pressed="true"] {
 }
 body .vt-filtro.activo .n,
 body .vt-filtro[aria-pressed="true"] .n { color: rgba(255,255,255,.7); }
-body .vt-pedido,
-body .vt-tabla {
-  background: var(--superficie);
-  border: 1px solid var(--separador);
-  border-radius: var(--radio);
-  box-shadow: var(--sombra);
-}
-body .vt-pedido.urgente { background: #fff; border-color: var(--separador); box-shadow: inset 3px 0 0 var(--error), var(--sombra); }
-body .vt-pedido.espera  { box-shadow: inset 3px 0 0 #f59e0b, var(--sombra); }
+/* El módulo le pone un rojo casi transparente de fondo: sin esto la
+   tarjeta quedaba sin vidrio. Lo urgente lo dice la raya roja. */
+body .vt-pedido.urgente { background: var(--cristal-tarjeta); border-color: var(--cristal-linea); box-shadow: inset 3px 0 0 var(--error), var(--cristal-canto), var(--sombra); }
+body .vt-pedido.espera  { box-shadow: inset 3px 0 0 #f59e0b, var(--cristal-canto), var(--sombra); }
+body .vt-fila { border-top-color: var(--cristal-raya); }
+body .vt-fila:not(.vt-fila-cab):hover { background: rgba(255,255,255,.6); }
+body .vt-fila-cab { background: var(--cristal-tinte); color: var(--tinta-suave); font-weight: 600; letter-spacing: .04em; }
 body .vt-modal,
 body .st-modal,
 body .jg-modal {
@@ -244,25 +276,20 @@ body .vt-modal input:focus, body .vt-modal textarea:focus { box-shadow: var(--an
 
 
 /* ---------- Stock y Juegos ---------- */
-body .st-prod,
-body .st-sugerir,
-body .jg-card {
-  background: var(--superficie);
-  border: 1px solid var(--separador);
-  border-radius: var(--radio);
-  box-shadow: var(--sombra);
-}
-body .st-cab:hover { background: #fafbfc; }
+body .st-cab:hover { background: rgba(255,255,255,.6); }
+body .st-sug { border-top-color: var(--cristal-raya); }
 
 
 /* ---------- Ventanas (editar producto, juego, cuentas, ver compra) ---------- */
+/* El velo de las ventanas oscurece y esmerila, pero deja adivinar el
+   fondo de color; la ventana en sí es blanca entera. */
 body .zv-fondo,
 body .st-fondo,
 body .vt-fondo,
 body .jg-fondo {
-  background: rgba(9,11,15,.48);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
+  background: rgba(15,18,25,.38);
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
+  backdrop-filter: blur(6px) saturate(140%);
 }
 /* Las de Productos y Juegos tienen cabecera y pie que se quedan fijos al
    deslizar. Con el aire puesto en el fondo, quedaban a 24 px del borde y
@@ -305,7 +332,56 @@ body .cl-vacio .emo { color: var(--tinta-tenue); }
     border-color: var(--separador);
     box-shadow: var(--sombra);
   }
+  /* Productos y Clientes: cada fila ya es una tarjeta de vidrio, así que
+     la caja de afuera no se dibuja (era una caja dentro de otra) ni
+     esmerila: si no, las filas no verían el fondo. */
+  body .tabla-caja {
+    background: none; border: none; border-radius: 0; box-shadow: none;
+    overflow: visible;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  body .tabla-caja tbody tr:not(.cl-detalle) {
+    background: var(--cristal-tarjeta);
+    -webkit-backdrop-filter: var(--cristal-blur-suave);
+    backdrop-filter: var(--cristal-blur-suave);
+    border: 1px solid var(--cristal-linea);
+    box-shadow: var(--cristal-canto), var(--sombra);
+  }
+  body .tabla-caja .celda-acciones,
+  body #clTabla td.cl-celda-acc { border-top-color: var(--cristal-raya); }
+  body .tabla-caja .paginacion { border-top: none; padding: 4px 4px 0; }
   body .metrica { padding: 12px 13px; gap: 6px; }
   body .metrica-n { font-size: 22px; }
   body .metrica-l { font-size: 11.5px; }
+  body .resumen { gap: 8px; }
+}
+
+
+/* ---------- Clientes y Ajustes: lo de adentro de las tarjetas ----------
+   Traían gris fijo en la fila abierta y en los pies; sobre el vidrio
+   quedaba una franja opaca. Con negro transparente se ve igual de suave. */
+body tr.cl-fila.abierta td,
+body tr.cl-detalle td { background: var(--cristal-tinte); }
+body .aj-pie,
+body .aj-nota { background: var(--cristal-tinte); border-top-color: var(--cristal-raya); }
+body .aj-fila,
+body .aj-enlace { border-top-color: var(--cristal-raya); }
+body .aj-enlace:hover { background: rgba(255,255,255,.6); }
+body .cl-chip.nada { background: rgba(15,23,42,.06); }
+@media (max-width: 820px) {
+  body tr.cl-detalle td { background: transparent; }
+}
+
+
+/* ---------- Menos transparencia ----------
+   Si el sistema pide menos transparencia (Accesibilidad), las tarjetas
+   pasan a blancas y sin esmerilar: el fondo sigue alrededor, pero nada
+   se ve a través. Los tonos del vidrio cambian en admin/index.html. */
+@media (prefers-reduced-transparency: reduce) {
+  body :is(.metrica, .tabla-caja, .ini-cifra, .ini-caja, .vt-pedido, .vt-tabla,
+           .st-prod, .st-sugerir, .jg-card, .aj-caja),
+  body .tabla-caja tbody tr,
+  body .buscador input, body select, body input[type="search"] {
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
 }

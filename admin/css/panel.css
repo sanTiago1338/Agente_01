@@ -1,0 +1,311 @@
+/* ============================================================
+   TIAGO STORE · ESTILO PROFESIONAL DEL PANEL (lo de cada vista)
+   ============================================================
+   La base (colores, menú, barra de arriba, botones) está en el <style>
+   de admin/index.html. Acá, lo que trae cada vista desde su módulo
+   (Inicio, Productos, Ventas, Stock, Juegos, Clientes, Ajustes y sus
+   ventanas), llevado al mismo estilo: tarjetas blancas con borde fino,
+   esquinas de 12 px, la misma letra y los mismos grises.
+
+   POR QUÉ TODO EMPIEZA CON "body"
+     Cada módulo mete sus estilos en la página cuando arranca, o sea
+     DESPUÉS de este archivo. A igual peso gana el último; "body" le suma
+     el peso justo para que esto no quede tapado.
+
+   Reemplaza a css/vidrio-panel.css (el vidrio de antes).
+   ============================================================ */
+
+
+/* ---------- Tarjetas de números ----------
+   El nombre arriba, chico y gris; el número abajo, grande. Un punto de
+   color dice de qué se trata (verde, ámbar, rojo, azul). */
+body .resumen { gap: 14px; margin-bottom: 20px; }
+body .metrica {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 18px;
+  background: var(--superficie);
+  border: 1px solid var(--separador);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+body .metrica-l {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--tinta-suave);
+}
+body .metrica-l::before {
+  content: ''; width: 7px; height: 7px; flex: none; border-radius: 50%;
+  background: var(--separador-2);
+}
+body .metrica:has(.metrica-n.ok)     .metrica-l::before { background: #16a34a; }
+body .metrica:has(.metrica-n.warn)   .metrica-l::before { background: #f59e0b; }
+body .metrica:has(.metrica-n.rojo)   .metrica-l::before { background: var(--marca); }
+body .metrica:has(.metrica-n.dorado) .metrica-l::before { background: #ca8a04; }
+body .metrica:has(.metrica-n.info)   .metrica-l::before { background: #2563eb; }
+body .metrica-n {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--tinta);
+}
+body .metrica-n.ok, body .metrica-n.warn, body .metrica-n.rojo,
+body .metrica-n.dorado, body .metrica-n.info { color: var(--tinta); }
+
+
+/* ---------- Botones ----------
+   .btn-primario (Confirmar y entregar, Cargar cuentas, Guardar…) no
+   tiene estilo en ningún módulo: es el principal, rojo, como "Nuevo
+   producto". Los de las ventanas de Productos y Juegos, igual. */
+body .btn-primario,
+body .zv-btn.rojo,
+body .jg-btn.rojo {
+  background: var(--marca);
+  border: 1px solid var(--marca);
+  color: #fff;
+  border-radius: var(--radio-chico);
+  box-shadow: 0 1px 2px rgba(229,9,20,.25), inset 0 1px 0 rgba(255,255,255,.15);
+}
+body .btn-primario:hover:not(:disabled),
+body .zv-btn.rojo:hover:not(:disabled),
+body .jg-btn.rojo:hover:not(:disabled) { background: #d00812; filter: none; }
+body .zv-btn, body .jg-btn { border-radius: var(--radio-chico); }
+body .jg-btn.gris, body .zv-btn.gris { background: var(--superficie); color: var(--tinta-media); border-color: var(--separador-2); }
+body .vt-pag, body .vt-ver {
+  border-radius: var(--radio-chico);
+  border-color: var(--separador-2);
+  background: var(--superficie);
+  color: var(--tinta-media);
+  font-weight: 600;
+}
+body .vt-ver:hover, body .vt-pag:hover { background: var(--superficie-2); color: var(--tinta); }
+body .vt-pag.activa { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+
+/* Íconos de línea: miden lo que la letra de su caja y se apoyan en su
+   renglón. Los de las pantallas vacías y la zona de subir imagen, en gris. */
+body .emo svg,
+body .lupa svg,
+body .icono svg,
+body .btn-icono svg,
+body .desc-lapiz svg { display: inline-block; vertical-align: -0.125em; }
+body .emo,
+body .zvi-zona .icono { color: var(--gris-dim); }
+
+
+/* ---------- Herramientas: buscador, filtros y selects ---------- */
+body .buscador input,
+body select,
+body .st-buscar input,
+body input[type="search"] {
+  min-height: 40px;
+  background: var(--superficie);
+  border: 1px solid var(--separador-2);
+  border-radius: var(--radio-chico);
+  color: var(--tinta);
+  font-size: 14px;
+  box-shadow: var(--sombra);
+  transition: border-color .15s, box-shadow .15s;
+}
+body .buscador input:focus,
+body select:focus,
+body input[type="search"]:focus { outline: none; border-color: var(--marca); box-shadow: var(--anillo); }
+body select {
+  -webkit-appearance: none; appearance: none;
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235f6673' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+
+/* ---------- Tablas ---------- */
+body .tabla-caja {
+  background: var(--superficie);
+  border: 1px solid var(--separador);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+body thead th {
+  background: var(--superficie-2);
+  padding: 11px 16px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--tinta-suave);
+  border-bottom: 1px solid var(--separador);
+}
+@media (min-width: 821px) {
+  body tbody td { padding: 12px 16px; border-bottom: 1px solid var(--separador); }
+  body tbody tr:hover td { background: #fafbfc; }
+}
+body .tag-cat { background: var(--superficie-3); color: var(--tinta-media); font-weight: 600; }
+body .paginacion { border-top: 1px solid var(--separador); padding: 12px 16px; justify-content: flex-end; }
+body .pag-info { margin-right: auto; }
+body .pag-btn { background: var(--superficie); border-color: var(--separador-2); border-radius: 8px; color: var(--tinta-media); }
+body .pag-btn.activo { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+
+body .accion-btn { border-radius: 8px; border-color: var(--separador-2); }
+body .miniatura { border-radius: 10px; border: 1px solid var(--separador); }
+
+
+/* ---------- Avisos (toast) ---------- */
+body #avisos { bottom: 24px; right: 24px; }
+body .aviso {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--tinta);
+  border: none;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 500;
+  box-shadow: var(--sombra-alta);
+}
+body .aviso.ok    { background: #0f5132; color: #fff; }
+body .aviso.error { background: #991b1b; color: #fff; }
+@media (max-width: 1023px) { body #avisos { bottom: 84px; right: 12px; left: 12px; max-width: none; } }
+
+
+/* ---------- Inicio ---------- */
+body .ini-cifra,
+body .ini-caja {
+  background: var(--superficie);
+  border: 1px solid var(--separador);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+body .ini-cifra { padding: 18px; }
+body .ini-cifra-l { font-weight: 500; color: var(--tinta-suave); }
+body .ini-cifra-l .ico {
+  width: 30px; height: 30px; padding: 6px;
+  border-radius: 8px;
+  background: var(--marca-suave);
+  color: var(--marca);
+}
+body .ini-cifra-n { font-weight: 700; font-size: 28px; }
+body button.ini-cifra:hover { transform: none; border-color: var(--separador-2); box-shadow: var(--sombra-alta); }
+body .ini-caja { padding: 18px 20px; }
+body .ini-caja h3 { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+body .ini-barra { border-radius: 5px 5px 2px 2px; background: linear-gradient(180deg, #ff2a35, var(--marca)); }
+body .ini-refrescar, body .ini-rango button {
+  min-height: 36px;
+  border-radius: var(--radio-chico);
+  border-color: var(--separador-2);
+  background: var(--superficie);
+  box-shadow: var(--sombra);
+}
+body .ini-hola { font-size: 15px; }
+
+
+/* ---------- Ventas ---------- */
+body .vt-filtro {
+  min-height: 36px;
+  border-radius: var(--radio-chico);
+  border: 1px solid var(--separador-2);
+  background: var(--superficie);
+  color: var(--tinta-media);
+  font-weight: 600;
+  box-shadow: var(--sombra);
+}
+body .vt-filtro:hover { background: var(--superficie-2); }
+body .vt-filtro.activo,
+body .vt-filtro[aria-pressed="true"] {
+  background: var(--tinta);
+  border-color: var(--tinta);
+  color: #fff;
+}
+body .vt-filtro.activo .n,
+body .vt-filtro[aria-pressed="true"] .n { color: rgba(255,255,255,.7); }
+body .vt-pedido,
+body .vt-tabla {
+  background: var(--superficie);
+  border: 1px solid var(--separador);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+body .vt-pedido.urgente { background: #fff; border-color: var(--separador); box-shadow: inset 3px 0 0 var(--error), var(--sombra); }
+body .vt-pedido.espera  { box-shadow: inset 3px 0 0 #f59e0b, var(--sombra); }
+body .vt-modal,
+body .st-modal,
+body .jg-modal {
+  border-radius: 16px;
+  border: 1px solid var(--separador);
+  box-shadow: 0 24px 60px -12px rgba(16,24,40,.35);
+}
+body .vt-modal input,
+body .vt-modal textarea,
+body .vt-modal select { border-radius: var(--radio-chico); }
+body .vt-modal input:focus, body .vt-modal textarea:focus { box-shadow: var(--anillo); }
+
+
+/* ---------- Stock y Juegos ---------- */
+body .st-prod,
+body .st-sugerir,
+body .jg-card {
+  background: var(--superficie);
+  border: 1px solid var(--separador);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+body .st-cab:hover { background: #fafbfc; }
+
+
+/* ---------- Ventanas (editar producto, juego, cuentas, ver compra) ---------- */
+body .zv-fondo,
+body .st-fondo,
+body .vt-fondo,
+body .jg-fondo {
+  background: rgba(9,11,15,.48);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+/* Las de Productos y Juegos tienen cabecera y pie que se quedan fijos al
+   deslizar. Con el aire puesto en el fondo, quedaban a 24 px del borde y
+   asomaba el formulario por arriba y por abajo: el aire va en la ventana. */
+body .zv-fondo, body .jg-fondo { padding-top: 0; padding-bottom: 0; }
+body .zv-modal, body .jg-modal { margin-top: 24px; margin-bottom: 24px; }
+body .zv-modal {
+  border-radius: 16px;
+  border: 1px solid var(--separador);
+  box-shadow: 0 24px 60px -12px rgba(16,24,40,.35);
+}
+body :is(.zv-modal, .jg-modal, .st-modal, .vt-modal)
+  :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), textarea, select) {
+  background-color: var(--superficie);
+  border: 1px solid var(--separador-2);
+  border-radius: var(--radio-chico);
+  color: var(--tinta);
+}
+body :is(.zv-modal, .jg-modal, .st-modal, .vt-modal)
+  :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), textarea, select):focus {
+  outline: none;
+  border-color: var(--marca);
+  box-shadow: var(--anillo);
+}
+body .zv-sw.on, body .jg-sw.on { border-color: var(--tinta); }
+body .precio-edicion input:focus { border-color: var(--marca); box-shadow: var(--anillo); }
+
+
+/* ---------- Estados vacíos ---------- */
+body .estado-vacio .emo,
+body .vt-vacio .emo,
+body .st-vacio .emo,
+body .cl-vacio .emo { color: var(--tinta-tenue); }
+
+
+/* ---------- Celular: las filas como tarjetas ---------- */
+@media (max-width: 820px) {
+  body tbody tr {
+    border-radius: var(--radio);
+    border-color: var(--separador);
+    box-shadow: var(--sombra);
+  }
+  body .metrica { padding: 12px 13px; gap: 6px; }
+  body .metrica-n { font-size: 22px; }
+  body .metrica-l { font-size: 11.5px; }
+}

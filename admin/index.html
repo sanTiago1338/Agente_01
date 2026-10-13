@@ -12,43 +12,65 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-  /* La misma paleta clara de la tienda: blanco, grises fríos y el rojo de
-     marca. Los nombres viejos del panel oscuro (--negro, --panel, --texto…)
-     quedan abajo como alias, así las 900 líneas de CSS que ya los usan
-     siguen funcionando sin tocarlas. Igual que se hizo en index.html. */
+  /* ============================================================
+     PANEL PROFESIONAL (13/10/2026)
+     ============================================================
+     Fondo gris muy claro, tarjetas blancas con borde fino, menú
+     lateral oscuro y una sola tipografía (Inter), como los paneles de
+     administración de siempre. Sin vidrio ni burbujas: acá se trabaja
+     leyendo números, y todo tiene que leerse de un vistazo.
+
+     Los nombres viejos (--negro, --panel, --texto…) quedan abajo como
+     alias: los usan los módulos de cada vista y siguen funcionando sin
+     tocarlos. Lo propio de cada vista, ajustado a este estilo, está en
+     css/panel.css. */
   :root {
+    --fuente: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
     /* Superficies */
-    --fondo:        #ffffff;   /* fondo de la página */
-    --superficie:   #fbfbfc;   /* tarjetas y paneles */
-    --superficie-2: #f4f5f7;   /* zonas elevadas: inputs, filas */
-    --superficie-3: #eceef1;   /* botones de icono, etiquetas */
-    --separador:    rgba(20,22,26,.09);
-    --separador-2:  #dfe0e5;
+    --fondo:        #f4f5f7;   /* fondo de la página */
+    --superficie:   #ffffff;   /* tarjetas y paneles */
+    --superficie-2: #f8f9fb;   /* cabeceras de tabla, campos, filas */
+    --superficie-3: #eef0f3;   /* botones de icono, etiquetas */
+    --separador:    #e6e8ec;
+    --separador-2:  #d5d9e0;
 
     /* Texto */
-    --tinta:       #14161a;   /* títulos y datos fuertes */
-    --tinta-media: #3d424b;   /* cuerpo */
-    --tinta-suave: #767c88;   /* secundario */
-    --tinta-tenue: #9aa0ab;   /* pistas y placeholders */
+    --tinta:       #101318;   /* títulos y datos fuertes */
+    --tinta-media: #374151;   /* cuerpo */
+    --tinta-suave: #5f6673;   /* secundario */
+    --tinta-tenue: #8b919c;   /* pistas y placeholders */
 
     /* Marca */
     --marca:        #e50914;
     --marca-oscura: #b8070f;
-    --oro:          #9a7400;   /* oro legible sobre blanco */
+    --marca-suave:  rgba(229,9,20,.08);
+    --oro:          #9a7400;
 
-    /* Estados — oscurecidos para que se lean sobre blanco */
+    /* Estados */
     --ok:       #15803d;
-    --warn:     #a16207;
+    --warn:     #b45309;
     --error:    #dc2626;
     --info:     #1d4ed8;
 
-    --sombra:      0 1px 2px rgba(20,22,26,.05), 0 4px 14px rgba(20,22,26,.06);
-    --sombra-alta: 0 2px 6px rgba(20,22,26,.07), 0 12px 32px rgba(20,22,26,.10);
+    /* Menú lateral */
+    --lat-fondo:  #0d1016;
+    --lat-borde:  rgba(255,255,255,.07);
+    --lat-texto:  #a9afba;
+    --lat-titulo: #626a77;
+    --lat-hover:  rgba(255,255,255,.06);
+    --lat-activo: rgba(255,255,255,.09);
 
-    /* Alias históricos (venían del panel oscuro) */
+    --radio:       12px;
+    --radio-chico: 8px;
+    --sombra:      0 1px 2px rgba(16,24,40,.05);
+    --sombra-alta: 0 12px 28px -6px rgba(16,24,40,.14), 0 4px 10px -4px rgba(16,24,40,.08);
+    --anillo:      0 0 0 3px rgba(229,9,20,.14);
+
+    /* Alias históricos */
     --negro:    var(--fondo);
     --panel:    var(--superficie);
     --panel-2:  var(--superficie-2);
@@ -65,38 +87,27 @@
 
   * { box-sizing: border-box; }
 
+  html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
     min-height: 100vh;
     background: var(--fondo);
     color: var(--texto);
-    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
-    font-size: 15px;
+    font-family: var(--fuente);
+    font-size: 14.5px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11', 'ss01';
   }
-
-  /* ===== BURBUJAS DECORATIVAS =====
-     El mismo fondo de la tienda. Círculos difusos detrás del contenido,
-     puramente visuales: no interceptan clicks y se apagan en pantallas
-     chicas. Las burbujas animadas las agrega bg-burbujas.js al final. */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(circle 220px at 12% 14%, rgba(229,9,20,.05),   transparent 70%),
-      radial-gradient(circle 170px at 88% 22%, rgba(245,197,24,.07), transparent 70%),
-      radial-gradient(circle 130px at 78% 68%, rgba(229,9,20,.035),  transparent 70%),
-      radial-gradient(circle 190px at 8%  76%, rgba(245,197,24,.05), transparent 70%);
-  }
-  @media (max-width: 600px) { body::before { display: none; } }
+  button, input, select, textarea { font-family: inherit; }
+  :focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
 
   /* ================= PANTALLA DE CARGA ================= */
   #verificando {
     position: fixed;
     inset: 0;
-    background: var(--negro);
+    background: var(--fondo);
     display: grid;
     place-items: center;
     z-index: 100;
@@ -104,30 +115,30 @@
     align-content: center;
   }
   .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid var(--borde);
+    width: 34px; height: 34px;
+    border: 3px solid var(--separador);
     border-top-color: var(--rojo);
     border-radius: 50%;
     animation: girar .7s linear infinite;
   }
   @keyframes girar { to { transform: rotate(360deg); } }
-  #verificando p { color: var(--gris-dim); font-size: 13px; margin: 0; }
+  #verificando p { color: var(--tinta-suave); font-size: 13px; margin: 0; }
   @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.5s; } }
 
   /* ================= ESTRUCTURA =================
-     Compu (900 px o más): menú fijo a la izquierda y el contenido al lado.
-     Celular: barra arriba con la marca, y abajo una barra con las vistas,
-     al alcance del pulgar.
+     Compu (1024 px o más): menú oscuro fijo a la izquierda y el
+     contenido al lado.
+     Celular y tablet: barra arriba con el botón ☰ (abre el mismo menú
+     como cajón) y abajo una barra con las vistas de todos los días.
 
-     Cada vista tiene su botón [data-vista] en los DOS menús; el script de
+     Cada vista tiene su botón [data-vista] en los menús; el script de
      abajo los marca a la par, así da igual cuál se toque. */
-  .lateral { display: none; }
-  .contenido { min-width: 0; padding-bottom: 78px; }   /* aire para la barra de abajo */
+  .contenido { min-width: 0; padding-bottom: 76px; }   /* aire para la barra de abajo */
 
   /* Íconos dibujados (trazos, no emojis): heredan el color del texto */
   .ico {
     width: 20px; height: 20px; flex: none;
-    fill: none; stroke: currentColor; stroke-width: 2;
+    fill: none; stroke: currentColor; stroke-width: 1.9;
     stroke-linecap: round; stroke-linejoin: round;
   }
 
@@ -138,46 +149,75 @@
     z-index: 30;
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-height: 56px;
-    padding: 9px 12px;
-    background: rgba(255,255,255,.88);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--borde);
+    gap: 10px;
+    min-height: 60px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,.94);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    backdrop-filter: saturate(180%) blur(10px);
+    border-bottom: 1px solid var(--separador);
   }
-  .barra-marca {
-    font-family: 'Bebas Neue', Impact, sans-serif;
-    font-size: 23px;
-    letter-spacing: .05em;
-    line-height: 1;
-    color: var(--tinta);
-    text-decoration: none;
+  .barra-menu { display: inline-grid; }
+  /* En el celular, solo el nombre de la vista; en la compu, con las
+     migas y la bajada */
+  .barra-titulo { min-width: 0; }
+  .barra-titulo .barra-migas, .barra-titulo p { display: none; }
+  .barra-migas {
+    display: flex; align-items: center; gap: 6px;
+    margin: 0 0 2px;
+    font-size: 12px; font-weight: 500; color: var(--tinta-tenue);
   }
-  .barra-marca .zona { color: var(--rojo); }
-  .barra-titulo { display: none; min-width: 0; }
+  .barra-migas svg { width: 12px; height: 12px; }
   .barra-titulo h2 {
     margin: 0;
-    font-size: 21px;
-    font-weight: 800;
-    letter-spacing: -.01em;
+    font-size: clamp(17px, 4.6vw, 20px);
+    font-weight: 700;
+    letter-spacing: -.02em;
     color: var(--tinta);
+    line-height: 1.2;
   }
-  .barra-titulo p { margin: 2px 0 0; font-size: 13px; color: var(--tinta-suave); }
-  .barra-acciones { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-  .barra-fecha { display: none; font-size: 13px; color: var(--tinta-suave); }
+  .barra-titulo p { margin: 1px 0 0; font-size: 13px; color: var(--tinta-suave); }
+  .barra-acciones { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .barra-fecha {
+    display: none;
+    padding: 7px 11px;
+    border: 1px solid var(--separador);
+    border-radius: 999px;
+    background: var(--superficie);
+    font-size: 12.5px; font-weight: 500; color: var(--tinta-suave);
+    white-space: nowrap;
+  }
   .barra-fecha::first-letter { text-transform: uppercase; }
+  .barra-tienda { display: none !important; }
 
   .icono-btn {
+    position: relative;
     width: 38px; height: 38px;
     display: inline-grid; place-items: center;
-    border: 1px solid var(--borde-2);
+    border: 1px solid var(--separador);
     border-radius: 10px;
-    background: #fff;
+    background: var(--superficie);
     color: var(--tinta-media);
     cursor: pointer;
     text-decoration: none;
+    transition: background .15s, color .15s, border-color .15s;
   }
-  .icono-btn:hover { color: var(--tinta); background: var(--superficie-2); }
+  .icono-btn:hover { color: var(--tinta); background: var(--superficie-2); border-color: var(--separador-2); }
+  .icono-btn .contador {
+    position: absolute; top: -6px; right: -6px;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    font-size: 10px; line-height: 18px;
+    box-shadow: 0 0 0 2px #fff;
+  }
+  .barra-avatar {
+    width: 36px; height: 36px; flex: none;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1f2937, #0b0f17);
+    color: #fff;
+    font-size: 13px; font-weight: 700;
+    text-transform: uppercase;
+  }
 
   /* ---- Barra de abajo (celular) ---- */
   .menu-movil {
@@ -187,25 +227,32 @@
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
-    background: rgba(255,255,255,.96);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid var(--borde);
+    background: rgba(255,255,255,.97);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    backdrop-filter: saturate(180%) blur(10px);
+    border-top: 1px solid var(--separador);
+    box-shadow: 0 -4px 16px rgba(16,24,40,.05);
   }
-  .menu-movil .vista-tab {
+  .menu-movil .vista-tab, .menu-movil .mas-tab {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 3px;
-    padding: 7px 2px;
+    padding: 7px 2px 6px;
     border: none;
     border-radius: 10px;
     background: none;
-    font: 600 11px 'Outfit', sans-serif;
+    font: 600 11px var(--fuente);
     color: var(--tinta-suave);
     cursor: pointer;
   }
   .menu-movil .vista-tab.activa { color: var(--rojo); }
-  .menu-movil .vista-tab.activa .ico { stroke-width: 2.4; }
+  .menu-movil .vista-tab.activa .ico { stroke-width: 2.3; }
+  .menu-movil .vista-tab.activa::before {
+    content: ''; position: absolute; top: -4px; left: 30%; right: 30%;
+    height: 3px; border-radius: 0 0 3px 3px; background: var(--rojo);
+  }
 
   /* ---- Contadores rojos del menú ----
      Ventas: pedidos por atender. Stock: productos a los que se les acaba.
@@ -216,7 +263,7 @@
     border-radius: 99px;
     background: var(--error);
     color: #fff;
-    font: 800 11px/20px 'Outfit', sans-serif;
+    font: 700 11px/20px var(--fuente);
     text-align: center;
     font-variant-numeric: tabular-nums;
   }
@@ -224,7 +271,6 @@
   /* "Probar la tienda" aparece recién cuando llegó la clave (js/admin-prueba.js) */
   [data-probar][hidden] { display: none !important; }
   .lateral .contador { margin-left: auto; }
-  .menu-movil .vista-tab { position: relative; }
   .menu-movil .contador {
     position: absolute;
     top: 1px; left: calc(50% + 5px);
@@ -234,167 +280,239 @@
     box-shadow: 0 0 0 2px #fff;
   }
 
-  /* ---- Menú lateral (compu) ---- */
-  @media (min-width: 900px) {
+  /* ---- Menú lateral: oscuro. En la compu fijo; en el celular, cajón ---- */
+  .lateral {
+    position: fixed;
+    top: 0; bottom: 0; left: 0;
+    z-index: 60;
+    width: min(272px, 86vw);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 18px 12px 14px;
+    overflow-y: auto;
+    background: var(--lat-fondo);
+    background-image: radial-gradient(120% 50% at 0% 0%, rgba(229,9,20,.10), transparent 60%);
+    border-right: 1px solid var(--lat-borde);
+    color: var(--lat-texto);
+    transform: translateX(-102%);
+    transition: transform .22s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.15) transparent;
+  }
+  body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.35); }
+  .velo {
+    position: fixed; inset: 0; z-index: 55;
+    background: rgba(9,11,15,.45);
+    opacity: 0; pointer-events: none;
+    transition: opacity .22s ease;
+  }
+  body.menu-abierto .velo { opacity: 1; pointer-events: auto; }
+  @media (prefers-reduced-motion: reduce) { .lateral, .velo { transition: none; } }
+
+  @media (min-width: 1024px) {
     #app:not([hidden]) {
       display: grid;
-      grid-template-columns: 236px minmax(0, 1fr);
+      grid-template-columns: 252px minmax(0, 1fr);
       min-height: 100vh;
     }
     .contenido { padding-bottom: 0; }
-    .menu-movil { display: none; }
+    .menu-movil, .velo, .barra-menu, .lateral-cerrar { display: none !important; }
     .lateral {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
       position: sticky;
-      top: 0;
+      width: auto;
       height: 100vh;
-      padding: 18px 12px 14px;
-      background: var(--superficie);
-      border-right: 1px solid var(--borde);
+      transform: none;
+      box-shadow: none !important;
     }
-    .barra { min-height: 70px; padding: 14px 24px; }
-    .barra-marca, .barra-acciones .icono-btn { display: none; }
-    .barra-titulo, .barra-fecha { display: block; }
+    .barra { min-height: 72px; padding: 12px 28px; }
+    .barra-fecha { display: block; }
+    .barra-titulo .barra-migas { display: flex; }
+    .barra-titulo p { display: block; }
+    .barra-tienda { display: inline-flex !important; }
   }
 
   .marca {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 4px 8px 20px;
+    gap: 11px;
+    padding: 2px 8px 22px;
     text-decoration: none;
   }
   .marca-ico {
-    width: 38px; height: 38px;
+    width: 36px; height: 36px; flex: none;
     display: grid; place-items: center;
-    border-radius: 11px;
-    background: linear-gradient(135deg, var(--marca), var(--marca-oscura));
+    border-radius: 10px;
+    background: linear-gradient(135deg, #ff1f2b, var(--marca-oscura));
     color: #fff;
-    font: 400 24px/1 'Bebas Neue', Impact, sans-serif;
-    box-shadow: 0 4px 12px rgba(229,9,20,.28);
+    font: 800 18px/1 var(--fuente);
+    letter-spacing: -.03em;
+    box-shadow: 0 6px 16px rgba(229,9,20,.35), inset 0 1px 0 rgba(255,255,255,.25);
   }
   .marca-txt b {
     display: block;
-    font: 400 23px/1 'Bebas Neue', Impact, sans-serif;
-    letter-spacing: .05em;
-    color: var(--tinta);
+    font-size: 15.5px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    color: #fff;
+    line-height: 1.2;
   }
-  .marca-txt b .zona { color: var(--rojo); }
   .marca-txt small {
     display: block;
-    margin-top: 3px;
-    font-size: 10px;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    color: var(--tinta-tenue);
+    margin-top: 2px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--lat-titulo);
+  }
+  .lateral-cerrar {
+    margin-left: auto;
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    border: 1px solid var(--lat-borde); border-radius: 9px;
+    background: none; color: var(--lat-texto); cursor: pointer;
   }
   .menu-titulo {
-    padding: 8px 12px 6px;
+    padding: 14px 12px 6px;
     font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: .14em;
+    letter-spacing: .12em;
     text-transform: uppercase;
-    color: var(--tinta-tenue);
+    color: var(--lat-titulo);
   }
   .lateral .vista-tab, .menu-link {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 11px;
     width: 100%;
-    padding: 10px 12px;
+    min-height: 40px;
+    padding: 9px 12px;
     border: none;
-    border-radius: 10px;
+    border-radius: 9px;
     background: none;
-    font: 600 14px 'Outfit', sans-serif;
-    color: var(--tinta-media);
+    font: 500 14px var(--fuente);
+    color: var(--lat-texto);
     text-align: left;
     text-decoration: none;
     cursor: pointer;
     transition: background .15s, color .15s;
   }
-  .lateral .vista-tab:hover, .menu-link:hover { background: var(--superficie-3); color: var(--tinta); }
-  .lateral .vista-tab.activa { background: #fff; color: var(--rojo); box-shadow: var(--sombra); }
+  .lateral .vista-tab .ico, .menu-link .ico { width: 19px; height: 19px; opacity: .85; }
+  .lateral .vista-tab:hover, .menu-link:hover { background: var(--lat-hover); color: #fff; }
+  .lateral .vista-tab.activa {
+    background: var(--lat-activo);
+    color: #fff;
+    font-weight: 600;
+  }
+  .lateral .vista-tab.activa .ico { color: #ff3b45; opacity: 1; }
+  .lateral .vista-tab.activa::before {
+    content: '';
+    position: absolute;
+    left: -12px; top: 8px; bottom: 8px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--marca);
+  }
+  .lateral .contador { box-shadow: none; }
 
   .lateral-pie {
     margin-top: auto;
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding-top: 12px;
-    border-top: 1px solid var(--borde);
+    gap: 1px;
+    padding-top: 14px;
   }
-  .cuenta { display: flex; align-items: center; gap: 10px; padding: 4px 4px 0 8px; }
+  .cuenta {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid var(--lat-borde);
+    border-radius: 12px;
+    background: rgba(255,255,255,.03);
+  }
   .avatar {
     width: 34px; height: 34px; flex: none;
     display: grid; place-items: center;
     border-radius: 50%;
-    background: var(--superficie-3);
-    color: var(--tinta);
-    font-weight: 800;
+    background: linear-gradient(135deg, #ff1f2b, var(--marca-oscura));
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
     text-transform: uppercase;
   }
-  .usuario {
-    flex: 1;
-    min-width: 0;
-    font-size: 12.5px;
-    color: var(--tinta-suave);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .usuario { flex: 1; min-width: 0; line-height: 1.25; }
+  .usuario b {
+    display: block;
+    font-size: 13px; font-weight: 600; color: #fff;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .cuenta .icono-btn { width: 34px; height: 34px; }
+  .usuario small {
+    display: block;
+    font-size: 11.5px; color: var(--lat-titulo);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .cuenta .icono-btn {
+    width: 32px; height: 32px;
+    border-color: var(--lat-borde);
+    background: transparent;
+    color: var(--lat-texto);
+  }
+  .cuenta .icono-btn:hover { background: var(--lat-hover); color: #fff; }
 
   /* ================= BOTONES ================= */
   .btn {
-    padding: 9px 15px;
-    border-radius: 8px;
+    min-height: 38px;
+    padding: 8px 15px;
+    border-radius: var(--radio-chico);
     border: 1px solid transparent;
     font-family: inherit;
     font-size: 13.5px;
     font-weight: 600;
     cursor: pointer;
-    transition: filter .15s, background .15s;
+    transition: filter .15s, background .15s, border-color .15s, box-shadow .15s;
     white-space: nowrap;
+    text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
   }
-  .btn:hover:not(:disabled) { filter: brightness(.95); }
+  .btn:hover:not(:disabled) { filter: brightness(.96); }
   .btn:disabled { opacity: .45; cursor: not-allowed; }
-  .btn-rojo   { background: var(--rojo); color: #fff; }
-  .btn-fantasma { background: transparent; color: var(--gris); border-color: var(--borde-2); }
-  .btn-fantasma:hover:not(:disabled) { color: var(--texto); background: var(--panel-2); }
+  .btn-rojo   { background: var(--rojo); color: #fff; box-shadow: 0 1px 2px rgba(229,9,20,.25), inset 0 1px 0 rgba(255,255,255,.15); }
+  .btn-rojo:hover:not(:disabled) { background: #d00812; filter: none; }
+  .btn-fantasma { background: var(--superficie); color: var(--tinta-media); border-color: var(--separador-2); box-shadow: var(--sombra); }
+  .btn-fantasma:hover:not(:disabled) { color: var(--tinta); background: var(--superficie-2); filter: none; }
   .btn-icono {
     padding: 6px 9px;
-    background: var(--panel-3);
-    border: 1px solid var(--borde-2);
+    background: var(--superficie);
+    border: 1px solid var(--separador-2);
     border-radius: 7px;
-    color: var(--gris);
+    color: var(--tinta-suave);
     cursor: pointer;
     font-size: 14px;
     line-height: 1;
     font-family: inherit;
   }
-  .btn-icono:hover { color: var(--tinta); background: #e2e5ea; }
+  .btn-icono:hover { color: var(--tinta); background: var(--superficie-2); }
   .btn-icono.peligro:hover { color: #fff; background: var(--error); border-color: var(--error); }
 
   /* ================= ANCHO DE LAS VISTAS =================
-     Todas usan el ancho entero del área de contenido. Juegos, Ventas y
-     Stock traen su propio contenedor con tope (1180-1280 px) desde su
-     módulo; con #app adelante esta regla les gana sin tocar esos archivos. */
-  #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap {
-    max-width: none;
+     Todas usan el ancho entero del área de contenido, con un tope para
+     las pantallas muy anchas. Juegos, Ventas y Stock traen su propio
+     contenedor desde su módulo; con #app adelante esta regla les gana
+     sin tocar esos archivos. */
+  #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap,
+  #app .cl-wrap, #app .aj-wrap {
+    max-width: 1440px;
     margin: 0;
-    padding: 22px 24px 40px;
+    padding: 24px 28px 48px;
   }
-  @media (max-width: 899px) {
-    #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap {
-      padding: 14px 10px 24px;
+  @media (max-width: 1023px) {
+    #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap,
+    #app .cl-wrap, #app .aj-wrap {
+      padding: 14px 12px 24px;
     }
   }
-
   /* ================= TARJETAS DE RESUMEN ================= */
   /* Tarjetas sueltas, iguales a las del Inicio: blancas, con borde fino
      y una sombra apenas. Las usan las cuatro vistas. */
@@ -550,7 +668,7 @@
     padding: 2px 0;
     border: none;
     background: none;
-    font: 600 12.5px 'Outfit', sans-serif;
+    font: 600 12.5px var(--fuente);
     color: var(--tinta-suave);
     cursor: pointer;
     white-space: nowrap;
@@ -602,7 +720,7 @@
     padding: 6px 8px;
     border: 1.5px solid var(--borde-2);
     border-radius: 8px;
-    font: 700 14px 'Outfit', sans-serif;
+    font: 700 14px var(--fuente);
     color: var(--tinta);
     background: #fff;
   }
@@ -615,7 +733,7 @@
     border-radius: 8px;
     border: 1px solid var(--borde-2);
     background: #fff;
-    font: 700 13px 'Outfit', sans-serif;
+    font: 700 13px var(--fuente);
     color: var(--tinta-media);
     cursor: pointer;
   }
@@ -633,7 +751,7 @@
     background: #fff;
     color: var(--tinta-media);
     cursor: pointer;
-    font: 600 13px 'Outfit', sans-serif;
+    font: 600 13px var(--fuente);
   }
   .accion-btn .ico { width: 17px; height: 17px; }
   .accion-btn .accion-txt { display: none; }
@@ -897,11 +1015,9 @@
     .fila-esqueleto { padding: 20px !important; }
   }
 </style>
-<!-- Liquid glass: lo común a todo el sitio y lo propio del panel. Van
-     después de los estilos de arriba. -->
-<link rel="stylesheet" href="../css/vidrio.css?v=20261006120342">
-<script src="../js/barra-vidrio.js?v=20261006120342" defer></script>
-<link rel="stylesheet" href="css/vidrio-panel.css?v=20261006120342">
+<!-- Lo propio de cada vista (Inicio, Ventas, Stock, Juegos, ventanas),
+     ajustado al estilo del panel. Va después de los estilos de arriba. -->
+<link rel="stylesheet" href="css/panel.css?v=20261006120342">
 </head>
 <body>
 
@@ -924,28 +1040,43 @@
   <symbol id="i-borrar" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></symbol>
   <symbol id="i-probar" viewBox="0 0 24 24"><path d="M10 2v7.31"/><path d="M14 9.3V2"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></symbol>
   <symbol id="i-salir" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></symbol>
+  <symbol id="i-clientes" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-ajustes" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><line x1="4" x2="20" y1="7" y2="7"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="17" y2="17"/></symbol>
+  <symbol id="i-mas" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+  <symbol id="i-campana" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-flecha" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
 </svg>
 
 <div id="app" hidden>
 
-  <!-- ===== MENÚ LATERAL (compu) =====
+  <!-- ===== MENÚ LATERAL =====
+       En la compu queda fijo a la izquierda; en el celular es un cajón que
+       abre el botón ☰ de la barra de arriba (o "Más", abajo).
        El valor de data-vista tiene que coincidir con el id del contenedor:
-       data-vista="stock" -> <div id="vistaStock">. El mismo botón está
-       repetido en la barra de abajo del celular. -->
-  <aside class="lateral" aria-label="Menú del panel">
+       data-vista="stock" -> <div id="vistaStock">. Las de todos los días
+       están repetidas en la barra de abajo del celular. -->
+  <aside class="lateral" id="lateral" aria-label="Menú del panel">
     <div class="marca">
       <span class="marca-ico" aria-hidden="true">T</span>
-      <span class="marca-txt"><b><span class="zona">TIAGO</span> STORE</b><small>Administración</small></span>
+      <span class="marca-txt"><b>Tiago Store</b><small>Panel de administración</small></span>
+      <button type="button" class="lateral-cerrar" data-cerrar-menu aria-label="Cerrar menú">
+        <svg class="ico"><use href="#i-cerrar"/></svg>
+      </button>
     </div>
 
     <div class="menu-titulo">General</div>
     <button class="vista-tab" data-vista="inicio"><svg class="ico"><use href="#i-inicio"/></svg>Inicio</button>
+    <div class="menu-titulo">Negocio</div>
+    <button class="vista-tab" data-vista="ventas"><svg class="ico"><use href="#i-ventas"/></svg>Ventas<span class="contador" data-contador="ventas" hidden></span></button>
+    <button class="vista-tab" data-vista="clientes"><svg class="ico"><use href="#i-clientes"/></svg>Clientes</button>
+    <button class="vista-tab" data-vista="stock"><svg class="ico"><use href="#i-stock"/></svg>Stock<span class="contador" data-contador="stock" hidden></span></button>
     <div class="menu-titulo">Catálogo</div>
     <button class="vista-tab" data-vista="productos"><svg class="ico"><use href="#i-productos"/></svg>Productos</button>
     <button class="vista-tab" data-vista="juegos"><svg class="ico"><use href="#i-juegos"/></svg>Juegos</button>
-    <div class="menu-titulo">Negocio</div>
-    <button class="vista-tab" data-vista="ventas"><svg class="ico"><use href="#i-ventas"/></svg>Ventas<span class="contador" data-contador="ventas" hidden></span></button>
-    <button class="vista-tab" data-vista="stock"><svg class="ico"><use href="#i-stock"/></svg>Stock<span class="contador" data-contador="stock" hidden></span></button>
+    <div class="menu-titulo">Sistema</div>
+    <button class="vista-tab" data-vista="ajustes"><svg class="ico"><use href="#i-ajustes"/></svg>Ajustes</button>
 
     <div class="lateral-pie">
       <a class="menu-link" href="../index.html" target="_blank" rel="noopener">
@@ -959,36 +1090,41 @@
       </a>
       <div class="cuenta">
         <span class="avatar" id="avatar" aria-hidden="true"></span>
-        <span class="usuario" id="usuarioEmail"></span>
+        <span class="usuario"><b id="usuarioNombre">Administrador</b><small id="usuarioEmail"></small></span>
         <button class="icono-btn js-salir" id="btnSalir" title="Cerrar sesión" aria-label="Cerrar sesión">
           <svg class="ico"><use href="#i-salir"/></svg>
         </button>
       </div>
     </div>
   </aside>
+  <div class="velo" data-cerrar-menu></div>
 
   <div class="contenido">
     <!-- ===== BARRA DE ARRIBA =====
-         En la compu: el nombre de la vista y la fecha.
-         En el celular: la marca y los botones de tienda y salir. -->
+         En la compu: dónde estás, la fecha, la tienda y lo que espera por vos.
+         En el celular: ☰, la marca y lo que espera por vos. -->
     <header class="barra">
-      <span class="barra-marca"><span class="zona">TIAGO</span> STORE</span>
+      <button type="button" class="icono-btn barra-menu" id="btnMenu" data-abrir-menu
+              aria-label="Abrir menú" aria-controls="lateral" aria-expanded="false">
+        <svg class="ico"><use href="#i-menu"/></svg>
+      </button>
       <div class="barra-titulo">
+        <div class="barra-migas">Panel <svg class="ico"><use href="#i-flecha"/></svg><span id="migaVista">Inicio</span></div>
         <h2 id="tituloVista">Inicio</h2>
         <p id="subtituloVista"></p>
       </div>
       <div class="barra-acciones">
         <span class="barra-fecha" id="fechaHoy"></span>
-        <a class="icono-btn" href="../index.html" target="_blank" rel="noopener" title="Ver tienda" aria-label="Ver tienda">
-          <svg class="ico"><use href="#i-tienda"/></svg>
+        <a class="btn btn-fantasma barra-tienda" href="../index.html" target="_blank" rel="noopener">
+          <svg class="ico"><use href="#i-tienda"/></svg>Ver tienda
         </a>
-        <a class="icono-btn" href="../index.html" target="_blank" rel="noopener" data-probar hidden
-           title="Probar la tienda: no cuenta como venta" aria-label="Probar la tienda">
-          <svg class="ico"><use href="#i-probar"/></svg>
-        </a>
-        <button class="icono-btn js-salir" title="Cerrar sesión" aria-label="Cerrar sesión">
-          <svg class="ico"><use href="#i-salir"/></svg>
+        <!-- Lo que espera por vos en Ventas: el mismo número que el menú -->
+        <button type="button" class="icono-btn" data-ir-vista="ventas"
+                title="Pedidos por atender" aria-label="Pedidos por atender">
+          <svg class="ico"><use href="#i-campana"/></svg>
+          <span class="contador" data-contador="ventas" hidden></span>
         </button>
+        <span class="barra-avatar" id="avatarBarra" aria-hidden="true"></span>
       </div>
     </header>
 
@@ -999,6 +1135,8 @@
   <div id="vistaJuegos" class="vista" hidden></div>
   <div id="vistaVentas" class="vista" hidden></div>
   <div id="vistaStock"  class="vista" hidden></div>
+  <div id="vistaClientes" class="vista" hidden></div>
+  <div id="vistaAjustes"  class="vista" hidden></div>
 
   <main id="vistaProductos" class="vista" hidden>
     <!-- ===== Resumen ===== -->
@@ -1071,13 +1209,14 @@
   </main>
   </div><!-- /contenido -->
 
-  <!-- ===== BARRA DE ABAJO (celular) ===== -->
+  <!-- ===== BARRA DE ABAJO (celular) =====
+       Las vistas de todos los días; el resto, en "Más" (el menú entero). -->
   <nav class="menu-movil" aria-label="Menú del panel">
     <button class="vista-tab" data-vista="inicio"><svg class="ico"><use href="#i-inicio"/></svg>Inicio</button>
-    <button class="vista-tab" data-vista="productos"><svg class="ico"><use href="#i-productos"/></svg>Productos</button>
-    <button class="vista-tab" data-vista="juegos"><svg class="ico"><use href="#i-juegos"/></svg>Juegos</button>
     <button class="vista-tab" data-vista="ventas"><svg class="ico"><use href="#i-ventas"/></svg>Ventas<span class="contador" data-contador="ventas" hidden></span></button>
+    <button class="vista-tab" data-vista="productos"><svg class="ico"><use href="#i-productos"/></svg>Productos</button>
     <button class="vista-tab" data-vista="stock"><svg class="ico"><use href="#i-stock"/></svg>Stock<span class="contador" data-contador="stock" hidden></span></button>
+    <button class="mas-tab" type="button" data-abrir-menu aria-controls="lateral"><svg class="ico"><use href="#i-mas"/></svg>Más</button>
   </nav>
 </div>
 
@@ -1102,9 +1241,17 @@ let cargado = false;
 // ===========================================================
 onAuthStateChanged(auth, async usuario => {
   if (!usuario) { location.replace('login.html'); return; }
-  $('usuarioEmail').textContent = usuario.email;
-  $('usuarioEmail').title = usuario.email;
-  $('avatar').textContent = (usuario.email || '?').charAt(0);
+  // "tiago.store@gmail.com" -> "Tiago Store" y "TS" en el círculo
+  const email  = usuario.email || '';
+  const nombre = email.split('@')[0].split(/[._-]+/).filter(Boolean)
+    .map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ') || 'Administrador';
+  const iniciales = nombre.split(' ').map(p => p.charAt(0)).join('').slice(0, 2) || '?';
+  $('usuarioNombre').textContent = nombre;
+  $('usuarioEmail').textContent = email;
+  $('usuarioEmail').title = email;
+  $('avatar').textContent = iniciales;
+  $('avatarBarra').textContent = iniciales;
+  $('avatarBarra').title = email;
   $('verificando').remove();
   $('app').hidden = false;
   escucharCatalogo();
@@ -1554,10 +1701,12 @@ window.renderProductos = render;
 // seguís donde estabas y podés guardar un acceso directo a Ventas.
 const VISTAS = {
   inicio:    { titulo: 'Inicio',    sub: 'Cómo viene la tienda' },
+  ventas:    { titulo: 'Ventas',    sub: 'Pedidos, pagos y entregas' },
+  clientes:  { titulo: 'Clientes',  sub: 'Registrados en la tienda y lo que compró cada uno' },
+  stock:     { titulo: 'Stock',     sub: 'Cuentas cargadas para la entrega automática' },
   productos: { titulo: 'Productos', sub: 'Plataformas, planes y precios de la tienda' },
   juegos:    { titulo: 'Juegos',    sub: 'Juegos de recarga y sus paquetes' },
-  ventas:    { titulo: 'Ventas',    sub: 'Pedidos, pagos y entregas' },
-  stock:     { titulo: 'Stock',     sub: 'Cuentas cargadas para la entrega automática' }
+  ajustes:   { titulo: 'Ajustes',   sub: 'Telegram, avisos y tu cuenta' }
 };
 
 // Los módulos (type="module") corren todos antes de DOMContentLoaded
@@ -1583,6 +1732,8 @@ function abrirVista(vista, { reemplazar = false } = {}) {
 
   $('tituloVista').textContent    = VISTAS[vista].titulo;
   $('subtituloVista').textContent = VISTAS[vista].sub;
+  $('migaVista').textContent      = VISTAS[vista].titulo;
+  cerrarMenu();
   // Con los pedidos pendientes adelante, si Ventas ya los contó
   const pendientes = window.pendientesAdmin || 0;
   document.title = `${pendientes > 0 ? `(${pendientes}) ` : ''}${VISTAS[vista].titulo} · Panel Tiago Store`;
@@ -1617,7 +1768,25 @@ window.ponerContador = (vista, n, texto = '') => {
 document.addEventListener('click', e => {
   const btn = e.target.closest('.vista-tab[data-vista]');
   if (btn) abrirVista(btn.dataset.vista);
+  const ir = e.target.closest('[data-ir-vista]');
+  if (ir) abrirVista(ir.dataset.irVista);
+  if (e.target.closest('[data-abrir-menu]')) abrirMenu();
+  if (e.target.closest('[data-cerrar-menu]')) cerrarMenu();
 });
+
+// El menú como cajón, en el celular (☰ y "Más"). En la compu siempre
+// está a la vista y esto no cambia nada.
+function abrirMenu() {
+  document.body.classList.add('menu-abierto');
+  $('btnMenu').setAttribute('aria-expanded', 'true');
+  document.querySelector('.lateral .vista-tab.activa, .lateral .vista-tab')?.focus({ preventScroll: true });
+}
+function cerrarMenu() {
+  if (!document.body.classList.contains('menu-abierto')) return;
+  document.body.classList.remove('menu-abierto');
+  $('btnMenu').setAttribute('aria-expanded', 'false');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarMenu(); });
 
 // Atrás / adelante del navegador
 window.addEventListener('popstate', () => {
@@ -1644,10 +1813,13 @@ window.addEventListener('popstate', () => {
 <script type="module" src="js/admin-ventas.js?v=20261006120342"></script>
 <script type="module" src="js/admin-stock.js?v=20261006120342"></script>
 
+<!-- Clientes: los registrados en la tienda (Usuario + WhatsApp) y lo que
+     compró cada uno. Ajustes: Telegram y tu cuenta. -->
+<script type="module" src="js/admin-clientes.js?v=20261006120342"></script>
+<script type="module" src="js/admin-ajustes.js?v=20261006120342"></script>
+
 <!-- "Probar la tienda": le pone la clave del modo prueba a esos enlaces -->
 <script type="module" src="js/admin-prueba.js?v=20261006120342"></script>
 
-<!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
-<script src="../bg-burbujas.js?v=20261006120342" defer></script>
 </body>
 </html>

@@ -34,27 +34,30 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
   /* Misma paleta y mismas cajas que admin/login.html, para que se sienta
      la misma pantalla y no una página perdida. */
   :root {
-    --fondo:       #ffffff;
-    --superficie:  #fbfbfc;
-    --superficie-2:#f4f5f7;
-    --separador:   rgba(20,22,26,.09);
-    --tinta:       #14161a;
-    --tinta-media: #3d424b;
-    --tinta-suave: #767c88;
-    --tinta-tenue: #9aa0ab;
+    --fuente:      'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --fondo:       #f4f5f7;
+    --superficie:  #ffffff;
+    --superficie-2:#f8f9fb;
+    --separador:   #e6e8ec;
+    --separador-2: #d5d9e0;
+    --tinta:       #101318;
+    --tinta-media: #374151;
+    --tinta-suave: #5f6673;
+    --tinta-tenue: #8b919c;
     --marca:       #e50914;
+    --marca-oscura:#b8070f;
     --oro:         #9a7400;
-    --sombra-alta: 0 2px 6px rgba(20,22,26,.07), 0 12px 32px rgba(20,22,26,.10);
+    --sombra-alta: 0 12px 28px -6px rgba(16,24,40,.14), 0 4px 10px -4px rgba(16,24,40,.08);
 
     --negro:    var(--fondo);
     --panel:    var(--superficie);
-    --panel-2:  var(--superficie-2);
+    --panel-2:  var(--superficie);
     --borde:    var(--separador);
     --rojo:     var(--marca);
     --dorado:   var(--oro);
@@ -72,44 +75,41 @@
     min-height: 100vh;
     background: var(--negro);
     color: var(--texto);
-    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+    font-family: var(--fuente);
+    -webkit-font-smoothing: antialiased;
     display: grid;
     place-items: center;
     padding: 24px 18px;
-    background-image:
-      radial-gradient(900px 420px at 50% -120px, rgba(229,9,20,.06),  transparent 65%),
-      radial-gradient(600px 300px at 85% 110%, rgba(245,197,24,.08), transparent 60%);
   }
 
   .card {
     width: 100%;
-    max-width: 420px;
+    max-width: 400px;
     background: var(--panel);
     border: 1px solid var(--borde);
     border-radius: 16px;
-    padding: 34px 30px 28px;
+    padding: 32px 28px 26px;
     box-shadow: var(--sombra-alta);
   }
 
   .logo {
-    font-family: 'Bebas Neue', Impact, sans-serif;
-    font-size: 34px;
-    letter-spacing: .06em;
-    text-align: center;
-    margin: 0 0 2px;
-    line-height: 1;
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 0 22px;
+    font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2;
+    color: var(--tinta);
   }
-  .logo .zona { color: var(--rojo); }
-  .logo .vip  { color: var(--tinta); }
+  .logo small { display: block; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--tinta-suave); }
+  .marca-ico {
+    width: 40px; height: 40px; flex: none;
+    display: grid; place-items: center;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #ff1f2b, var(--marca-oscura));
+    color: #fff;
+    font: 800 20px/1 var(--fuente);
+    box-shadow: 0 6px 16px rgba(229,9,20,.35), inset 0 1px 0 rgba(255,255,255,.25);
+  }
 
-  .subtitulo {
-    text-align: center;
-    font-size: 11.5px;
-    letter-spacing: .26em;
-    text-transform: uppercase;
-    color: var(--gris-dim);
-    margin: 0 0 30px;
-  }
+  .subtitulo { display: none; }
 
   .campo { margin-bottom: 16px; }
 
@@ -129,13 +129,15 @@
     width: 100%;
     padding: 12px 14px;
     padding-right: 46px;
-    background: var(--panel-2);
-    border: 1px solid var(--borde);
+    min-height: 44px;
+    background: var(--superficie);
+    border: 1px solid var(--separador-2);
     border-radius: 9px;
-    color: var(--texto);
+    color: var(--tinta);
     font-size: 15px;
     font-family: inherit;
-    transition: border-color .15s;
+    box-shadow: 0 1px 2px rgba(16,24,40,.05);
+    transition: border-color .15s, box-shadow .15s;
   }
   input::placeholder { color: var(--gris-dim); }
   input:focus {
@@ -166,7 +168,7 @@
   .fuerza { margin: -6px 0 18px; }
   .fuerza-barra {
     height: 4px;
-    background: var(--panel-2);
+    background: var(--separador);
     border-radius: 99px;
     overflow: hidden;
   }
@@ -262,8 +264,7 @@
 <div id="verificando"><div class="spinner" role="status" aria-label="Verificando el link"></div></div>
 
 <main class="card" id="tarjeta" hidden>
-  <h1 class="logo"><span class="zona">TIAGO</span> <span class="vip">STORE</span></h1>
-  <p class="subtitulo">Nueva contraseña</p>
+  <h1 class="logo"><span class="marca-ico" aria-hidden="true">T</span><span>Nueva contraseña<small>Tiago Store · Panel de administración</small></span></h1>
 
   <!-- Caso normal: el link es válido -->
   <form id="formClave" class="oculto" novalidate>
@@ -488,7 +489,5 @@ $('formClave').addEventListener('submit', async e => {
 });
 </script>
 
-<!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
-<script src="../bg-burbujas.js?v=20261006120342" defer></script>
 </body>
 </html>

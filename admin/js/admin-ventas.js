@@ -258,6 +258,7 @@ css.textContent = `
 
   /* Los cuatro datos de la cuenta, de a dos por fila en pantalla grande */
   .vt-mano-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+  #vtManoCuenta:not([hidden]) + #vtManoCliente { margin-top: 16px; }
   @media (max-width: 480px) {
     .vt-mano-campos { grid-template-columns: 1fr; }
   }
@@ -833,8 +834,6 @@ $('vistaVentas').innerHTML = `
            ningún producto suelto. -->
       <div id="vtDetalle"></div>
 
-      <div class="vt-alerta ojo" id="vtAlerta"></div>
-
       <!-- El nombre y no el número de comprobante: en la transferencia lo
            que ves es quién te pagó, y ese es el dato con el que después
            encontrás la venta. El número había que copiarlo a mano de una
@@ -863,7 +862,6 @@ $('vistaVentas').innerHTML = `
       <h3 id="vtManoTitulo"></h3>
       <p class="sub" id="vtManoSub"></p>
       <div id="vtManoDetalle"></div>
-      <div class="vt-alerta ojo" id="vtManoAviso"></div>
 
       <!-- La cuenta que le pasaste por el chat. Guardarla acá es lo que
            hace que el cliente la vea en su página y en "Mis compras", en
@@ -1852,7 +1850,6 @@ function abrirConfirmacion(pedidoId) {
   // Se muestra la compra entera y su total: es lo que se pagó con una
   // transferencia, y lo que confirmar_compra entrega de una vez.
   const c   = compraDe(p);
-  const cob = cobertura(c);
   const varias = c.lineas.length > 1;
 
   confirmando = p;
@@ -1860,21 +1857,6 @@ function abrirConfirmacion(pedidoId) {
     `${varias ? 'Compra' : 'Pedido'} <strong>${numerosDeCompra(c.lineas)}</strong> ` +
     `de ${escapar(p.cliente_nombre || 'cliente sin nombre')}`;
   $('vtDetalle').innerHTML = detalleCompra(c);
-
-  // Ya pagó (sin stock que se reintenta) o todavía no se sabe: en el
-  // segundo caso, lo que hay que ver en la cuenta es el total exacto.
-  const yaPago = cob.pendientes.every(o => o.estado === 'sin_stock' || o.estado === 'pagado');
-  const entrega = cob.hay >= cob.de
-    ? (cob.de > 1 ? `las ${cob.de} cuentas se entregan solas` : 'la cuenta se entrega sola')
-    : `se ${cob.hay === 1 ? 'entrega sola 1' : `entregan solas ${cob.hay}`} de las ${cob.de} cuentas ` +
-      `y lo demás (${escapar(cob.faltan.join(', '))}) queda sin stock`;
-  $('vtAlerta').innerHTML = yaPago
-    ? `Este pago ya estaba registrado. Al confirmar, ${entrega}, y no se puede deshacer.`
-    : usdtDe(c)
-      ? `Confirmá solo si <strong>ya te entraron ${usdtDe(c)}</strong> en tu Binance. ` +
-        `Al confirmar, ${entrega}, y no se puede deshacer.`
-    : `Confirmá solo si <strong>ya te entraron ${bsTxt(c.total)}</strong> en tu cuenta. ` +
-      `Al confirmar, ${entrega}, y no se puede deshacer.`;
 
   $('vtCliente').value   = clienteDe(c).nombre;
   $('vtClienteWa').value = celularParaMostrar(clienteDe(c).whatsapp);
@@ -2015,12 +1997,6 @@ function abrirCierreAMano(pedidoId, accion) {
     (quedan > 0 ? `<br>Se ${filas.length === 1 ? 'cierra' : 'cierran'} ${filas.length} de ${c.lineas.length}: ` +
                   'las ya entregadas quedan como están.' : '');
   $('vtManoDetalle').innerHTML = detalleCompra(quedan > 0 ? agruparCompras(filas)[0] : c);
-
-  $('vtManoAviso').innerHTML = accion === 'entregar'
-    ? 'Se marca como <strong>entregado por WhatsApp</strong> y suma a lo vendido hoy. ' +
-      'Tocalo solo si ya le pasaste la cuenta.'
-    : `${varias ? 'La compra' : 'El pedido'} queda <strong>rechazad${varias ? 'a' : 'o'}</strong> y desaparece de lo pendiente. ` +
-      `No se entrega nada y después no vas a poder confirmarl${varias ? 'a' : 'o'} desde acá.`;
 
   // Los datos de la cuenta solo tienen sentido al entregar, y solo en una
   // compra de un producto: con tres, un solo usuario y clave no alcanza —

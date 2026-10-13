@@ -1172,12 +1172,12 @@ body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) {
 /* Teñido: más blanco debajo, igual que en la tienda */
 html.tenido body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) { background-color: var(--vidrio-tinte); }
 
-/* Confirmar pago, Rechazar y Listo (Ventas): un 30 % más grandes en la
+/* Confirmar pago, Rechazar y Listo (Ventas): un 15 % más grandes en la
    compu, todo junto (letras, botones y aire), para leerlas sin forzar la
    vista. En el celular ya ocupan el ancho entero y quedan como están. */
 @media (min-width: 700px) {
   body #vtFondo > .vt-modal,
-  body #vtFondoMano > .vt-modal { zoom: 1.3; }
+  body #vtFondoMano > .vt-modal { zoom: 1.15; }
 }
 
 /* El control "Transparente o teñido" (js/tenido.js): en el panel no hay

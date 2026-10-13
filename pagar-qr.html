@@ -778,13 +778,13 @@
 
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261013115438">
-  <script src="js/barra-vidrio.js?v=20261013115438" defer></script>
+  <link rel="stylesheet" href="css/vidrio.css?v=20261013123228">
+  <script src="js/barra-vidrio.js?v=20261013123228" defer></script>
   <!-- El usuario registrado (js/usuario.js), para que el pedido salga a su
        nombre. Sin la ventana: acá no se interrumpe a nadie que está pagando. -->
-  <script src="js/usuario.js?v=20261013115438" defer data-ventana="no"></script>
+  <script src="js/usuario.js?v=20261013123228" defer data-ventana="no"></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261013115438"></script>
+  <script src="js/tenido.js?v=20261013123228"></script>
 </head>
 <body>
 
@@ -1461,6 +1461,11 @@
         return;
       }
       if (errorEl) errorEl.style.display = 'none';
+      // El correo, otra vez en el pedido: es lo que mirás en Ventas para
+      // activarle el servicio (lo guarda el módulo de abajo)
+      if (s.needsEmail && window.__guardarCorreo) {
+        window.__guardarCorreo(document.getElementById('customerEmail').value, true);
+      }
       buildWhatsappUrl();
       window.location.href = window._waUrl || 'https://wa.me/59157707335';
     }
@@ -1491,7 +1496,7 @@
     tokenDeLaUrl, compraRecordada, huellaDeCarrito, credencialesComoTexto, hayStock
   } from './js/pedido-automatico.js';
   import { guardarCompra } from './js/historial.js';
-  import { sb } from './js/supabase-base.js';
+  import { sb, SUPABASE_URL, SUPABASE_ANON_KEY } from './js/supabase-base.js';
 
   const $ = id => document.getElementById(id);
 
@@ -1517,6 +1522,50 @@
         window.__metodoDelPedido(data.metodo, data.usdt_bs, data.usdt_monto);
       }, () => {});
   };
+
+  // ---- El correo, en los productos "a correo de cliente" ----
+  // Antes solo viajaba en el mensaje de WhatsApp: el pedido se crea al
+  // abrir la página, con el campo vacío, y en Ventas no se sabía a qué
+  // correo activar. Ahora se guarda en el pedido apenas está bien escrito,
+  // y otra vez al tocar "Ya pagué" (supabase/28-correo-del-cliente.sql).
+  //
+  // Al tocar "Ya pagué" la página se va a WhatsApp en el mismo momento:
+  // keepalive deja que el pedido a la base termine igual.
+  const CORREO_BIEN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  let correoGuardado = '';
+
+  window.__guardarCorreo = (email, alSalir = false) => {
+    const limpio = String(email || '').trim().toLowerCase();
+    if (!tokenActual || !CORREO_BIEN.test(limpio)) return;
+    if (limpio === correoGuardado && !alSalir) return;
+    correoGuardado = limpio;
+    fetch(`${SUPABASE_URL}/rest/v1/rpc/guardar_correo_del_cliente`, {
+      method: 'POST',
+      keepalive: true,
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ p_token: tokenActual, p_email: limpio })
+    })
+      .then(r => { if (!r.ok) correoGuardado = ''; })     // se reintenta con el próximo cambio
+      .catch(() => { correoGuardado = ''; });
+  };
+
+  // Mientras escribe, se espera a que pare un momento; al salir del campo,
+  // en el acto
+  (() => {
+    const campo = $('customerEmail');
+    if (!campo) return;
+    let espera;
+    campo.addEventListener('input', () => {
+      clearTimeout(espera);
+      espera = setTimeout(() => window.__guardarCorreo(campo.value), 900);
+    });
+    campo.addEventListener('change', () => { clearTimeout(espera); window.__guardarCorreo(campo.value); });
+  })();
+
   const escapar = s => String(s ?? '').replace(/[&<>"]/g,
     c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -1886,6 +1935,8 @@
     if (ref) ref.textContent = etiqueta;
 
     if (typeof buildWhatsappUrl === 'function') buildWhatsappUrl();
+    // Si ya escribió el correo antes de que la compra estuviera lista
+    window.__guardarCorreo(($('customerEmail') || {}).value);
     pintar(compra);
     parar = seguirPedido(token, pintar);
     sincronizarMetodo(compra);
@@ -2054,6 +2105,6 @@
     @media (prefers-reduced-motion: reduce) { .latido { animation: none } }
   </style>
 
-  <script src="bg-burbujas.js?v=20261013115438" defer></script>
+  <script src="bg-burbujas.js?v=20261013123228" defer></script>
 </body>
 </html>

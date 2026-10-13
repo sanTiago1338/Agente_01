@@ -344,6 +344,31 @@ css.textContent = `
   }
   .vt-stock-fila.parcial { background: rgba(180,83,9,.09); color: #7c3d06; }
 
+  /* "A correo del cliente": en la fila de la lista y en "Ver". Azul con
+     el correo; ámbar si todavía no lo dejó, que es lo que te frena. */
+  .vt-f-correo {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 6px 10px; flex-wrap: wrap;
+    padding: 6px 10px; border-radius: 8px;
+    background: rgba(29,78,216,.07); color: #1e3a8a;
+    font-size: 12.5px; cursor: default;
+  }
+  .vt-f-correo b { font-weight: 700; overflow-wrap: anywhere; }
+  .vt-f-correo .vt-mini { padding: 3px 10px; background: rgba(255,255,255,.8); }
+  .vt-f-correo.falta { background: rgba(217,119,6,.11); color: #92400e; font-weight: 600; }
+  .vt-correo {
+    grid-column: 1 / -1;
+    display: grid; gap: 8px;
+    padding: 10px 12px; border-radius: 10px;
+    background: rgba(29,78,216,.06); border: 1px solid rgba(29,78,216,.14);
+  }
+  .vt-correo-tit { font-size: 12.5px; font-weight: 700; color: #1e3a8a; }
+  .vt-correo.falta { background: rgba(217,119,6,.08); border-color: rgba(217,119,6,.28); }
+  .vt-correo.falta .vt-correo-tit { color: #92400e; }
+  .vt-correo.falta span { font-size: 12.5px; color: #92400e; }
+  .vt-correo.falta .vt-mini { justify-self: start; text-decoration: none; background: rgba(255,255,255,.8); }
+  .vt-correo .vt-copiable code { font-size: 13.5px; background: rgba(255,255,255,.85); }
+
   /* De qué producto es cada cuenta, cuando la compra tiene varias */
   .vt-cred-de { font-family: inherit; font-weight: 700; color: var(--tinta); }
   .vt-cred-todas { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
@@ -1149,7 +1174,78 @@ function filaCompra(c) {
       <span class="vt-f-bs">${bsTxt(c.total)}${usdtDe(c) ? `<small>${usdtDe(c)}</small>` : ''}</span>
       <span class="vt-f-estado">${cartelDe(c)}</span>
       <button class="vt-ver" data-ver="${escapar(c.clave)}">Ver</button>
+      ${pideCorreo(c) && algunaEn(c, EN_ATENCION) ? filaCorreo(c) : ''}
     </div>`;
+}
+
+// ------------------------------------------------------------
+// "A correo de cliente"
+// ------------------------------------------------------------
+// Productos que no salen del stock: se activan sobre la cuenta del
+// cliente (Canva, Spotify renovable…), y para eso hace falta su correo.
+// La página de pago lo guarda en el pedido apenas está bien escrito y al
+// tocar "Ya pagué" (supabase/28-correo-del-cliente.sql). La base marca
+// cuáles lo piden (pide_correo), con la misma regla que la tienda.
+const DICE_CORREO = 'correo de cliente';
+
+function lineaPideCorreo(o) {
+  if (typeof o.pide_correo === 'boolean') return o.pide_correo;
+  // Sin el SQL 28 todavía: la misma regla, con el catálogo ya cargado
+  const p = (window.catalogoAdmin?.() || []).find(x => x.id === o.producto_id);
+  return `${o.producto_nombre || ''} ${p?.nombre || ''} ${p?.descripcion || ''}`
+    .toLowerCase().includes(DICE_CORREO);
+}
+const pideCorreo = c => c.lineas.some(o => o.estado !== 'cancelado' && lineaPideCorreo(o));
+const correoDe   = c => (c.lineas.find(o => String(o.cliente_email || '').trim())?.cliente_email || '').trim();
+
+// En la fila de "Para atender": a qué correo, con "Copiar", o que falta
+function filaCorreo(c) {
+  const correo = correoDe(c);
+  return correo
+    ? `<div class="vt-f-correo">
+         <span>A correo del cliente: <b>${escapar(correo)}</b></span>
+         <button class="vt-mini" data-copiar-correo="${escapar(correo)}">Copiar</button>
+       </div>`
+    : `<div class="vt-f-correo falta">A correo del cliente: todavía no dejó su correo</div>`;
+}
+
+// En "Ver": el correo para copiar, o el enlace para pedírselo por WhatsApp
+function cajaCorreo(c, wa) {
+  const correo = correoDe(c);
+  if (correo) {
+    return `
+      <div class="vt-correo">
+        <div class="vt-correo-tit">Se activa a correo del cliente</div>
+        <div class="vt-copiable">
+          <code>${escapar(correo)}</code>
+          <button class="btn btn-fantasma" data-copiar-correo="${escapar(correo)}">Copiar</button>
+        </div>
+      </div>`;
+  }
+  // Ya entregada o cancelada: no hay nada que pedirle
+  if (!algunaEn(c, [...EN_ATENCION, 'vencido'])) return '';
+
+  const nombre = String(c.primera.cliente_nombre || '').trim().split(/\s+/)[0];
+  const que = nombreDeCompra(c.lineas.filter(lineaPideCorreo));
+  const mensaje = `Hola${nombre ? ' ' + nombre : ''}, te escribimos de Tiago Store por tu pedido ` +
+                  `${numerosDeCompra(c.lineas)} (${que}). ¿A qué correo te activamos el servicio?`;
+  return `
+    <div class="vt-correo falta">
+      <div class="vt-correo-tit">Se activa a correo del cliente, y todavía no dejó su correo.</div>
+      ${wa
+        ? `<a class="vt-mini" href="https://wa.me/${numeroWa(wa)}?text=${encodeURIComponent(mensaje)}"
+              target="_blank" rel="noopener">Pedírselo por WhatsApp</a>`
+        : `<span>No dejó WhatsApp: llega con el mensaje del comprobante.</span>`}
+    </div>`;
+}
+
+async function copiarCorreo(correo) {
+  try {
+    await navigator.clipboard.writeText(correo);
+    aviso(`Correo copiado: ${correo}`, 'ok');
+  } catch {
+    aviso('No se pudo copiar. Seleccionalo a mano.', 'error');
+  }
 }
 
 // ‹ 1 2 3 … 12 13 ›, y debajo "16–30 de 187 compras"
@@ -1542,6 +1638,7 @@ function pintarCompra(c) {
           ? ' Si nadie la paga, se cancela sola a las 2 horas. Si la confirmás, se entrega una cuenta de verdad del stock.' : ''}</div>`
         : filaRecordatorio(c)}
       ${n > 1 || c.descuento > 0 ? detalleCompra(c, { porEstado: mixto }) : ''}
+      ${pideCorreo(c) ? cajaCorreo(c, wa) : ''}
       ${stock}
       ${cuentas}
 
@@ -1642,6 +1739,10 @@ $('vtLista').addEventListener('click', e => {
     return;
   }
 
+  // "Copiar" el correo, en la misma fila: no abre la compra
+  const correo = e.target.closest('[data-copiar-correo]');
+  if (correo) { copiarCorreo(correo.dataset.copiarCorreo); return; }
+
   const ver = e.target.closest('[data-ver]');
   if (ver) abrirVer(ver.dataset.ver);
 });
@@ -1664,6 +1765,9 @@ $('vtVerCuerpo').addEventListener('click', async e => {
   // El enlace abre el chat solo (es un <a>); acá solo se anota cuándo
   const recordar = e.target.closest('[data-recordar]');
   if (recordar) { anotarRecordatorio(recordar.dataset.recordar); return; }
+
+  const correo = e.target.closest('[data-copiar-correo]');
+  if (correo) { await copiarCorreo(correo.dataset.copiarCorreo); return; }
 
   const confirmar = e.target.closest('[data-confirmar]');
   if (confirmar) { abrirConfirmacion(confirmar.dataset.confirmar); return; }

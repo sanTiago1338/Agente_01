@@ -138,7 +138,7 @@ css.textContent = `
       grid-template-areas: "cli gas" "wa com" "ult ult" "sub sub" "acc acc";
       gap: 4px 10px;
       margin-top: 8px; padding: 12px;
-      background: rgba(255,255,255,.8); border: 1px solid var(--capa-canto, var(--separador)); border-radius: var(--radio);
+      background: var(--capa-tarjeta, rgba(255,255,255,.8)); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur); border: 1px solid var(--capa-canto, var(--separador)); border-radius: var(--radio);
       box-shadow: var(--sombra);
     }
     .cl-tabla > tbody > tr.cl-fila.abierta { border-radius: var(--radio) var(--radio) 0 0; }

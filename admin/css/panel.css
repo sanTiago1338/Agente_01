@@ -7,10 +7,15 @@
    EL FONDO NO ES DE ACÁ: es el de siempre de la tienda (css/vidrio.css:
    gris clarito con manchas rojas, doradas, azules y rosas) con las
    burbujas de vidrio que suben (bg-burbujas.js). El panel carga los dos
-   antes que este archivo. Menú, barra y tarjetas son translúcidos para
-   que se vean por detrás, como siempre; las ventanas (confirmar, editar)
-   y los menús que se abren van casi blancos, porque ahí se lee y se
-   escribe. En el login, blanco con dos manchas suaves y las burbujas.
+   antes que este archivo.
+
+   LOS TONOS TAMPOCO: menú, barras, tarjetas y ventanas son los mismos
+   vidrios de la página Plataformas (las variables --vidrio* de
+   css/vidrio.css), con el mismo control "Transparente o teñido"
+   (js/tenido.js). Lo que se elige en la tienda vale también acá. Lo de
+   escribir (campos, el precio en la fila) va casi blanco, para leerse.
+
+   En el login, blanco con dos manchas suaves y las burbujas.
 
    Lo usan admin/index.html, login.html y cambiar-clave.html.
 
@@ -42,26 +47,34 @@
   --letra: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --letra-mono: ui-monospace, 'SF Mono', Consolas, monospace;
 
-  /* Superficies: translúcidas, sobre el fondo de css/vidrio.css */
+  /* LOS TONOS DE LA TIENDA
+     Las capas son los mismos vidrios de la página Plataformas
+     (css/vidrio.css): siguen el control "Transparente o teñido"
+     (js/tenido.js, abajo a la izquierda), y lo elegido en la tienda vale
+     también acá. --tenido va de 0 (transparente) a 1 (teñido). */
+  --capa:            var(--vidrio-claro);         /* menú y barras, como el menú de la tienda */
+  --capa-tarjeta:    var(--vidrio-denso);         /* tarjetas y tablas, como las de las plataformas */
+  --capa-canto:      var(--vidrio-borde);         /* el borde claro del vidrio */
+  --capa-blur:       var(--vidrio-blur);
+  --capa-blur-barra: var(--vidrio-blur-barra);
+  /* Campos y botones claros: un color (no un degradé), porque el select
+     lleva además su flechita dibujada */
+  --capa-campo:      rgba(255,255,255, calc(.62 + .3 * var(--tenido, 0)));
+
+  /* Superficies que usan los módulos (Inicio, Ventas, Stock…) */
   --fondo:        #f7f8fa;                  /* el de css/vidrio.css, debajo de las manchas */
-  --superficie:   rgba(255,255,255,.72);    /* tarjetas */
-  --superficie-2: rgba(243,244,246,.6);     /* encabezados de tabla, cajitas adentro */
-  --superficie-3: rgba(229,231,235,.55);    /* botones de ícono, etiquetas */
+  --superficie:   rgba(255,255,255, calc(.4 + .5 * var(--tenido, 0)));
+  --superficie-2: rgba(243,244,246, calc(.45 + .35 * var(--tenido, 0)));   /* encabezados de tabla, cajitas */
+  --superficie-3: rgba(229,231,235, calc(.5 + .3 * var(--tenido, 0)));     /* botones de ícono, etiquetas */
   --separador:    rgba(16,24,40,.09);       /* bordes finos */
   --separador-2:  rgba(16,24,40,.16);       /* bordes de campos y botones */
 
-  /* Las capas translúcidas */
-  --capa:         rgba(255,255,255,.62);    /* menú, barras */
-  --capa-tarjeta: rgba(255,255,255,.72);    /* tarjetas y tablas */
-  --capa-campo:   rgba(255,255,255,.86);    /* campos y botones claros */
-  --capa-canto:   rgba(255,255,255,.8);     /* el borde claro del vidrio */
-  --capa-blur:    blur(18px) saturate(160%);
-
-  /* Texto */
+  /* Texto: los grises oscuros de la tienda, que se leen sobre el vidrio
+     transparente */
   --tinta:       #111827;
   --tinta-media: #374151;
-  --tinta-suave: #6b7280;
-  --tinta-tenue: #9ca3af;
+  --tinta-suave: #4b515c;
+  --tinta-tenue: #656b77;
 
   /* Marca */
   --marca:        #e50914;
@@ -79,8 +92,9 @@
   --menu-texto:  #374151;
   --menu-tenue:  #8a919c;
 
-  --radio:       12px;
-  --sombra:      0 1px 2px rgba(16,24,40,.05), 0 0 0 .5px rgba(16,24,40,.06);
+  --radio:       14px;
+  /* La sombra y el brillo de arriba de los vidrios de la tienda */
+  --sombra:      var(--vidrio-sombra), var(--vidrio-brillo);
   --sombra-alta: 0 16px 40px rgba(16,24,40,.16), 0 2px 6px rgba(16,24,40,.06);
 
   /* Alias históricos */
@@ -178,8 +192,8 @@ button, input, select, textarea { font-family: inherit; }
   display: flex;
   flex-direction: column;
   background: var(--capa);
-  -webkit-backdrop-filter: var(--capa-blur);
-  backdrop-filter: var(--capa-blur);
+  -webkit-backdrop-filter: var(--capa-blur-barra);
+  backdrop-filter: var(--capa-blur-barra);
   border-right: 1px solid var(--capa-canto);
   box-shadow: 1px 0 0 var(--separador);
   color: var(--menu-texto);
@@ -192,7 +206,7 @@ button, input, select, textarea { font-family: inherit; }
 /* Abierto en el celular va más blanco: pasa por encima del contenido */
 body.menu-abierto .lateral {
   transform: none;
-  background: rgba(255,255,255,.86);
+  background: linear-gradient(180deg, rgba(255,255,255,.37), rgba(255,255,255,.3)); -webkit-backdrop-filter: blur(28px) saturate(170%) brightness(1.15); backdrop-filter: blur(28px) saturate(170%) brightness(1.15);
   box-shadow: 0 0 40px rgba(16,24,40,.22);
 }
 @media (prefers-reduced-motion: reduce) { .lateral { transition: none; } }
@@ -277,9 +291,16 @@ body.menu-abierto .lateral {
 .menu-link .ico { color: var(--tinta-suave); }
 .lateral .vista-tab:hover,
 .menu-link:hover { background: var(--menu-hover); color: var(--tinta); }
+/* La sección en la que estás es la lente de la tienda (css/vidrio.css):
+   más clara arriba al centro, con brillo en el canto */
 .lateral .vista-tab.activa {
-  background: rgba(255,255,255,.94);
-  box-shadow: 0 1px 3px rgba(16,24,40,.08), 0 0 0 .5px rgba(16,24,40,.06);
+  background: var(--vidrio-lente);
+  box-shadow:
+    inset 0 1.5px 0 #fff,
+    inset 0 -1.5px 2px rgba(20,22,26,.07),
+    inset 0 0 0 1px rgba(255,255,255,.55),
+    0 6px 16px rgba(20,22,26,.12),
+    0 1px 3px rgba(20,22,26,.08);
   color: var(--tinta);
   font-weight: 600;
 }
@@ -361,7 +382,7 @@ body.menu-abierto .lateral {
   gap: 10px;
   height: 56px;
   padding: 0 12px 0 6px;
-  background: var(--capa); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
+  background: var(--capa); -webkit-backdrop-filter: var(--capa-blur-barra); backdrop-filter: var(--capa-blur-barra);
   border-bottom: 1px solid var(--separador);
 }
 .barra-menu {
@@ -474,7 +495,7 @@ body.menu-abierto .lateral {
   z-index: 60;
   width: 250px;
   padding: 6px;
-  background: rgba(255,255,255,.94); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
+  background: var(--vidrio-denso); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
   border: 1px solid var(--separador);
   border-radius: var(--radio);
   box-shadow: var(--sombra-alta);
@@ -530,7 +551,7 @@ body.menu-abierto .lateral {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
-  background: rgba(255,255,255,.72); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
+  background: var(--capa); -webkit-backdrop-filter: var(--capa-blur-barra); backdrop-filter: var(--capa-blur-barra);
   border-top: 1px solid var(--separador);
 }
 .menu-movil button {
@@ -1088,7 +1109,7 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
     position: relative;
     margin-bottom: 10px;
     padding: 13px;
-    background: rgba(255,255,255,.8);
+    background: var(--capa-tarjeta); -webkit-backdrop-filter: var(--capa-blur); backdrop-filter: var(--capa-blur);
     border: 1px solid var(--capa-canto);
     border-radius: var(--radio);
     box-shadow: var(--sombra);
@@ -1133,18 +1154,34 @@ body :is(.ini-cifra, .ini-caja, .vt-pedido, .vt-tabla, .st-prod, .st-sugerir, .j
 }
 body .vt-pedido.urgente { border-color: #fecaca; background: rgba(255,245,245,.8); }
 
+/* Las ventanas, como la del carrito de la tienda: lo de atrás bien
+   esmerilado y la hoja de vidrio claro */
 body :is(.zv-fondo, .st-fondo, .vt-fondo, .jg-fondo) {
-  background: rgba(17,24,39,.32);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  background: rgba(20,22,26,.2);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
 }
 body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) {
-  background: #fff;
-  border-radius: 14px;
-  border-color: var(--separador);
-  box-shadow: 0 24px 60px rgba(16,24,40,.25);
+  background: linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,255,255,.62));
+  -webkit-backdrop-filter: blur(28px) saturate(170%) brightness(1.15);
+  backdrop-filter: blur(28px) saturate(170%) brightness(1.15);
+  border: 1px solid rgba(255,255,255,.9);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(20,22,26,.2), 0 0 0 .5px rgba(20,22,26,.1), inset 0 1px 0 #fff;
 }
-body :is(.zv-cab) { border-radius: 14px 14px 0 0; }
+/* Teñido: más blanco debajo, igual que en la tienda */
+html.tenido body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) { background-color: var(--vidrio-tinte); }
+
+/* El control "Transparente o teñido" (js/tenido.js): en el panel no hay
+   burbuja de WhatsApp de referencia. Celular: arriba de la barra de
+   abajo. Compu: al lado del menú, no encima de la cuenta. */
+.tenido-control { bottom: calc(80px + env(safe-area-inset-bottom)); }
+@media (min-width: 900px) {
+  .tenido-control { left: calc(var(--menu-ancho) + 16px); bottom: 16px; }
+}
+body :is(.zv-cab) { border-radius: 20px 20px 0 0; }
+/* Cabecera y pie de las ventanas: sin fondo propio, sobre el vidrio */
+body :is(.zv-cab, .zv-pie, .jg-cab, .jg-pie) { background: transparent; }
 
 /* Los filtros de Ventas y los rangos de Inicio: como pestañas sobrias */
 body .vt-filtro { border-radius: 8px; background: var(--capa-campo); border-color: var(--separador-2); color: var(--tinta-media); font-weight: 500; }
@@ -1229,10 +1266,12 @@ body.pagina-acceso {
   width: 100%;
   max-width: 420px;
   padding: 28px 24px 24px;
-  background: var(--capa-tarjeta);
-  -webkit-backdrop-filter: var(--capa-blur);
-  backdrop-filter: var(--capa-blur);
-  border: 1px solid var(--capa-canto);
+  /* El login no carga css/vidrio.css (su fondo es otro): el vidrio va
+     escrito acá */
+  background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.64));
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);
+  border: 1px solid rgba(255,255,255,.85);
   border-radius: 16px;
   box-shadow: 0 12px 36px rgba(16,24,40,.10), 0 0 0 .5px rgba(16,24,40,.06);
 }

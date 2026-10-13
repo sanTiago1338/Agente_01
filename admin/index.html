@@ -55,6 +55,9 @@
     --marca:        #e50914;
     --marca-oscura: #b8070f;
     --marca-suave:  rgba(229,9,20,.08);
+    /* El rojo de la letra chica ("Ir a Stock", "Ver todos"): el de la
+       marca, sobre vidrio y con una mancha detrás, quedaba justo en 4,5:1 */
+    --marca-texto:  #c4070f;
     --oro:          #9a7400;
 
     /* Estados */
@@ -114,6 +117,8 @@
   /* Menos transparencia (lo pide el sistema) o un navegador que no sabe
      esmerilar: el vidrio pasa a casi blanco, así lo de atrás nunca se
      mete en la letra. Los paneles siguen flotando sobre el fondo. */
+  /* En una pantalla ancha, un poco más de aire alrededor de los paneles */
+  @media (min-width: 1280px) { :root { --aire: 16px; } }
   @media (prefers-reduced-transparency: reduce) {
     :root {
       --cristal:         rgba(255,255,255,.96);
@@ -212,6 +217,23 @@
     border: 1px solid var(--cristal-linea);
     border-radius: 16px;
     box-shadow: var(--cristal-canto), var(--flotar);
+  }
+  /* El aire de arriba de la barra: al deslizar, las filas pasaban nítidas
+     por ahí. Esta franja (fija arriba, justo en ese aire) las esmerila; sin
+     borde ni blanco de más, así el fondo sigue viéndose en color. Va en
+     .contenido y no en la barra: un esmerilado dentro de otro no esmerila. */
+  .contenido::before {
+    content: '';
+    position: sticky;
+    top: 0;
+    z-index: 29;
+    display: block;
+    height: 10px;
+    margin-bottom: -10px;
+    background: rgba(247,248,250,.45);
+    -webkit-backdrop-filter: var(--cristal-blur);
+    backdrop-filter: var(--cristal-blur);
+    pointer-events: none;
   }
   .barra-menu { display: inline-grid; }
   /* En el celular, solo el nombre de la vista; en la compu, con la
@@ -420,6 +442,7 @@
     .barra-fecha { display: block; }
     .barra-titulo p { display: block; }
     .barra-tienda { display: inline-flex !important; }
+    .contenido::before { height: var(--aire); margin-bottom: calc(-1 * var(--aire)); }
   }
 
   .marca {
@@ -503,6 +526,15 @@
     box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 2px 8px -4px rgba(16,24,40,.12);
   }
   .lateral .vista-tab.activa .ico { color: var(--marca); }
+  .lateral .vista-tab.activa::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 50%;
+    width: 3px; height: 16px;
+    margin-top: -8px;
+    border-radius: 0 3px 3px 0;
+    background: var(--marca);
+  }
   .lateral .contador { box-shadow: none; }
 
   .lateral-pie {
@@ -510,7 +542,8 @@
     display: flex;
     flex-direction: column;
     gap: 1px;
-    padding-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--cristal-raya);
   }
   .cuenta {
     display: flex; align-items: center; gap: 10px;

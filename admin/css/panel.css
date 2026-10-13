@@ -1,0 +1,1330 @@
+/* ============================================================
+   TIAGO STORE · ESTILO DEL PANEL
+   ============================================================
+   Un panel de empresa: menú lateral oscuro, barra de arriba blanca,
+   fondo gris claro y tarjetas blancas con borde fino. Letra Inter.
+   Sin vidrio ni burbujas: acá se trabaja leyendo números, nombres y
+   contraseñas, y tienen que leerse de un vistazo.
+
+   Lo usan admin/index.html, login.html y cambiar-clave.html.
+
+   QUÉ HAY ACÁ
+     1. Colores y letra (variables)
+     2. Base y pantalla de carga
+     3. El marco: menú lateral, barra de arriba, título de la vista,
+        barra de abajo y cajón del celular
+     4. Piezas comunes: botones, cifras, buscador, tablas, interruptores,
+        etiquetas, paginación, vacíos, avisos
+     5. Celular: las tablas pasan a tarjetas
+     6. Lo que traen los módulos (Inicio, Ventas, Stock, Juegos,
+        Productos): mismos bordes, radios y ventanas, sin vidrio
+     7. Login y cambiar contraseña
+
+   POR QUÉ ALGUNAS REGLAS EMPIEZAN CON "body"
+     Cada módulo mete sus estilos en la página cuando arranca, o sea
+     DESPUÉS de este archivo. A igual peso gana el último; "body" le suma
+     el peso justo para que el estilo del panel no quede tapado.
+   ============================================================ */
+
+
+/* ============================================================
+   1. COLORES Y LETRA
+   ============================================================
+   Los nombres --negro, --panel, --texto… son los de siempre: los usan
+   los módulos y siguen valiendo, ahora con estos colores. */
+:root {
+  --letra: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --letra-mono: ui-monospace, 'SF Mono', Consolas, monospace;
+
+  /* Superficies */
+  --fondo:        #f3f4f6;   /* el gris de la página */
+  --superficie:   #ffffff;   /* tarjetas */
+  --superficie-2: #f9fafb;   /* encabezados de tabla, campos */
+  --superficie-3: #f3f4f6;   /* botones de ícono, etiquetas */
+  --separador:    #e5e7eb;   /* bordes finos */
+  --separador-2:  #d1d5db;   /* bordes de campos y botones */
+
+  /* Texto */
+  --tinta:       #111827;
+  --tinta-media: #374151;
+  --tinta-suave: #6b7280;
+  --tinta-tenue: #9ca3af;
+
+  /* Marca */
+  --marca:        #e50914;
+  --marca-oscura: #b8070f;
+  --oro:          #9a7400;
+
+  /* Estados */
+  --ok:    #15803d;
+  --warn:  #b45309;
+  --error: #dc2626;
+  --info:  #1d4ed8;
+
+  /* El menú oscuro */
+  --menu-fondo:  #111827;
+  --menu-hover:  #1f2937;
+  --menu-texto:  #d1d5db;
+  --menu-tenue:  #6b7280;
+
+  --radio:       10px;
+  --sombra:      0 1px 2px rgba(16,24,40,.05);
+  --sombra-alta: 0 12px 32px rgba(16,24,40,.14), 0 2px 6px rgba(16,24,40,.06);
+
+  /* Alias históricos */
+  --negro:    var(--fondo);
+  --panel:    var(--superficie);
+  --panel-2:  var(--superficie-2);
+  --panel-3:  var(--superficie-3);
+  --borde:    var(--separador);
+  --borde-2:  var(--separador-2);
+  --rojo:     var(--marca);
+  --rojo2:    var(--marca-oscura);
+  --dorado:   var(--oro);
+  --texto:    var(--tinta-media);
+  --gris:     var(--tinta-suave);
+  --gris-dim: var(--tinta-tenue);
+
+  --barra-alto: 64px;
+  --menu-ancho: 248px;
+}
+
+
+/* ============================================================
+   2. BASE
+   ============================================================ */
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--letra);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea { font-family: inherit; }
+
+/* Íconos dibujados (trazos de 24x24): heredan el color del texto */
+.ico {
+  width: 18px; height: 18px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+.oculto { display: none !important; }
+
+/* ---- Pantalla de carga ---- */
+#verificando {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  background: var(--fondo);
+}
+.spinner {
+  width: 34px; height: 34px;
+  border: 3px solid var(--separador);
+  border-top-color: var(--marca);
+  border-radius: 50%;
+  animation: girar .7s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+#verificando p { margin: 0; font-size: 13px; color: var(--tinta-suave); }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.5s; } }
+
+
+/* ============================================================
+   3. EL MARCO
+   ============================================================
+   Compu (900 px o más): menú fijo a la izquierda, la barra blanca arriba
+   y el contenido abajo.
+   Celular: barra de arriba con ☰ y el nombre de la sección; abajo
+   Inicio, Ventas, Productos, Stock y "Más", que abre el menú entero como
+   un cajón desde la izquierda. */
+
+#app:not([hidden]) { min-height: 100vh; }
+
+/* ---------- Menú lateral ---------- */
+.lateral {
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  z-index: 70;
+  width: min(86vw, var(--menu-ancho));
+  display: flex;
+  flex-direction: column;
+  background: var(--menu-fondo);
+  color: var(--menu-texto);
+  /* En el celular es un cajón: fuera de la pantalla hasta abrirlo */
+  transform: translateX(-102%);
+  transition: transform .22s ease;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+body.menu-abierto .lateral { transform: none; box-shadow: 0 0 40px rgba(0,0,0,.35); }
+@media (prefers-reduced-motion: reduce) { .lateral { transition: none; } }
+
+/* Lo que queda detrás del cajón abierto */
+.cortina {
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  background: rgba(17,24,39,.5);
+}
+.cortina[hidden] { display: none; }
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.marca-ico {
+  width: 34px; height: 34px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 8px;
+  background: var(--marca);
+  color: #fff;
+  font: 800 17px/1 var(--letra);
+}
+.marca-txt b {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -.01em;
+}
+.marca-txt small {
+  display: block;
+  margin-top: 1px;
+  font-size: 12px;
+  color: var(--menu-tenue);
+}
+.lateral-cerrar {
+  margin-left: auto;
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border: none; border-radius: 8px;
+  background: transparent;
+  color: var(--menu-texto);
+  cursor: pointer;
+}
+.lateral-cerrar:hover { background: var(--menu-hover); color: #fff; }
+
+.menu { padding: 10px 10px 8px; }
+.menu-titulo {
+  padding: 14px 10px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--menu-tenue);
+}
+.lateral .vista-tab,
+.menu-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  font: 500 14px var(--letra);
+  color: var(--menu-texto);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.lateral .vista-tab .ico,
+.menu-link .ico { color: #9ca3af; }
+.lateral .vista-tab:hover,
+.menu-link:hover { background: var(--menu-hover); color: #fff; }
+.lateral .vista-tab.activa {
+  background: var(--menu-hover);
+  color: #fff;
+  font-weight: 600;
+}
+.lateral .vista-tab.activa .ico { color: #fff; }
+/* La raya roja de la sección en la que estás */
+.lateral .vista-tab.activa::before {
+  content: '';
+  position: absolute;
+  left: -10px; top: 7px; bottom: 7px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--marca);
+}
+.lateral .vista-tab:focus-visible,
+.menu-link:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+
+.lateral-pie {
+  margin-top: auto;
+  padding: 10px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.cuenta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 10px 6px 4px 10px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.cuenta .avatar { background: #374151; color: #fff; }
+.usuario {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  color: #9ca3af;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cuenta-salir {
+  width: 32px; height: 32px; flex: none;
+  display: grid; place-items: center;
+  border: none; border-radius: 7px;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+}
+.cuenta-salir:hover { background: var(--menu-hover); color: #fff; }
+
+/* ---------- Contadores rojos (Ventas, Stock, la campana) ---------- */
+.contador {
+  min-width: 20px; height: 20px;
+  padding: 0 6px;
+  border-radius: 99px;
+  background: var(--error);
+  color: #fff;
+  font: 700 11px/20px var(--letra);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.contador[hidden] { display: none; }
+.lateral .contador { margin-left: auto; }
+
+/* "Probar la tienda" aparece recién cuando llegó la clave (js/admin-prueba.js) */
+[data-probar][hidden] { display: none !important; }
+
+/* ---------- La columna del contenido ---------- */
+.contenido {
+  min-width: 0;
+  padding-bottom: calc(68px + env(safe-area-inset-bottom));   /* aire para la barra de abajo */
+}
+
+/* ---------- Barra de arriba ---------- */
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  padding: 0 12px 0 6px;
+  background: #fff;
+  border-bottom: 1px solid var(--separador);
+}
+.barra-menu {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border: none; border-radius: 8px;
+  background: none;
+  color: var(--tinta);
+  cursor: pointer;
+}
+.barra-menu:hover { background: var(--superficie-3); }
+.barra-menu .ico { width: 22px; height: 22px; }
+
+/* Celular: el nombre de la sección. Compu: las migas. */
+.barra-vista {
+  margin: 0;
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--tinta);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.migas {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--tinta-suave);
+  white-space: nowrap;
+}
+.migas .sep { color: var(--separador-2); }
+.migas b { font-weight: 600; color: var(--tinta); }
+
+.barra-acciones {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.barra-fecha { display: none; margin-right: 6px; font-size: 13px; color: var(--tinta-suave); }
+.barra-fecha::first-letter { text-transform: uppercase; }
+
+.barra-tienda {
+  display: none;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--separador-2);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tinta-media);
+  text-decoration: none;
+}
+.barra-tienda:hover { background: var(--superficie-2); color: var(--tinta); }
+.barra-tienda .ico { width: 16px; height: 16px; }
+
+.icono-btn {
+  position: relative;
+  width: 38px; height: 38px;
+  display: inline-grid; place-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--tinta-media);
+  cursor: pointer;
+  text-decoration: none;
+}
+.icono-btn:hover { background: var(--superficie-3); color: var(--tinta); }
+.icono-btn .ico { width: 20px; height: 20px; }
+/* El número de pedidos por atender, sobre la campana */
+.campana .contador {
+  position: absolute;
+  top: 1px; right: -1px;
+  min-width: 18px; height: 18px;
+  padding: 0 5px;
+  font-size: 10.5px; line-height: 18px;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+/* ---------- El avatar y su menú ---------- */
+.perfil { position: relative; }
+.avatar-btn {
+  display: grid;
+  place-items: center;
+  padding: 2px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+.avatar-btn:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+.avatar {
+  width: 32px; height: 32px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--tinta);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.perfil-menu {
+  position: absolute;
+  top: calc(100% + 8px); right: 0;
+  z-index: 60;
+  width: 250px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid var(--separador);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra-alta);
+}
+.perfil-menu[hidden] { display: none; }
+.perfil-quien {
+  padding: 8px 10px 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--separador);
+}
+.perfil-quien small { display: block; font-size: 11.5px; color: var(--tinta-suave); }
+.perfil-quien b {
+  display: block;
+  font-size: 13px; font-weight: 600; color: var(--tinta);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.perfil-op {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  font: 500 13.5px var(--letra);
+  color: var(--tinta-media);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.perfil-op:hover { background: var(--superficie-3); color: var(--tinta); }
+.perfil-op .ico { width: 16px; height: 16px; color: var(--tinta-suave); }
+.perfil-op.peligro:hover { background: #fef2f2; color: var(--error); }
+.perfil-op.peligro:hover .ico { color: var(--error); }
+
+/* ---------- Título de la vista (compu) ---------- */
+.pagina-cab { display: none; }
+.pagina-cab h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--tinta);
+}
+.pagina-cab p { margin: 4px 0 0; font-size: 13.5px; color: var(--tinta-suave); }
+
+/* ---------- Barra de abajo (celular) ---------- */
+.menu-movil {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid var(--separador);
+}
+.menu-movil button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 2px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font: 500 11px var(--letra);
+  color: var(--tinta-suave);
+  cursor: pointer;
+}
+.menu-movil button .ico { width: 22px; height: 22px; }
+.menu-movil button.activa { color: var(--marca); font-weight: 600; }
+.menu-movil button.activa .ico { stroke-width: 2.3; }
+.menu-movil .contador {
+  position: absolute;
+  top: 1px; left: calc(50% + 5px);
+  min-width: 18px; height: 18px;
+  padding: 0 5px;
+  font-size: 10px; line-height: 18px;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+/* ---------- Compu ---------- */
+@media (min-width: 900px) {
+  .lateral {
+    width: var(--menu-ancho);
+    transform: none;
+    transition: none;
+  }
+  body.menu-abierto .lateral { box-shadow: none; }
+  .lateral-cerrar, .cortina { display: none !important; }
+
+  .contenido { margin-left: var(--menu-ancho); padding-bottom: 0; }
+
+  .barra { height: var(--barra-alto); padding: 0 24px 0 32px; }
+  .barra-menu, .barra-vista { display: none; }
+  .migas, .barra-tienda { display: flex; }
+  .barra-fecha { display: block; }
+
+  .pagina-cab { display: block; padding: 24px 32px 0; }
+  .menu-movil { display: none; }
+}
+
+
+/* ============================================================
+   4. PIEZAS COMUNES
+   ============================================================ */
+
+/* ---- El ancho de las vistas ----
+   Todas usan el ancho entero del contenido. Juegos, Ventas y Stock traen
+   su propio contenedor con tope (1180-1280 px) desde su módulo; con #app
+   adelante esta regla les gana sin tocar esos archivos. */
+#app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap,
+#app .cl-wrap, #app .aj-wrap {
+  max-width: none;
+  margin: 0;
+  padding: 20px 32px 40px;
+}
+@media (max-width: 899px) {
+  #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap,
+  #app .cl-wrap, #app .aj-wrap {
+    padding: 14px 12px 24px;
+  }
+}
+
+/* ---- Botones ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: 500 13.5px var(--letra);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn .ico { width: 16px; height: 16px; }
+.btn-rojo, .btn-primario { background: var(--marca); color: #fff; }
+.btn-rojo:hover:not(:disabled), .btn-primario:hover:not(:disabled) { background: var(--marca-oscura); }
+.btn-oscuro { background: var(--tinta); color: #fff; }
+.btn-oscuro:hover:not(:disabled) { background: #1f2937; }
+.btn-fantasma { background: #fff; color: var(--tinta-media); border-color: var(--separador-2); }
+.btn-fantasma:hover:not(:disabled) { background: var(--superficie-2); color: var(--tinta); }
+.btn-peligro { background: #fff; color: var(--error); border-color: #fecaca; }
+.btn-peligro:hover:not(:disabled) { background: #fef2f2; }
+.btn-icono {
+  padding: 6px 9px;
+  background: #fff;
+  border: 1px solid var(--separador-2);
+  border-radius: 7px;
+  color: var(--tinta-suave);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  font-family: inherit;
+}
+.btn-icono:hover { color: var(--tinta); background: var(--superficie-2); }
+.btn-icono.peligro:hover { color: #fff; background: var(--error); border-color: var(--error); }
+
+/* ---- Tarjetas de cifras ---- */
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.metrica {
+  background: #fff;
+  border: 1px solid var(--separador);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 14px 16px;
+}
+.metrica-n {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  color: var(--tinta);
+  font-variant-numeric: tabular-nums;
+}
+.metrica-n.ok     { color: var(--ok); }
+.metrica-n.warn   { color: var(--warn); }
+.metrica-n.dorado { color: var(--oro); }
+.metrica-n.rojo   { color: var(--marca); }
+.metrica-n.info   { color: var(--info); }
+.metrica-l {
+  margin-top: 4px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tinta-suave);
+}
+
+/* ---- Barra de herramientas: buscador, filtros, botones ---- */
+.herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.buscador {
+  position: relative;
+  flex: 1 1 260px;
+  min-width: 200px;
+}
+.buscador input {
+  width: 100%;
+  height: 38px;
+  padding: 0 34px 0 34px;
+  background: #fff;
+  border: 1px solid var(--separador-2);
+  border-radius: 8px;
+  color: var(--tinta);
+  font-size: 14px;
+}
+.buscador input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--info);
+  box-shadow: 0 0 0 3px rgba(29,78,216,.12);
+}
+.buscador input::placeholder { color: var(--tinta-tenue); }
+.buscador .lupa {
+  position: absolute;
+  left: 11px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--tinta-tenue);
+  pointer-events: none;
+  font-size: 15px;
+  line-height: 0;
+}
+.buscador .limpiar {
+  position: absolute;
+  right: 6px; top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  padding: 4px 6px;
+  border: none;
+  background: none;
+  color: var(--tinta-tenue);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+.buscador .limpiar:hover { color: var(--tinta); }
+.buscador.con-texto .limpiar { display: block; }
+/* type="search" trae su propia ✕ en Chrome y Edge: con la nuestra
+   salían dos. Se apaga solo donde está la nuestra. */
+.buscador:has(.limpiar) input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+
+select {
+  height: 38px;
+  min-width: 150px;
+  padding: 0 32px 0 12px;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center / 16px;
+  border: 1px solid var(--separador-2);
+  border-radius: 8px;
+  color: var(--tinta);
+  font-size: 13.5px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ---- Tablas ---- */
+.tabla-caja {
+  background: #fff;
+  border: 1px solid var(--separador);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+.tabla-scroll { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+thead th {
+  padding: 10px 14px;
+  background: var(--superficie-2);
+  border-bottom: 1px solid var(--separador);
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tinta-suave);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--separador);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--superficie-2); }
+tbody tr.inactivo .celda-nombre,
+tbody tr.inactivo .celda-precio { opacity: .48; }
+
+/* ---- Interruptores de la fila de Productos: un toque y se guarda ----
+   El color del riel dice qué es (verde disponible, rojo oferta, dorado
+   destacado, azul planes) y el texto al lado lo dice con palabras. */
+.interruptores {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: 7px 16px;
+}
+.sw {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  border: none;
+  background: none;
+  font: 500 12.5px var(--letra);
+  color: var(--tinta-suave);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sw-riel {
+  position: relative;
+  flex: none;
+  width: 32px; height: 18px;
+  border-radius: 99px;
+  background: var(--separador-2);
+  transition: background .15s;
+}
+.sw-bola {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16,24,40,.3);
+  transition: transform .15s;
+}
+.sw[aria-checked="true"] { color: var(--tinta); }
+.sw[aria-checked="true"] .sw-bola { transform: translateX(14px); }
+.sw[aria-checked="true"] .sw-riel                          { background: var(--ok); }
+.sw[aria-checked="true"][data-accion="oferta"] .sw-riel    { background: var(--marca); }
+.sw[aria-checked="true"][data-accion="destacado"] .sw-riel { background: #b58900; }
+.sw[aria-checked="true"][data-accion="planes"] .sw-riel    { background: var(--info); }
+.sw:hover .sw-riel { filter: brightness(.94); }
+.sw:disabled { opacity: .55; cursor: wait; }
+.sw:focus-visible { outline: 2px solid var(--info); outline-offset: 3px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { .sw-riel, .sw-bola { transition: none; } }
+
+/* ---- Precio editable en la misma fila ---- */
+.precio-btn .ico.precio-lapiz { width: 13px; height: 13px; vertical-align: -2px; }
+.precio-edicion { display: grid; gap: 6px; min-width: 120px; }
+.precio-edicion label {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--tinta-suave);
+}
+.precio-edicion input {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--separador-2);
+  border-radius: 7px;
+  font: 600 14px var(--letra);
+  color: var(--tinta);
+  background: #fff;
+}
+.precio-edicion input:focus { outline: none; border-color: var(--info); box-shadow: 0 0 0 3px rgba(29,78,216,.12); }
+.precio-edicion input.malo { border-color: var(--error); box-shadow: 0 0 0 3px rgba(220,38,38,.12); }
+.pe-botones { display: flex; gap: 6px; }
+.pe-botones button {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 7px;
+  border: 1px solid var(--separador-2);
+  background: #fff;
+  font: 600 13px var(--letra);
+  color: var(--tinta-media);
+  cursor: pointer;
+}
+.pe-botones .pe-ok { background: var(--ok); border-color: var(--ok); color: #fff; }
+.pe-botones button:disabled { opacity: .6; cursor: wait; }
+.pe-ayuda { font-size: 11px; color: var(--tinta-tenue); }
+.pe-ayuda.error { color: var(--error); font-weight: 600; }
+
+/* ---- Editar y borrar ---- */
+.accion-btn {
+  width: 34px; height: 34px;
+  display: inline-grid; place-items: center;
+  border: 1px solid var(--separador-2);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--tinta-media);
+  cursor: pointer;
+  font: 500 13px var(--letra);
+  text-decoration: none;
+}
+.accion-btn .ico { width: 16px; height: 16px; }
+.accion-btn .accion-txt { display: none; }
+.accion-btn:hover { color: var(--tinta); background: var(--superficie-2); }
+.accion-btn.peligro:hover { color: #fff; background: var(--error); border-color: var(--error); }
+.accion-btn + .accion-btn { margin-left: 6px; }
+
+.miniatura {
+  width: 44px; height: 44px;
+  flex-shrink: 0;
+  display: block;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--superficie-3);
+  border: 1px solid var(--separador);
+}
+.celda-nombre { min-width: 230px; }
+.nombre-txt { font-weight: 600; line-height: 1.3; margin-bottom: 2px; color: var(--tinta); }
+.nombre-sub { font-size: 12px; color: var(--tinta-tenue); }
+/* Qué le falta, en el filtro "Para revisar" */
+.revisar-nota {
+  margin-top: 4px;
+  font-size: 12px; font-weight: 600; line-height: 1.4;
+  color: #b45309;
+}
+.celda-precio {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--tinta);
+}
+.precio-tachado {
+  display: block;
+  font-size: 11.5px;
+  color: var(--tinta-tenue);
+  text-decoration: line-through;
+  font-weight: 400;
+}
+/* El precio es un botón: cambiarlo es lo que más se hace */
+.precio-btn {
+  display: block;
+  width: 100%;
+  margin: -5px -7px;
+  padding: 5px 7px;
+  border: 1px dashed transparent;
+  border-radius: 7px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.precio-btn:hover { border-color: var(--marca); background: rgba(229,9,20,.05); }
+.precio-btn:focus-visible { outline: 2px solid var(--marca); outline-offset: 1px; }
+.precio-lapiz { opacity: 0; font-size: 11px; margin-left: 5px; }
+.precio-btn:hover .precio-lapiz { opacity: .75; }
+/* La descripción también es un botón: es el texto que más se retoca */
+.desc-btn {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 4px 6px;
+  border: 1px dashed transparent;
+  border-radius: 7px;
+  background: none;
+  color: var(--tinta-suave);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+}
+.desc-btn:hover { border-color: var(--marca); background: rgba(229,9,20,.04); }
+.desc-btn:focus-visible { outline: 2px solid var(--marca); outline-offset: 1px; }
+.desc-btn.vacia { color: var(--tinta-tenue); font-style: italic; }
+.desc-lapiz { opacity: 0; font-size: 11px; margin-left: 4px; }
+.desc-btn:hover .desc-lapiz { opacity: .75; }
+.desc-btn .pide-correo { color: var(--info); font-style: normal; }
+
+.celda-acciones { text-align: right; white-space: nowrap; }
+.celda-acciones .btn-icono + .btn-icono { margin-left: 5px; }
+
+/* ---- Etiquetas ---- */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tag + .tag { margin-left: 4px; }
+.tag-ok        { background: #ecfdf3; color: var(--ok); }
+.tag-agotado   { background: #fef2f2; color: var(--error); }
+.tag-oferta    { background: #fef2f2; color: var(--marca-oscura); }
+.tag-destacado { background: #fefce8; color: var(--oro); }
+.tag-cat       { background: var(--superficie-3); color: var(--tinta-media); font-weight: 500; }
+.tag-planes    { background: #eff6ff; color: var(--info); }
+
+.btn-icono.activo { background: #eff6ff; border-color: #bfdbfe; color: var(--info); }
+.btn-icono.activo:hover { background: #dbeafe; color: var(--info); }
+
+/* ---- Paginación ---- */
+.paginacion {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 14px;
+  border-top: 1px solid var(--separador);
+}
+.pag-btn {
+  min-width: 34px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid var(--separador-2);
+  border-radius: 7px;
+  color: var(--tinta-media);
+  font: 500 13px var(--letra);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.pag-btn:hover:not(:disabled) { background: var(--superficie-2); color: var(--tinta); }
+.pag-btn.activo { background: var(--tinta); color: #fff; border-color: var(--tinta); }
+.pag-btn:disabled { opacity: .35; cursor: not-allowed; }
+.pag-info { margin-right: 8px; font-size: 12.5px; color: var(--tinta-suave); }
+
+/* ---- Vacíos y esqueletos ---- */
+.estado-vacio { padding: 56px 20px; text-align: center; }
+.estado-vacio .emo { font-size: 36px; margin-bottom: 10px; color: var(--tinta-tenue); }
+.estado-vacio h3 { margin: 0 0 6px; font-size: 16px; color: var(--tinta); }
+.estado-vacio p  { margin: 0; color: var(--tinta-suave); font-size: 13.5px; }
+
+.fila-esqueleto td { padding: 14px; }
+.esq {
+  height: 14px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #eef0f3 25%, #f8f9fa 50%, #eef0f3 75%);
+  background-size: 200% 100%;
+  animation: brillo 1.4s ease-in-out infinite;
+}
+@keyframes brillo { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .esq { animation: none; } }
+
+/* ---- Avisos (abajo a la derecha) ---- */
+#avisos {
+  position: fixed;
+  right: 20px; bottom: 20px;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(360px, calc(100vw - 40px));
+}
+@media (max-width: 899px) { #avisos { bottom: calc(80px + env(safe-area-inset-bottom)); right: 12px; } }
+.aviso {
+  padding: 11px 14px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--separador);
+  border-left: 3px solid var(--tinta-suave);
+  box-shadow: var(--sombra-alta);
+  font-size: 13.5px;
+  color: var(--tinta);
+  animation: entrar .2s ease-out;
+}
+.aviso.ok    { border-left-color: var(--ok); }
+.aviso.error { border-left-color: var(--error); }
+@keyframes entrar { from { opacity: 0; transform: translateY(8px); } }
+
+/* ---- Íconos de línea dentro de textos ---- */
+.emo svg, .lupa svg, .icono svg, .btn-icono svg, .desc-lapiz svg {
+  display: inline-block;
+  vertical-align: -0.125em;
+}
+
+
+/* ============================================================
+   5. CELULAR: LAS TABLAS PASAN A TARJETAS
+   ============================================================ */
+@media (max-width: 820px) {
+  /* Los cuatro números de a dos y los seis de a tres: ninguna fila coja */
+  .resumen { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .resumen:has(> .metrica:nth-child(5)) { grid-template-columns: repeat(3, 1fr); }
+  .metrica { padding: 11px 12px; }
+  .metrica-n { font-size: 20px; }
+  .metrica-l { font-size: 11.5px; }
+
+  .herramientas { gap: 8px; }
+  .buscador { flex: 1 1 100%; }
+  .herramientas select { flex: 1 1 calc(50% - 4px); min-width: 0; }
+  .herramientas #btnNuevo { flex: 1 1 100%; justify-content: center; padding: 10px; }
+
+  /* La tabla de Productos: cada producto es una tarjeta */
+  #vistaProductos .tabla-scroll { overflow-x: visible; }
+  #vistaProductos .tabla-caja { background: none; border: none; box-shadow: none; overflow: visible; }
+
+  #vistaProductos thead { display: none; }
+  #vistaProductos table,
+  #vistaProductos tbody,
+  #vistaProductos tr,
+  #vistaProductos td { display: block; width: 100%; }
+  #vistaProductos tbody tr {
+    position: relative;
+    margin-bottom: 10px;
+    padding: 13px;
+    background: #fff;
+    border: 1px solid var(--separador);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+  }
+  #vistaProductos tbody tr:hover td { background: transparent; }
+  #vistaProductos tbody td { border: none; padding: 3px 0; }
+  .celda-img { position: absolute; top: 13px; left: 13px; }
+  .celda-nombre { padding-left: 54px !important; min-height: 46px; min-width: 0; }
+  .celda-precio { padding-left: 54px !important; font-size: 16px; }
+  .celda-cat, .celda-estado { padding-top: 8px !important; }
+  .celda-acciones {
+    margin-top: 9px;
+    padding-top: 11px !important;
+    border-top: 1px solid var(--separador);
+    text-align: left;
+  }
+  .celda-acciones .btn-icono { padding: 8px 13px; }
+  .accion-btn {
+    width: auto; height: 36px;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0 14px;
+  }
+  .accion-btn .accion-txt { display: inline; }
+  .interruptores { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+  .sw { padding: 4px 0; font-size: 13px; }
+  .fila-esqueleto { padding: 20px !important; }
+  #vistaProductos .paginacion { border-top: none; }
+}
+
+
+/* ============================================================
+   6. LO QUE TRAEN LOS MÓDULOS
+   ============================================================
+   Inicio, Ventas, Stock, Juegos y el editor de Productos traen sus
+   estilos. Acá se emparejan con el resto: las mismas tarjetas, el mismo
+   radio y las ventanas sobre un velo oscuro, sin esmerilado. */
+body :is(.ini-cifra, .ini-caja, .vt-pedido, .vt-tabla, .st-prod, .st-sugerir, .jg-card) {
+  background: #fff;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+body .vt-pedido.urgente { border-color: #fecaca; background: #fffafa; }
+
+body :is(.zv-fondo, .st-fondo, .vt-fondo, .jg-fondo) {
+  background: rgba(17,24,39,.5);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) {
+  border-radius: 12px;
+  border-color: var(--separador);
+  box-shadow: 0 24px 60px rgba(16,24,40,.25);
+}
+body :is(.zv-cab) { border-radius: 12px 12px 0 0; }
+
+/* Los filtros de Ventas y los rangos de Inicio: como pestañas sobrias */
+body .vt-filtro { border-radius: 8px; background: #fff; border-color: var(--separador-2); color: var(--tinta-media); font-weight: 500; }
+body .vt-filtro:hover { border-color: var(--tinta-tenue); color: var(--tinta); }
+body .vt-filtro.activo { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+
+/* Los botones "rojos" de los módulos: el rojo de la marca, liso */
+body :is(.zv-btn.rojo, .jg-btn.rojo) { background: var(--marca); color: #fff; border-color: var(--marca); }
+body :is(.zv-btn.rojo, .jg-btn.rojo):hover:not(:disabled) { filter: none; background: var(--marca-oscura); }
+
+/* Campos de las ventanas: blancos con borde gris */
+body :is(.zv-modal, .jg-modal, .st-modal, .vt-modal)
+  :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]), textarea, select) {
+  background-color: #fff;
+  border-color: var(--separador-2);
+}
+
+
+/* ============================================================
+   7. LOGIN Y CAMBIAR CONTRASEÑA
+   ============================================================
+   La marca a la izquierda (oscura, como el menú del panel) y el
+   formulario a la derecha. En el celular, la marca arriba en una franja
+   y el formulario abajo. */
+.acceso {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;    /* celular: la franja arriba, el formulario pegado abajo */
+  background: #fff;
+}
+.acceso[hidden] { display: none; }
+.acceso-marca {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 22px 26px;
+  background: var(--menu-fondo);
+  color: var(--menu-texto);
+}
+.acceso-marca .marca { padding: 0; border: none; }
+.acceso-marca h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+  color: #fff;
+}
+.acceso-marca p { margin: 0; font-size: 14px; line-height: 1.55; color: #9ca3af; }
+.acceso-lista {
+  display: none;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.acceso-lista li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 14px;
+  color: var(--menu-texto);
+}
+.acceso-lista .ico { color: #9ca3af; }
+.acceso-pie { display: none; font-size: 12.5px; color: var(--menu-tenue); }
+
+.acceso-form {
+  display: grid;
+  place-items: start center;
+  padding: 28px 20px 40px;
+}
+.acceso-caja { width: 100%; max-width: 380px; }
+.acceso-caja h1 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--tinta);
+}
+.acceso-caja .bajada { margin: 0 0 26px; font-size: 14px; color: var(--tinta-suave); line-height: 1.5; }
+
+.campo { margin-bottom: 16px; }
+.campo label,
+.acceso-caja > form > label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tinta-media);
+}
+.input-wrap { position: relative; }
+.acceso-caja input[type=email],
+.acceso-caja input[type=password],
+.acceso-caja input[type=text] {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  background: #fff;
+  border: 1px solid var(--separador-2);
+  border-radius: 8px;
+  color: var(--tinta);
+  font-size: 14.5px;
+  transition: border-color .12s, box-shadow .12s;
+}
+.acceso-caja input::placeholder { color: var(--tinta-tenue); }
+.acceso-caja input:focus {
+  outline: none;
+  border-color: var(--info);
+  box-shadow: 0 0 0 3px rgba(29,78,216,.12);
+}
+.acceso-caja input:disabled { opacity: .55; }
+.acceso-caja .input-wrap input { padding-right: 44px; }
+.ojo {
+  position: absolute;
+  right: 4px; top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--tinta-tenue);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.ojo:hover { color: var(--tinta); }
+.ojo:focus-visible { outline: 2px solid var(--info); outline-offset: -2px; }
+
+.fila-recordar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 2px 0 22px;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--tinta-media);
+  cursor: pointer;
+  user-select: none;
+}
+.check input { width: 15px; height: 15px; accent-color: var(--tinta); cursor: pointer; }
+.link-btn {
+  padding: 2px 0;
+  border: none;
+  background: none;
+  color: var(--info);
+  font: 500 13px var(--letra);
+  cursor: pointer;
+}
+.link-btn:hover:not(:disabled) { text-decoration: underline; }
+.link-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.btn-entrar {
+  display: block;
+  width: 100%;
+  height: 42px;
+  border: none;
+  border-radius: 8px;
+  background: var(--tinta);
+  color: #fff;
+  font: 600 14.5px var(--letra);
+  text-align: center;
+  text-decoration: none;
+  line-height: 42px;
+  cursor: pointer;
+  transition: background .12s;
+}
+.btn-entrar:hover:not(:disabled) { background: #1f2937; }
+.btn-entrar:disabled { opacity: .5; cursor: not-allowed; }
+
+.mensaje {
+  display: none;
+  margin-top: 16px;
+  padding: 11px 13px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.mensaje.visible { display: block; }
+.mensaje.error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+.mensaje.ok    { background: #ecfdf3; border: 1px solid #bbf7d0; color: #166534; }
+
+.acceso-enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid var(--separador);
+}
+.acceso-enlaces a { font-size: 13px; color: var(--tinta-suave); text-decoration: none; }
+.acceso-enlaces a:hover { color: var(--tinta); }
+
+/* La barra de fuerza de la contraseña nueva */
+.fuerza { margin: -6px 0 18px; }
+.fuerza-barra { height: 4px; border-radius: 99px; background: var(--superficie-3); overflow: hidden; }
+.fuerza-relleno { width: 0; height: 100%; border-radius: 99px; transition: width .2s, background-color .2s; }
+.fuerza-texto { min-height: 16px; margin-top: 6px; font-size: 12px; color: var(--tinta-suave); }
+
+@media (min-width: 900px) {
+  .acceso { grid-template-columns: minmax(380px, 44%) 1fr; grid-template-rows: 1fr; }
+  .acceso-marca { justify-content: space-between; padding: 40px 48px; }
+  .acceso-marca h2 { font-size: 30px; max-width: 420px; }
+  .acceso-marca p { max-width: 420px; }
+  .acceso-lista, .acceso-pie { display: block; }
+  .acceso-form { place-items: center; padding: 40px; }
+}

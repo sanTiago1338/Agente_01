@@ -345,7 +345,7 @@ css.textContent = `
   .vt-stock-fila.parcial { background: rgba(180,83,9,.09); color: #7c3d06; }
 
   /* De qué producto es cada cuenta, cuando la compra tiene varias */
-  .vt-cred-de { font-family: 'Outfit', system-ui, sans-serif; font-weight: 700; color: var(--tinta); }
+  .vt-cred-de { font-family: inherit; font-weight: 700; color: var(--tinta); }
   .vt-cred-todas { grid-column: 1 / -1; display: flex; justify-content: flex-end; }
 
   /* ---------- La lista: una fila por compra ----------

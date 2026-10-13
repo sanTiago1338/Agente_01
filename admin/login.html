@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Panel Admin · Tiago Store</title>
+<title>Entrar · Panel Tiago Store</title>
 
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="icon" href="../favicon.png" sizes="32x32">
@@ -12,298 +12,76 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
-  /* Misma paleta clara que la tienda y que el panel. Los nombres viejos
-     quedan como alias para no reescribir el CSS de abajo. */
-  :root {
-    --fondo:       #ffffff;
-    --superficie:  #fbfbfc;
-    --superficie-2:#f4f5f7;
-    --separador:   rgba(20,22,26,.09);
-    --tinta:       #14161a;
-    --tinta-media: #3d424b;
-    --tinta-suave: #767c88;
-    --tinta-tenue: #9aa0ab;
-    --marca:       #e50914;
-    --oro:         #9a7400;
-
-    --sombra-alta: 0 2px 6px rgba(20,22,26,.07), 0 12px 32px rgba(20,22,26,.10);
-
-    /* Alias históricos */
-    --negro:    var(--fondo);
-    --panel:    var(--superficie);
-    --panel-2:  var(--superficie-2);
-    --borde:    var(--separador);
-    --rojo:     var(--marca);
-    --dorado:   var(--oro);
-    --texto:    var(--tinta-media);
-    --gris:     var(--tinta-suave);
-    --gris-dim: var(--tinta-tenue);
-    --ok:       #15803d;
-    --error:    #dc2626;
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background: var(--negro);
-    color: var(--texto);
-    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
-    display: grid;
-    place-items: center;
-    padding: 24px 18px;
-    background-image:
-      radial-gradient(900px 420px at 50% -120px, rgba(229,9,20,.06),  transparent 65%),
-      radial-gradient(600px 300px at 85% 110%, rgba(245,197,24,.08), transparent 60%);
-  }
-
-  .card {
-    width: 100%;
-    max-width: 420px;
-    background: var(--panel);
-    border: 1px solid var(--borde);
-    border-radius: 16px;
-    padding: 34px 30px 28px;
-    box-shadow: var(--sombra-alta);
-  }
-
-  /* ---------- Encabezado ---------- */
-  .logo {
-    font-family: 'Bebas Neue', Impact, sans-serif;
-    font-size: 34px;
-    letter-spacing: .06em;
-    text-align: center;
-    margin: 0 0 2px;
-    line-height: 1;
-  }
-  .logo .zona { color: var(--rojo); }
-  .logo .vip  { color: var(--tinta); }
-
-  .subtitulo {
-    text-align: center;
-    font-size: 11.5px;
-    letter-spacing: .26em;
-    text-transform: uppercase;
-    color: var(--gris-dim);
-    margin: 0 0 30px;
-  }
-
-  /* ---------- Campos ---------- */
-  .campo { margin-bottom: 16px; }
-
-  label {
-    display: block;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--gris);
-    margin-bottom: 7px;
-    letter-spacing: .02em;
-  }
-
-  .input-wrap { position: relative; }
-
-  input[type=email],
-  input[type=password],
-  input[type=text] {
-    width: 100%;
-    padding: 12px 14px;
-    background: var(--panel-2);
-    border: 1px solid var(--borde);
-    border-radius: 9px;
-    color: var(--texto);
-    font-size: 15px;
-    font-family: inherit;
-    transition: border-color .15s;
-  }
-  input::placeholder { color: var(--gris-dim); }
-  input:focus {
-    outline: none;
-    border-color: var(--rojo);
-    box-shadow: 0 0 0 3px rgba(229,9,20,.14);
-  }
-  input:disabled { opacity: .55; }
-
-  #password { padding-right: 46px; }
-
-  .ojo {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--gris-dim);
-    cursor: pointer;
-    font-size: 16px;
-    padding: 8px 10px;
-    line-height: 1;
-    border-radius: 6px;
-  }
-  .ojo:hover  { color: var(--tinta); }
-  .ojo:focus-visible { outline: 2px solid var(--rojo); outline-offset: -2px; }
-
-  /* ---------- Recordar ---------- */
-  .fila-recordar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin: 4px 0 22px;
-    flex-wrap: wrap;
-  }
-  .check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--gris);
-    cursor: pointer;
-    user-select: none;
-  }
-  .check input {
-    width: 15px;
-    height: 15px;
-    accent-color: var(--rojo);
-    cursor: pointer;
-  }
-  .link-btn {
-    background: none;
-    border: none;
-    color: var(--dorado);
-    font-size: 13px;
-    font-family: inherit;
-    cursor: pointer;
-    padding: 2px 0;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  .link-btn:hover:not(:disabled) { filter: brightness(.9); }
-  .link-btn:disabled { opacity: .45; cursor: not-allowed; }
-
-  /* ---------- Botón ---------- */
-  .btn-entrar {
-    width: 100%;
-    padding: 13px;
-    background: var(--rojo);
-    color: #fff;
-    border: none;
-    border-radius: 9px;
-    font-size: 15.5px;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    letter-spacing: .02em;
-    transition: filter .15s;
-  }
-  .btn-entrar:hover:not(:disabled) { filter: brightness(.95); }
-  .btn-entrar:disabled { opacity: .5; cursor: not-allowed; }
-
-  /* ---------- Mensajes ---------- */
-  .mensaje {
-    margin-top: 18px;
-    padding: 12px 14px;
-    border-radius: 9px;
-    font-size: 13.5px;
-    line-height: 1.5;
-    display: none;
-  }
-  .mensaje.visible { display: block; }
-  .mensaje.error {
-    background: rgba(220,38,38,.08);
-    border: 1px solid rgba(220,38,38,.3);
-    color: #8f1616;
-  }
-  .mensaje.ok {
-    background: rgba(21,128,61,.08);
-    border: 1px solid rgba(21,128,61,.3);
-    color: #10502a;
-  }
-
-  /* ---------- Pie ---------- */
-  .pie {
-    margin-top: 26px;
-    padding-top: 18px;
-    border-top: 1px solid var(--borde);
-    text-align: center;
-  }
-  .pie a {
-    color: var(--gris-dim);
-    font-size: 13px;
-    text-decoration: none;
-  }
-  .pie a:hover { color: var(--texto); }
-
-  /* ---------- Pantalla de carga inicial ---------- */
-  #verificando {
-    position: fixed;
-    inset: 0;
-    background: var(--negro);
-    display: grid;
-    place-items: center;
-    z-index: 50;
-  }
-  .spinner {
-    width: 34px; height: 34px;
-    border: 3px solid var(--borde);
-    border-top-color: var(--rojo);
-    border-radius: 50%;
-    animation: girar .7s linear infinite;
-  }
-  @keyframes girar { to { transform: rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) {
-    .spinner { animation-duration: 2.5s; }
-  }
-
-  .oculto { display: none !important; }
-</style>
+<!-- El mismo estilo del panel (sección 7 de css/panel.css): la marca a la
+     izquierda, oscura como el menú, y el formulario a la derecha -->
+<link rel="stylesheet" href="css/panel.css?v=20261006120342">
 </head>
 <body>
 
 <!-- Tapa la página mientras chequeamos si ya hay sesión abierta -->
 <div id="verificando"><div class="spinner" role="status" aria-label="Verificando sesión"></div></div>
 
-<main class="card" id="tarjeta" hidden>
-  <h1 class="logo"><span class="zona">TIAGO</span> <span class="vip">STORE</span></h1>
-  <p class="subtitulo">Panel de administración</p>
-
-  <form id="formLogin" novalidate>
-    <div class="campo">
-      <label for="email">Email</label>
-      <input type="email" id="email" required autocomplete="username"
-             placeholder="tucorreo@gmail.com" autocapitalize="none" spellcheck="false">
+<div class="acceso" id="tarjeta" hidden>
+  <aside class="acceso-marca">
+    <div class="marca">
+      <span class="marca-ico" aria-hidden="true">T</span>
+      <span class="marca-txt"><b>Tiago Store</b><small>Administración</small></span>
     </div>
+    <div>
+      <h2>Tu tienda, en un solo lugar.</h2>
+      <p>Ventas, clientes, stock y catálogo, con los pedidos al instante.</p>
+      <ul class="acceso-lista">
+        <li><svg class="ico" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>Pedidos y pagos en vivo</li>
+        <li><svg class="ico" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clientes y suscripciones por vencer</li>
+        <li><svg class="ico" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Avisos por Telegram</li>
+      </ul>
+    </div>
+    <p class="acceso-pie">Tiago Store · Bolivia</p>
+  </aside>
 
-    <div class="campo">
-      <label for="password">Contraseña</label>
-      <div class="input-wrap">
-        <input type="password" id="password" required autocomplete="current-password"
-               placeholder="••••••••">
-        <button type="button" class="ojo" id="btnOjo"
-                aria-label="Mostrar contraseña"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+  <main class="acceso-form">
+    <div class="acceso-caja">
+      <h1>Entrar al panel</h1>
+      <p class="bajada">Con tu correo y tu contraseña de administrador.</p>
+
+      <form id="formLogin" novalidate>
+        <div class="campo">
+          <label for="email">Correo</label>
+          <input type="email" id="email" required autocomplete="username"
+                 placeholder="tucorreo@gmail.com" autocapitalize="none" spellcheck="false">
+        </div>
+
+        <div class="campo">
+          <label for="password">Contraseña</label>
+          <div class="input-wrap">
+            <input type="password" id="password" required autocomplete="current-password"
+                   placeholder="••••••••">
+            <button type="button" class="ojo" id="btnOjo"
+                    aria-label="Mostrar contraseña"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
+        </div>
+
+        <div class="fila-recordar">
+          <label class="check">
+            <input type="checkbox" id="recordar" checked>
+            Mantener sesión iniciada
+          </label>
+          <button type="button" class="link-btn" id="btnReset">¿Olvidaste tu contraseña?</button>
+        </div>
+
+        <button type="submit" class="btn-entrar" id="btnEntrar">Entrar al panel</button>
+      </form>
+
+      <div class="mensaje" id="mensaje" role="alert" aria-live="polite"></div>
+
+      <div class="acceso-enlaces">
+        <a href="../index.html">← Volver a la tienda</a>
       </div>
     </div>
-
-    <div class="fila-recordar">
-      <label class="check">
-        <input type="checkbox" id="recordar" checked>
-        Mantener sesión iniciada
-      </label>
-      <button type="button" class="link-btn" id="btnReset">¿Olvidaste tu contraseña?</button>
-    </div>
-
-    <button type="submit" class="btn-entrar" id="btnEntrar">Entrar al panel</button>
-  </form>
-
-  <div class="mensaje" id="mensaje" role="alert" aria-live="polite"></div>
-
-  <div class="pie">
-    <a href="../index.html">← Volver a la tienda</a>
-  </div>
-</main>
+  </main>
+</div>
 
 <script type="module">
 // Todo sale de js/panel-auth.js, que le habla a Supabase. Este archivo no
@@ -436,8 +214,5 @@ $('btnReset').addEventListener('click', async () => {
   }
 });
 </script>
-
-<!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
-<script src="../bg-burbujas.js?v=20261006120342" defer></script>
 </body>
 </html>

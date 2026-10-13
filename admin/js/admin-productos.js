@@ -71,7 +71,7 @@ estilos.textContent = `
   }
   .zv-cab h2 {
     margin: 0; font-size: 18px; font-weight: 700;
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: inherit;
   }
   .zv-cerrar {
     margin-left: auto;
@@ -106,7 +106,7 @@ estilos.textContent = `
     border-radius: 8px;
     color: var(--tinta);
     font-size: 14.5px;
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: inherit;
   }
   .zv-campo textarea { resize: vertical; min-height: 74px; line-height: 1.45; }
   .zv-campo input:focus, .zv-campo textarea:focus, .zv-campo select:focus {
@@ -200,7 +200,7 @@ estilos.textContent = `
   }
   .zv-btn {
     padding: 10px 18px; border-radius: 8px; border: 1px solid transparent;
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: inherit;
     font-size: 14px; font-weight: 600; cursor: pointer;
   }
   .zv-btn:hover:not(:disabled) { filter: brightness(.95); }

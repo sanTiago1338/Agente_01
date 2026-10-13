@@ -12,896 +12,11 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
-  /* La misma paleta clara de la tienda: blanco, grises fríos y el rojo de
-     marca. Los nombres viejos del panel oscuro (--negro, --panel, --texto…)
-     quedan abajo como alias, así las 900 líneas de CSS que ya los usan
-     siguen funcionando sin tocarlas. Igual que se hizo en index.html. */
-  :root {
-    /* Superficies */
-    --fondo:        #ffffff;   /* fondo de la página */
-    --superficie:   #fbfbfc;   /* tarjetas y paneles */
-    --superficie-2: #f4f5f7;   /* zonas elevadas: inputs, filas */
-    --superficie-3: #eceef1;   /* botones de icono, etiquetas */
-    --separador:    rgba(20,22,26,.09);
-    --separador-2:  #dfe0e5;
-
-    /* Texto */
-    --tinta:       #14161a;   /* títulos y datos fuertes */
-    --tinta-media: #3d424b;   /* cuerpo */
-    --tinta-suave: #767c88;   /* secundario */
-    --tinta-tenue: #9aa0ab;   /* pistas y placeholders */
-
-    /* Marca */
-    --marca:        #e50914;
-    --marca-oscura: #b8070f;
-    --oro:          #9a7400;   /* oro legible sobre blanco */
-
-    /* Estados — oscurecidos para que se lean sobre blanco */
-    --ok:       #15803d;
-    --warn:     #a16207;
-    --error:    #dc2626;
-    --info:     #1d4ed8;
-
-    --sombra:      0 1px 2px rgba(20,22,26,.05), 0 4px 14px rgba(20,22,26,.06);
-    --sombra-alta: 0 2px 6px rgba(20,22,26,.07), 0 12px 32px rgba(20,22,26,.10);
-
-    /* Alias históricos (venían del panel oscuro) */
-    --negro:    var(--fondo);
-    --panel:    var(--superficie);
-    --panel-2:  var(--superficie-2);
-    --panel-3:  var(--superficie-3);
-    --borde:    var(--separador);
-    --borde-2:  var(--separador-2);
-    --rojo:     var(--marca);
-    --rojo2:    var(--marca-oscura);
-    --dorado:   var(--oro);
-    --texto:    var(--tinta-media);
-    --gris:     var(--tinta-suave);
-    --gris-dim: var(--tinta-tenue);
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background: var(--fondo);
-    color: var(--texto);
-    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
-    font-size: 15px;
-  }
-
-  /* ===== BURBUJAS DECORATIVAS =====
-     El mismo fondo de la tienda. Círculos difusos detrás del contenido,
-     puramente visuales: no interceptan clicks y se apagan en pantallas
-     chicas. Las burbujas animadas las agrega bg-burbujas.js al final. */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(circle 220px at 12% 14%, rgba(229,9,20,.05),   transparent 70%),
-      radial-gradient(circle 170px at 88% 22%, rgba(245,197,24,.07), transparent 70%),
-      radial-gradient(circle 130px at 78% 68%, rgba(229,9,20,.035),  transparent 70%),
-      radial-gradient(circle 190px at 8%  76%, rgba(245,197,24,.05), transparent 70%);
-  }
-  @media (max-width: 600px) { body::before { display: none; } }
-
-  /* ================= PANTALLA DE CARGA ================= */
-  #verificando {
-    position: fixed;
-    inset: 0;
-    background: var(--negro);
-    display: grid;
-    place-items: center;
-    z-index: 100;
-    gap: 14px;
-    align-content: center;
-  }
-  .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid var(--borde);
-    border-top-color: var(--rojo);
-    border-radius: 50%;
-    animation: girar .7s linear infinite;
-  }
-  @keyframes girar { to { transform: rotate(360deg); } }
-  #verificando p { color: var(--gris-dim); font-size: 13px; margin: 0; }
-  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2.5s; } }
-
-  /* ================= ESTRUCTURA =================
-     Compu (900 px o más): menú fijo a la izquierda y el contenido al lado.
-     Celular: barra arriba con la marca, y abajo una barra con las vistas,
-     al alcance del pulgar.
-
-     Cada vista tiene su botón [data-vista] en los DOS menús; el script de
-     abajo los marca a la par, así da igual cuál se toque. */
-  .lateral { display: none; }
-  .contenido { min-width: 0; padding-bottom: 78px; }   /* aire para la barra de abajo */
-
-  /* Íconos dibujados (trazos, no emojis): heredan el color del texto */
-  .ico {
-    width: 20px; height: 20px; flex: none;
-    fill: none; stroke: currentColor; stroke-width: 2;
-    stroke-linecap: round; stroke-linejoin: round;
-  }
-
-  /* ---- Barra de arriba ---- */
-  .barra {
-    position: sticky;
-    top: 0;
-    z-index: 30;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 56px;
-    padding: 9px 12px;
-    background: rgba(255,255,255,.88);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--borde);
-  }
-  .barra-marca {
-    font-family: 'Bebas Neue', Impact, sans-serif;
-    font-size: 23px;
-    letter-spacing: .05em;
-    line-height: 1;
-    color: var(--tinta);
-    text-decoration: none;
-  }
-  .barra-marca .zona { color: var(--rojo); }
-  .barra-titulo { display: none; min-width: 0; }
-  .barra-titulo h2 {
-    margin: 0;
-    font-size: 21px;
-    font-weight: 800;
-    letter-spacing: -.01em;
-    color: var(--tinta);
-  }
-  .barra-titulo p { margin: 2px 0 0; font-size: 13px; color: var(--tinta-suave); }
-  .barra-acciones { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-  .barra-fecha { display: none; font-size: 13px; color: var(--tinta-suave); }
-  .barra-fecha::first-letter { text-transform: uppercase; }
-
-  .icono-btn {
-    width: 38px; height: 38px;
-    display: inline-grid; place-items: center;
-    border: 1px solid var(--borde-2);
-    border-radius: 10px;
-    background: #fff;
-    color: var(--tinta-media);
-    cursor: pointer;
-    text-decoration: none;
-  }
-  .icono-btn:hover { color: var(--tinta); background: var(--superficie-2); }
-
-  /* ---- Barra de abajo (celular) ---- */
-  .menu-movil {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    z-index: 40;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
-    background: rgba(255,255,255,.96);
-    backdrop-filter: blur(12px);
-    border-top: 1px solid var(--borde);
-  }
-  .menu-movil .vista-tab {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    padding: 7px 2px;
-    border: none;
-    border-radius: 10px;
-    background: none;
-    font: 600 11px 'Outfit', sans-serif;
-    color: var(--tinta-suave);
-    cursor: pointer;
-  }
-  .menu-movil .vista-tab.activa { color: var(--rojo); }
-  .menu-movil .vista-tab.activa .ico { stroke-width: 2.4; }
-
-  /* ---- Contadores rojos del menú ----
-     Ventas: pedidos por atender. Stock: productos a los que se les acaba.
-     Los pone window.ponerContador(); en 0 se esconden. */
-  .contador {
-    min-width: 20px; height: 20px;
-    padding: 0 6px;
-    border-radius: 99px;
-    background: var(--error);
-    color: #fff;
-    font: 800 11px/20px 'Outfit', sans-serif;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-  }
-  .contador[hidden] { display: none; }
-  /* "Probar la tienda" aparece recién cuando llegó la clave (js/admin-prueba.js) */
-  [data-probar][hidden] { display: none !important; }
-  .lateral .contador { margin-left: auto; }
-  .menu-movil .vista-tab { position: relative; }
-  .menu-movil .contador {
-    position: absolute;
-    top: 1px; left: calc(50% + 5px);
-    min-width: 18px; height: 18px;
-    padding: 0 5px;
-    font-size: 10px; line-height: 18px;
-    box-shadow: 0 0 0 2px #fff;
-  }
-
-  /* ---- Menú lateral (compu) ---- */
-  @media (min-width: 900px) {
-    #app:not([hidden]) {
-      display: grid;
-      grid-template-columns: 236px minmax(0, 1fr);
-      min-height: 100vh;
-    }
-    .contenido { padding-bottom: 0; }
-    .menu-movil { display: none; }
-    .lateral {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      padding: 18px 12px 14px;
-      background: var(--superficie);
-      border-right: 1px solid var(--borde);
-    }
-    .barra { min-height: 70px; padding: 14px 24px; }
-    .barra-marca, .barra-acciones .icono-btn { display: none; }
-    .barra-titulo, .barra-fecha { display: block; }
-  }
-
-  .marca {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 8px 20px;
-    text-decoration: none;
-  }
-  .marca-ico {
-    width: 38px; height: 38px;
-    display: grid; place-items: center;
-    border-radius: 11px;
-    background: linear-gradient(135deg, var(--marca), var(--marca-oscura));
-    color: #fff;
-    font: 400 24px/1 'Bebas Neue', Impact, sans-serif;
-    box-shadow: 0 4px 12px rgba(229,9,20,.28);
-  }
-  .marca-txt b {
-    display: block;
-    font: 400 23px/1 'Bebas Neue', Impact, sans-serif;
-    letter-spacing: .05em;
-    color: var(--tinta);
-  }
-  .marca-txt b .zona { color: var(--rojo); }
-  .marca-txt small {
-    display: block;
-    margin-top: 3px;
-    font-size: 10px;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    color: var(--tinta-tenue);
-  }
-  .menu-titulo {
-    padding: 8px 12px 6px;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--tinta-tenue);
-  }
-  .lateral .vista-tab, .menu-link {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    width: 100%;
-    padding: 10px 12px;
-    border: none;
-    border-radius: 10px;
-    background: none;
-    font: 600 14px 'Outfit', sans-serif;
-    color: var(--tinta-media);
-    text-align: left;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background .15s, color .15s;
-  }
-  .lateral .vista-tab:hover, .menu-link:hover { background: var(--superficie-3); color: var(--tinta); }
-  .lateral .vista-tab.activa { background: #fff; color: var(--rojo); box-shadow: var(--sombra); }
-
-  .lateral-pie {
-    margin-top: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding-top: 12px;
-    border-top: 1px solid var(--borde);
-  }
-  .cuenta { display: flex; align-items: center; gap: 10px; padding: 4px 4px 0 8px; }
-  .avatar {
-    width: 34px; height: 34px; flex: none;
-    display: grid; place-items: center;
-    border-radius: 50%;
-    background: var(--superficie-3);
-    color: var(--tinta);
-    font-weight: 800;
-    text-transform: uppercase;
-  }
-  .usuario {
-    flex: 1;
-    min-width: 0;
-    font-size: 12.5px;
-    color: var(--tinta-suave);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .cuenta .icono-btn { width: 34px; height: 34px; }
-
-  /* ================= BOTONES ================= */
-  .btn {
-    padding: 9px 15px;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    font-family: inherit;
-    font-size: 13.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: filter .15s, background .15s;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .btn:hover:not(:disabled) { filter: brightness(.95); }
-  .btn:disabled { opacity: .45; cursor: not-allowed; }
-  .btn-rojo   { background: var(--rojo); color: #fff; }
-  .btn-fantasma { background: transparent; color: var(--gris); border-color: var(--borde-2); }
-  .btn-fantasma:hover:not(:disabled) { color: var(--texto); background: var(--panel-2); }
-  .btn-icono {
-    padding: 6px 9px;
-    background: var(--panel-3);
-    border: 1px solid var(--borde-2);
-    border-radius: 7px;
-    color: var(--gris);
-    cursor: pointer;
-    font-size: 14px;
-    line-height: 1;
-    font-family: inherit;
-  }
-  .btn-icono:hover { color: var(--tinta); background: #e2e5ea; }
-  .btn-icono.peligro:hover { color: #fff; background: var(--error); border-color: var(--error); }
-
-  /* ================= ANCHO DE LAS VISTAS =================
-     Todas usan el ancho entero del área de contenido. Juegos, Ventas y
-     Stock traen su propio contenedor con tope (1180-1280 px) desde su
-     módulo; con #app adelante esta regla les gana sin tocar esos archivos. */
-  #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap {
-    max-width: none;
-    margin: 0;
-    padding: 22px 24px 40px;
-  }
-  @media (max-width: 899px) {
-    #app main, #app .ini-wrap, #app .vt-wrap, #app .st-wrap, #app .jg-wrap {
-      padding: 14px 10px 24px;
-    }
-  }
-
-  /* ================= TARJETAS DE RESUMEN ================= */
-  /* Tarjetas sueltas, iguales a las del Inicio: blancas, con borde fino
-     y una sombra apenas. Las usan las cuatro vistas. */
-  .resumen {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-bottom: 22px;
-  }
-  .metrica {
-    background: #fff;
-    border: 1px solid var(--borde);
-    border-radius: 14px;
-    box-shadow: var(--sombra);
-    padding: 15px 16px;
-  }
-  .metrica-n {
-    font-size: 27px;
-    font-weight: 800;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-  .metrica-n.ok     { color: var(--ok); }
-  .metrica-n.warn   { color: var(--warn); }
-  .metrica-n.dorado { color: var(--dorado); }
-  .metrica-n.rojo   { color: var(--rojo); }
-  .metrica-n.info   { color: var(--info); }
-  .metrica-l {
-    font-size: 11.5px;
-    color: var(--gris-dim);
-    margin-top: 5px;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-  }
-
-  /* ================= BARRA DE HERRAMIENTAS ================= */
-  .herramientas {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 18px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .buscador {
-    position: relative;
-    flex: 1 1 260px;
-    min-width: 200px;
-  }
-  .buscador input {
-    width: 100%;
-    padding: 10px 36px 10px 36px;
-    background: var(--panel-2);
-    border: 1px solid var(--borde);
-    border-radius: 9px;
-    color: var(--texto);
-    font-size: 14.5px;
-    font-family: inherit;
-  }
-  .buscador input:focus {
-    outline: none;
-    border-color: var(--rojo);
-    box-shadow: 0 0 0 3px rgba(229,9,20,.13);
-  }
-  .buscador input::placeholder { color: var(--gris-dim); }
-  .buscador .lupa {
-    position: absolute;
-    left: 12px; top: 50%;
-    transform: translateY(-50%);
-    color: var(--gris-dim);
-    pointer-events: none;
-    font-size: 14px;
-  }
-  .buscador .limpiar {
-    position: absolute;
-    right: 8px; top: 50%;
-    transform: translateY(-50%);
-    background: none; border: none;
-    color: var(--gris-dim);
-    cursor: pointer;
-    font-size: 16px;
-    padding: 4px 6px;
-    line-height: 1;
-    display: none;
-  }
-  .buscador .limpiar:hover { color: var(--texto); }
-  .buscador.con-texto .limpiar { display: block; }
-  /* type="search" trae su propia ✕ en Chrome y Edge, que salía al lado de
-     la nuestra: dos X seguidas. Se apaga solo donde está la nuestra; en
-     Juegos y Stock no hay otra y la del navegador es la única que tienen. */
-  .buscador:has(.limpiar) input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
-
-  select {
-    padding: 10px 12px;
-    background: var(--panel-2);
-    border: 1px solid var(--borde);
-    border-radius: 9px;
-    color: var(--texto);
-    font-size: 14px;
-    font-family: inherit;
-    cursor: pointer;
-    min-width: 145px;
-  }
-  select:focus { outline: none; border-color: var(--rojo); }
-
-  /* ================= TABLA ================= */
-  .tabla-caja {
-    background: #fff;
-    border: 1px solid var(--borde);
-    border-radius: 14px;
-    box-shadow: var(--sombra);
-    overflow: hidden;
-  }
-  .tabla-scroll { overflow-x: auto; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-  }
-  thead th {
-    background: var(--panel-2);
-    padding: 11px 14px;
-    text-align: left;
-    font-size: 11px;
-    letter-spacing: .07em;
-    text-transform: uppercase;
-    color: var(--gris-dim);
-    font-weight: 700;
-    border-bottom: 1px solid var(--borde);
-    white-space: nowrap;
-  }
-  tbody td {
-    padding: 11px 14px;
-    border-bottom: 1px solid var(--borde);
-    vertical-align: middle;
-  }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: var(--superficie-2); }
-  tbody tr.inactivo .celda-nombre,
-  tbody tr.inactivo .celda-precio { opacity: .48; }
-
-  /* ---- Interruptores de la fila: un toque y se guarda ----
-     El color del riel dice qué es (verde disponible, rojo oferta, dorado
-     destacado, azul planes) y el texto al lado lo dice con palabras. */
-  .interruptores {
-    display: grid;
-    grid-template-columns: repeat(2, max-content);
-    gap: 7px 16px;
-  }
-  .sw {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 2px 0;
-    border: none;
-    background: none;
-    font: 600 12.5px 'Outfit', sans-serif;
-    color: var(--tinta-suave);
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .sw-riel {
-    position: relative;
-    flex: none;
-    width: 32px; height: 18px;
-    border-radius: 99px;
-    background: var(--separador-2);
-    transition: background .15s;
-  }
-  .sw-bola {
-    position: absolute;
-    top: 2px; left: 2px;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 1px 2px rgba(20,22,26,.3);
-    transition: transform .15s;
-  }
-  .sw[aria-checked="true"] { color: var(--tinta); }
-  .sw[aria-checked="true"] .sw-bola { transform: translateX(14px); }
-  .sw[aria-checked="true"] .sw-riel                      { background: var(--ok); }
-  .sw[aria-checked="true"][data-accion="oferta"] .sw-riel    { background: var(--rojo); }
-  .sw[aria-checked="true"][data-accion="destacado"] .sw-riel { background: #b58900; }
-  .sw[aria-checked="true"][data-accion="planes"] .sw-riel    { background: var(--info); }
-  .sw:hover .sw-riel { filter: brightness(.94); }
-  .sw:disabled { opacity: .55; cursor: wait; }
-  .sw:focus-visible { outline: 2px solid var(--info); outline-offset: 3px; border-radius: 6px; }
-  @media (prefers-reduced-motion: reduce) { .sw-riel, .sw-bola { transition: none; } }
-
-  .precio-btn .ico.precio-lapiz { width: 13px; height: 13px; vertical-align: -2px; }
-
-  /* ---- Precio editable en la misma fila ---- */
-  .precio-edicion { display: grid; gap: 6px; min-width: 120px; }
-  .precio-edicion label {
-    display: grid;
-    grid-template-columns: 46px 1fr;
-    align-items: center;
-    gap: 6px;
-    font-size: 11.5px;
-    font-weight: 700;
-    color: var(--tinta-suave);
-  }
-  .precio-edicion input {
-    width: 100%;
-    min-width: 0;
-    padding: 6px 8px;
-    border: 1.5px solid var(--borde-2);
-    border-radius: 8px;
-    font: 700 14px 'Outfit', sans-serif;
-    color: var(--tinta);
-    background: #fff;
-  }
-  .precio-edicion input:focus { outline: none; border-color: var(--info); box-shadow: 0 0 0 3px rgba(29,78,216,.12); }
-  .precio-edicion input.malo { border-color: var(--error); box-shadow: 0 0 0 3px rgba(220,38,38,.12); }
-  .pe-botones { display: flex; gap: 6px; }
-  .pe-botones button {
-    flex: 1;
-    padding: 6px 0;
-    border-radius: 8px;
-    border: 1px solid var(--borde-2);
-    background: #fff;
-    font: 700 13px 'Outfit', sans-serif;
-    color: var(--tinta-media);
-    cursor: pointer;
-  }
-  .pe-botones .pe-ok { background: var(--ok); border-color: var(--ok); color: #fff; }
-  .pe-botones button:disabled { opacity: .6; cursor: wait; }
-  .pe-ayuda { font-size: 11px; color: var(--tinta-tenue); }
-  .pe-ayuda.error { color: var(--error); font-weight: 600; }
-
-  /* ---- Editar y borrar ---- */
-  .accion-btn {
-    width: 34px; height: 34px;
-    display: inline-grid; place-items: center;
-    border: 1px solid var(--borde-2);
-    border-radius: 9px;
-    background: #fff;
-    color: var(--tinta-media);
-    cursor: pointer;
-    font: 600 13px 'Outfit', sans-serif;
-  }
-  .accion-btn .ico { width: 17px; height: 17px; }
-  .accion-btn .accion-txt { display: none; }
-  .accion-btn:hover { color: var(--tinta); background: var(--superficie-2); }
-  .accion-btn.peligro:hover { color: #fff; background: var(--error); border-color: var(--error); }
-  .accion-btn + .accion-btn { margin-left: 6px; }
-
-  .miniatura {
-    width: 48px; height: 48px;
-    border-radius: 10px;
-    object-fit: cover;
-    background: var(--panel-3);
-    display: block;
-    flex-shrink: 0;
-  }
-  .celda-nombre { min-width: 230px; }
-  .nombre-txt {
-    font-weight: 600;
-    line-height: 1.3;
-    margin-bottom: 2px;
-  }
-  .nombre-sub {
-    font-size: 11.5px;
-    color: var(--gris-dim);
-  }
-  /* Qué le falta, en el filtro "Para revisar" */
-  .revisar-nota {
-    margin-top: 4px;
-    font-size: 12px; font-weight: 600; line-height: 1.4;
-    color: #b45309;
-  }
-  .celda-precio {
-    font-variant-numeric: tabular-nums;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-  .precio-tachado {
-    display: block;
-    font-size: 11.5px;
-    color: var(--gris-dim);
-    text-decoration: line-through;
-    font-weight: 400;
-  }
-  /* El precio es un botón: cambiarlo es lo que más se hace */
-  .precio-btn {
-    display: block;
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: 1px dashed transparent;
-    border-radius: 7px;
-    padding: 5px 7px;
-    margin: -5px -7px;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-  }
-  .precio-btn:hover { border-color: var(--rojo, #e50914); background: rgba(229,9,20,.07); }
-  .precio-btn:focus-visible { outline: 2px solid var(--rojo, #e50914); outline-offset: 1px; }
-  .precio-lapiz { opacity: 0; font-size: 11px; margin-left: 5px; }
-  .precio-btn:hover .precio-lapiz { opacity: .75; }
-  /* La descripción también es un botón: es el texto que más se retoca
-     y así se cambia sin abrir el formulario completo. */
-  .desc-btn {
-    display: block;
-    width: 100%;
-    text-align: left;
-    margin-top: 4px;
-    padding: 4px 6px;
-    background: none;
-    border: 1px dashed transparent;
-    border-radius: 7px;
-    color: var(--gris);
-    font-family: inherit;
-    font-size: 12px;
-    line-height: 1.45;
-    cursor: pointer;
-  }
-  .desc-btn:hover { border-color: var(--rojo); background: rgba(229,9,20,.05); }
-  .desc-btn:focus-visible { outline: 2px solid var(--rojo); outline-offset: 1px; }
-  .desc-btn.vacia { color: var(--gris-dim); font-style: italic; }
-  .desc-lapiz { opacity: 0; font-size: 11px; margin-left: 4px; }
-  .desc-btn:hover .desc-lapiz { opacity: .75; }
-  /* El aviso de correo se ve de un vistazo en la tabla */
-  .desc-btn .pide-correo { color: var(--info); font-style: normal; }
-
-  .celda-acciones { text-align: right; white-space: nowrap; }
-  .celda-acciones .btn-icono + .btn-icono { margin-left: 5px; }
-
-  /* ================= ETIQUETAS ================= */
-  .tag {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .tag + .tag { margin-left: 4px; }
-  .tag-ok       { background: rgba(21,128,61,.11);  color: var(--ok); }
-  .tag-agotado  { background: rgba(220,38,38,.10);  color: var(--error); }
-  .tag-oferta   { background: rgba(229,9,20,.11);   color: var(--rojo2); }
-  .tag-destacado{ background: rgba(154,116,0,.12);  color: var(--dorado); }
-  .tag-cat      { background: var(--panel-3);       color: var(--gris); text-transform: none; letter-spacing: 0; }
-  .tag-planes   { background: rgba(29,78,216,.10);  color: var(--info); }
-
-  /* Botón 📋 encendido = el producto sale en planes.html */
-  .btn-icono.activo {
-    background: rgba(29,78,216,.10);
-    border-color: rgba(29,78,216,.35);
-    color: var(--info);
-  }
-  .btn-icono.activo:hover { background: rgba(29,78,216,.18); color: var(--info); }
-
-  /* ================= PAGINACIÓN ================= */
-  .paginacion {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    padding: 16px;
-    flex-wrap: wrap;
-    border-top: 1px solid var(--borde);
-  }
-  .pag-btn {
-    min-width: 34px;
-    padding: 7px 10px;
-    background: var(--panel-2);
-    border: 1px solid var(--borde);
-    border-radius: 7px;
-    color: var(--gris);
-    font-family: inherit;
-    font-size: 13px;
-    cursor: pointer;
-    font-variant-numeric: tabular-nums;
-  }
-  .pag-btn:hover:not(:disabled) { color: var(--texto); border-color: var(--borde-2); }
-  .pag-btn.activo { background: var(--rojo); color: #fff; border-color: var(--rojo); font-weight: 700; }
-  .pag-btn:disabled { opacity: .35; cursor: not-allowed; }
-  .pag-info { color: var(--gris-dim); font-size: 12.5px; margin-right: 8px; }
-
-  /* ================= ESTADOS ================= */
-  .estado-vacio {
-    padding: 60px 20px;
-    text-align: center;
-  }
-  .estado-vacio .emo { font-size: 40px; margin-bottom: 12px; }
-  .estado-vacio h3 { margin: 0 0 6px; font-size: 17px; }
-  .estado-vacio p  { margin: 0; color: var(--gris-dim); font-size: 13.5px; }
-
-  .fila-esqueleto td { padding: 14px; }
-  .esq {
-    background: linear-gradient(90deg, #eef0f3 25%, #f8f9fa 50%, #eef0f3 75%);
-    background-size: 200% 100%;
-    animation: brillo 1.4s ease-in-out infinite;
-    border-radius: 5px;
-    height: 14px;
-  }
-  @keyframes brillo { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-  @media (prefers-reduced-motion: reduce) { .esq { animation: none; } }
-
-  /* ================= AVISOS (toast) ================= */
-  #avisos {
-    position: fixed;
-    bottom: 20px; right: 20px;
-    z-index: 90;
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-    max-width: min(340px, calc(100vw - 40px));
-  }
-  .aviso {
-    padding: 12px 15px;
-    border-radius: 9px;
-    font-size: 13.5px;
-    background: var(--panel-3);
-    border: 1px solid var(--borde-2);
-    box-shadow: var(--sombra-alta);
-    animation: entrar .25s ease-out;
-  }
-  .aviso.ok    { border-color: rgba(21,128,61,.35);  background: #eaf7ef; color: #10502a; }
-  .aviso.error { border-color: rgba(220,38,38,.35);  background: #fdecec; color: #8f1616; }
-  @keyframes entrar { from { opacity: 0; transform: translateY(10px); } }
-
-  .oculto { display: none !important; }
-
-  /* ================= CELULAR: tabla -> tarjetas ================= */
-  @media (max-width: 820px) {
-    /* Las cuatro vistas usan esta misma tira de números, pero Productos
-       tiene seis y las otras tres tienen cuatro. Con un número fijo de
-       columnas alguna quedaba con un hueco al costado: cuatro en tres
-       columnas son 3 + 1.
-
-       Así, los cuatro van de a dos y los seis de a tres, y ninguna fila
-       queda coja. Si el navegador no entiende :has(), quedan todas de a
-       dos, que es correcto igual. */
-    .resumen { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .resumen:has(> .metrica:nth-child(5)) { grid-template-columns: repeat(3, 1fr); }
-    .metrica { padding: 11px 10px; }
-    .metrica-n { font-size: 21px; }
-    .metrica-l { font-size: 10px; margin-top: 3px; letter-spacing: 0; }
-
-    /* Los tres filtros de a dos por renglón y el botón entero abajo. Antes
-       cada uno medía distinto (173, 216, 171) y quedaban desparejos. */
-    .herramientas { gap: 8px; }
-    .buscador { flex: 1 1 100%; }
-    .herramientas select { flex: 1 1 calc(50% - 4px); min-width: 0; }
-    .herramientas #btnNuevo { flex: 1 1 100%; justify-content: center; padding: 11px; }
-
-    /* En modo tarjeta la tabla ya no necesita desplazarse de costado, pero
-       el contenedor seguía en overflow-x:auto y dibujaba una barra gris
-       debajo de las tarjetas que no llevaba a ningún lado. */
-    .tabla-scroll { overflow-x: visible; }
-
-    thead { display: none; }
-    table, tbody, tr, td { display: block; width: 100%; }
-    tbody tr {
-      background: #fff;
-      box-shadow: var(--sombra);
-      border: 1px solid var(--borde);
-      border-radius: 14px;
-      margin-bottom: 10px;
-      padding: 13px;
-      position: relative;
-    }
-    tbody tr:hover td { background: transparent; }
-    tbody td {
-      border: none;
-      padding: 3px 0;
-    }
-    .celda-img {
-      position: absolute;
-      top: 13px; left: 13px;
-    }
-    .celda-nombre {
-      padding-left: 54px !important;
-      min-height: 46px;
-      min-width: 0;
-    }
-    .celda-precio { padding-left: 54px !important; font-size: 17px; }
-    .celda-cat, .celda-estado { padding-top: 8px !important; }
-    .celda-acciones {
-      text-align: left;
-      padding-top: 11px !important;
-      border-top: 1px solid var(--borde);
-      margin-top: 9px;
-    }
-    .celda-acciones .btn-icono { padding: 8px 13px; }
-    /* En la tarjeta del celular sobra ancho: los botones dicen qué hacen */
-    .accion-btn {
-      width: auto; height: 36px;
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 0 14px;
-    }
-    .accion-btn .accion-txt { display: inline; }
-    /* Los cuatro interruptores de a dos, con aire para el dedo */
-    .interruptores { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
-    .sw { padding: 4px 0; font-size: 13px; }
-    .fila-esqueleto { padding: 20px !important; }
-  }
-</style>
-<!-- Liquid glass: lo común a todo el sitio y lo propio del panel. Van
-     después de los estilos de arriba. -->
-<link rel="stylesheet" href="../css/vidrio.css?v=20261006120342">
-<script src="../js/barra-vidrio.js?v=20261006120342" defer></script>
-<link rel="stylesheet" href="css/vidrio-panel.css?v=20261006120342">
+<!-- Todo el estilo del panel: menú oscuro, barra blanca, tarjetas con
+     borde fino. Sin vidrio ni burbujas (ver el encabezado del archivo). -->
+<link rel="stylesheet" href="css/panel.css?v=20261006120342">
 </head>
 <body>
 
@@ -918,34 +33,53 @@
   <symbol id="i-productos" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
   <symbol id="i-juegos" viewBox="0 0 24 24"><line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.98 3.59C2.6 9.42 2 14.46 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.41-1.41A2 2 0 0 1 9.83 16h4.34a2 2 0 0 1 1.41.59L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.55-.6-6.58-.69-7.26A4 4 0 0 0 17.32 5z"/></symbol>
   <symbol id="i-ventas" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/><line x1="6" x2="10" y1="15" y2="15"/></symbol>
+  <symbol id="i-clientes" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
   <symbol id="i-stock" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></symbol>
+  <symbol id="i-ajustes" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
   <symbol id="i-tienda" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
   <symbol id="i-editar" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.38 3.62a2.12 2.12 0 1 1 3 3L7.37 18.64a2 2 0 0 1-.86.5l-2.87.84a.5.5 0 0 1-.62-.62l.84-2.87a2 2 0 0 1 .5-.86z"/></symbol>
   <symbol id="i-borrar" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></symbol>
   <symbol id="i-probar" viewBox="0 0 24 24"><path d="M10 2v7.31"/><path d="M14 9.3V2"/><path d="M8.5 2h7"/><path d="M14 9.3a6.5 6.5 0 1 1-4 0"/><path d="M5.52 16h12.96"/></symbol>
   <symbol id="i-salir" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/></symbol>
+  <symbol id="i-cerrar" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-campana" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="i-mas" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+  <symbol id="i-llave" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
 </svg>
 
 <div id="app" hidden>
 
-  <!-- ===== MENÚ LATERAL (compu) =====
+  <!-- ===== MENÚ LATERAL =====
+       En la compu está siempre a la izquierda. En el celular es un cajón:
+       lo abren ☰ (arriba) y "Más" (abajo).
        El valor de data-vista tiene que coincidir con el id del contenedor:
-       data-vista="stock" -> <div id="vistaStock">. El mismo botón está
-       repetido en la barra de abajo del celular. -->
-  <aside class="lateral" aria-label="Menú del panel">
+       data-vista="stock" -> <div id="vistaStock">. -->
+  <aside class="lateral" id="lateral" aria-label="Menú del panel">
     <div class="marca">
       <span class="marca-ico" aria-hidden="true">T</span>
-      <span class="marca-txt"><b><span class="zona">TIAGO</span> STORE</b><small>Administración</small></span>
+      <span class="marca-txt"><b>Tiago Store</b><small>Administración</small></span>
+      <button class="lateral-cerrar" id="btnCerrarMenu" type="button" aria-label="Cerrar menú">
+        <svg class="ico"><use href="#i-cerrar"/></svg>
+      </button>
     </div>
 
-    <div class="menu-titulo">General</div>
-    <button class="vista-tab" data-vista="inicio"><svg class="ico"><use href="#i-inicio"/></svg>Inicio</button>
-    <div class="menu-titulo">Catálogo</div>
-    <button class="vista-tab" data-vista="productos"><svg class="ico"><use href="#i-productos"/></svg>Productos</button>
-    <button class="vista-tab" data-vista="juegos"><svg class="ico"><use href="#i-juegos"/></svg>Juegos</button>
-    <div class="menu-titulo">Negocio</div>
-    <button class="vista-tab" data-vista="ventas"><svg class="ico"><use href="#i-ventas"/></svg>Ventas<span class="contador" data-contador="ventas" hidden></span></button>
-    <button class="vista-tab" data-vista="stock"><svg class="ico"><use href="#i-stock"/></svg>Stock<span class="contador" data-contador="stock" hidden></span></button>
+    <nav class="menu">
+      <div class="menu-titulo">General</div>
+      <button class="vista-tab" data-vista="inicio"><svg class="ico"><use href="#i-inicio"/></svg>Inicio</button>
+
+      <div class="menu-titulo">Negocio</div>
+      <button class="vista-tab" data-vista="ventas"><svg class="ico"><use href="#i-ventas"/></svg>Ventas<span class="contador" data-contador="ventas" hidden></span></button>
+      <button class="vista-tab" data-vista="clientes"><svg class="ico"><use href="#i-clientes"/></svg>Clientes</button>
+      <button class="vista-tab" data-vista="stock"><svg class="ico"><use href="#i-stock"/></svg>Stock<span class="contador" data-contador="stock" hidden></span></button>
+
+      <div class="menu-titulo">Catálogo</div>
+      <button class="vista-tab" data-vista="productos"><svg class="ico"><use href="#i-productos"/></svg>Productos</button>
+      <button class="vista-tab" data-vista="juegos"><svg class="ico"><use href="#i-juegos"/></svg>Juegos</button>
+
+      <div class="menu-titulo">Sistema</div>
+      <button class="vista-tab" data-vista="ajustes"><svg class="ico"><use href="#i-ajustes"/></svg>Ajustes</button>
+    </nav>
 
     <div class="lateral-pie">
       <a class="menu-link" href="../index.html" target="_blank" rel="noopener">
@@ -958,47 +92,82 @@
         <svg class="ico"><use href="#i-probar"/></svg>Probar la tienda
       </a>
       <div class="cuenta">
-        <span class="avatar" id="avatar" aria-hidden="true"></span>
+        <span class="avatar" data-avatar aria-hidden="true"></span>
         <span class="usuario" id="usuarioEmail"></span>
-        <button class="icono-btn js-salir" id="btnSalir" title="Cerrar sesión" aria-label="Cerrar sesión">
+        <button class="cuenta-salir js-salir" type="button" title="Cerrar sesión" aria-label="Cerrar sesión">
           <svg class="ico"><use href="#i-salir"/></svg>
         </button>
       </div>
     </div>
   </aside>
+  <div class="cortina" id="cortina" hidden></div>
 
   <div class="contenido">
     <!-- ===== BARRA DE ARRIBA =====
-         En la compu: el nombre de la vista y la fecha.
-         En el celular: la marca y los botones de tienda y salir. -->
+         Compu: las migas, la fecha, "Ver tienda", la campana con los
+         pedidos por atender y el avatar.
+         Celular: ☰, el nombre de la sección, la campana y el avatar. -->
     <header class="barra">
-      <span class="barra-marca"><span class="zona">TIAGO</span> STORE</span>
-      <div class="barra-titulo">
-        <h2 id="tituloVista">Inicio</h2>
-        <p id="subtituloVista"></p>
-      </div>
+      <button class="barra-menu" id="btnMenu" type="button" aria-label="Abrir menú" aria-controls="lateral" aria-expanded="false">
+        <svg class="ico"><use href="#i-menu"/></svg>
+      </button>
+      <h1 class="barra-vista" id="barraVista">Inicio</h1>
+      <nav class="migas" aria-label="Estás en">
+        <span>Panel</span><span class="sep">/</span>
+        <span id="migaGrupo">General</span><span class="sep">/</span>
+        <b id="migaVista">Inicio</b>
+      </nav>
+
       <div class="barra-acciones">
         <span class="barra-fecha" id="fechaHoy"></span>
-        <a class="icono-btn" href="../index.html" target="_blank" rel="noopener" title="Ver tienda" aria-label="Ver tienda">
-          <svg class="ico"><use href="#i-tienda"/></svg>
+        <a class="barra-tienda" href="../index.html" target="_blank" rel="noopener">
+          <svg class="ico"><use href="#i-tienda"/></svg>Ver tienda
         </a>
-        <a class="icono-btn" href="../index.html" target="_blank" rel="noopener" data-probar hidden
-           title="Probar la tienda: no cuenta como venta" aria-label="Probar la tienda">
-          <svg class="ico"><use href="#i-probar"/></svg>
-        </a>
-        <button class="icono-btn js-salir" title="Cerrar sesión" aria-label="Cerrar sesión">
-          <svg class="ico"><use href="#i-salir"/></svg>
+        <button class="icono-btn campana" id="btnCampana" type="button"
+                title="Pedidos por atender" aria-label="Pedidos por atender">
+          <svg class="ico"><use href="#i-campana"/></svg>
+          <span class="contador" data-contador="ventas" hidden></span>
         </button>
+        <div class="perfil">
+          <button class="avatar-btn" id="btnPerfil" type="button" aria-haspopup="menu"
+                  aria-expanded="false" aria-controls="perfilMenu" aria-label="Tu cuenta">
+            <span class="avatar" data-avatar></span>
+          </button>
+          <div class="perfil-menu" id="perfilMenu" role="menu" hidden>
+            <div class="perfil-quien"><small>Entraste como</small><b id="perfilEmail"></b></div>
+            <button class="perfil-op" type="button" role="menuitem" data-ir-vista="ajustes">
+              <svg class="ico"><use href="#i-ajustes"/></svg>Ajustes
+            </button>
+            <a class="perfil-op" role="menuitem" href="cambiar-clave.html">
+              <svg class="ico"><use href="#i-llave"/></svg>Cambiar contraseña
+            </a>
+            <a class="perfil-op" role="menuitem" href="../index.html" target="_blank" rel="noopener">
+              <svg class="ico"><use href="#i-tienda"/></svg>Ver tienda
+            </a>
+            <button class="perfil-op peligro js-salir" type="button" role="menuitem">
+              <svg class="ico"><use href="#i-salir"/></svg>Cerrar sesión
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 
-  <!-- Inicio, Juegos, Ventas y Stock las construyen sus módulos al final
-       del archivo. La que se ve al entrar la decide el script (Inicio, o la
-       que diga la dirección: admin/#ventas abre directo en Ventas). -->
-  <div id="vistaInicio" class="vista" hidden></div>
-  <div id="vistaJuegos" class="vista" hidden></div>
-  <div id="vistaVentas" class="vista" hidden></div>
-  <div id="vistaStock"  class="vista" hidden></div>
+    <!-- El título de la vista abierta (en la compu; en el celular va en la barra) -->
+    <div class="pagina-cab">
+      <h2 id="tituloVista">Inicio</h2>
+      <p id="subtituloVista"></p>
+    </div>
+
+  <!-- Las vistas las construyen sus módulos al final del archivo, salvo
+       Productos, que está acá abajo. La que se ve al entrar la decide el
+       script (Inicio, o la que diga la dirección: admin/#ventas abre
+       directo en Ventas). -->
+  <div id="vistaInicio"   class="vista" hidden></div>
+  <div id="vistaVentas"   class="vista" hidden></div>
+  <div id="vistaClientes" class="vista" hidden></div>
+  <div id="vistaStock"    class="vista" hidden></div>
+  <div id="vistaJuegos"   class="vista" hidden></div>
+  <div id="vistaAjustes"  class="vista" hidden></div>
 
   <main id="vistaProductos" class="vista" hidden>
     <!-- ===== Resumen ===== -->
@@ -1071,13 +240,14 @@
   </main>
   </div><!-- /contenido -->
 
-  <!-- ===== BARRA DE ABAJO (celular) ===== -->
+  <!-- ===== BARRA DE ABAJO (celular) =====
+       Las cuatro vistas de todos los días y "Más", que abre el menú entero -->
   <nav class="menu-movil" aria-label="Menú del panel">
     <button class="vista-tab" data-vista="inicio"><svg class="ico"><use href="#i-inicio"/></svg>Inicio</button>
-    <button class="vista-tab" data-vista="productos"><svg class="ico"><use href="#i-productos"/></svg>Productos</button>
-    <button class="vista-tab" data-vista="juegos"><svg class="ico"><use href="#i-juegos"/></svg>Juegos</button>
     <button class="vista-tab" data-vista="ventas"><svg class="ico"><use href="#i-ventas"/></svg>Ventas<span class="contador" data-contador="ventas" hidden></span></button>
+    <button class="vista-tab" data-vista="productos"><svg class="ico"><use href="#i-productos"/></svg>Productos</button>
     <button class="vista-tab" data-vista="stock"><svg class="ico"><use href="#i-stock"/></svg>Stock<span class="contador" data-contador="stock" hidden></span></button>
+    <button id="btnMas" type="button" aria-controls="lateral" aria-expanded="false"><svg class="ico"><use href="#i-mas"/></svg>Más</button>
   </nav>
 </div>
 
@@ -1102,9 +272,11 @@ let cargado = false;
 // ===========================================================
 onAuthStateChanged(auth, async usuario => {
   if (!usuario) { location.replace('login.html'); return; }
-  $('usuarioEmail').textContent = usuario.email;
-  $('usuarioEmail').title = usuario.email;
-  $('avatar').textContent = (usuario.email || '?').charAt(0);
+  const email = usuario.email || '';
+  $('usuarioEmail').textContent = email;
+  $('usuarioEmail').title = email;
+  $('perfilEmail').textContent = email;
+  document.querySelectorAll('[data-avatar]').forEach(a => { a.textContent = (email || '?').charAt(0); });
   $('verificando').remove();
   $('app').hidden = false;
   escucharCatalogo();
@@ -1126,11 +298,13 @@ onAuthStateChanged(auth, async usuario => {
   }
 });
 
-// Hay dos botones de salir: el del menú lateral y el de la barra del celular
-document.querySelectorAll('.js-salir').forEach(b => b.addEventListener('click', async () => {
+// Cerrar sesión: en el menú lateral, en el del avatar y en Ajustes (que
+// se dibuja después, por eso se escucha en todo el documento)
+document.addEventListener('click', async e => {
+  if (!e.target.closest('.js-salir')) return;
   await signOut(auth);
   location.replace('login.html');
-}));
+});
 
 $('fechaHoy').textContent = new Date().toLocaleDateString('es-BO',
   { weekday: 'long', day: 'numeric', month: 'long' });
@@ -1547,18 +721,24 @@ window.renderProductos = render;
 // CAMBIO DE VISTA
 // ===========================================================
 // Se esconden todas y se muestra la elegida. Agregar una vista nueva es
-// agregar su botón en los dos menús, su contenedor y su renglón en
-// VISTAS: el resto no se toca.
+// agregar su botón en el menú, su contenedor y su renglón en VISTAS: el
+// resto no se toca.
 //
 // La vista abierta queda en la dirección (admin/#ventas), así al recargar
 // seguís donde estabas y podés guardar un acceso directo a Ventas.
 const VISTAS = {
-  inicio:    { titulo: 'Inicio',    sub: 'Cómo viene la tienda' },
-  productos: { titulo: 'Productos', sub: 'Plataformas, planes y precios de la tienda' },
-  juegos:    { titulo: 'Juegos',    sub: 'Juegos de recarga y sus paquetes' },
-  ventas:    { titulo: 'Ventas',    sub: 'Pedidos, pagos y entregas' },
-  stock:     { titulo: 'Stock',     sub: 'Cuentas cargadas para la entrega automática' }
+  inicio:    { titulo: 'Inicio',    grupo: 'General',  sub: 'Cómo viene la tienda' },
+  ventas:    { titulo: 'Ventas',    grupo: 'Negocio',  sub: 'Pedidos, pagos y entregas' },
+  clientes:  { titulo: 'Clientes',  grupo: 'Negocio',  sub: 'Registrados y compradores, por WhatsApp' },
+  stock:     { titulo: 'Stock',     grupo: 'Negocio',  sub: 'Cuentas cargadas para la entrega automática' },
+  productos: { titulo: 'Productos', grupo: 'Catálogo', sub: 'Plataformas, planes y precios de la tienda' },
+  juegos:    { titulo: 'Juegos',    grupo: 'Catálogo', sub: 'Juegos de recarga y sus paquetes' },
+  ajustes:   { titulo: 'Ajustes',   grupo: 'Sistema',  sub: 'Telegram y tu cuenta' }
 };
+
+// Las que tienen botón propio en la barra de abajo del celular. Las demás
+// se abren desde "Más", que queda marcado mientras estás en una de ellas.
+const EN_LA_BARRA = ['inicio', 'ventas', 'productos', 'stock'];
 
 // Los módulos (type="module") corren todos antes de DOMContentLoaded
 const modulosListos = new Promise(listo =>
@@ -1573,23 +753,31 @@ function vistaDeLaDireccion() {
 
 function abrirVista(vista, { reemplazar = false } = {}) {
   if (!VISTAS[vista]) return;
+  const v = VISTAS[vista];
 
   document.querySelectorAll('.vista-tab').forEach(t =>
     t.classList.toggle('activa', t.dataset.vista === vista));
+  $('btnMas').classList.toggle('activa', !EN_LA_BARRA.includes(vista));
 
   // productos -> vistaProductos
   const idElegido = 'vista' + vista.charAt(0).toUpperCase() + vista.slice(1);
-  document.querySelectorAll('.vista').forEach(v => { v.hidden = v.id !== idElegido; });
+  document.querySelectorAll('.vista').forEach(el => { el.hidden = el.id !== idElegido; });
 
-  $('tituloVista').textContent    = VISTAS[vista].titulo;
-  $('subtituloVista').textContent = VISTAS[vista].sub;
+  $('tituloVista').textContent    = v.titulo;
+  $('subtituloVista').textContent = v.sub;
+  $('barraVista').textContent     = v.titulo;
+  $('migaGrupo').textContent      = v.grupo;
+  $('migaVista').textContent      = v.titulo;
   // Con los pedidos pendientes adelante, si Ventas ya los contó
   const pendientes = window.pendientesAdmin || 0;
-  document.title = `${pendientes > 0 ? `(${pendientes}) ` : ''}${VISTAS[vista].titulo} · Panel Tiago Store`;
+  document.title = `${pendientes > 0 ? `(${pendientes}) ` : ''}${v.titulo} · Panel Tiago Store`;
 
   if (location.hash !== '#' + vista) {
     history[reemplazar ? 'replaceState' : 'pushState'](null, '', '#' + vista);
   }
+
+  cerrarMenu();
+  cerrarPerfil();
 
   // Para que un módulo pueda refrescar sus datos justo cuando lo abrís,
   // en vez de estar consultando todo el tiempo en segundo plano.
@@ -1600,10 +788,11 @@ function abrirVista(vista, { reemplazar = false } = {}) {
 // Para que un módulo pueda mandar a otra vista (Inicio -> "Ver ventas")
 window.abrirVistaAdmin = abrirVista;
 
-// Contadores rojos del menú. Los ponen los módulos que ya tienen el dato:
-// Ventas (pedidos por atender, en vivo) e Inicio (productos con poco
-// stock). En 0 se esconden. El texto va de título, para el mouse, y se
-// suma al nombre del botón para los lectores de pantalla.
+// Contadores rojos del menú y de la campana. Los ponen los módulos que ya
+// tienen el dato: Ventas (pedidos por atender, en vivo) e Inicio
+// (productos con poco stock). En 0 se esconden. El texto va de título,
+// para el mouse, y se suma al nombre del botón para los lectores de
+// pantalla.
 window.ponerContador = (vista, n, texto = '') => {
   document.querySelectorAll(`.contador[data-contador="${vista}"]`).forEach(c => {
     c.textContent = n > 99 ? '99+' : String(n);
@@ -1612,17 +801,74 @@ window.ponerContador = (vista, n, texto = '') => {
     c.closest('.vista-tab')?.setAttribute('aria-label',
       n > 0 ? `${VISTAS[vista].titulo}: ${texto}` : VISTAS[vista].titulo);
   });
+  if (vista === 'ventas') {
+    $('btnCampana').setAttribute('aria-label', n > 0 ? texto : 'Nada por atender');
+    $('btnCampana').title = n > 0 ? texto : 'Nada por atender';
+  }
 };
 
 document.addEventListener('click', e => {
-  const btn = e.target.closest('.vista-tab[data-vista]');
-  if (btn) abrirVista(btn.dataset.vista);
+  const btn = e.target.closest('.vista-tab[data-vista], [data-ir-vista]');
+  if (btn) abrirVista(btn.dataset.vista || btn.dataset.irVista);
 });
+
+// La campana lleva a Ventas, donde están los pedidos por atender
+$('btnCampana').addEventListener('click', () => abrirVista('ventas'));
 
 // Atrás / adelante del navegador
 window.addEventListener('popstate', () => {
   const v = vistaDeLaDireccion();
   if (v) abrirVista(v, { reemplazar: true });
+});
+
+
+// ===========================================================
+// EL CAJÓN DEL CELULAR
+// ===========================================================
+// ☰ y "Más" abren el menú entero desde la izquierda; se cierra con la X,
+// tocando afuera, con Escape o al elegir una vista. En la compu el menú
+// está siempre a la vista y esto no hace nada.
+function abrirMenu() {
+  document.body.classList.add('menu-abierto');
+  $('cortina').hidden = false;
+  $('btnMenu').setAttribute('aria-expanded', 'true');
+  $('btnMas').setAttribute('aria-expanded', 'true');
+  $('btnCerrarMenu').focus({ preventScroll: true });
+}
+function cerrarMenu() {
+  if (!document.body.classList.contains('menu-abierto')) return;
+  document.body.classList.remove('menu-abierto');
+  $('cortina').hidden = true;
+  $('btnMenu').setAttribute('aria-expanded', 'false');
+  $('btnMas').setAttribute('aria-expanded', 'false');
+}
+$('btnMenu').addEventListener('click', abrirMenu);
+$('btnMas').addEventListener('click', abrirMenu);
+$('btnCerrarMenu').addEventListener('click', cerrarMenu);
+$('cortina').addEventListener('click', cerrarMenu);
+
+
+// ===========================================================
+// EL MENÚ DEL AVATAR
+// ===========================================================
+function cerrarPerfil() {
+  $('perfilMenu').hidden = true;
+  $('btnPerfil').setAttribute('aria-expanded', 'false');
+}
+$('btnPerfil').addEventListener('click', e => {
+  e.stopPropagation();
+  const abierto = !$('perfilMenu').hidden;
+  $('perfilMenu').hidden = abierto;
+  $('btnPerfil').setAttribute('aria-expanded', String(!abierto));
+});
+document.addEventListener('click', e => {
+  if (!$('perfilMenu').hidden && !e.target.closest('.perfil')) cerrarPerfil();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  cerrarMenu();
+  if (!$('perfilMenu').hidden) { cerrarPerfil(); $('btnPerfil').focus(); }
 });
 </script>
 
@@ -1644,10 +890,14 @@ window.addEventListener('popstate', () => {
 <script type="module" src="js/admin-ventas.js?v=20261006120342"></script>
 <script type="module" src="js/admin-stock.js?v=20261006120342"></script>
 
-<!-- "Probar la tienda": le pone la clave del modo prueba a esos enlaces -->
-<script type="module" src="js/admin-prueba.js?v=20261006120342"></script>
+<!-- Clientes: registrados y compradores, por WhatsApp -->
+<script type="module" src="js/admin-clientes.js?v=20261006120342"></script>
 
-<!-- Fondo de burbujas de vidrio, el mismo de la tienda -->
-<script src="../bg-burbujas.js?v=20261006120342" defer></script>
+<!-- Ajustes: Telegram y la cuenta -->
+<script type="module" src="js/admin-ajustes.js?v=20261006120342"></script>
+
+<!-- "Probar la tienda": le pone la clave del modo prueba a esos enlaces
+     (va después de Ajustes, que también tiene uno) -->
+<script type="module" src="js/admin-prueba.js?v=20261006120342"></script>
 </body>
 </html>

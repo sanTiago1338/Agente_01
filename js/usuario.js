@@ -164,58 +164,126 @@
   // ============================================================
   // 3. LA VENTANA
   // ============================================================
+  // La misma ventana que el carrito vacío de la tienda (css/tienda.css,
+  // .modal-overlay y .modal-sheet en LIQUID GLASS): hoja de vidrio de hasta
+  // 600 px, que en el celular sube desde abajo y en la compu queda al
+  // medio; la rayita arriba, el título con la ✕, el ícono al centro y el
+  // botón de vidrio claro con el borde tornasolado. Los tonos salen de
+  // css/vidrio.css (todas las páginas lo cargan), así sigue el control
+  // "Transparente o teñido". Va escrita acá porque Planes, Contacto,
+  // Recargas y Mis compras no cargan css/tienda.css.
   var css = [
-    '.tu-fondo{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:18px;',
-    '  background:rgba(14,15,18,.42);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);',
+    '.tu-fondo{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-end;justify-content:center;',
+    '  background:rgba(20,22,26,.2);-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);',
     '  animation:tu-aparecer .2s ease-out}',
     '.tu-fondo[hidden]{display:none}',
-    '.tu-caja{position:relative;width:min(100%,400px);max-height:calc(100vh - 36px);overflow:auto;',
-    '  background:#fff;color:#14161a;border-radius:22px;padding:26px 22px 20px;',
-    '  box-shadow:0 24px 60px rgba(14,15,18,.28),0 0 0 1px rgba(14,15,18,.06);',
-    '  animation:tu-subir .25s cubic-bezier(.2,.8,.3,1)}',
-    '.tu-x{position:absolute;top:10px;right:10px;width:36px;height:36px;border:none;border-radius:50%;',
-    '  background:#f2f3f5;color:#3d424b;font:400 22px/1 system-ui,sans-serif;cursor:pointer}',
-    '.tu-x:hover{background:#e7e9ed}',
-    '.tu-ico{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;margin-bottom:12px;',
-    '  background:#fdecec;color:#e50914}',
-    '.tu-ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}',
-    '.tu-caja h2{margin:0 0 6px;font-size:1.3rem;font-weight:800;letter-spacing:-.01em;color:#14161a}',
-    '.tu-sub{margin:0 0 16px;font-size:.88rem;line-height:1.5;color:#4b515c}',
-    '.tu-caja label{display:block;margin:12px 0 6px;font-size:.78rem;font-weight:700;color:#3d424b}',
-    '.tu-caja input{width:100%;box-sizing:border-box;padding:12px 13px;border:1.5px solid #dfe0e5;border-radius:12px;',
-    '  background:#fff;color:#14161a;font:inherit;font-size:1rem}',
-    '.tu-caja input:focus{outline:none;border-color:#14161a;box-shadow:0 0 0 3px rgba(20,22,26,.08)}',
-    '.tu-caja input.mal{border-color:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.12)}',
-    '.tu-tel{display:flex;align-items:stretch}',
-    '.tu-tel span{display:grid;place-items:center;padding:0 12px;border:1.5px solid #dfe0e5;border-right:none;',
-    '  border-radius:12px 0 0 12px;background:#f4f5f7;font-weight:700;color:#3d424b;font-size:.95rem}',
-    '.tu-tel input{border-radius:0 12px 12px 0}',
-    '.tu-error{margin:10px 0 0;font-size:.8rem;font-weight:600;color:#dc2626}',
-    '.tu-botones{display:grid;gap:8px;margin-top:18px}',
-    '.tu-ok{padding:13px;border:none;border-radius:12px;background:#14161a;color:#fff;font:inherit;',
-    '  font-weight:700;font-size:.98rem;cursor:pointer}',
-    '.tu-ok:hover{background:#2a2d33}',
-    '.tu-no{padding:11px;border:none;border-radius:12px;background:none;color:#4b515c;font:inherit;',
-    '  font-weight:600;font-size:.9rem;cursor:pointer}',
-    '.tu-no:hover{background:#f2f3f5;color:#14161a}',
-    '.tu-pie{margin:12px 0 0;font-size:.74rem;line-height:1.45;color:#767c88;text-align:center}',
+    '.tu-caja{position:relative;box-sizing:border-box;width:100%;max-width:600px;max-height:85vh;overflow-y:auto;',
+    '  padding:1.5rem 1rem calc(1.5rem + env(safe-area-inset-bottom));border-radius:20px 20px 0 0;color:var(--tinta,#14161a);',
+    '  background:linear-gradient(180deg,rgba(255,255,255,.37),rgba(255,255,255,.3));',
+    '  -webkit-backdrop-filter:blur(28px) saturate(170%) brightness(1.15);backdrop-filter:blur(28px) saturate(170%) brightness(1.15);',
+    '  border:1px solid rgba(255,255,255,.9);box-shadow:0 -12px 40px rgba(20,22,26,.18),inset 0 1px 0 #fff;',
+    '  animation:tu-subir .3s ease}',
+    'html.tenido .tu-caja{background-color:var(--vidrio-tinte)}',
+    '@media (min-width:600px){',
+    '  .tu-fondo{align-items:center}',
+    '  .tu-caja{border-radius:20px;margin-bottom:5rem;max-height:80vh;padding-left:1.5rem;padding-right:1.5rem}',
+    '}',
+    '.tu-asa{width:40px;height:4px;border-radius:2px;margin:0 auto 1.25rem;background:var(--gris2,#dfe0e5)}',
+    '.tu-cab{display:flex;align-items:center;gap:.75rem;padding-bottom:1rem;margin-bottom:1.1rem;',
+    '  border-bottom:1px solid var(--borde,rgba(20,22,26,.09))}',
+    '.tu-cab h3{margin:0;flex:1;font-size:1.05rem;font-weight:900;line-height:1.3;color:var(--tinta,#14161a)}',
+    '.tu-x{flex-shrink:0;padding:.25rem .45rem;border:none;border-radius:8px;background:none;',
+    '  color:var(--tinta-suave,#4b515c);font-size:1.3rem;line-height:1;cursor:pointer}',
+    '.tu-x:hover{color:var(--tinta,#14161a);background:rgba(255,255,255,.55)}',
+    '.tu-cuerpo{padding:0 .5rem .25rem}',
+    /* El ícono, en la lente de vidrio de la tienda (lo activo de las
+       pestañas): más clara arriba, con brillo y el borde tornasolado */
+    '.tu-ico{position:relative;isolation:isolate;width:56px;height:56px;margin:0 auto .75rem;border-radius:50%;',
+    '  display:grid;place-items:center;color:var(--marca,#e50914);',
+    '  background:var(--vidrio-lente,radial-gradient(120% 90% at 50% 0%,#fff 0%,rgba(255,255,255,.14) 55%,rgba(255,255,255,.02) 100%));',
+    '  box-shadow:inset 0 1.5px 0 #fff,inset 0 -1.5px 2px rgba(20,22,26,.07),inset 0 0 0 1px rgba(255,255,255,.55),',
+    '             0 6px 16px rgba(20,22,26,.13),0 1px 3px rgba(20,22,26,.08)}',
+    '.tu-ico::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;opacity:.55;',
+    '  background:var(--vidrio-tornasol,conic-gradient(from 210deg,rgba(255,90,170,.75),rgba(255,205,90,.75),rgba(110,230,255,.8),rgba(150,120,255,.75),rgba(255,90,170,.75)));',
+    '  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}',
+    '.tu-ico svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}',
+    '.tu-caja h2{margin:0 0 .35rem;text-align:center;font-size:1.25rem;font-weight:900;letter-spacing:-.01em;color:var(--tinta,#14161a)}',
+    '.tu-sub{margin:0 auto 1rem;max-width:27rem;text-align:center;font-size:.86rem;line-height:1.5;color:var(--tinta-suave,#4b515c)}',
+    '.tu-caja form{margin:0 auto}',
+    /* En la compu los dos campos van uno al lado del otro: así la ventana
+       queda del tamaño del carrito vacío */
+    '.tu-campos{display:grid;gap:0 .8rem}',
+    '@media (min-width:600px){.tu-campos{grid-template-columns:1fr 1fr}}',
+    '.tu-campo{min-width:0}',
+    '.tu-caja label{display:block;margin:.8rem 0 .4rem .2rem;font-size:.72rem;font-weight:800;letter-spacing:.06em;',
+    '  text-transform:uppercase;color:var(--tinta-media,#3d424b)}',
+    /* Los campos: vidrio claro, como el buscador de la tienda. El de
+       WhatsApp es una sola cápsula con el +591 adentro. */
+    '.tu-caja input,.tu-tel{width:100%;box-sizing:border-box;height:50px;border-radius:14px;',
+    '  border:1px solid rgba(255,255,255,.85);background:rgba(255,255,255,.55);color:var(--tinta,#14161a);',
+    '  box-shadow:inset 0 1px 2px rgba(20,22,26,.06),0 0 0 .5px rgba(20,22,26,.12);',
+    '  transition:border-color .2s,box-shadow .2s,background .2s}',
+    '.tu-caja input{padding:0 .95rem;font:inherit;font-size:1rem}',
+    '.tu-caja input::placeholder{color:var(--tinta-tenue,#656b77)}',
+    '.tu-caja input:focus,.tu-tel:focus-within{outline:none;border-color:rgba(229,9,20,.4);background:rgba(255,255,255,.72);',
+    '  box-shadow:0 0 0 4px rgba(229,9,20,.10),inset 0 1px 2px rgba(20,22,26,.06)}',
+    '.tu-caja input.mal,.tu-tel:has(input.mal){border-color:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.12)}',
+    '.tu-tel{display:flex;align-items:center;overflow:hidden}',
+    '.tu-tel span{flex:none;align-self:stretch;display:grid;place-items:center;padding:0 .8rem;',
+    '  border-right:1px solid rgba(20,22,26,.1);background:rgba(255,255,255,.3);',
+    '  font-weight:800;color:var(--tinta-media,#3d424b);font-size:.95rem}',
+    '.tu-tel input,.tu-tel input:focus,.tu-tel input.mal{flex:1;min-width:0;height:100%;border:none;border-radius:0;',
+    '  background:none;box-shadow:none;letter-spacing:.04em}',
+    /* Lo que tranquiliza: tres tildes chicas abajo de todo */
+    '.tu-confianza{display:flex;flex-wrap:wrap;justify-content:center;gap:.3rem 1rem;margin:.6rem 0 0;padding:0;list-style:none;',
+    '  font-size:.72rem;font-weight:600;color:var(--tinta-suave,#4b515c)}',
+    '.tu-confianza li{display:inline-flex;align-items:center;gap:.3rem}',
+    '.tu-confianza svg{width:13px;height:13px;fill:none;stroke:#15803d;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}',
+    '.tu-error{margin:.6rem 0 0;font-size:.8rem;font-weight:600;color:#dc2626;text-align:center}',
+    '.tu-botones{display:grid;gap:.4rem;margin-top:1.1rem}',
+    /* El botón principal: vidrio claro, letras negras y borde tornasolado,
+       como "Ver productos" del carrito */
+    '.tu-ok{position:relative;isolation:isolate;width:100%;padding:1rem;border-radius:999px;cursor:pointer;',
+    '  font:inherit;font-size:.95rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;',
+    '  color:var(--tinta,#14161a);border:1px solid rgba(255,255,255,.85);',
+    '  background:var(--vidrio-reflejo,linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0) 55%)),',
+    '             linear-gradient(180deg,rgba(255,255,255,.47),rgba(255,255,255,.15));',
+    '  -webkit-backdrop-filter:blur(16px) saturate(180%) brightness(1.1);backdrop-filter:blur(16px) saturate(180%) brightness(1.1);',
+    '  box-shadow:0 8px 24px rgba(20,22,26,.14),0 1px 3px rgba(20,22,26,.08),0 0 0 .5px rgba(20,22,26,.08),',
+    '             inset 0 1.5px 0 #fff,inset 0 -2px 5px rgba(20,22,26,.06);',
+    '  transition:transform .15s}',
+    '.tu-ok::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;opacity:.5;',
+    '  background:var(--vidrio-tornasol,conic-gradient(from 210deg,rgba(255,90,170,.75),rgba(255,205,90,.75),rgba(110,230,255,.8),rgba(150,120,255,.75),rgba(255,90,170,.75)));',
+    '  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}',
+    '.tu-ok:hover{transform:translateY(-1px);',
+    '  background:var(--vidrio-reflejo,linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0) 55%)),',
+    '             linear-gradient(180deg,rgba(255,255,255,.67),rgba(255,255,255,.35))}',
+    '.tu-no{padding:.55rem;border:none;border-radius:999px;background:none;cursor:pointer;',
+    '  font:inherit;font-size:.9rem;font-weight:700;color:var(--tinta-suave,#4b515c)}',
+    '.tu-no:hover{color:var(--marca,#e50914)}',
+    /* El cartelito de "Listo": una píldora de vidrio, como la barra de abajo */
     '.tu-aviso{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));z-index:1001;',
-    '  transform:translateX(-50%);max-width:min(92vw,380px);padding:11px 16px;border-radius:12px;',
-    '  background:#14161a;color:#fff;font-size:.88rem;font-weight:600;line-height:1.4;text-align:center;',
-    '  box-shadow:0 10px 30px rgba(14,15,18,.3);animation:tu-aviso .25s ease-out}',
+    '  transform:translateX(-50%);max-width:min(92vw,380px);padding:.75rem 1.1rem;border-radius:999px;',
+    '  color:var(--tinta,#14161a);font-size:.88rem;font-weight:700;line-height:1.4;text-align:center;',
+    '  background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,255,255,.55));',
+    '  -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);',
+    '  border:1px solid rgba(255,255,255,.9);',
+    '  box-shadow:0 10px 30px rgba(20,22,26,.14),0 0 0 .5px rgba(20,22,26,.08),inset 0 1px 0 #fff;',
+    '  animation:tu-aviso .25s ease-out}',
     /* El puntito verde del botón Usuario: ya se registró */
     '.usuario-punto{display:inline-block;width:8px;height:8px;border-radius:50%;background:#16a34a;',
     '  box-shadow:0 0 0 2px #fff;vertical-align:middle;margin-left:5px}',
     '.usuario-punto[hidden]{display:none}',
     '.nav-item .usuario-punto{position:absolute;top:7px;left:calc(50% + 6px);margin:0}',
     '@keyframes tu-aparecer{from{opacity:0}}',
-    '@keyframes tu-subir{from{opacity:0;transform:translateY(12px)}}',
+    '@keyframes tu-subir{from{transform:translateY(100%)}to{transform:translateY(0)}}',
     '@keyframes tu-aviso{from{opacity:0;transform:translate(-50%,12px)}}',
     '@media (prefers-reduced-motion:reduce){.tu-fondo,.tu-caja,.tu-aviso{animation:none}}'
   ].join('\n');
 
   var ICONO = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/>' +
               '<path d="M4 20.5a8 8 0 0 1 16 0"/></svg>';
+  var TILDE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
 
   var fondo = null;
   var modo = 'registro';        // 'registro' (la primera vez) o 'editar'
@@ -242,25 +310,41 @@
     fondo.hidden = true;
     fondo.innerHTML =
       '<div class="tu-caja" role="dialog" aria-modal="true" aria-labelledby="tuTitulo" aria-describedby="tuSub">' +
-        '<button type="button" class="tu-x" id="tuX" aria-label="Cerrar">&times;</button>' +
+        '<div class="tu-asa" aria-hidden="true"></div>' +
+        '<div class="tu-cab">' +
+          '<h3>Tu usuario</h3>' +
+          '<button type="button" class="tu-x" id="tuX" aria-label="Cerrar">✕</button>' +
+        '</div>' +
+        '<div class="tu-cuerpo">' +
         '<div class="tu-ico">' + ICONO + '</div>' +
         '<h2 id="tuTitulo"></h2>' +
         '<p class="tu-sub" id="tuSub"></p>' +
         '<form id="tuForm" novalidate>' +
-          '<label for="tuUsuario">Usuario</label>' +
-          '<input id="tuUsuario" type="text" maxlength="40" autocomplete="nickname" ' +
-                 'autocapitalize="words" placeholder="Cómo querés que te llamemos">' +
-          '<label for="tuWa">WhatsApp</label>' +
-          '<div class="tu-tel"><span>+591</span>' +
-            '<input id="tuWa" type="tel" inputmode="numeric" maxlength="12" ' +
-                   'autocomplete="tel-national" placeholder="7 123 4567"></div>' +
+          '<div class="tu-campos">' +
+            '<div class="tu-campo">' +
+              '<label for="tuUsuario">Usuario</label>' +
+              '<input id="tuUsuario" type="text" maxlength="40" autocomplete="nickname" ' +
+                     'autocapitalize="words" placeholder="Cómo querés que te llamemos">' +
+            '</div>' +
+            '<div class="tu-campo">' +
+              '<label for="tuWa">WhatsApp</label>' +
+              '<div class="tu-tel"><span>+591</span>' +
+                '<input id="tuWa" type="tel" inputmode="numeric" maxlength="12" ' +
+                       'autocomplete="tel-national" placeholder="7 123 4567"></div>' +
+            '</div>' +
+          '</div>' +
           '<p class="tu-error" id="tuError" role="alert" hidden></p>' +
           '<div class="tu-botones">' +
             '<button type="submit" class="tu-ok" id="tuOk"></button>' +
             '<button type="button" class="tu-no" id="tuNo"></button>' +
           '</div>' +
         '</form>' +
-        '<p class="tu-pie">Sin contraseña ni correo. Queda guardado en este celular.</p>' +
+        '<ul class="tu-confianza">' +
+          '<li>' + TILDE + 'Sin contraseña</li>' +
+          '<li>' + TILDE + 'Sin correo</li>' +
+          '<li>' + TILDE + 'No se cobra nada</li>' +
+        '</ul>' +
+        '</div>' +
       '</div>';
     document.body.appendChild(fondo);
 
@@ -297,7 +381,7 @@
     },
     pagar: {
       titulo: 'Antes de pagar',
-      sub: 'Dejanos tu usuario y tu WhatsApp: tu pedido sale a tu nombre y por ahí te avisamos si hay algo con tu compra y antes de que venza. No se cobra nada automáticamente.',
+      sub: 'Para seguir al pago, dejanos tu usuario y tu WhatsApp: tu pedido sale a tu nombre y por ahí te avisamos si hay algo con tu compra.',
       ok: 'Seguir al pago', no: 'Cancelar'
     },
     editar: {

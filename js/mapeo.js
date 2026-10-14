@@ -64,6 +64,7 @@ const CAMPOS_PRODUCTO = [
   ['nombre',            'nombre'],
   ['categoria',         'categoria'],
   ['descripcion',       'descripcion'],
+  ['detalle',           'detalle'],
   ['etiqueta',          'etiqueta'],
   ['estrellas',         'estrellas'],
   ['tipo',              'tipo'],

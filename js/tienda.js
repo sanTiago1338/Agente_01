@@ -616,7 +616,8 @@
       correo:   '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
       qr:       '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
       moneda:   '<circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/>',
-      check:    '<path d="m5 12.5 4.5 4.5L19 7.5"/>'
+      check:    '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+      info:     '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'
     };
     function icono(nombre) {
       return `<svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor"
@@ -921,6 +922,70 @@
     }
 
     // ==========================================================
+    // "QUÉ INCLUYE": EL CARTEL QUE SE DA VUELTA
+    // ==========================================================
+    // La descripción para el cliente (columna detalle, se carga en el
+    // panel): una frase y los beneficios, uno por renglón con "- " adelante.
+    // Alcanza con ponerla en un plan: vale para toda la plataforma.
+    //
+    // El cartel de la foto queda igual. Si hay descripción, suma un botón
+    // de vidrio "Qué incluye"; al tocarlo el cartel gira entero y atrás
+    // está la misma foto con la descripción en un vidrio a la izquierda,
+    // así la foto se sigue viendo. Las dos caras van en la misma celda de
+    // una grilla: el cartel mide lo mismo de los dos lados.
+    function incluyeDe(planes) {
+      const texto = planes.map(pl => String(pl.detalle || '').trim()).find(Boolean);
+      if (!texto) return null;
+      const frase = [], lista = [];
+      texto.split('\n').map(l => l.trim()).filter(Boolean).forEach(l => {
+        const punto = l.match(/^(?:[-•✓]|\*(?!\*))\s*(.+)$/);   // "**negrita**" no es un punto
+        if (punto) lista.push(punto[1]); else frase.push(l);
+      });
+      return { frase: frase.join(' '), lista: lista.slice(0, 6) };
+    }
+
+    // **así** en la frase va en negrita; el resto, como texto
+    const conNegrita = t => escaparHtml(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+
+    function cartelQueGira(g, url, frente) {
+      const inc = incluyeDe(g.planes);
+      const foto = `style="background-image:url('${url}')"`;
+      if (!inc) return `<div class="pl-hero" ${foto}>${frente}</div>`;
+      return `
+          <div class="pl-gira" id="plGira">
+            <div class="pl-gira-in">
+              <div class="pl-hero pl-cara" ${foto}>
+                ${frente}
+                <button type="button" class="pl-incluye" onclick="girarCartel(true)"
+                        aria-expanded="false" aria-controls="plDorso">Qué incluye ${icono('info')}</button>
+              </div>
+              <div class="pl-hero pl-cara pl-dorso" id="plDorso" ${foto} aria-hidden="true">
+                <div class="pl-dorso-vidrio">
+                  <div class="pl-dorso-cab">
+                    <b>Qué incluye</b>
+                    <button type="button" class="pl-incluye pl-volver" onclick="girarCartel(false)" tabindex="-1">
+                      ${icono('renovar')} Volver</button>
+                  </div>
+                  ${inc.frase ? `<p>${conNegrita(inc.frase)}</p>` : ''}
+                  ${inc.lista.length ? `<ul>${inc.lista.map(b => `<li>${icono('check')}${escaparHtml(b)}</li>`).join('')}</ul>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>`;
+    }
+
+    function girarCartel(si) {
+      const gira = document.getElementById('plGira');
+      if (!gira) return;
+      gira.classList.toggle('vuelta', si);
+      gira.querySelector('.pl-cara:not(.pl-dorso) .pl-incluye').setAttribute('aria-expanded', String(si));
+      document.getElementById('plDorso').setAttribute('aria-hidden', String(!si));
+      gira.querySelector('.pl-volver').tabIndex = si ? 0 : -1;
+      // El foco va al botón de la cara que quedó adelante
+      setTimeout(() => gira.querySelector(si ? '.pl-volver' : '.pl-cara:not(.pl-dorso) .pl-incluye').focus({ preventScroll: true }), 50);
+    }
+
+    // ==========================================================
     // PANEL DE PLANES DE UNA PLATAFORMA
     // ==========================================================
     // Usa el mismo modal que el carrito (#8, #9 y #10), así el
@@ -1008,14 +1073,13 @@
             <button class="ck-cerrar" onclick="closeModal()" aria-label="Cerrar">✕</button>
           </div>
 
-          <div class="pl-hero" style="background-image:url('${url}')">
+          ${cartelQueGira(g, url, `
             <div class="pl-hero-txt">
               <span class="pl-badge">Suscripciones premium</span>
               <h3>${g.nombre}</h3>
               <p>Elegí el plan que mejor se adapte a lo que necesitás.<br>
                  <b>${todosConStock ? 'Entrega inmediata' : 'Entrega de 5 a 30 minutos'}</b> y soporte incluido.</p>
-            </div>
-          </div>
+            </div>`)}
 
           <div class="pl-grid">${tarjetas}</div>
           ${guiaHtml}

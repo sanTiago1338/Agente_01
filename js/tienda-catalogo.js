@@ -63,6 +63,7 @@
         imgColor:    p.imagenColor  || '#333333,#666666',
         tag:         p.etiqueta     || '',
         desc:        p.descripcion  || '',
+        detalle:     p.detalle      || '',   // "Qué incluye": la frase y los beneficios del cartel que gira
         type:        p.tipo         || '',
         // Ficha del plan — si están vacíos, la tienda los deduce sola
         entrega:     p.entrega      || '',

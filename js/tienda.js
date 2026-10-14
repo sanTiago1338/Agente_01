@@ -963,9 +963,9 @@
           <div class="pl-gira" id="plGira">
             <div class="pl-gira-in">
               <div class="pl-hero pl-cara" ${foto}>
-                ${frente}
+                ${frente.replace('<!--incluye-->', `
                 <button type="button" class="pl-incluye" onclick="girarCartel(true)"
-                        aria-expanded="false" aria-controls="plDorso">Qué incluye ${icono('info')}</button>
+                        aria-expanded="false" aria-controls="plDorso">¿Qué incluye? ${icono('info')}</button>`)}
               </div>
               <div class="pl-hero pl-cara pl-dorso" id="plDorso" ${foto} aria-hidden="true">
                 <div class="pl-dorso-vidrio">
@@ -1082,7 +1082,7 @@
 
           ${cartelQueGira(g, url, `
             <div class="pl-hero-txt">
-              <span class="pl-badge">Suscripciones premium</span>
+              <div class="pl-hero-fila"><span class="pl-badge">Suscripciones premium</span><!--incluye--></div>
               <h3>${g.nombre}</h3>
               <p>Elegí el plan que mejor se adapte a lo que necesitás.<br>
                  <b>${todosConStock ? 'Entrega inmediata' : 'Entrega de 5 a 30 minutos'}</b> y soporte incluido.</p>

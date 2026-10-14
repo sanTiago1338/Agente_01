@@ -1130,16 +1130,26 @@
        siempre; la cara de atrás va encima con el mismo tamaño, así el
        cartel no crece por tener descripción. Si algún día no entra, el
        vidrio de atrás se desliza por dentro. */
-    .pl-gira { perspective: 1400px; margin-bottom: 1.25rem; }
+    .pl-gira { -webkit-perspective: 1400px; perspective: 1400px; margin-bottom: 1.25rem; }
+    /* Curva simétrica: a la mitad del tiempo el cartel está justo de
+       canto (90°), que es cuando se cambia la cara que se ve */
     .pl-gira-in {
       position: relative;
+      -webkit-transform-style: preserve-3d;
       transform-style: preserve-3d;
-      transition: transform .75s cubic-bezier(.3,.9,.25,1);
+      transition: transform .7s cubic-bezier(.65,0,.35,1);
     }
     .pl-gira .pl-hero { margin-bottom: 0; }
     .pl-cara { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
     .pl-dorso { position: absolute; inset: 0; min-height: 0; transform: rotateY(180deg); align-items: stretch; }
     .pl-gira.vuelta .pl-gira-in { transform: rotateY(180deg); }
+    /* En el iPhone (Safari) esconder la cara de atrás no alcanza: lo que
+       tiene vidrio o va encima de la foto se ve igual, espejado, a través
+       de la otra cara. Por eso cada cara se apaga del todo justo cuando
+       el cartel queda de canto, a la mitad del giro (.35s de .7s). */
+    .pl-cara { visibility: visible; transition: visibility 0s linear .35s; }
+    .pl-gira:not(.vuelta) .pl-dorso,
+    .pl-gira.vuelta .pl-cara:not(.pl-dorso) { visibility: hidden; }
     /* La cara de atrás no se toca hasta que queda adelante, y viceversa */
     .pl-gira:not(.vuelta) .pl-dorso,
     .pl-gira.vuelta .pl-cara:not(.pl-dorso) { pointer-events: none; }
@@ -1148,10 +1158,27 @@
       background: linear-gradient(105deg, rgba(10,11,13,.5) 0%, rgba(10,11,13,.2) 60%, rgba(10,11,13,.05) 100%);
     }
 
-    /* El botón de vidrio, arriba a la derecha de la foto */
+    /* "Suscripciones premium" y el botón "¿Qué incluye?", en la misma
+       línea: la etiqueta a la izquierda y el botón a la derecha */
+    .pl-hero-fila {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: .6rem; margin-bottom: .7rem;
+    }
+    .pl-hero-fila .pl-badge { margin-bottom: 0; white-space: nowrap; min-width: 0; }
+    /* Celular: un poco más compactos, para que entren los dos en una línea */
+    @media (max-width: 420px) {
+      .pl-hero-fila { gap: .45rem; }
+      .pl-hero-fila .pl-badge { letter-spacing: .07em; padding: .3rem .58rem; }
+      .pl-hero-fila .pl-incluye { padding: .38rem .6rem; font-size: .68rem; gap: .28rem; }
+    }
+    .pl-gira .pl-hero-txt { flex: 1; max-width: none; }
+    .pl-gira .pl-hero-txt h3,
+    .pl-gira .pl-hero-txt p { max-width: 34rem; }
+
+    /* El botón de vidrio */
     .pl-incluye {
-      position: absolute;
-      top: .85rem; right: .85rem;
+      position: relative;
+      flex: none;
       z-index: 2;
       display: inline-flex; align-items: center; gap: .35rem;
       padding: .42rem .8rem;

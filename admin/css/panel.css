@@ -11,9 +11,9 @@
 
    LOS TONOS TAMPOCO: menú, barras, tarjetas y ventanas son los mismos
    vidrios de la página Plataformas (las variables --vidrio* de
-   css/vidrio.css), con el mismo control "Transparente o teñido"
-   (js/tenido.js). Lo que se elige en la tienda vale también acá. Lo de
-   escribir (campos, el precio en la fila) va casi blanco, para leerse.
+   css/vidrio.css), siempre en lo más transparente: el panel no tiene el
+   control "Transparente o teñido" de la tienda. Lo de escribir (campos,
+   el precio en la fila) va más blanco, para leerse.
 
    En el login, blanco con dos manchas suaves y las burbujas.
 
@@ -49,9 +49,8 @@
 
   /* LOS TONOS DE LA TIENDA
      Las capas son los mismos vidrios de la página Plataformas
-     (css/vidrio.css): siguen el control "Transparente o teñido"
-     (js/tenido.js, abajo a la izquierda), y lo elegido en la tienda vale
-     también acá. --tenido va de 0 (transparente) a 1 (teñido). */
+     (css/vidrio.css), en lo más transparente (--tenido en 0): el panel
+     no carga js/tenido.js, así que no se tiñe aunque en la tienda sí. */
   --capa:            var(--vidrio-claro);         /* menú y barras, como el menú de la tienda */
   --capa-tarjeta:    var(--vidrio-denso);         /* tarjetas y tablas, como las de las plataformas */
   --capa-canto:      var(--vidrio-borde);         /* el borde claro del vidrio */
@@ -59,13 +58,13 @@
   --capa-blur-barra: var(--vidrio-blur-barra);
   /* Campos y botones claros: un color (no un degradé), porque el select
      lleva además su flechita dibujada */
-  --capa-campo:      rgba(255,255,255, calc(.62 + .3 * var(--tenido, 0)));
+  --capa-campo:      rgba(255,255,255,.62);
 
   /* Superficies que usan los módulos (Inicio, Ventas, Stock…) */
   --fondo:        #f7f8fa;                  /* el de css/vidrio.css, debajo de las manchas */
-  --superficie:   rgba(255,255,255, calc(.4 + .5 * var(--tenido, 0)));
-  --superficie-2: rgba(243,244,246, calc(.45 + .35 * var(--tenido, 0)));   /* encabezados de tabla, cajitas */
-  --superficie-3: rgba(229,231,235, calc(.5 + .3 * var(--tenido, 0)));     /* botones de ícono, etiquetas */
+  --superficie:   rgba(255,255,255,.4);
+  --superficie-2: rgba(243,244,246,.45);    /* encabezados de tabla, cajitas */
+  --superficie-3: rgba(229,231,235,.5);     /* botones de ícono, etiquetas */
   --separador:    rgba(16,24,40,.09);       /* bordes finos */
   --separador-2:  rgba(16,24,40,.16);       /* bordes de campos y botones */
 
@@ -1169,8 +1168,6 @@ body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) {
   border-radius: 20px;
   box-shadow: 0 24px 60px rgba(20,22,26,.2), 0 0 0 .5px rgba(20,22,26,.1), inset 0 1px 0 #fff;
 }
-/* Teñido: más blanco debajo, igual que en la tienda */
-html.tenido body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) { background-color: var(--vidrio-tinte); }
 
 /* Confirmar pago, Rechazar y Listo (Ventas): un 15 % más grandes en la
    compu, todo junto (letras, botones y aire), para leerlas sin forzar la
@@ -1180,13 +1177,6 @@ html.tenido body :is(.zv-modal, .st-modal, .vt-modal, .jg-modal) { background-co
   body #vtFondoMano > .vt-modal { zoom: 1.15; }
 }
 
-/* El control "Transparente o teñido" (js/tenido.js): en el panel no hay
-   burbuja de WhatsApp de referencia. Celular: arriba de la barra de
-   abajo. Compu: al lado del menú, no encima de la cuenta. */
-.tenido-control { bottom: calc(80px + env(safe-area-inset-bottom)); }
-@media (min-width: 900px) {
-  .tenido-control { left: calc(var(--menu-ancho) + 16px); bottom: 16px; }
-}
 body :is(.zv-cab) { border-radius: 20px 20px 0 0; }
 /* Cabecera y pie de las ventanas: sin fondo propio, sobre el vidrio */
 body :is(.zv-cab, .zv-pie, .jg-cab, .jg-pie) { background: transparent; }

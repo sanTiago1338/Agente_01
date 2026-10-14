@@ -78,6 +78,20 @@
   /* Marca */
   --marca:        #e50914;
   --marca-oscura: #b8070f;
+
+  /* El color del panel: Cielo, un celeste suave. Va en lo que se usa:
+     la sección abierta, los botones principales, las barras de los
+     gráficos y el borde de los campos al escribir. El rojo de la marca
+     queda para lo que rechaza o anula, las ofertas y los contadores. */
+  --acento:          #3b7fd6;
+  --acento-oscuro:   #2f6bbd;
+  --acento-rgb:      59,127,214;
+  --acento-pastilla: linear-gradient(135deg, #e0f2fe, #e0e7ff);
+  --acento-boton:    linear-gradient(135deg, #4a8fe3, #2f6fc4);
+  --acento-boton-2:  linear-gradient(135deg, #3d82d9, #265fae);
+  --barra-cielo:     linear-gradient(0deg, #9cc2f2, #bfe3fb);
+  --barra-cielo-hoy: linear-gradient(0deg, #6aa3ea, #93d0f6);
+  --barra-cielo-h:   linear-gradient(90deg, #bfe3fb, #7fb0ee);
   --oro:          #9a7400;
 
   /* Estados */
@@ -160,7 +174,7 @@ button, input, select, textarea { font-family: inherit; }
 .spinner {
   width: 34px; height: 34px;
   border: 3px solid var(--separador);
-  border-top-color: var(--marca);
+  border-top-color: var(--acento);
   border-radius: 50%;
   animation: girar .7s linear infinite;
 }
@@ -290,10 +304,10 @@ body.menu-abierto .lateral {
 .menu-link .ico { color: var(--tinta-suave); }
 .lateral .vista-tab:hover,
 .menu-link:hover { background: var(--menu-hover); color: var(--tinta); }
-/* La sección en la que estás es la lente de la tienda (css/vidrio.css):
-   más clara arriba al centro, con brillo en el canto */
+/* La sección en la que estás: una pastilla celeste (Cielo) con el
+   brillo en el canto de los vidrios de la tienda */
 .lateral .vista-tab.activa {
-  background: var(--vidrio-lente);
+  background: linear-gradient(135deg, rgba(224,242,254,.92), rgba(224,231,255,.92));
   box-shadow:
     inset 0 1.5px 0 #fff,
     inset 0 -1.5px 2px rgba(20,22,26,.07),
@@ -303,15 +317,15 @@ body.menu-abierto .lateral {
   color: var(--tinta);
   font-weight: 600;
 }
-.lateral .vista-tab.activa .ico { color: var(--marca); }
-/* La raya roja de la sección en la que estás */
+.lateral .vista-tab.activa .ico { color: var(--acento); }
+/* La raya celeste de la sección en la que estás */
 .lateral .vista-tab.activa::before {
   content: '';
   position: absolute;
   left: -10px; top: 7px; bottom: 7px;
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background: var(--marca);
+  background: var(--acento);
 }
 .lateral .vista-tab:focus-visible,
 .menu-link:focus-visible { outline: 2px solid var(--info); outline-offset: -2px; }
@@ -568,7 +582,7 @@ body.menu-abierto .lateral {
   cursor: pointer;
 }
 .menu-movil button .ico { width: 22px; height: 22px; }
-.menu-movil button.activa { color: var(--marca); font-weight: 600; }
+.menu-movil button.activa { color: var(--acento); background: var(--acento-pastilla); border-radius: 14px; font-weight: 600; }
 .menu-movil button.activa .ico { stroke-width: 2.3; }
 .menu-movil .contador {
   position: absolute;
@@ -640,8 +654,12 @@ body.menu-abierto .lateral {
 }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn .ico { width: 16px; height: 16px; }
-.btn-rojo, .btn-primario { background: var(--marca); color: #fff; }
-.btn-rojo:hover:not(:disabled), .btn-primario:hover:not(:disabled) { background: var(--marca-oscura); }
+/* Los principales, en Cielo (aunque la clase diga "rojo", es de antes).
+   btn-peligro los vuelve rojos: Rechazar. */
+.btn-rojo, .btn-primario { background: var(--acento-boton); color: #fff; }
+.btn-rojo:hover:not(:disabled), .btn-primario:hover:not(:disabled) { background: var(--acento-boton-2); }
+.btn-primario.btn-peligro { background: var(--marca); }
+.btn-primario.btn-peligro:hover:not(:disabled) { background: var(--marca-oscura); }
 .btn-oscuro { background: var(--tinta); color: #fff; }
 .btn-oscuro:hover:not(:disabled) { background: #1f2937; }
 .btn-fantasma { background: var(--capa-campo); color: var(--tinta-media); border-color: var(--separador-2); }
@@ -953,8 +971,8 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
   text-align: left;
   cursor: pointer;
 }
-.precio-btn:hover { border-color: var(--marca); background: rgba(229,9,20,.05); }
-.precio-btn:focus-visible { outline: 2px solid var(--marca); outline-offset: 1px; }
+.precio-btn:hover { border-color: var(--acento); background: rgba(var(--acento-rgb),.06); }
+.precio-btn:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
 .precio-lapiz { opacity: 0; font-size: 11px; margin-left: 5px; }
 .precio-btn:hover .precio-lapiz { opacity: .75; }
 /* La descripción también es un botón: es el texto que más se retoca */
@@ -973,8 +991,8 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
   text-align: left;
   cursor: pointer;
 }
-.desc-btn:hover { border-color: var(--marca); background: rgba(229,9,20,.04); }
-.desc-btn:focus-visible { outline: 2px solid var(--marca); outline-offset: 1px; }
+.desc-btn:hover { border-color: var(--acento); background: rgba(var(--acento-rgb),.05); }
+.desc-btn:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
 .desc-btn.vacia { color: var(--tinta-tenue); font-style: italic; }
 .desc-lapiz { opacity: 0; font-size: 11px; margin-left: 4px; }
 .desc-btn:hover .desc-lapiz { opacity: .75; }
@@ -1186,9 +1204,9 @@ body .vt-filtro { border-radius: 8px; background: var(--capa-campo); border-colo
 body .vt-filtro:hover { border-color: var(--tinta-tenue); color: var(--tinta); }
 body .vt-filtro.activo { background: var(--tinta); border-color: var(--tinta); color: #fff; }
 
-/* Los botones "rojos" de los módulos: el rojo de la marca, liso */
-body :is(.zv-btn.rojo, .jg-btn.rojo) { background: var(--marca); color: #fff; border-color: var(--marca); }
-body :is(.zv-btn.rojo, .jg-btn.rojo):hover:not(:disabled) { filter: none; background: var(--marca-oscura); }
+/* Los botones "rojos" de los módulos (Guardar): en Cielo, como los demás principales */
+body :is(.zv-btn.rojo, .jg-btn.rojo) { background: var(--acento-boton); color: #fff; border-color: transparent; }
+body :is(.zv-btn.rojo, .jg-btn.rojo):hover:not(:disabled) { filter: none; background: var(--acento-boton-2); }
 
 /* Campos de las ventanas: blancos con borde gris */
 body :is(.zv-modal, .jg-modal, .st-modal, .vt-modal)

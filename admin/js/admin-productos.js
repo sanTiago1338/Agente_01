@@ -110,8 +110,8 @@ estilos.textContent = `
   }
   .zv-campo textarea { resize: vertical; min-height: 74px; line-height: 1.45; }
   .zv-campo input:focus, .zv-campo textarea:focus, .zv-campo select:focus {
-    outline: none; border-color: var(--rojo);
-    box-shadow: 0 0 0 3px rgba(229,9,20,.13);
+    outline: none; border-color: var(--acento);
+    box-shadow: 0 0 0 3px rgba(var(--acento-rgb),.13);
   }
   .zv-campo.malo input, .zv-campo.malo textarea { border-color: var(--error); }
 
@@ -147,8 +147,8 @@ estilos.textContent = `
     cursor: pointer; user-select: none;
   }
   .zv-sw:hover { border-color: var(--borde-2); }
-  .zv-sw input { width: 15px; height: 15px; accent-color: var(--rojo); cursor: pointer; }
-  .zv-sw.on { color: var(--tinta); border-color: rgba(229,9,20,.35); background: rgba(229,9,20,.06); }
+  .zv-sw input { width: 15px; height: 15px; accent-color: var(--acento); cursor: pointer; }
+  .zv-sw.on { color: var(--tinta); border-color: rgba(var(--acento-rgb),.35); background: rgba(var(--acento-rgb),.06); }
 
   /* Frases que se repiten en casi todas las descripciones. Un clic las
      pega al final del texto, así no hay que escribirlas de nuevo ni
@@ -168,7 +168,7 @@ estilos.textContent = `
     cursor: pointer;
     white-space: nowrap;
   }
-  .zv-frase:hover { border-color: var(--rojo); background: rgba(229,9,20,.06); }
+  .zv-frase:hover { border-color: var(--acento); background: rgba(var(--acento-rgb),.06); }
   .zv-frase.puesta { border-color: rgba(21,128,61,.4); background: rgba(21,128,61,.08); color: var(--ok); }
   .zv-frases-lbl {
     font-size: 11.5px; color: var(--gris-dim);
@@ -205,7 +205,7 @@ estilos.textContent = `
   }
   .zv-btn:hover:not(:disabled) { filter: brightness(.95); }
   .zv-btn:disabled { opacity: .5; cursor: not-allowed; }
-  .zv-btn.rojo   { background: var(--rojo); color: #fff; }
+  .zv-btn.rojo   { background: var(--acento); color: #fff; }
   .zv-btn.gris   { background: transparent; color: var(--gris); border-color: var(--borde-2); }
   .zv-btn.gris:hover { color: var(--tinta); background: var(--panel-2); }
   .zv-btn.borrar { background: var(--error); color: #fff; }

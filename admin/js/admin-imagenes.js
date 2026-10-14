@@ -102,8 +102,8 @@ css.textContent = `
     transition: border-color .15s, background .15s;
     margin-bottom: 9px;
   }
-  .zvi-zona:hover   { border-color: var(--rojo); background: rgba(229,9,20,.05); }
-  .zvi-zona.encima  { border-color: var(--rojo); background: rgba(229,9,20,.09); }
+  .zvi-zona:hover   { border-color: var(--acento); background: rgba(var(--acento-rgb),.05); }
+  .zvi-zona.encima  { border-color: var(--acento); background: rgba(var(--acento-rgb),.09); }
   .zvi-zona .icono  { font-size: 24px; display: block; margin-bottom: 6px; }
   .zvi-zona .titulo { font-size: 13.5px; color: var(--tinta); font-weight: 600; }
   .zvi-zona .sub    { font-size: 11.5px; color: var(--gris-dim); margin-top: 3px; }
@@ -153,7 +153,7 @@ css.textContent = `
   .zvi-spin {
     width: 17px; height: 17px;
     border: 2px solid var(--borde);
-    border-top-color: var(--rojo);
+    border-top-color: var(--acento);
     border-radius: 50%;
     animation: zviGirar .7s linear infinite;
     flex-shrink: 0;

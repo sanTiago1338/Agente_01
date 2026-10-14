@@ -128,7 +128,7 @@ css.textContent = `
   .st-ver-dadas:hover { background: var(--panel-2); }
   .st-ver-dadas .flecha { font-size: 11px; transition: transform .15s; }
   .st-ver-dadas[aria-expanded="true"] .flecha { transform: rotate(90deg); }
-  .st-ver-dadas .accion { margin-left: auto; font-size: 12px; color: var(--rojo); }
+  .st-ver-dadas .accion { margin-left: auto; font-size: 12px; color: var(--acento); }
   .st-dadas .st-cuenta .usuario { color: var(--gris); }
   .st-cuenta .usuario {
     flex: 1; min-width: 0;
@@ -150,7 +150,7 @@ css.textContent = `
     font-size: 12.5px; line-height: 1.35;
   }
   .st-clave.tapada { color: transparent; text-shadow: 0 0 7px rgba(20,22,26,.55); }
-  .st-clave:hover  { border-color: var(--rojo); }
+  .st-clave:hover  { border-color: var(--acento); }
 
   .st-mini {
     background: none; border: 1px solid var(--borde);
@@ -158,7 +158,8 @@ css.textContent = `
     padding: 4px 9px; font-size: 12px; cursor: pointer;
     font-family: inherit; flex: none;
   }
-  .st-mini:hover { border-color: var(--rojo); color: var(--rojo); }
+  .st-mini:hover { border-color: var(--acento); color: var(--acento); }
+  .st-mini[data-anular]:hover { border-color: var(--rojo); color: var(--rojo); }
   .st-mini.seguro, .st-mini.seguro:hover { background: #dc2626; border-color: #dc2626; color: #fff; }
 
   .st-vacio { padding: 46px 20px; text-align: center; color: var(--gris-dim); }
@@ -202,7 +203,7 @@ css.textContent = `
     font-size: 13px; min-height: 150px; resize: vertical; line-height: 1.6;
   }
   .st-campo input:focus, .st-campo select:focus, .st-campo textarea:focus {
-    outline: none; border-color: var(--rojo);
+    outline: none; border-color: var(--acento);
   }
   .st-fila2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 

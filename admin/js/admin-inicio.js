@@ -125,7 +125,7 @@ css.textContent = `
   .ini-caja-cab > div { flex: 1; min-width: 0; }
   .ini-link {
     border: none; background: none; padding: 2px 0;
-    font: 700 12.5px var(--letra); color: var(--rojo); cursor: pointer; white-space: nowrap;
+    font: 700 12.5px var(--letra); color: var(--acento); cursor: pointer; white-space: nowrap;
   }
   .ini-link:hover { text-decoration: underline; }
 
@@ -151,12 +151,22 @@ css.textContent = `
   }
   .ini-barra {
     width: min(24px, 62%);
-    background: var(--marca);
+    background: var(--barra-cielo);
     border-radius: 4px 4px 0 0;
     min-height: 0;
     transition: opacity .15s;
   }
+  .ini-col.hoy .ini-barra { background: var(--barra-cielo-hoy); }
   .ini-col.cero .ini-barra { background: transparent; }
+  /* Al entrar a Inicio (o tocar Actualizar), las barras crecen una tras
+     otra. La vuelta automática de cada minuto no las vuelve a animar. */
+  .ini-graf.entra .ini-barra {
+    transform-origin: bottom;
+    animation: iniSube .7s cubic-bezier(.2,.9,.3,1.12) both;
+    animation-delay: calc(var(--i) * 45ms);
+  }
+  @keyframes iniSube { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  @media (prefers-reduced-motion: reduce) { .ini-graf.entra .ini-barra { animation: none; } }
   .ini-cols:hover .ini-barra { opacity: .45; }
   .ini-cols .ini-col:hover .ini-barra,
   .ini-cols .ini-col:focus-visible .ini-barra { opacity: 1; }
@@ -219,7 +229,7 @@ css.textContent = `
   /* Lo más vendido: el nombre arriba y una barra fina que dice cuánto */
   .ini-top li { flex-wrap: wrap; row-gap: 6px; }
   .ini-top .bar { flex-basis: 100%; height: 6px; border-radius: 99px; background: var(--superficie-3); overflow: hidden; }
-  .ini-top .bar i { display: block; height: 100%; border-radius: 99px; background: var(--marca); }
+  .ini-top .bar i { display: block; height: 100%; border-radius: 99px; background: var(--barra-cielo-h); }
   .ini-top .cuantos { font-size: 12px; color: var(--tinta-suave); white-space: nowrap; }
 
   /* ---- Últimos pedidos ---- */
@@ -285,7 +295,7 @@ css.textContent = `
   .ini-paso-nom { color: var(--tinta); font-weight: 600; }
   .ini-paso-nom small { display: block; font-weight: 400; font-size: 12px; color: var(--tinta-suave); }
   .ini-paso-riel { height: 14px; border-radius: 7px; background: var(--superficie-2); overflow: hidden; }
-  .ini-paso-barra { height: 100%; border-radius: 7px; background: var(--marca); min-width: 2px; }
+  .ini-paso-barra { height: 100%; border-radius: 7px; background: var(--barra-cielo-h); min-width: 2px; }
   .ini-paso:last-child .ini-paso-barra { background: #15803d; }
   .ini-paso-n { font-size: 18px; font-weight: 800; color: var(--tinta); text-align: right; font-variant-numeric: tabular-nums; }
   .ini-paso-pc { font-size: 12.5px; color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
@@ -461,6 +471,7 @@ function saludo() {
 // 4. CARGA
 // ============================================================
 let cargando = false;
+let animarGrafico = true;   // las barras crecen al entrar o con Actualizar, no cada minuto
 
 async function cargar() {
   if (cargando) return;
@@ -622,14 +633,14 @@ function pintarGrafico(pedidos) {
     return `
       <div class="ini-col${d.bs === 0 ? ' cero' : ''}${esHoy ? ' hoy' : ''}" tabindex="0"
            data-i="${i}" aria-label="${escapar(texto)}">
-        <div class="ini-barra" style="height:${alto}%"></div>
+        <div class="ini-barra" style="height:${alto}%; --i:${i}"></div>
         ${i === iMax ? `<span class="ini-rotulo" style="bottom:calc(${alto}% + 4px)">${bs(d.bs)}</span>` : ''}
         <span class="ini-dia${(DIAS - 1 - i) % 2 ? ' impar' : ''}">${esHoy ? 'Hoy' : `${letra.format(d.fecha).toUpperCase()} ${d.fecha.getDate()}`}</span>
       </div>`;
   }).join('');
 
   $('iniGraf').innerHTML = `
-    <div class="ini-graf">
+    <div class="ini-graf${animarGrafico ? ' entra' : ''}">
       <div class="ini-graf-plot">
         <div class="ini-guia" style="top:0"><span>${bs(tope)}</span></div>
         <div class="ini-guia" style="top:50%"><span>${bs(tope / 2)}</span></div>
@@ -643,6 +654,7 @@ function pintarGrafico(pedidos) {
       <tr><th>Día</th><th>Bolivianos</th><th>Pedidos</th></tr>
       ${dias.map(d => `<tr><td>${escapar(largo.format(d.fecha))}</td><td>${bs(d.bs)}</td><td>${d.pedidos}</td></tr>`).join('')}
     </table>`;
+  animarGrafico = false;
 
   // El detalle de cada día, al pasar el mouse, tocar o llegar con Tab
   const tip = $('iniTip');
@@ -935,10 +947,10 @@ document.querySelector('.ini-rango').addEventListener('click', e => {
 // Al abrir Inicio, con el botón, y cada minuto mientras está a la vista.
 // No consulta en segundo plano si estás en otra vista o en otra pestaña.
 document.addEventListener('vista-cambiada', e => {
-  if (e.detail.vista === 'inicio') cargar();
+  if (e.detail.vista === 'inicio') { animarGrafico = true; cargar(); }
 });
 
-$('iniRefrescar').addEventListener('click', cargar);
+$('iniRefrescar').addEventListener('click', () => { animarGrafico = true; cargar(); });
 
 setInterval(() => {
   if (!$('vistaInicio').hidden && document.visibilityState === 'visible') cargar();

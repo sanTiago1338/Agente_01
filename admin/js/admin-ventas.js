@@ -127,14 +127,14 @@ css.textContent = `
     padding: 7px 15px; font-size: 13.5px; cursor: pointer;
     font-family: inherit; font-weight: 600;
   }
-  .vt-filtro:hover { border-color: var(--rojo); color: var(--rojo); }
+  .vt-filtro:hover { border-color: var(--acento); color: var(--acento); }
   .vt-filtro.activo { background: var(--tinta); border-color: var(--tinta); color: #fff; }
   .vt-fecha-sel {
     background: var(--panel-2); border: 1px solid var(--borde);
     color: var(--texto); border-radius: 99px;
     padding: 6px 13px; font-size: 13.5px; font-family: inherit;
   }
-  .vt-fecha-sel:focus { outline: none; border-color: var(--rojo); }
+  .vt-fecha-sel:focus { outline: none; border-color: var(--acento); }
   .vt-filtro .n {
     display: inline-block; margin-left: 6px;
     font-variant-numeric: tabular-nums; opacity: .75;
@@ -221,7 +221,7 @@ css.textContent = `
     color: var(--gris); border-radius: 7px; padding: 4px 10px;
     font-size: 12px; cursor: pointer; font-family: inherit;
   }
-  .vt-cred button:hover { border-color: var(--rojo); color: var(--rojo); }
+  .vt-cred button:hover { border-color: var(--acento); color: var(--acento); }
 
   .vt-vacio { padding: 56px 20px; text-align: center; color: var(--gris-dim); }
   .vt-vacio .emo { font-size: 42px; margin-bottom: 12px; }
@@ -250,7 +250,7 @@ css.textContent = `
     background: var(--panel-2); border: 1px solid var(--borde);
     border-radius: 8px; color: var(--texto); font-size: 14px; font-family: inherit;
   }
-  .vt-modal input:focus { outline: none; border-color: var(--rojo); }
+  .vt-modal input:focus { outline: none; border-color: var(--acento); }
   .vt-nota {
     font-size: 12.5px; color: var(--gris-dim); line-height: 1.5; margin: 10px 0 0;
   }
@@ -464,7 +464,7 @@ css.textContent = `
     background: var(--panel-2); border: 1px solid var(--borde);
     border-radius: 8px; color: var(--texto); font-size: 14px; font-family: inherit;
   }
-  .vt-select:focus { outline: none; border-color: var(--rojo); }
+  .vt-select:focus { outline: none; border-color: var(--acento); }
   /* Un texto para copiar (la dirección del webhook, la clave) con su botón */
   .vt-copiable { display: flex; align-items: center; gap: 8px; }
   .vt-copiable code {
@@ -2018,6 +2018,7 @@ function abrirCierreAMano(pedidoId, accion) {
   if (pideMotivo) dibujarMotivos();
 
   $('vtManoOk').textContent = accion === 'entregar' ? 'Sí, ya lo entregué' : 'Sí, rechazar';
+  $('vtManoOk').classList.toggle('btn-peligro', accion !== 'entregar');   // rechazar va en rojo
   $('vtFondoMano').classList.add('abierto');
   $('vtManoOk').focus();
 }

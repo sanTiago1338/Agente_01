@@ -99,7 +99,7 @@ css.textContent = `
     border-radius:8px; color:var(--tinta); font-size:14.5px; font-family:inherit;
   }
   .jg-campo input:focus, .jg-campo select:focus {
-    outline:none; border-color:var(--rojo); box-shadow:0 0 0 3px rgba(229,9,20,.13);
+    outline:none; border-color:var(--acento); box-shadow:0 0 0 3px rgba(var(--acento-rgb),.13);
   }
   .jg-campo.malo input { border-color:var(--error); }
   .jg-error { display:none; color:var(--error); font-size:12px; margin-top:5px; }
@@ -111,8 +111,8 @@ css.textContent = `
     background:var(--panel-2); border:1px solid var(--borde); border-radius:8px;
     font-size:13.5px; color:var(--gris); cursor:pointer; user-select:none;
   }
-  .jg-sw.on { color:var(--tinta); border-color:rgba(229,9,20,.35); background:rgba(229,9,20,.06); }
-  .jg-sw input { width:15px; height:15px; accent-color:var(--rojo); cursor:pointer; }
+  .jg-sw.on { color:var(--tinta); border-color:rgba(var(--acento-rgb),.35); background:rgba(var(--acento-rgb),.06); }
+  .jg-sw input { width:15px; height:15px; accent-color:var(--acento); cursor:pointer; }
 
   /* ---- Paquetes ---- */
   .jg-pk-cab {
@@ -133,7 +133,7 @@ css.textContent = `
     width:100%; padding:7px 9px; background:var(--panel); border:1px solid var(--borde);
     border-radius:6px; color:var(--tinta); font-size:13px; font-family:inherit;
   }
-  .jg-pk input:focus, .jg-pk select:focus { outline:none; border-color:var(--rojo); }
+  .jg-pk input:focus, .jg-pk select:focus { outline:none; border-color:var(--acento); }
   /* La lista de íconos no se estira más que su columna (sin esto pisaba
      el nombre del paquete) */
   .jg-pk .icono { min-width:0; padding-left:6px; padding-right:4px; text-overflow:ellipsis; }
@@ -163,7 +163,7 @@ css.textContent = `
   }
   .jg-btn:hover:not(:disabled) { filter:brightness(1.16); }
   .jg-btn:disabled { opacity:.5; cursor:not-allowed; }
-  .jg-btn.rojo { background:var(--rojo); color:#fff; }
+  .jg-btn.rojo { background:var(--acento); color:#fff; }
   .jg-btn.gris { background:transparent; color:var(--gris); border-color:var(--borde-2); }
   .jg-btn.gris:hover { color:var(--tinta); background:var(--panel-2); }
   .jg-btn.borrar { background:var(--error); color:#fff; }

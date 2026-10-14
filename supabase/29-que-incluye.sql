@@ -1,7 +1,8 @@
 -- ============================================================
 -- TIAGO STORE · 29 · "QUÉ INCLUYE": LA DESCRIPCIÓN PARA EL CLIENTE
 -- ============================================================
--- Se puede correr de nuevo sin romper nada.
+-- Aplicado con la migración: que_incluye (13/10/2026), después del 28. Se
+-- puede correr de nuevo sin romper nada.
 --
 -- EL PROBLEMA
 --   La columna descripcion ya tiene dueño: es la "Guía de activación"

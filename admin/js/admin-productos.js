@@ -175,25 +175,6 @@ estilos.textContent = `
     margin-top: 10px; margin-bottom: 2px;
   }
 
-  /* "Qué incluye": así se ve atrás del cartel en la tienda */
-  .zv-incluye-previa {
-    margin-top: 10px; padding: 12px; border-radius: 12px;
-    background: radial-gradient(160px 120px at 88% 30%, rgba(229,9,20,.55), transparent 70%),
-                radial-gradient(180px 120px at 75% 95%, rgba(26,167,216,.5), transparent 70%), #1b1e25;
-  }
-  .zv-incluye-previa > div {
-    max-width: 380px; padding: 10px 12px; border-radius: 12px; color: #fff;
-    background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.07));
-    -webkit-backdrop-filter: blur(14px) saturate(180%); backdrop-filter: blur(14px) saturate(180%);
-    border: 1px solid rgba(255,255,255,.36); box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
-  }
-  .zv-incluye-previa small { display: block; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .85; margin-bottom: 4px; }
-  .zv-incluye-titulo { display: block; font: 800 17px/1.1 var(--letra); letter-spacing: .5px; text-transform: uppercase; margin: 2px 0 6px; }
-  .zv-incluye-previa p { margin: 0 0 6px; font-size: 12.5px; line-height: 1.45; color: rgba(255,255,255,.9); }
-  .zv-incluye-previa ul { list-style: none; margin: 0 0 6px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3px 10px; }
-  .zv-incluye-previa li { font-size: 12px; font-weight: 600; }
-  .zv-incluye-previa li::before { content: '✓ '; color: #7ee2a8; }
-
   .zv-previa {
     display: flex; align-items: center; gap: 13px;
     padding: 11px;
@@ -321,7 +302,6 @@ contenedor.innerHTML = `
               <textarea id="fIncluye" rows="6"
                         placeholder="CapCut Pro es la versión premium de CapCut, para creadores que quieren videos de nivel profesional.&#10;- Herramientas de IA avanzadas&#10;- Exporta sin marca de agua&#10;- Recursos premium ilimitados"></textarea>
               <div class="zv-frases-lbl">Los renglones que empiezan con «-» salen como puntos con ✓, y **así** sale en negrita.</div>
-              <div class="zv-incluye-previa" id="zvIncluyePrevia" hidden></div>
             </div>
 
             <div class="zv-campo zv-ancho">
@@ -582,30 +562,6 @@ $('fCorreo').addEventListener('change', () => {
   pintarSwitches();
   pintarFrases();
 });
-
-// "Qué incluye": cómo queda atrás del cartel, mientras escribís. Mismas
-// reglas que la tienda (textoAHtml en js/tienda.js): cada renglón un
-// párrafo, los que empiezan con "-" son puntos, **así** va en negrita.
-function pintarIncluye() {
-  const texto = $('fIncluye').value.trim();
-  const caja = $('zvIncluyePrevia');
-  caja.hidden = !texto;
-  if (!texto) return;
-  const negrita = t => escaparHtml(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
-  let html = '', lista = [];
-  const cerrar = () => { if (lista.length) html += `<ul>${lista.map(b => `<li>${negrita(b)}</li>`).join('')}</ul>`; lista = []; };
-  texto.split('\n').map(l => l.trim()).filter(Boolean).forEach(l => {
-    const punto = l.match(/^(?:[-•✓]|\*(?!\*))\s*(.+)$/);   // "**negrita**" no es un punto
-    if (punto) { lista.push(punto[1]); return; }
-    cerrar();
-    html += `<p>${negrita(l)}</p>`;
-  });
-  cerrar();
-  caja.innerHTML = `<div><small>Así se ve atrás del cartel</small>
-    <b class="zv-incluye-titulo">${escaparHtml($('fNombre').value.trim() || 'Nombre')}</b>${html}</div>`;
-}
-$('fIncluye').addEventListener('input', pintarIncluye);
-$('fNombre').addEventListener('input', pintarIncluye);
 
 // Previsualización de la imagen mientras escribís la URL
 $('fImagen').addEventListener('input', actualizarPrevia);
@@ -1143,7 +1099,6 @@ function abrirEditor(p) {
 
   pintarSwitches();
   actualizarPrevia();
-  pintarIncluye();
   pintarFrases();
   abrir($('zvFondoEditor'));
   setTimeout(() => $('fNombre').focus(), 60);

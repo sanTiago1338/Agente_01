@@ -1177,8 +1177,8 @@
       position: relative;
       z-index: 1;
       margin: .8rem;
-      width: min(31rem, calc(100% - 1.6rem));
-      padding: .85rem 1rem .95rem;
+      width: min(32rem, calc(100% - 1.6rem));
+      padding: .7rem .95rem .75rem;
       border-radius: 14px;
       color: #fff;
       background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.07));
@@ -1186,38 +1186,49 @@
       backdrop-filter: blur(16px) saturate(180%);
       border: 1px solid rgba(255,255,255,.36);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 10px 30px rgba(0,0,0,.25);
-      display: flex; flex-direction: column; justify-content: center;
-      min-height: 0; overflow-y: auto; scrollbar-width: none;
+      display: flex; flex-direction: column;
+      min-height: 0;
     }
-    .pl-dorso-vidrio::-webkit-scrollbar { display: none; }
-    .pl-dorso-cab { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin-bottom: .45rem; }
-    .pl-dorso-cab b { font-size: .72rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; color: rgba(255,255,255,.92); }
-    .pl-dorso-cab .pl-incluye { position: static; padding: .34rem .7rem; font-size: .7rem; }
-    .pl-dorso-vidrio p {
-      margin: 0 0 .5rem;
-      font-size: .84rem; line-height: 1.45;
+    /* Arriba, el nombre de siempre como título, y el botón para volver */
+    .pl-dorso-cab { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin-bottom: .35rem; }
+    .pl-dorso .pl-dorso-cab h3 {
+      font-size: clamp(1.2rem, 3.8vw, 1.55rem);
+      margin: 0;
+      min-width: 0;
+    }
+    .pl-dorso-cab .pl-incluye { position: static; flex: none; padding: .34rem .7rem; font-size: .7rem; }
+    /* El texto: si es largo, se desliza acá adentro (el cartel no crece) */
+    .pl-dorso-texto {
+      flex: 1; min-height: 0; overflow-y: auto;
+      padding-right: .2rem;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.45) transparent;
+    }
+    .pl-dorso-texto::-webkit-scrollbar { width: 4px; }
+    .pl-dorso-texto::-webkit-scrollbar-thumb { background: rgba(255,255,255,.45); border-radius: 4px; }
+    .pl-dorso .pl-dorso-texto p {
+      margin: 0 0 .35rem;
+      font-size: .8rem; line-height: 1.4;
       color: rgba(255,255,255,.9);
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
     }
-    .pl-dorso-vidrio p b { color: #fff; }
-    .pl-dorso-vidrio ul {
-      list-style: none; margin: 0; padding: 0;
-      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .3rem .8rem;
+    .pl-dorso-texto p b, .pl-dorso-texto li b { color: #fff; }
+    .pl-dorso-texto ul {
+      list-style: none; margin: 0 0 .35rem; padding: 0;
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .22rem .8rem;
     }
-    .pl-dorso-vidrio li {
+    .pl-dorso-texto li {
       display: flex; align-items: flex-start; gap: .35rem;
-      font-size: .78rem; line-height: 1.35; font-weight: 600; color: #fff;
+      font-size: .76rem; line-height: 1.3; font-weight: 600; color: #fff;
     }
-    .pl-dorso-vidrio li .ico { flex: none; width: 1em; height: 1em; margin-top: .1em; color: #7ee2a8; }
+    .pl-dorso-texto li .ico { flex: none; width: 1em; height: 1em; margin-top: .1em; color: #7ee2a8; }
+    .pl-dorso-texto > :last-child { margin-bottom: 0; }
     /* Celular: más compacto, para que entre en el alto del cartel */
     @media (max-width: 480px) {
-      .pl-dorso-vidrio { margin: .5rem; width: calc(100% - 1rem); padding: .6rem .75rem .65rem; justify-content: flex-start; }
+      .pl-dorso-vidrio { margin: .5rem; width: calc(100% - 1rem); padding: .6rem .75rem .65rem; }
       .pl-dorso-cab { margin-bottom: .3rem; }
-      .pl-dorso-cab b { font-size: .64rem; }
       .pl-dorso-cab .pl-incluye { padding: .28rem .6rem; font-size: .66rem; }
-      .pl-dorso-vidrio p { font-size: .76rem; line-height: 1.38; margin-bottom: .4rem; -webkit-line-clamp: 2; }
-      .pl-dorso-vidrio ul { gap: .22rem .6rem; }
-      .pl-dorso-vidrio li { font-size: .7rem; line-height: 1.28; }
+      .pl-dorso .pl-dorso-texto p { font-size: .76rem; line-height: 1.38; margin-bottom: .35rem; }
+      .pl-dorso-texto ul { gap: .22rem .6rem; }
+      .pl-dorso-texto li { font-size: .7rem; line-height: 1.28; }
     }
     @media (prefers-reduced-motion: reduce) { .pl-gira-in { transition: none; } }
 

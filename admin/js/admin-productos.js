@@ -188,8 +188,9 @@ estilos.textContent = `
     border: 1px solid rgba(255,255,255,.36); box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
   }
   .zv-incluye-previa small { display: block; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .85; margin-bottom: 4px; }
+  .zv-incluye-titulo { display: block; font: 800 17px/1.1 var(--letra); letter-spacing: .5px; text-transform: uppercase; margin: 2px 0 6px; }
   .zv-incluye-previa p { margin: 0 0 6px; font-size: 12.5px; line-height: 1.45; color: rgba(255,255,255,.9); }
-  .zv-incluye-previa ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3px 10px; }
+  .zv-incluye-previa ul { list-style: none; margin: 0 0 6px; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 3px 10px; }
   .zv-incluye-previa li { font-size: 12px; font-weight: 600; }
   .zv-incluye-previa li::before { content: '✓ '; color: #7ee2a8; }
 
@@ -316,11 +317,10 @@ contenedor.innerHTML = `
                  de la descripción, que es la guía de activación y además
                  decide si se pide el correo. -->
             <div class="zv-campo zv-ancho">
-              <label for="fIncluyeFrase">Qué incluye <span class="ayuda">— el cliente lo ve al tocar «Qué incluye» en el cartel. Alcanza con un plan: vale para toda la plataforma</span></label>
-              <input type="text" id="fIncluyeFrase" maxlength="220"
-                     placeholder="**CapCut Pro** es la versión premium de CapCut, para videos de nivel profesional.">
-              <textarea id="fIncluyeLista" rows="4" style="margin-top:8px"
-                        placeholder="Un beneficio por renglón (hasta 6). Ej:&#10;Herramientas de IA avanzadas&#10;Exporta sin marca de agua&#10;Recursos premium ilimitados"></textarea>
+              <label for="fIncluye">Qué incluye <span class="ayuda">— el texto que el cliente ve al tocar «Qué incluye» en el cartel. Alcanza con un plan: vale para toda la plataforma</span></label>
+              <textarea id="fIncluye" rows="6"
+                        placeholder="CapCut Pro es la versión premium de CapCut, para creadores que quieren videos de nivel profesional.&#10;- Herramientas de IA avanzadas&#10;- Exporta sin marca de agua&#10;- Recursos premium ilimitados"></textarea>
+              <div class="zv-frases-lbl">Los renglones que empiezan con «-» salen como puntos con ✓, y **así** sale en negrita.</div>
               <div class="zv-incluye-previa" id="zvIncluyePrevia" hidden></div>
             </div>
 
@@ -583,17 +583,29 @@ $('fCorreo').addEventListener('change', () => {
   pintarFrases();
 });
 
-// "Qué incluye": cómo queda atrás del cartel, mientras escribís
+// "Qué incluye": cómo queda atrás del cartel, mientras escribís. Mismas
+// reglas que la tienda (textoAHtml en js/tienda.js): cada renglón un
+// párrafo, los que empiezan con "-" son puntos, **así** va en negrita.
 function pintarIncluye() {
-  const inc = separarIncluye(juntarIncluye($('fIncluyeFrase').value, $('fIncluyeLista').value));
+  const texto = $('fIncluye').value.trim();
   const caja = $('zvIncluyePrevia');
-  caja.hidden = !inc.frase && !inc.lista.length;
-  caja.innerHTML = `<div><small>Así se ve en la tienda</small>
-    ${inc.frase ? `<p>${escaparHtml(inc.frase).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')}</p>` : ''}
-    ${inc.lista.length ? `<ul>${inc.lista.map(b => `<li>${escaparHtml(b)}</li>`).join('')}</ul>` : ''}</div>`;
+  caja.hidden = !texto;
+  if (!texto) return;
+  const negrita = t => escaparHtml(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  let html = '', lista = [];
+  const cerrar = () => { if (lista.length) html += `<ul>${lista.map(b => `<li>${negrita(b)}</li>`).join('')}</ul>`; lista = []; };
+  texto.split('\n').map(l => l.trim()).filter(Boolean).forEach(l => {
+    const punto = l.match(/^(?:[-•✓]|\*(?!\*))\s*(.+)$/);   // "**negrita**" no es un punto
+    if (punto) { lista.push(punto[1]); return; }
+    cerrar();
+    html += `<p>${negrita(l)}</p>`;
+  });
+  cerrar();
+  caja.innerHTML = `<div><small>Así se ve atrás del cartel</small>
+    <b class="zv-incluye-titulo">${escaparHtml($('fNombre').value.trim() || 'Nombre')}</b>${html}</div>`;
 }
-$('fIncluyeFrase').addEventListener('input', pintarIncluye);
-$('fIncluyeLista').addEventListener('input', pintarIncluye);
+$('fIncluye').addEventListener('input', pintarIncluye);
+$('fNombre').addEventListener('input', pintarIncluye);
 
 // Previsualización de la imagen mientras escribís la URL
 $('fImagen').addEventListener('input', actualizarPrevia);
@@ -1113,9 +1125,7 @@ function abrirEditor(p) {
   $('fPrecio').value       = p?.precio        ?? '';
   $('fPrecioOferta').value = p?.precioOferta  ?? '';
   $('fDescripcion').value  = p?.descripcion   ?? '';
-  const inc = separarIncluye(p?.detalle);
-  $('fIncluyeFrase').value = inc.frase;
-  $('fIncluyeLista').value = inc.lista.join('\n');
+  $('fIncluye').value      = p?.detalle       ?? '';
   $('fImagen').value       = p?.imagen        ?? '';
   $('fEtiqueta').value     = p?.etiqueta      ?? '';
   $('fEstrellas').value    = String(p?.estrellas ?? 5);
@@ -1137,23 +1147,6 @@ function abrirEditor(p) {
   pintarFrases();
   abrir($('zvFondoEditor'));
   setTimeout(() => $('fNombre').focus(), 60);
-}
-
-// "Qué incluye" se guarda en una sola columna (detalle): la frase y abajo
-// los beneficios con "- " adelante. La tienda lo lee igual (incluyeDe).
-function separarIncluye(texto) {
-  const frase = [], lista = [];
-  String(texto || '').split('\n').map(l => l.trim()).filter(Boolean).forEach(l => {
-    const punto = l.match(/^(?:[-•✓]|\*(?!\*))\s*(.+)$/);   // "**negrita**" no es un punto
-    if (punto) lista.push(punto[1]); else frase.push(l);
-  });
-  return { frase: frase.join(' '), lista };
-}
-
-function juntarIncluye(frase, lista) {
-  const puntos = String(lista || '').split('\n')
-    .map(l => l.trim().replace(/^(?:[-•✓]|\*(?!\*))\s*/, '')).filter(Boolean).slice(0, 6);
-  return [String(frase || '').trim(), ...puntos.map(b => '- ' + b)].filter(Boolean).join('\n');
 }
 
 function siguienteOrden() {
@@ -1201,7 +1194,7 @@ $('zvForm').addEventListener('submit', async e => {
     precioOferta: enOferta ? oferta : null,
     oferta:       enOferta,
     descripcion:  $('fDescripcion').value.trim(),
-    detalle:      juntarIncluye($('fIncluyeFrase').value, $('fIncluyeLista').value),
+    detalle:      $('fIncluye').value.trim(),
     imagen:       $('fImagen').value.trim(),
     etiqueta:     $('fEtiqueta').value.trim(),
     estrellas:    parseInt($('fEstrellas').value, 10),

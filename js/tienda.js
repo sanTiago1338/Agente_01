@@ -924,33 +924,41 @@
     // ==========================================================
     // "QUÉ INCLUYE": EL CARTEL QUE SE DA VUELTA
     // ==========================================================
-    // La descripción para el cliente (columna detalle, se carga en el
-    // panel): una frase y los beneficios, uno por renglón con "- " adelante.
-    // Alcanza con ponerla en un plan: vale para toda la plataforma.
+    // La descripción para el cliente (columna detalle): un solo texto que
+    // se escribe en el panel. Alcanza con ponerlo en un plan: vale para
+    // toda la plataforma.
     //
-    // El cartel de la foto queda igual. Si hay descripción, suma un botón
-    // de vidrio "Qué incluye"; al tocarlo el cartel gira entero y atrás
-    // está la misma foto con la descripción en un vidrio a la izquierda,
-    // así la foto se sigue viendo. Las dos caras van en la misma celda de
-    // una grilla: el cartel mide lo mismo de los dos lados.
-    function incluyeDe(planes) {
-      const texto = planes.map(pl => String(pl.detalle || '').trim()).find(Boolean);
-      if (!texto) return null;
-      const frase = [], lista = [];
+    // El cartel de la foto queda igual. Si hay texto, suma un botón de
+    // vidrio "Qué incluye"; al tocarlo el cartel gira entero y atrás está
+    // la misma foto, con el nombre de siempre como título y el texto en un
+    // vidrio a la izquierda, así la foto se sigue viendo. El alto lo pone
+    // el frente: si el texto es largo, se desliza dentro del vidrio.
+    const textoIncluye = planes => planes.map(pl => String(pl.detalle || '').trim()).find(Boolean) || '';
+
+    // El texto tal como lo escribieron: cada renglón es un párrafo, los
+    // que empiezan con "-" o "•" son puntos de una lista, y **así** va en
+    // negrita. Todo escapado: sale del panel, no es HTML.
+    function textoAHtml(texto) {
+      const conNegrita = t => escaparHtml(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+      let html = '', lista = [];
+      const cerrarLista = () => {
+        if (lista.length) html += `<ul>${lista.map(b => `<li>${icono('check')}<span>${conNegrita(b)}</span></li>`).join('')}</ul>`;
+        lista = [];
+      };
       texto.split('\n').map(l => l.trim()).filter(Boolean).forEach(l => {
         const punto = l.match(/^(?:[-•✓]|\*(?!\*))\s*(.+)$/);   // "**negrita**" no es un punto
-        if (punto) lista.push(punto[1]); else frase.push(l);
+        if (punto) { lista.push(punto[1]); return; }
+        cerrarLista();
+        html += `<p>${conNegrita(l)}</p>`;
       });
-      return { frase: frase.join(' '), lista: lista.slice(0, 6) };
+      cerrarLista();
+      return html;
     }
 
-    // **así** en la frase va en negrita; el resto, como texto
-    const conNegrita = t => escaparHtml(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
-
     function cartelQueGira(g, url, frente) {
-      const inc = incluyeDe(g.planes);
+      const texto = textoIncluye(g.planes);
       const foto = `style="background-image:url('${url}')"`;
-      if (!inc) return `<div class="pl-hero" ${foto}>${frente}</div>`;
+      if (!texto) return `<div class="pl-hero" ${foto}>${frente}</div>`;
       return `
           <div class="pl-gira" id="plGira">
             <div class="pl-gira-in">
@@ -962,12 +970,11 @@
               <div class="pl-hero pl-cara pl-dorso" id="plDorso" ${foto} aria-hidden="true">
                 <div class="pl-dorso-vidrio">
                   <div class="pl-dorso-cab">
-                    <b>Qué incluye</b>
+                    <h3>${g.nombre}</h3>
                     <button type="button" class="pl-incluye pl-volver" onclick="girarCartel(false)" tabindex="-1">
                       ${icono('renovar')} Volver</button>
                   </div>
-                  ${inc.frase ? `<p>${conNegrita(inc.frase)}</p>` : ''}
-                  ${inc.lista.length ? `<ul>${inc.lista.map(b => `<li>${icono('check')}${escaparHtml(b)}</li>`).join('')}</ul>` : ''}
+                  <div class="pl-dorso-texto">${textoAHtml(texto)}</div>
                 </div>
               </div>
             </div>

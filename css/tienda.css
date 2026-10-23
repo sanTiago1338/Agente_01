@@ -1061,7 +1061,8 @@
       margin-bottom: 1.25rem;
       min-height: 190px;
       display: flex;
-      align-items: flex-end;
+      /* El texto arriba: abajo quedaba un hueco vacío encima de los títulos */
+      align-items: flex-start;
       background: #14161a center/cover no-repeat;
     }
     .pl-hero::after {
@@ -1076,7 +1077,7 @@
     .pl-hero-txt {
       position: relative;
       z-index: 1;
-      padding: 1.5rem 1.4rem;
+      padding: 1.1rem 1.4rem 1.5rem;
       max-width: 34rem;
     }
     .pl-badge {
@@ -1165,11 +1166,16 @@
       gap: .6rem; margin-bottom: .7rem;
     }
     .pl-hero-fila .pl-badge { margin-bottom: 0; white-space: nowrap; min-width: 0; }
-    /* Celular: un poco más compactos, para que entren los dos en una línea */
-    @media (max-width: 420px) {
+    /* Celular: un poco más compactos, para que entren los dos en una línea.
+       Y del mismo alto: con el alto de línea "normal" el iPhone hacía la
+       etiqueta más baja que el botón, y el "¿Qué incluye?" se veía caído.
+       Con el mismo alto fijo en los dos, los bordes y las letras quedan
+       parejos. El botón lleva un pelo menos de relleno arriba que abajo:
+       sus minúsculas se ven más bajas que las mayúsculas de la etiqueta. */
+    @media (max-width: 480px) {
       .pl-hero-fila { gap: .45rem; }
-      .pl-hero-fila .pl-badge { letter-spacing: .07em; padding: .3rem .58rem; }
-      .pl-hero-fila .pl-incluye { padding: .38rem .6rem; font-size: .68rem; gap: .28rem; }
+      .pl-hero-fila .pl-badge { letter-spacing: .07em; padding: .3rem .58rem; line-height: .75rem; }
+      .pl-hero-fila .pl-incluye { padding: .26rem .6rem .34rem; font-size: .68rem; gap: .28rem; line-height: .75rem; }
     }
     .pl-gira .pl-hero-txt { flex: 1; max-width: none; }
     .pl-gira .pl-hero-txt h3,

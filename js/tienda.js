@@ -271,14 +271,12 @@
     const LOCAL_LOGOS = {
       // Más específicas primero (para evitar matches genéricos)
       // Sin Netflix, IPTV, Flujo, Hallow, Pixlr, Linear, Apple Music, Drama
-      // Box, Tele Latino, Zona IPTV, ChatGPT Pro ni las "completas" de Disney y Claude:
+      // Box, Tele Latino, Zona IPTV, ChatGPT, Canva ni las "completas" de Disney y Claude:
       // esas fotos se borraron de Img/opt y los productos ya tienen la suya
       // en Storage. Si alguno se queda sin imagen, cae al logo de Google de
       // más abajo en vez de a un cuadro roto.
       'disney plus + espn':     'Img/Disney%20%2B%20ESPN.jpg',
       'youtube premium':        'Img/You%20Tube.jpg',
-      'canva pro':              'Img/Canva%20Pro.jpeg',
-      'canva edu':              'Img/Canva%20EDU.jpg',
       'hbo max (3 meses':       'Img/Hho%20Max%203%20meses.jpg',
       'notion business':        'Img/NOTION%20BUSINESS%20AI.png',
       'rixx':                   'Img/RIXX%20PRO%20AI.png',
@@ -300,7 +298,6 @@
       // Generales
       'amazon music':  'Img/Amazon%20Music.jpg',
       'capcut':        'Img/Cap%20cut.jpg',
-      'chatgpt':       'Img/Chat%20Gpt.jpg',
       'claude':        'Img/Claude.jpg',
       'deezer':        'Img/Deezer.jpg',
       'free fire':     'Img/Free%20fire.jpg',
@@ -2076,8 +2073,23 @@
         entra.classList.add('entra');
         // El botón que se tocó quedó escondido: el foco pasa al título
         titulo.focus({ preventScroll: true });
-        if (n === 3) anotarPantalla('pago');
+        if (n === 3) { anotarPantalla('pago'); bajarATerminos(); }
       }
+    }
+
+    // Al llegar a "Pagar" la lista baja sola hasta los términos, que es lo
+    // único que falta para habilitar el pago. Espera a que el paso termine
+    // de entrar, así se alcanzan a ver las formas de pago al pasar.
+    function bajarATerminos() {
+      const lista = document.querySelector('#crPaso3 .cr-scroll');
+      const caja  = document.querySelector('#crPaso3 .ck-terminos-caja');
+      if (!lista || !caja || caja.querySelector('input').checked) return;
+      setTimeout(() => {
+        if (pasoActual !== 3) return;
+        const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // Los términos son lo último de la lista: basta con ir al fondo
+        lista.scrollTo({ top: lista.scrollHeight, behavior: quieto ? 'auto' : 'smooth' });
+      }, 350);
     }
 
     // "Seguir comprando" y "✓ Elegir": a los planes del producto recién
@@ -2117,16 +2129,23 @@
       const url = getImageUrl(item.name, item.cat, item.imgColor, item.imagenUrl);
       const nombreSeguro = item.name.replace(/'/g, "\\'");
       const f = productFlags(item);
+      // Sin stock dice lo mismo que la ficha del plan: si en el panel se
+      // escribió "Por Cupos", acá también. Vacío: 5 a 30 min. "-": nada.
+      const escrita = String(item.entrega || '').trim();
       const entrega = item.stock > 0
         ? `<span class="cr-ya">Entrega inmediata</span> · ${item.stock === 1 ? 'queda 1' : `quedan ${item.stock}`}`
+        : escrita === '-' ? ''
+        : escrita ? `Entrega: ${escaparHtml(escrita)}`
         : 'Entrega de 5 a 30 min';
+      const meta = [entrega, f.needsEmail || f.needsUsername ? 'pide tu correo' : '']
+        .filter(Boolean).join(' · ');
       return `
         <li class="cr-item" data-idx="${idx}">
           <img class="cr-img" src="${url}" alt="" loading="lazy"
                onerror="this.onerror=null;this.src=generateLogoSvg('${nombreSeguro}','${item.imgColor}');">
           <div class="cr-info">
             <div class="cr-nombre">${escaparHtml(item.name)}</div>
-            <div class="cr-meta">${entrega}${f.needsEmail || f.needsUsername ? ' · pide tu correo' : ''}</div>
+            ${meta ? `<div class="cr-meta">${meta}</div>` : ''}
             <div class="cr-unit">${fmtBsCarrito(item.price)} c/u${item.precioAntes ? ` <s>${antesTxt(item)}</s>` : ''}</div>
             ${item.diasQuedan ? `<div class="cr-dias">Suscripción: ${item.diasQuedan} días (de ${item.diasPlan})</div>` : ''}
             <div class="cr-aviso" ${ajustado ? '' : 'hidden'}>${ajustado ? mensajeTope(item) : ''}</div>

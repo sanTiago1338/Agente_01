@@ -1,0 +1,735 @@
+/* ============================================================
+   TIAGO STORE · HALLOWEEN (tema de temporada)
+   ============================================================
+   La tienda de noche: cielo violeta casi negro, luna, murciélagos que
+   cruzan despacio, niebla abajo, y el naranja de la calabaza como color
+   de la marca. El vidrio pasa a ser vidrio ahumado: oscuro, con el
+   mismo canto y el mismo brillo de siempre.
+
+   Lo prende js/temporada.js en las fechas que dice ahí (pone la clase
+   "halloween" en <html>). Todo lo de este archivo empieza con
+   html.halloween: fuera de fecha no toca nada y la tienda queda como
+   siempre. Va DESPUÉS de css/vidrio.css en cada página.
+
+   Orden:
+     1. los tonos (pisan los de cada página y los del vidrio)
+     2. el cielo (fondo, luna, estrellas, murciélagos, niebla)
+     3. la marca (logo, franja de arriba)
+     4. las piezas que traen su propio blanco (barras, tarjetas, botones)
+     5. cada página, en su bloque
+   ============================================================ */
+
+html.halloween {
+  color-scheme: dark;
+
+  /* Superficies: violeta noche. Las "sólidas" son casi opacas para que
+     el texto se lea aunque pase un murciélago por detrás. */
+  --fondo:        #0e0818;
+  --superficie:   rgba(30,18,46,.86);
+  --superficie-2: rgba(46,28,70,.82);
+  --separador:    rgba(255,255,255,.08);
+  --separador-2:  rgba(255,255,255,.14);
+
+  /* Texto: crema cálido, como luz de vela, y lilas para lo secundario */
+  --tinta:        #fbf3e8;
+  --tinta-media:  #e6dcef;
+  --tinta-suave:  #b9abcb;
+  --tinta-tenue:  #a395b6;
+
+  /* Marca: calabaza y vela */
+  --marca:        #ff7a1a;
+  --marca-oscura: #e0560b;
+  --oro:          #ffb547;
+  --oro-claro:    #ffc96e;
+  --ambar:        #ffb547;
+  --violeta:      #a46bff;
+
+  --borde:        rgba(255,255,255,.09);
+  --sombra:       0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.32);
+  --sombra-alta:  0 4px 10px rgba(0,0,0,.45), 0 18px 40px rgba(0,0,0,.5);
+
+  /* EL VIDRIO AHUMADO. Sigue a --tenido igual que el claro (js/tenido.js):
+     transparente deja ver el cielo; teñido lo tapa más. */
+  --vidrio:        linear-gradient(180deg, rgba(56,32,84, calc(.5 + .36 * var(--tenido))),
+                                           rgba(24,13,40, calc(.42 + .46 * var(--tenido))));
+  --vidrio-claro:  linear-gradient(180deg, rgba(56,32,84, calc(.34 + .46 * var(--tenido))),
+                                           rgba(24,13,40, calc(.3 + .54 * var(--tenido))));
+  --vidrio-denso:  linear-gradient(180deg, rgba(48,28,74, calc(.82 + .12 * var(--tenido))),
+                                           rgba(22,12,36, calc(.84 + .12 * var(--tenido))));
+  --vidrio-transparente: linear-gradient(180deg, rgba(40,22,62, calc(.28 + .5 * var(--tenido))),
+                                                 rgba(18,10,30, calc(.16 + .66 * var(--tenido))));
+  --vidrio-tinte:  rgba(20,11,33, calc(.86 * var(--tenido)));
+  --vidrio-lente:  radial-gradient(120% 90% at 50% 0%, rgba(255,160,70,.42) 0%,
+                                   rgba(255,122,26,.16) 55%, rgba(255,122,26,.05) 100%);
+  --vidrio-borde:  rgba(255,196,140,.16);
+  --vidrio-blur:   blur(calc(6px + 16px * var(--tenido))) saturate(140%);
+  --vidrio-blur-barra: blur(calc(10px + 14px * var(--tenido))) saturate(140%) brightness(.82);
+  --vidrio-reflejo: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,0) 55%);
+  --vidrio-fucsia:  var(--vidrio-reflejo), linear-gradient(180deg, rgba(150,86,245,.9), rgba(104,44,196,.86));
+  --vidrio-canto-color: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 6px rgba(0,0,0,.25),
+                        inset 0 0 0 1px rgba(255,255,255,.08);
+  --vidrio-brillo: inset 0 1px 0 rgba(255,255,255,.1), inset 0 -1px 1px rgba(0,0,0,.25);
+  --vidrio-sombra: 0 10px 30px rgba(0,0,0,.38), 0 1px 3px rgba(0,0,0,.3),
+                   0 0 0 .5px rgba(255,255,255,.05);
+  /* El borde tornasolado de la lente, en calabaza, vela y violeta */
+  --vidrio-tornasol: conic-gradient(from 210deg,
+                       rgba(255,122,26,.9), rgba(255,200,100,.85), rgba(164,107,255,.85),
+                       rgba(255,90,60,.8), rgba(255,122,26,.9));
+
+  /* La calabaza del logo y de la franja */
+  --hw-calabaza: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16.6 9.2c-.3-2.6.4-4.9 2.6-6.4l1.3 1.4c-1.8 1-2.4 2.8-2.3 5z' fill='%236b8f2e'/%3E%3Cellipse cx='9.6' cy='19' rx='7.4' ry='9.6' fill='%23d9560a'/%3E%3Cellipse cx='22.4' cy='19' rx='7.4' ry='9.6' fill='%23d9560a'/%3E%3Cellipse cx='16' cy='19' rx='7.8' ry='10.4' fill='%23ff8a24'/%3E%3Cpath d='M16 8.8v20.6M12.4 9.6c-2 3-2 15.4 0 18.8M19.6 9.6c2 3 2 15.4 0 18.8' stroke='%23c2470a' stroke-width='.7' fill='none' opacity='.7'/%3E%3C/svg%3E");
+}
+
+
+/* ============================================================
+   2. EL CIELO
+   ============================================================
+   La capa de atrás que ya tenían todas las páginas (body::before, la de
+   las manchas de color) pasa a ser la noche: violeta arriba, el brillo
+   naranja del horizonte abajo y la luz de la luna arriba a la derecha.
+   La luna va sin disco: la tienda ocupa todo el ancho y el disco quedaba
+   siempre detrás del menú, como una mancha blanca a través del vidrio.
+   Lo que se mueve (estrellas, telarañas, murciélagos, niebla) lo arma
+   js/temporada.js en .hw-cielo. */
+html.halloween body { background-color: var(--fondo); color: var(--tinta-media); }
+
+html.halloween body::before {
+  background:
+    /* La luz de la luna */
+    radial-gradient(circle at 86% 11%, rgba(255,214,150,.16) 0, rgba(255,180,110,.06) 90px, transparent 170px),
+    /* El horizonte naranja, como un pueblo con calabazas prendidas */
+    radial-gradient(70rem 22rem at 50% 112%, rgba(255,106,20,.30), transparent 70%),
+    radial-gradient(30rem 16rem at 12% 104%, rgba(255,150,40,.14), transparent 70%),
+    /* Niebla violeta */
+    radial-gradient(42rem 32rem at 0% 0%,   rgba(124,58,237,.30), transparent 65%),
+    radial-gradient(38rem 30rem at 100% 46%, rgba(168,85,247,.16), transparent 65%),
+    linear-gradient(180deg, #140b24 0%, #0e0818 50%, #170b14 100%);
+}
+
+/* Las burbujas claras no van de noche (y así hay menos que mover) */
+html.halloween .bg-burbujas { display: none; }
+
+.hw-cielo {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+
+/* Estrellas: un mosaico de puntitos que titila apenas */
+.hw-estrellas {
+  position: absolute;
+  inset: 0 0 35%;
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 18%, rgba(255,255,255,.9), transparent),
+    radial-gradient(1px 1px at 34% 8%,   rgba(255,255,255,.7), transparent),
+    radial-gradient(1.4px 1.4px at 58% 26%, rgba(255,240,210,.85), transparent),
+    radial-gradient(1px 1px at 76% 14%,  rgba(255,255,255,.6), transparent),
+    radial-gradient(1.2px 1.2px at 92% 36%, rgba(255,255,255,.75), transparent),
+    radial-gradient(1px 1px at 22% 44%,  rgba(255,255,255,.55), transparent),
+    radial-gradient(1px 1px at 48% 52%,  rgba(255,255,255,.5), transparent),
+    radial-gradient(1.3px 1.3px at 66% 62%, rgba(255,230,200,.6), transparent),
+    radial-gradient(1px 1px at 6% 70%,   rgba(255,255,255,.45), transparent);
+  background-size: 420px 300px;
+  -webkit-mask-image: linear-gradient(180deg, #000 40%, transparent);
+          mask-image: linear-gradient(180deg, #000 40%, transparent);
+  animation: hw-titila 6s ease-in-out infinite alternate;
+}
+@keyframes hw-titila { from { opacity: .55; } to { opacity: 1; } }
+
+/* Telarañas en las esquinas de arriba, apenas visibles */
+.hw-telarana {
+  position: absolute;
+  top: 0;
+  width: clamp(110px, 16vw, 210px);
+  aspect-ratio: 1;
+  color: rgba(225,210,255,.2);
+}
+.hw-telarana svg { width: 100%; height: 100%; display: block; }
+.hw-telarana--izq { left: 0; }
+.hw-telarana--der { right: 0; transform: scaleX(-1); }
+
+/* Murciélagos: cruzan de un lado al otro (.hw-vuelo), suben y bajan un
+   poco y aletean (.hw-murcielago). Solo transform: no cuesta nada. */
+.hw-vuelo {
+  position: absolute;
+  top: var(--y);
+  left: 0;
+  width: calc(46px * var(--s));
+  animation: hw-cruza var(--t) linear var(--d) infinite;
+  will-change: transform;
+}
+.hw-vuelo--vuelta { animation-name: hw-cruza-vuelta; }
+@keyframes hw-cruza {
+  from { transform: translate3d(-12vw, 0, 0); }
+  to   { transform: translate3d(112vw, 0, 0); }
+}
+@keyframes hw-cruza-vuelta {
+  from { transform: translate3d(112vw, 0, 0) scaleX(-1); }
+  to   { transform: translate3d(-12vw, 0, 0) scaleX(-1); }
+}
+.hw-murcielago {
+  color: #07040c;
+  filter: drop-shadow(0 0 6px rgba(255,140,60,.18));
+  animation: hw-ondea 3.2s ease-in-out infinite alternate;
+}
+.hw-murcielago svg {
+  display: block;
+  width: 100%;
+  transform-origin: 50% 40%;
+  animation: hw-aletea .32s ease-in-out infinite alternate;
+}
+@keyframes hw-ondea  { from { transform: translateY(-14px); } to { transform: translateY(14px); } }
+@keyframes hw-aletea { from { transform: scaleY(1); } to { transform: scaleY(.45); } }
+
+/* Niebla: dos bancos que se deslizan despacio, abajo de todo */
+.hw-niebla {
+  position: absolute;
+  inset: auto 0 0;
+  height: 34vh;
+}
+.hw-niebla span {
+  position: absolute;
+  inset: 0 -50% 0 -50%;
+  background:
+    radial-gradient(40% 60% at 20% 100%, rgba(190,170,230,.13), transparent 70%),
+    radial-gradient(35% 50% at 55% 100%, rgba(190,170,230,.10), transparent 70%),
+    radial-gradient(40% 55% at 85% 100%, rgba(190,170,230,.12), transparent 70%);
+  animation: hw-niebla 48s linear infinite alternate;
+}
+.hw-niebla span + span {
+  opacity: .7;
+  animation-duration: 66s;
+  animation-direction: alternate-reverse;
+}
+@keyframes hw-niebla { from { transform: translateX(-12%); } to { transform: translateX(12%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hw-vuelo { display: none; }
+  .hw-estrellas, .hw-niebla span { animation: none; }
+}
+@media print { .hw-cielo { display: none; } }
+
+
+/* ============================================================
+   3. LA MARCA
+   ============================================================ */
+/* El logo: el degradé ya sale calabaza → vela de los tonos de arriba.
+   Adelante, una calabaza. */
+html.halloween .nav-marca::before,
+html.halloween .nav-logo::before,
+html.halloween .header-logo::before,
+html.halloween .pie-logo::before,
+html.halloween .pay-header a::before,
+html.halloween a.logo::before {
+  content: '';
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: .32em;
+  vertical-align: -.12em;
+  background: var(--hw-calabaza) center / contain no-repeat;
+}
+
+/* La franja de arriba: noche más oscura, letras de vela y una calabaza
+   adelante (su ::after es el reflejo) */
+html.halloween .banner-top {
+  background: linear-gradient(90deg, rgba(60,22,90,.9), rgba(120,40,10,.85), rgba(60,22,90,.9));
+  color: var(--oro-claro);
+  border-color: rgba(255,170,90,.25);
+}
+html.halloween .banner-top::before {
+  content: '';
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
+  margin-right: .5em;
+  vertical-align: -.2em;
+  background: var(--hw-calabaza) center / contain no-repeat;
+}
+
+
+/* ============================================================
+   4. LO COMÚN A TODAS LAS PÁGINAS
+   ============================================================ */
+
+/* La lente (lo que está activo): calabaza encendida */
+html.halloween .nav-link--activo,
+html.halloween .cat-tab.active,
+html.halloween .nav-links a.active {
+  color: #fff;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,220,180,.5),
+    inset 0 -1.5px 2px rgba(0,0,0,.25),
+    inset 0 0 0 1px rgba(255,160,80,.3),
+    0 6px 18px rgba(255,110,20,.22),
+    0 1px 3px rgba(0,0,0,.4);
+}
+html.halloween .nav-item.active::before {
+  background: radial-gradient(120% 90% at 50% 0%, rgba(255,160,70,.36) 0%, rgba(255,122,26,.12) 55%, rgba(255,122,26,.03) 100%);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,220,180,.4),
+    inset 0 -1.5px 2px rgba(0,0,0,.2),
+    inset 0 0 0 1px rgba(255,160,80,.26),
+    0 6px 16px rgba(255,110,20,.18);
+}
+
+/* Los botones principales: calabaza, con letras casi negras (se leen
+   mejor que blancas sobre naranja) */
+html.halloween .plan-comprar, html.halloween .plan-comprar:hover,
+html.halloween .ck-pagar, html.halloween .ck-pagar:hover,
+html.halloween .btn-primary, html.halloween .btn-primary:hover,
+html.halloween .btn-tienda,
+html.halloween .hero-cta, html.halloween .hero-cta:hover,
+html.halloween .page-btn:hover, html.halloween .page-btn.active {
+  background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,0) 55%),
+              linear-gradient(180deg, #ff9b3d, #f0690a);
+  border: 1px solid rgba(255,206,150,.65);
+  color: #1d0c02;
+  box-shadow: 0 8px 24px rgba(240,105,10,.32), 0 1px 3px rgba(0,0,0,.35),
+              inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 5px rgba(120,40,0,.25);
+}
+html.halloween .plan-comprar:hover:not(:disabled),
+html.halloween .ck-pagar:hover:not(:disabled),
+html.halloween .btn-primary:hover,
+html.halloween .btn-tienda:hover,
+html.halloween .hero-cta:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0) 55%),
+              linear-gradient(180deg, #ffab55, #f77812);
+}
+html.halloween .plan-comprar:disabled,
+html.halloween .ck-pagar:disabled {
+  background: var(--vidrio);
+  border: 1px solid var(--vidrio-borde);
+  color: var(--tinta-suave);
+  box-shadow: 0 2px 10px rgba(0,0,0,.3), var(--vidrio-brillo);
+}
+html.halloween .btn-comprar,
+html.halloween .pkg-tab.active { box-shadow: 0 8px 22px rgba(124,58,237,.35), var(--vidrio-canto-color); }
+
+/* Las barras con texto: de noche el halo de las letras va oscuro */
+html.halloween:not(.tenido) .nav-principal,
+html.halloween:not(.tenido) .header,
+html.halloween:not(.tenido) body > nav,
+html.halloween:not(.tenido) .banner-top,
+html.halloween:not(.tenido) .bottom-nav .nav-item {
+  text-shadow: 0 0 2px rgba(10,5,18,.9), 0 0 8px rgba(10,5,18,.7);
+}
+html.halloween:not(.tenido) .bottom-nav .nav-item svg {
+  filter: drop-shadow(0 0 1.5px rgba(10,5,18,.9)) drop-shadow(0 0 5px rgba(10,5,18,.7));
+}
+html.halloween:not(.tenido) .nav-marca,
+html.halloween:not(.tenido) .nav-logo,
+html.halloween:not(.tenido) .header-logo { text-shadow: none; }
+
+/* Las listas desplegables */
+@supports (appearance: base-select) {
+  html.halloween select::picker(select) {
+    border-color: rgba(255,196,140,.2);
+    background: linear-gradient(180deg, rgba(48,28,74,.92), rgba(22,12,36,.94));
+    box-shadow: 0 18px 44px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  html.halloween select option { color: var(--tinta); }
+  html.halloween select option:hover,
+  html.halloween select option:focus-visible { background: rgba(255,255,255,.08); }
+  html.halloween select option:checked {
+    box-shadow: inset 0 1px 0 rgba(255,220,180,.4), 0 2px 8px rgba(0,0,0,.3);
+  }
+  html.halloween select::picker-icon { color: var(--tinta-suave); }
+}
+
+/* La barra de desplazamiento: varilla clara sobre la noche */
+html.halloween ::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,.22);
+  background-image: linear-gradient(90deg, rgba(255,255,255,.25), rgba(255,255,255,0) 70%);
+}
+html.halloween ::-webkit-scrollbar-thumb:hover,
+html.halloween ::-webkit-scrollbar-thumb:active { background-color: rgba(255,255,255,.38); }
+html.halloween .barra-quieta::-webkit-scrollbar-thumb { background-color: transparent; background-image: none; }
+
+/* El control de transparente o teñido, ahumado como lo demás */
+html.halloween .tenido-panel,
+html.halloween .tenido-boton {
+  background: linear-gradient(180deg, rgba(56,32,84,.88), rgba(28,15,46,.9));
+  border-color: rgba(255,196,140,.22);
+  box-shadow: 0 6px 18px rgba(0,0,0,.4), var(--vidrio-brillo);
+}
+html.halloween .tenido-boton,
+html.halloween .tenido-ico { color: var(--tinta-suave); }
+html.halloween .tenido-control.abierto .tenido-boton { color: var(--marca); }
+html.halloween .tenido-relleno { background: var(--marca); }
+html.halloween .tenido-riel { background: rgba(255,255,255,.18); }
+html.halloween .tenido-punto { background: rgba(255,255,255,.4); }
+
+@media (prefers-reduced-transparency: reduce) {
+  html.halloween {
+    --vidrio:       rgba(30,18,46,.97);
+    --vidrio-claro: rgba(30,18,46,.95);
+    --vidrio-denso: #1e122e;
+  }
+}
+
+
+/* ============================================================
+   5. LA TIENDA (index.html · css/tienda.css)
+   ============================================================ */
+
+/* Los vidrios que traían su borde blanco propio */
+html.halloween :is(.banner-top, .nav-principal, .promo-banner, .pie, .modal-sheet,
+                   .oferta-card, .cr-pasos span, .cr-cant, .cr-editar, .cr-total,
+                   .app-aviso-si, .hero-arrow) {
+  border-color: var(--vidrio-borde);
+}
+
+/* La franja: reflejo apagado y sombra de noche */
+html.halloween .banner-top {
+  box-shadow: 0 8px 24px rgba(0,0,0,.35), 0 0 0 .5px rgba(255,140,60,.25),
+              inset 0 1px 0 rgba(255,220,180,.22);
+}
+html.halloween .banner-top::after { background: linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,0)); }
+
+/* El menú de arriba */
+html.halloween .nav-principal { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
+html.halloween .nav-link {
+  color: var(--tinta-media);
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 .5px rgba(255,255,255,.08);
+}
+html.halloween .nav-link:hover { background: rgba(255,255,255,.1); color: var(--tinta); }
+html.halloween .nav-link--oro { color: var(--oro); }
+
+/* Cartel de agentes */
+html.halloween .promo-banner { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
+html.halloween .promo-text strong { color: var(--oro-claro); }
+html.halloween .promo-text span   { color: var(--tinta-suave); }
+
+/* Buscador y moneda */
+html.halloween .search-input-wrap:focus-within {
+  border-color: rgba(255,122,26,.5);
+  box-shadow: 0 0 0 4px rgba(255,122,26,.14), var(--vidrio-sombra), var(--vidrio-brillo);
+}
+html.halloween .search-input-wrap input { color: var(--tinta); }
+html.halloween .search-input-wrap input::placeholder { color: var(--tinta-tenue); }
+html.halloween .moneda-menu { background: rgba(30,17,48,.97); box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+html.halloween .moneda-op:hover { background: rgba(255,255,255,.07); }
+html.halloween .moneda-op.activo { color: #1d0c02; }
+
+/* El carrusel: la flecha y los puntos ya van sobre la foto */
+html.halloween .hero-cta { box-shadow: 0 6px 18px rgba(0,0,0,.35), 0 0 18px rgba(255,122,26,.25),
+                                       inset 0 1px 0 rgba(255,255,255,.5); }
+html.halloween .hero-tag--new {
+  background: linear-gradient(180deg, rgba(150,86,245,.85), rgba(104,44,196,.8));
+  box-shadow: 0 4px 12px rgba(124,58,237,.35), inset 0 1px 0 rgba(255,255,255,.3);
+}
+
+/* Ofertas: borde de vela al pasar el mouse */
+html.halloween .oferta-card {
+  box-shadow: 0 10px 26px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.18),
+              inset 0 0 0 1px rgba(255,255,255,.06);
+}
+html.halloween .oferta-card:hover {
+  border-color: rgba(255,150,60,.6);
+  box-shadow: 0 12px 30px rgba(0,0,0,.45), 0 0 22px rgba(255,122,26,.28);
+}
+
+/* Orden, filtros y categorías */
+html.halloween :is(.sort-select, .filter-btn, .cat-tabs, .sub-pill, .page-btn) {
+  box-shadow: 0 2px 10px rgba(0,0,0,.3), var(--vidrio-brillo);
+}
+html.halloween :is(.sort-select, .filter-btn) { color: var(--tinta-media); }
+html.halloween :is(.cat-tab:hover, .filtro-op:hover) { background: rgba(255,255,255,.08); }
+html.halloween .sub-pill:hover,
+html.halloween .sub-pill.active {
+  background: linear-gradient(180deg, rgba(255,140,50,.24), rgba(255,110,20,.14));
+  border-color: rgba(255,140,60,.5);
+  color: var(--oro-claro);
+  box-shadow: 0 2px 10px rgba(255,110,20,.18), inset 0 1px 0 rgba(255,220,180,.25);
+}
+
+/* Tarjetas de plataforma. El nombre y el botón van en el color de cada
+   marca, pero aclarado: el tono oscuro de siempre (--acento-txt) no se
+   leía sobre la noche. */
+html.halloween .plat-card {
+  box-shadow: 0 10px 26px rgba(0,0,0,.4), 0 0 0 .5px rgba(255,255,255,.05),
+              inset 0 1px 0 rgba(255,255,255,.1);
+}
+html.halloween .plat-card:hover {
+  border-color: color-mix(in oklab, var(--acento) 60%, #ffb070);
+  box-shadow: 0 18px 38px rgba(0,0,0,.5), 0 0 26px color-mix(in oklab, var(--acento) 35%, transparent),
+              inset 0 1px 0 rgba(255,255,255,.12);
+}
+/* La foto se funde con la tarjeta de noche, no con blanco */
+html.halloween .plat-img::after {
+  background: linear-gradient(to bottom, rgba(30,17,48,0), rgba(30,17,48,.6) 55%, rgb(30,17,48));
+}
+html.halloween .plat-nombre { color: color-mix(in oklab, var(--acento) 52%, #fff); }
+html.halloween .plat-cta {
+  color: color-mix(in oklab, var(--acento) 45%, #fff);
+  border-color: color-mix(in oklab, var(--acento) 55%, transparent);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), color-mix(in oklab, var(--acento) 22%, transparent));
+  box-shadow: 0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.1);
+}
+html.halloween .plat-card:hover .plat-cta {
+  background: color-mix(in oklab, var(--acento) 80%, #000);
+  border-color: color-mix(in oklab, var(--acento) 80%, #000);
+  color: #fff;
+}
+html.halloween .product-card { background: var(--vidrio-denso); }
+
+/* El pie */
+html.halloween .pie { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
+
+/* La ventana de planes y el carrito */
+html.halloween .modal-overlay { background: rgba(6,3,12,.55); }
+html.halloween .modal-sheet {
+  background: linear-gradient(180deg, rgba(42,24,64,.94), rgba(20,11,33,.96));
+  box-shadow: 0 -12px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,220,180,.18);
+}
+html.halloween :is(.pl-cab, .cr-pie) { border-color: rgba(255,255,255,.08); }
+html.halloween :is(.plan-features, .cr-combo) {
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 .5px rgba(255,255,255,.06);
+}
+html.halloween .plan-chip.zona {
+  background: rgba(255,255,255,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 0 0 .5px rgba(255,255,255,.1);
+}
+html.halloween :is(.cr-pasos span, .cr-cant, .cr-editar, .cr-total) {
+  background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 2px 8px rgba(0,0,0,.25);
+}
+html.halloween .cr-pasos li.hecho span,
+html.halloween .cr-pasos li.actual span {
+  background: linear-gradient(180deg, #ff9b3d, #f0690a);
+  border-color: rgba(255,206,150,.65);
+  color: #1d0c02;
+  box-shadow: 0 4px 12px rgba(240,105,10,.3), inset 0 1px 0 rgba(255,255,255,.45);
+}
+html.halloween .cr-metodo { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.12); }
+html.halloween .cr-metodo:hover { border-color: rgba(255,255,255,.28); }
+html.halloween .cr-metodo.elegido {
+  background: rgba(255,122,26,.1);
+  border-color: var(--marca);
+  box-shadow: 0 0 0 3px rgba(255,122,26,.16), 0 6px 16px rgba(0,0,0,.3);
+}
+html.halloween .cr-metodo-img.qr { background: rgba(255,255,255,.06); border-color: rgba(255,122,26,.25); }
+html.halloween .ck-switch-pista {
+  background: rgba(255,255,255,.1);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.4), 0 0 0 .5px rgba(255,255,255,.12);
+}
+
+/* El aviso de instalar la app */
+html.halloween .app-aviso { box-shadow: 0 14px 34px rgba(0,0,0,.5), var(--vidrio-brillo); }
+html.halloween .app-aviso-si {
+  background: var(--vidrio-lente);
+  box-shadow: inset 0 1px 0 rgba(255,220,180,.4), 0 4px 12px rgba(0,0,0,.3);
+}
+
+/* La barra de abajo: de noche lleva relleno, si no las letras se
+   pierden contra las fotos de las tarjetas */
+html.halloween .bottom-nav {
+  background: linear-gradient(180deg, rgba(48,28,74,.72), rgba(22,12,36,.8));
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border-color: rgba(255,196,140,.18);
+  box-shadow: 0 12px 32px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.1);
+}
+html.halloween .bottom-nav::before { background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0)); }
+html.halloween .nav-item { color: var(--tinta-media); }
+html.halloween .nav-item:hover { color: #fff; }
+html.halloween .nav-item.active,
+html.halloween .nav-item.active:hover { color: var(--oro-claro); }
+
+/* La ventana "¿Cómo te llamamos?" (js/usuario.js) */
+html.halloween .tu-fondo { background: rgba(6,3,12,.5); }
+html.halloween .tu-caja {
+  background: linear-gradient(180deg, rgba(42,24,64,.94), rgba(20,11,33,.96));
+  border-color: var(--vidrio-borde);
+  box-shadow: 0 -12px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,220,180,.18);
+}
+html.halloween .tu-asa { background: rgba(255,255,255,.2); }
+html.halloween .tu-x:hover { background: rgba(255,255,255,.08); }
+html.halloween :is(.tu-caja input, .tu-tel) {
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.14);
+  color: var(--tinta);
+}
+html.halloween .tu-tel input { background: none; }
+html.halloween :is(.tu-caja input:focus, .tu-tel:focus-within) {
+  background: rgba(255,255,255,.09);
+  border-color: rgba(255,122,26,.55);
+  box-shadow: 0 0 0 4px rgba(255,122,26,.14);
+}
+html.halloween .tu-tel span {
+  border-right-color: rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  color: var(--tinta-media);
+}
+html.halloween .tu-ok {
+  color: #1d0c02;
+  border-color: rgba(255,206,150,.65);
+  background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,0) 55%),
+              linear-gradient(180deg, #ff9b3d, #f0690a);
+  box-shadow: 0 8px 24px rgba(240,105,10,.3), inset 0 1px 0 rgba(255,255,255,.5);
+}
+html.halloween .tu-ok:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0) 55%),
+              linear-gradient(180deg, #ffab55, #f77812);
+}
+html.halloween .tu-aviso {
+  background: linear-gradient(180deg, rgba(48,28,74,.95), rgba(24,13,40,.95));
+  border-color: var(--vidrio-borde);
+  box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1);
+}
+
+/* Los verdes de "Disponible" y "Agregaste…" eran para leerse sobre
+   blanco: de noche, más claros */
+html.halloween .plan-chip.ok { background: rgba(52,211,153,.12); color: #6ee7b7; }
+html.halloween .cr-agregado { background: rgba(52,211,153,.1); color: #86efac; }
+
+/* Los términos laten en calabaza, no en rojo, hasta que se tilda la casilla */
+html.halloween .ck-terminos-caja:not(:has(input:checked)) { animation-name: hw-latido; }
+html.halloween .ck-terminos-caja:has(input:checked) {
+  border-color: rgba(255,122,26,.4);
+  background: rgba(255,122,26,.05);
+}
+html.halloween .ck-terminos-caja:not(:has(input:checked)) .ck-terminos input { outline-color: rgba(255,122,26,.55); }
+@keyframes hw-latido {
+  0%, 100% { border-color: var(--borde);         box-shadow: 0 0 0 0   rgba(255,122,26,0);   }
+  50%      { border-color: rgba(255,122,26,.7);  box-shadow: 0 0 0 5px rgba(255,122,26,.15); }
+}
+
+
+/* ============================================================
+   6. PLANES Y CONTACTO (planes.html, contacto.html · styles.css)
+   ============================================================ */
+html.halloween :is(body > nav, .aviso-precios, .cta-vidrio, .paso-num,
+                   .etiqueta-vidrio-oro, .etiqueta-vidrio-verde,
+                   .etiqueta-vidrio-desc, .etiqueta-vidrio-agotado) {
+  border-color: var(--vidrio-borde);
+}
+html.halloween body > nav { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
+html.halloween .nav-links a:hover { background: rgba(255,255,255,.1); color: var(--tinta); }
+html.halloween .btn-outline:hover { background: rgba(255,255,255,.1); }
+html.halloween .plan-header {
+  border-bottom-color: rgba(255,255,255,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+html.halloween .plan-card.featured { border-color: rgba(255,150,60,.5); box-shadow: 0 0 30px rgba(255,122,26,.16); }
+html.halloween .contact-item { border-bottom-color: rgba(255,255,255,.07); }
+html.halloween .aviso-precios {
+  background: linear-gradient(180deg, rgba(255,150,50,.14), rgba(255,122,26,.04));
+  box-shadow: 0 6px 18px rgba(0,0,0,.3), 0 0 0 .5px rgba(255,150,60,.3), var(--vidrio-brillo);
+}
+html.halloween .buscar-plan:focus { border-color: rgba(255,122,26,.5); }
+html.halloween footer {
+  border-top-color: rgba(255,196,140,.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+}
+html.halloween .cta-vidrio { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
+html.halloween .paso-num {
+  color: #1d0c02;
+  background: linear-gradient(180deg, #ff9b3d, #f0690a);
+  box-shadow: 0 4px 12px rgba(240,105,10,.3), inset 0 1px 0 rgba(255,255,255,.45);
+}
+html.halloween .hero-badge {
+  border-color: rgba(255,122,26,.4);
+  box-shadow: 0 2px 10px rgba(255,122,26,.18), inset 0 1px 0 rgba(255,220,180,.25);
+}
+html.halloween .etiqueta-vidrio-oro {
+  color: #1d0c02;
+  background: linear-gradient(180deg, #ffd27a, #f5a524);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 2px 10px rgba(245,165,36,.3);
+}
+html.halloween .etiqueta-vidrio-agotado {
+  color: #fca5a5;
+  background: rgba(239,68,68,.16);
+}
+/* Los botones de redes traen su color escrito en el HTML: de noche, el
+   azul de Facebook y el verde de WhatsApp se aclaran para leerse */
+html.halloween .btn-outline[style*="#1877F2"] { color: #6aa8ff !important; border-color: #4a90f5 !important; }
+html.halloween .btn-outline[style*="verde-wa"] { color: #4fd1b8 !important; border-color: #2bb39b !important; }
+html.halloween .btn-outline[style*="#E1306C"] { color: #ff7aa8 !important; }
+
+
+/* ============================================================
+   7. RECARGAS DE JUEGOS (recarga-juegos.html, en su <style>)
+   ============================================================ */
+html.halloween :is(.header, .modal-box, .hero-tag--promo, .badge-promo, .badge-nuevo, .badge-check) {
+  border-color: var(--vidrio-borde);
+}
+html.halloween .header { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
+html.halloween .header-icon-btn:hover { background: rgba(255,255,255,.1); }
+html.halloween .header-user {
+  background: linear-gradient(180deg, rgba(255,160,70,.16), rgba(255,122,26,.05));
+}
+html.halloween .header-user .avatar {
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 0 0 .5px rgba(255,255,255,.12);
+}
+
+/* La ventana de paquetes: hoja de noche, no vidrio claro */
+html.halloween .modal-box {
+  background: linear-gradient(180deg, rgba(42,24,64,.95), rgba(20,11,33,.97));
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 0 0 .5px rgba(255,150,60,.25),
+              inset 0 1px 0 rgba(255,220,180,.18);
+}
+html.halloween .pkg-tabs { box-shadow: 0 4px 14px rgba(0,0,0,.3), var(--vidrio-brillo); }
+html.halloween .pkg-card { border-color: rgba(255,255,255,.1); box-shadow: 0 6px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.1); }
+/* El paquete elegido: encendido en calabaza */
+html.halloween .pkg-card.selected {
+  background: linear-gradient(150deg, rgba(255,140,50,.3), rgba(160,60,10,.22));
+  box-shadow: 0 8px 22px rgba(255,110,20,.25), inset 0 1px 0 rgba(255,220,180,.3), 0 0 0 1px var(--marca);
+}
+html.halloween .pkg-card-price {
+  border-color: rgba(255,255,255,.2);
+  box-shadow: 0 3px 10px rgba(124,58,237,.35), inset 0 1px 0 rgba(255,255,255,.3);
+}
+html.halloween .pkg-card.selected .pkg-card-price { color: #1d0c02; }
+html.halloween .id-input {
+  color: var(--tinta);
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+}
+html.halloween .id-input::placeholder { color: var(--tinta-tenue); }
+html.halloween .id-input:focus { border-color: rgba(255,122,26,.55); box-shadow: 0 0 0 4px rgba(255,122,26,.14); }
+html.halloween .btn-cancel:hover { background: rgba(255,255,255,.1); }
+
+
+/* ============================================================
+   8. EL PAGO (pagar-qr.html, en su <style>)
+   ============================================================
+   La caja del QR (.pay-qr-wrap) sigue BLANCA a propósito: el banco
+   lee mejor el código sobre blanco, y así se ve como un papel encima
+   de la noche. No se toca. */
+html.halloween .pay-header { border-color: var(--vidrio-borde); box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
+html.halloween .pay-card-header { border-bottom-color: rgba(255,255,255,.08); }
+html.halloween .pay-qr-wrap { box-shadow: 0 8px 24px rgba(0,0,0,.45), 0 0 30px rgba(255,122,26,.18); }
+html.halloween .pay-status-bar { box-shadow: 0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08); }
+html.halloween .pay-notice {
+  background: linear-gradient(180deg, rgba(255,122,26,.12), rgba(255,122,26,.03));
+}
+html.halloween #customerDataBox {
+  background: linear-gradient(180deg, rgba(255,170,70,.12), rgba(255,140,40,.03)) !important;
+  border-color: rgba(255,170,90,.3) !important;
+}
+html.halloween .btn-back:hover { background: rgba(255,255,255,.1); }
+html.halloween .step-num {
+  color: #1d0c02;
+  background: linear-gradient(180deg, #ff9b3d, #f0690a);
+  border-color: rgba(255,206,150,.65);
+  box-shadow: 0 3px 10px rgba(240,105,10,.3), inset 0 1px 0 rgba(255,255,255,.45);
+}
+html.halloween .pay-metodo { color: var(--oro-claro); background: rgba(255,122,26,.12); border-color: rgba(255,122,26,.3); }
+html.halloween .pay-order-usdt { color: var(--oro); }
+html.halloween .otra-red { border-top-color: rgba(255,255,255,.14); }
+html.halloween .aviso-red { background: rgba(255,122,26,.1); border-color: rgba(255,122,26,.3); }
+/* La cuenta entregada: el verde del título, más claro para leerse de noche.
+   Las credenciales ya iban sobre su caja oscura propia. */
+html.halloween #pedidoTitulo { color: #4fd1b8 !important; }
+html.halloween #pedidoEntregado { background: rgba(52,211,153,.08) !important; }

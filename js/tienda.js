@@ -992,9 +992,20 @@
     // ==========================================================
     // PANEL DE PLANES DE UNA PLATAFORMA
     // ==========================================================
+    // Tocar una plataforma (su tarjeta, una sugerencia del buscador) abre
+    // directo la ficha de su plan más barato que se puede comprar: los
+    // demás planes se eligen ahí mismo ("Elegí tu plan"). Este panel, con
+    // todos los planes juntos, queda en las migas de la ficha (el nombre
+    // de la plataforma).
+    function abrirPlataforma(clave) {
+      const g = PLATAFORMAS_VISIBLES.find(x => x.clave === clave);
+      if (!g) return;
+      abrirFicha((g.planes.find(pl => !pl.soldOut) || g.planes[0]).id);
+    }
+
     // Usa el mismo modal que el carrito (#8, #9 y #10), así el
     // cierre, el fondo y el scroll se comportan igual que siempre.
-    function abrirPlataforma(clave) {
+    function abrirPlanes(clave) {
       const g = PLATAFORMAS_VISIBLES.find(x => x.clave === clave);
       if (!g) return;
 
@@ -1164,18 +1175,32 @@
       return `https://wa.me/59157707335?text=${encodeURIComponent(texto)}`;
     }
 
-    // "También te puede interesar": primero los otros planes de la misma
-    // plataforma, y si son pocos, el mejor plan de otras de la misma
-    // categoría. Hasta cuatro.
+    // "También te puede interesar": el plan más barato de otras plataformas
+    // de la misma categoría (los de la misma plataforma ya están en "Elegí
+    // tu plan"), primero las que tienen descuento. Si son pocas, se
+    // completa con los otros planes de esta. Hasta cuatro.
     function otrosPlanes(p, g) {
-      const mismos = (g ? g.planes : [])
-        .filter(x => x.id !== p.id)
-        .sort((a, b) => (a.soldOut === true) - (b.soldOut === true))
-        .map(pl => ({ pl, nombre: g.nombre }));
       const vecinos = PLATAFORMAS_VISIBLES
         .filter(x => x !== g && x.base.cat === p.cat && !x.agotada)
+        .sort((a, b) => (b.descuento > 0) - (a.descuento > 0))
         .map(x => ({ pl: x.planes.find(pl => !pl.soldOut) || x.base, nombre: x.nombre }));
-      return [...mismos, ...vecinos].slice(0, 4);
+      const mismos = (g ? g.planes : [])
+        .filter(x => x.id !== p.id && !x.soldOut)
+        .map(pl => ({ pl, nombre: g.nombre }));
+      return [...vecinos, ...mismos].slice(0, 4);
+    }
+
+    // El plan dentro de su plataforma, para "Elegí tu plan": "Netflix
+    // Premium 4K Renovable (1 pantalla)" dentro de Netflix Premium 4K es
+    // "Renovable · 1 pantalla". Sin el nombre de la plataforma, que ya
+    // está arriba, y sin paréntesis.
+    function nombreCorto(pl, g) {
+      let n = pl.name.trim();
+      const base = sinTildes(g.nombre);
+      if (sinTildes(n).startsWith(base)) n = n.slice(g.nombre.trim().length);
+      n = n.replace(/\s*\(\s*/g, ' · ').replace(/\s*\)\s*/g, ' ')
+           .replace(/^[\s·-]+/, '').replace(/\s+/g, ' ').trim();
+      return n || pl.name;
     }
 
     function tarjetaOtro({ pl, nombre }) {
@@ -1192,6 +1217,7 @@
             <img src="${url}" alt="" loading="lazy"
                  onerror="this.onerror=null;this.src=generateLogoSvg('${pl.name.replace(/'/g, "\\'")}','${pl.imgColor}');">
             <span class="fi-otro-estado${agotado ? ' off' : ''}">${agotado ? 'Agotado' : 'Disponible'}</span>
+            ${pl.descuento ? `<span class="plan-desc fi-otro-desc">-${pl.descuento}%</span>` : ''}
           </span>
           <span class="fi-otro-txt">
             <small class="fi-plataforma">${escaparHtml(nombre)}</small>
@@ -1199,13 +1225,16 @@
             ${chips ? `<span class="fi-otro-chips">${chips}</span>` : ''}
           </span>
           <span class="fi-otro-pie">
-            <span class="fi-otro-precio">${sinPrecio(pl) ? 'A consultar' : `${montoNumero(pl.price)} <small>${moneda()}</small>`}</span>
-            <span class="fi-otro-ver">${agotado ? 'Agotado' : 'Ver'}</span>
+            <span class="fi-otro-precio">${pl.precioAntes ? `<s>${conEspacio(antesTxt(pl))}</s>` : ''}${sinPrecio(pl) ? 'A consultar' : `${montoNumero(pl.price)} <small>${moneda()}</small>`}</span>
+            <span class="fi-otro-ver">${agotado ? 'Agotado' : icono('carrito') + 'Comprar'}</span>
           </span>
         </button>`;
     }
 
-    function abrirFicha(id) {
+    // quieto: se cambió de plan desde "Elegí tu plan" y la ficha se
+    // redibuja sin volver arriba (en el celular, el selector queda abajo
+    // de la foto).
+    function abrirFicha(id, quieto = false) {
       const p = PRODUCTS.find(x => x.id === id);
       if (!p) return;
       const g = grupoDe(id);
@@ -1222,8 +1251,12 @@
       if (fichaId !== id) fichaCantidad = enCarrito ? enCarrito.qty : 1;
       fichaId = id;
       fichaCantidad = Math.max(1, Math.min(fichaCantidad, topeDe(p)));
+      // De dónde vino: se anota al abrir una ficha nueva, no al cambiar de
+      // plan ni al volver a ella con "atrás"
       const s = history.state;
-      if (s && s.tienda === 'planes') fichaDesde = s.clave;
+      if (!restaurando && !(s && s.tienda === 'ficha')) {
+        fichaDesde = s && s.tienda === 'planes' ? s.clave : null;
+      }
 
       const chips = [
         `<span class="plan-chip ${agotado ? 'off' : 'ok'}">${agotado ? '● Agotado' : '● Disponible'}</span>`,
@@ -1236,7 +1269,22 @@
       const precioHtml = sinPrecio(p)
         ? '<div class="plan-precio consultar">A consultar</div>'
         : `<div class="plan-precio">${montoNumero(p.price)}<small>${moneda()}</small></div>
-           ${p.precioAntes ? `<div class="plan-ahorro"><s>${antesTxt(p)}</s>${p.descuento ? `<span class="plan-desc">-${p.descuento}%</span>` : ''}</div>` : ''}`;
+           ${p.precioAntes ? `<div class="plan-ahorro">${p.descuento ? `<span class="plan-desc">-${p.descuento}%</span>` : ''}<s>Antes ${conEspacio(antesTxt(p))}</s></div>` : ''}`;
+
+      // Los planes de la misma plataforma, para cambiar sin salir de la ficha
+      const planesHtml = g && g.planes.length > 1 ? `
+        <div class="fi-planes">
+          <small class="fi-planes-tit">Elegí tu plan</small>
+          <div class="fi-planes-op" role="radiogroup" aria-label="Planes de ${escaparHtml(plataforma)}">
+            ${g.planes.map(pl => `
+            <button type="button" role="radio" aria-checked="${pl.id === id}"
+                    class="fi-plan${pl.id === id ? ' activo' : ''}${pl.soldOut ? ' agotado' : ''}"
+                    onclick="abrirFicha(${pl.id}, true)">
+              <span>${escaparHtml(nombreCorto(pl, g))}</span>
+              <b>${pl.soldOut ? 'Agotado' : sinPrecio(pl) ? 'Consultar' : `${montoNumero(pl.price)} ${moneda()}`}</b>
+            </button>`).join('')}
+          </div>
+        </div>` : '';
 
       const lead = tiposDe(p).includes('seguidores')
         ? 'Servicio digital: los seguidores llegan a tu perfil en el plazo del paquete, sin pedirte la contraseña.'
@@ -1302,6 +1350,7 @@
               <small class="fi-plataforma">${escaparHtml(plataforma)}</small>
               <h3 class="fi-nombre" id="fiTitulo" tabindex="-1">${escaparHtml(p.name)}</h3>
               <div class="plan-chips fi-chips">${chips}</div>
+              ${planesHtml}
               ${precioHtml}
               <p class="fi-lead">${lead}</p>
               <ul class="fi-datos">${datosHtml}</ul>
@@ -1337,16 +1386,19 @@
           </section>` : ''}
         </div>`;
 
-      document.getElementById('9').classList.remove('compra');
-      document.getElementById('9').classList.add('ancho');
+      const hoja = document.getElementById('9');
+      const arriba = quieto ? hoja.scrollTop : 0;
+      hoja.classList.remove('compra');
+      hoja.classList.add('ancho');
       document.getElementById('8').classList.add('open');
       document.body.style.overflow = 'hidden';
-      document.getElementById('9').scrollTop = 0;
+      hoja.scrollTop = arriba;
       pintarTopeFicha();
 
-      // Una ficha nunca se apila sobre otra: desde "También te puede
-      // interesar" la ficha nueva toma el lugar de la anterior. Así el
-      // "atrás" vuelve siempre a los planes, no ficha por ficha.
+      // Una ficha nunca se apila sobre otra: cambiar de plan o abrir uno
+      // de "También te puede interesar" reemplaza la ficha anterior. Así
+      // el "atrás" vuelve a donde estaba antes de la ficha (la tienda, o
+      // la lista de planes), no ficha por ficha.
       if (!restaurando) {
         if (s && s.tienda === 'ficha') history.replaceState({ ...s, clave: id }, '');
         else anotarPantalla('ficha', id);
@@ -1387,17 +1439,15 @@
       openCart({ agregado: id });
     }
 
-    // La plataforma de las migas: vuelve a sus planes. Si la ficha se abrió
-    // desde esos planes, por el historial (como el "atrás" del celular); si
-    // vino de un plan de otra plataforma, la ficha se cambia por los planes
-    // de esta, sin apilar otra pantalla.
+    // La plataforma de las migas: la lista con todos sus planes. Si la
+    // ficha se abrió desde esa lista, se vuelve por el historial (como el
+    // "atrás" del celular); si no, la lista se abre encima, y "atrás" trae
+    // de nuevo la ficha.
     function volverDeFicha(id) {
       const g = grupoDe(id);
       if (!g) { closeModal(); return; }
-      if (g.clave === fichaDesde) { atras(1, () => abrirPlataforma(g.clave)); return; }
-      history.replaceState({ tienda: 'planes', clave: g.clave, nivel: Math.max(1, nivelActual()) }, '');
-      restaurando = true;
-      try { abrirPlataforma(g.clave); } finally { restaurando = false; }
+      if (g.clave === fichaDesde) atras(1, () => abrirPlanes(g.clave));
+      else abrirPlanes(g.clave);
     }
 
 
@@ -1522,16 +1572,11 @@
     }
 
 
-    // Vuelve del carrito al panel de planes de la misma plataforma.
-    //
-    // Busca el grupo que contiene ese plan en vez de rearmar la clave
-    // desde el nombre: con la fusión por prefijo, "Netflix Premium 4K
-    // Renovable (1 pantalla)" vive bajo la clave "Netflix Premium 4K",
-    // así que reconstruirla no encontraba nada.
-    function volverAPlanes(idPlan) {
-      const g = grupoDe(idPlan);
-      if (g) abrirPlataforma(g.clave);
-      else   closeModal();
+    // Vuelve del carrito a la ficha del plan, cuando el historial no la
+    // tiene (se recargó la página en el medio).
+    function volverAFicha(idPlan) {
+      if (PRODUCTS.some(p => p.id === idPlan)) abrirFicha(idPlan);
+      else closeModal();
     }
 
 
@@ -2111,7 +2156,7 @@
       if (!s) { if (ventanaAbierta()) cerrarVentana(); return; }
 
       if (s.tienda === 'planes') {
-        if (PLATAFORMAS_VISIBLES.some(g => g.clave === s.clave)) abrirPlataforma(s.clave);
+        if (PLATAFORMAS_VISIBLES.some(g => g.clave === s.clave)) abrirPlanes(s.clave);
         else cerrarVentana();
         return;
       }
@@ -2405,7 +2450,7 @@
     // pantalla desde el carrito, dos desde el pago.
     function seguirComprando() {
       atras(pasoActual === 3 ? 2 : 1, () => {
-        if (planDeVuelta !== null && PRODUCTS.some(p => p.id === planDeVuelta)) volverAPlanes(planDeVuelta);
+        if (planDeVuelta !== null && PRODUCTS.some(p => p.id === planDeVuelta)) volverAFicha(planDeVuelta);
         else closeModal();
       });
     }
@@ -2596,7 +2641,7 @@
         const sheet = document.getElementById('9');
         const arriba = sheet ? sheet.scrollTop : 0;
         restaurando = true;                // que no sume otra pantalla al historial
-        try { enFicha ? abrirFicha(s.clave) : abrirPlataforma(s.clave); } finally { restaurando = false; }
+        try { enFicha ? abrirFicha(s.clave) : abrirPlanes(s.clave); } finally { restaurando = false; }
         if (sheet) sheet.scrollTop = arriba;
       }
     }
@@ -2889,7 +2934,7 @@
       const precio = conEspacio(formatoBs(plan.price));
       const antes  = plan.precioAntes ? conEspacio(antesTxt(plan)) : '';
       return `
-        <button type="button" class="oferta-card" data-clave="${escaparHtml(g.clave)}"
+        <button type="button" class="oferta-card" data-clave="${escaparHtml(g.clave)}" data-plan="${plan.id}"
                 data-foto="${escaparHtml(foto)}"
                 style="--c1:${escaparHtml(c1 || '#333')}; --c2:${escaparHtml(c2 || c1 || '#666')}"
                 aria-label="${escaparHtml(`${g.nombre}: ${precio}${antes ? `, antes ${antes}` : ''}`)}">
@@ -2922,15 +2967,17 @@
       prepararGiro(fila);
     }
 
-    // Tocar una oferta abre los planes de su plataforma. Si la tienda está
+    // Tocar una oferta abre la ficha del plan en oferta. Si la tienda está
     // filtrada y esa plataforma no se ve, se sueltan los filtros primero:
-    // el panel de planes y el carrito la buscan entre las que se ven.
+    // la ficha y el carrito la buscan entre las que se ven.
     document.addEventListener('click', function (e) {
       const card = e.target.closest('.oferta-card[data-clave]');
       if (!card) return;
       const clave = card.dataset.clave;
       if (!PLATAFORMAS_VISIBLES.some(g => g.clave === clave)) soltarFiltros();
-      abrirPlataforma(clave);
+      const plan = Number(card.dataset.plan);
+      if (PRODUCTS.some(p => p.id === plan)) abrirFicha(plan);
+      else abrirPlataforma(clave);
     });
 
     // ---------- La fila gira sola, sin parar ----------

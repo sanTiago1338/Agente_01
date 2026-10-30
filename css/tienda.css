@@ -3229,6 +3229,49 @@
       color: var(--oro);
     }
     .fi-info .plan-precio { font-size: 2.5rem; }
+    .fi-info .plan-ahorro { margin: 0 0 .45rem; font-size: .85rem; }
+    .fi-info .plan-ahorro .plan-desc { font-size: .74rem; }
+
+    /* "Elegí tu plan": los planes de la misma plataforma, como botones */
+    .fi-planes { margin: 0 0 1.1rem; }
+    .fi-planes-tit {
+      display: block;
+      margin-bottom: .45rem;
+      font-size: .64rem;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+    }
+    .fi-planes-op { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .fi-plan {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: .1rem;
+      padding: .5rem .8rem;
+      border-radius: 14px;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      color: var(--tinta-media);
+      background: var(--vidrio);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: var(--vidrio-brillo);
+      transition: border-color .15s, background .15s;
+    }
+    .fi-plan span { font-size: .8rem; font-weight: 700; line-height: 1.25; }
+    .fi-plan b { font-size: .78rem; font-weight: 800; color: var(--tinta); font-variant-numeric: tabular-nums; }
+    .fi-plan:hover { border-color: var(--acento, var(--marca)); }
+    .fi-plan.activo {
+      color: var(--tinta);
+      border-color: var(--marca);
+      background: var(--vidrio-lente);
+      box-shadow: 0 0 0 3px rgba(229,9,20,.12), var(--vidrio-brillo);
+    }
+    .fi-plan.agotado { opacity: .55; }
+    .fi-plan.agotado b { color: var(--tinta-suave); }
+    .fi-plan:focus-visible { outline: 2px solid var(--marca); outline-offset: 2px; }
     .fi-lead {
       margin: 1rem 0 1.1rem;
       font-size: .92rem;
@@ -3414,7 +3457,7 @@
     }
     .fi-otros {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
       gap: .8rem;
     }
     .fi-otro {
@@ -3451,6 +3494,17 @@
     }
     .fi-otro-estado::before { content: '● '; }
     .fi-otro-estado.off { color: #fca5a5; }
+    /* Abajo a la derecha: arriba ya está "Disponible", y en una tarjeta
+       angosta se tapaban */
+    .fi-otro-desc {
+      position: absolute;
+      bottom: .5rem; right: .5rem;
+      padding: .22rem .55rem;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(180deg, #ff4d5e, #d61a3c);
+      box-shadow: 0 3px 10px rgba(214,26,60,.35);
+    }
     .fi-otro-txt { flex: 1; display: flex; flex-direction: column; gap: .25rem; padding: .75rem .85rem 0; }
     .fi-otro-txt .fi-plataforma { font-size: .62rem; }
     .fi-otro-txt b {
@@ -3475,16 +3529,27 @@
     }
     .fi-otro-pie {
       display: flex;
-      align-items: center;
+      flex-wrap: wrap;
+      align-items: flex-end;
       justify-content: space-between;
       gap: .5rem;
       margin-top: .7rem;
       padding: .65rem .85rem .85rem;
       border-top: 1px solid var(--borde);
     }
-    .fi-otro-precio { font-size: 1.15rem; font-weight: 900; color: var(--tinta); font-variant-numeric: tabular-nums; }
+    .fi-otro-precio { font-size: 1.15rem; font-weight: 900; color: var(--tinta); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .fi-otro-precio small { font-size: .72rem; font-weight: 700; color: var(--tinta-suave); }
+    .fi-otro-precio s {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--tinta-suave);
+      text-decoration-thickness: 1.5px;
+    }
     .fi-otro-ver {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
       padding: .38rem .85rem;
       border-radius: 999px;
       font-size: .76rem;

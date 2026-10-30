@@ -753,3 +753,19 @@ html.halloween .fi-ayuda {
   border-color: rgba(255,150,60,.35);
 }
 html.halloween .fi-otro:hover { box-shadow: 0 14px 30px rgba(0,0,0,.45), 0 0 22px var(--fi-brillo, rgba(255,122,26,.2)); }
+
+/* "Elegí tu plan": el elegido, encendido en calabaza */
+html.halloween .fi-plan.activo { box-shadow: 0 0 0 3px rgba(255,122,26,.18), var(--vidrio-brillo); }
+
+/* Los descuentos dicen "Halloween -7 %" mientras dura el tema, como el
+   título "Descuento Halloween" de las ofertas */
+html.halloween .plan-desc {
+  color: #fff;
+  background: linear-gradient(180deg, #ff6a3d, #e0244f);
+  border-radius: 999px;
+  padding: .16rem .55rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  box-shadow: 0 3px 10px rgba(224,36,79,.3);
+}
+html.halloween .plan-desc::before { content: 'Halloween '; }

@@ -1047,7 +1047,7 @@
               ${sinPrecio(pl) && !agotado
                 ? `<a class="plan-comprar" href="${waConsulta(pl.name)}" target="_blank" rel="noopener">Consultar</a>`
                 : `<button class="plan-comprar" ${agotado ? 'disabled' : ''}
-                           onclick="${agotado ? '' : `abrirCheckout(${pl.id})`}">
+                           onclick="${agotado ? '' : `abrirFicha(${pl.id})`}">
                      ${agotado ? 'Agotado' : icono('carrito') + 'Comprar'}
                    </button>`}
             </div>
@@ -1097,6 +1097,307 @@
       document.body.style.overflow = 'hidden';
       document.getElementById('9').scrollTop = 0;
       anotarPantalla('planes', clave);
+    }
+
+
+    // ==========================================================
+    // FICHA DEL PLAN
+    // ==========================================================
+    // "Comprar" en un plan abre primero su ficha, en la misma ventana:
+    // la foto, si está disponible (y cuántas quedan cuando hay pocas
+    // cuentas cargadas), el precio, entrega, duración, acceso y pago, y
+    // la cantidad con "Añadir al carrito", que lleva al carrito de
+    // siempre. Abajo: qué incluye, cómo se usa, a quién pedir ayuda y
+    // otros planes que le pueden interesar.
+    //
+    // Todo sale de datos que ya existen: no hay nada nuevo que cargar en
+    // el panel. Los links de renovar y de volver a comprar siguen yendo
+    // directo al carrito (abrirCheckout), como siempre.
+    // ==========================================================
+
+    // "¡Quedan 3!" solo cuando quedan pocas: con 40 cargadas el apuro
+    // no sería cierto.
+    const POCAS_QUEDAN = 5;
+
+    let fichaId       = null;   // el plan que muestra la ficha
+    let fichaCantidad = 1;      // cuántos quiere llevar
+    let fichaDesde    = null;   // la plataforma de la que vino (clave de sus planes)
+
+    // El color de marca con transparencia, para el resplandor de la foto
+    function rgbaDe(hex, a) {
+      const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+      return `rgba(${c.join(',')},${a})`;
+    }
+
+    // Los pasos de "Cómo usar". Salen del tipo de producto: si cambia
+    // cómo entregás algo, se cambia acá.
+    function pasosDeUso(p, plataforma) {
+      const t = tiposDe(p);
+      const nombre = escaparHtml(plataforma);
+      if (t.includes('seguidores')) return [
+        'Pagá con el QR por el monto exacto, desde la app de tu banco.',
+        'Al mandarnos el comprobante por WhatsApp, sumá el usuario o el link de tu perfil.',
+        'Dejá el perfil en público mientras cargamos los seguidores.',
+        'Llegan en el plazo de tu paquete. Si algo se demora, te avisamos.'
+      ];
+      if (productFlags(p).needsEmail) return [
+        'Al pagar te pedimos el correo de tu cuenta: revisalo bien antes de enviarlo.',
+        `Activamos ${nombre} sobre tu propia cuenta, sin tocar tu contraseña.`,
+        'Te avisamos por WhatsApp apenas esté listo.',
+        'Entrá con tu cuenta de siempre y fijate que el plan ya figure activo.'
+      ];
+      const uso = t.includes('1-pantalla')    ? 'Usá solo el perfil que te asignamos: los demás son de otros clientes.'
+                : t.includes('1-dispositivo') ? 'Usala en un solo dispositivo: si la abrís en otro, se puede cerrar la sesión.'
+                : 'Usala con normalidad durante todo el plan.';
+      return [
+        p.entregaInmediata && !p.soldOut
+          ? 'Pagá con el QR: apenas se confirma, tus accesos aparecen en esa misma pantalla y quedan guardados en <b>Mis compras</b>.'
+          : 'Pagá con el QR y mandanos el comprobante por WhatsApp: ahí te pasamos tus accesos, en el plazo de entrega.',
+        `Abrí la app o la web de ${nombre} y entrá con el correo y la contraseña que te entregamos.`,
+        uso,
+        'No cambies la contraseña, el correo ni los datos de la cuenta: así no se cae, y si algo falla te la reponemos.'
+      ];
+    }
+
+    function waAyuda(nombre) {
+      const texto = `*TIAGO STORE BOLIVIA*\n\nHola, necesito ayuda con:\n\n*${nombre}*\n\nGracias.`;
+      return `https://wa.me/59157707335?text=${encodeURIComponent(texto)}`;
+    }
+
+    // "También te puede interesar": primero los otros planes de la misma
+    // plataforma, y si son pocos, el mejor plan de otras de la misma
+    // categoría. Hasta cuatro.
+    function otrosPlanes(p, g) {
+      const mismos = (g ? g.planes : [])
+        .filter(x => x.id !== p.id)
+        .sort((a, b) => (a.soldOut === true) - (b.soldOut === true))
+        .map(pl => ({ pl, nombre: g.nombre }));
+      const vecinos = PLATAFORMAS_VISIBLES
+        .filter(x => x !== g && x.base.cat === p.cat && !x.agotada)
+        .map(x => ({ pl: x.planes.find(pl => !pl.soldOut) || x.base, nombre: x.nombre }));
+      return [...mismos, ...vecinos].slice(0, 4);
+    }
+
+    function tarjetaOtro({ pl, nombre }) {
+      const agotado = pl.soldOut === true;
+      const url = getImageUrl(pl.name, pl.cat, pl.imgColor, pl.imagenUrl);
+      const datos = caracteristicasDe(pl);
+      const dato = et => (datos.find(f => f[1] === et) || [])[2];
+      const chips = [[icono('reloj'), dato('Suscripción')], [icono('rayo'), dato('Entrega')]]
+        .filter(c => c[1]).map(([ic, v]) => `<span>${ic}${v}</span>`).join('');
+      return `
+        <button type="button" class="fi-otro${agotado ? ' fi-otro--agotado' : ''}"
+                style="--acento:${acentoDe(pl)}" onclick="abrirFicha(${pl.id})">
+          <span class="fi-otro-foto">
+            <img src="${url}" alt="" loading="lazy"
+                 onerror="this.onerror=null;this.src=generateLogoSvg('${pl.name.replace(/'/g, "\\'")}','${pl.imgColor}');">
+            <span class="fi-otro-estado${agotado ? ' off' : ''}">${agotado ? 'Agotado' : 'Disponible'}</span>
+          </span>
+          <span class="fi-otro-txt">
+            <small class="fi-plataforma">${escaparHtml(nombre)}</small>
+            <b>${escaparHtml(pl.name)}</b>
+            ${chips ? `<span class="fi-otro-chips">${chips}</span>` : ''}
+          </span>
+          <span class="fi-otro-pie">
+            <span class="fi-otro-precio">${sinPrecio(pl) ? 'A consultar' : `${montoNumero(pl.price)} <small>${moneda()}</small>`}</span>
+            <span class="fi-otro-ver">${agotado ? 'Agotado' : 'Ver'}</span>
+          </span>
+        </button>`;
+    }
+
+    function abrirFicha(id) {
+      const p = PRODUCTS.find(x => x.id === id);
+      if (!p) return;
+      const g = grupoDe(id);
+      const plataforma = g ? g.nombre : plataformaDe(p.name, p.cat);
+      const agotado = p.soldOut === true;
+      const url = getImageUrl(p.name, p.cat, p.imgColor, p.imagenUrl);
+      const vivo = acentoDe(p);
+      const f = productFlags(p);
+      const enCarrito = cart.find(i => i.id === id);
+
+      // Si se vuelve a la misma ficha (atrás desde el carrito) se respeta
+      // la cantidad que había elegido; si es otra, arranca en 1 (o en lo
+      // que ya tiene en el carrito).
+      if (fichaId !== id) fichaCantidad = enCarrito ? enCarrito.qty : 1;
+      fichaId = id;
+      fichaCantidad = Math.max(1, Math.min(fichaCantidad, topeDe(p)));
+      const s = history.state;
+      if (s && s.tienda === 'planes') fichaDesde = s.clave;
+
+      const chips = [
+        `<span class="plan-chip ${agotado ? 'off' : 'ok'}">${agotado ? '● Agotado' : '● Disponible'}</span>`,
+        !agotado && p.entregaInmediata ? `<span class="plan-chip ya">${icono('rayo')}Entrega inmediata</span>` : '',
+        chipDatos(p),
+        !agotado && p.stock > 0 && p.stock <= POCAS_QUEDAN
+          ? `<span class="fi-quedan">${p.stock === 1 ? '¡Queda 1!' : `¡Quedan ${p.stock}!`}</span>` : ''
+      ].join('');
+
+      const precioHtml = sinPrecio(p)
+        ? '<div class="plan-precio consultar">A consultar</div>'
+        : `<div class="plan-precio">${montoNumero(p.price)}<small>${moneda()}</small></div>
+           ${p.precioAntes ? `<div class="plan-ahorro"><s>${antesTxt(p)}</s>${p.descuento ? `<span class="plan-desc">-${p.descuento}%</span>` : ''}</div>` : ''}`;
+
+      const lead = tiposDe(p).includes('seguidores')
+        ? 'Servicio digital: los seguidores llegan a tu perfil en el plazo del paquete, sin pedirte la contraseña.'
+        : f.needsEmail
+        ? 'Servicio digital: lo activamos sobre tu propia cuenta, con el correo que nos dejás al pagar.'
+        : p.entregaInmediata && !agotado
+        ? 'Servicio digital: tus accesos aparecen apenas se confirma el pago, y quedan guardados en «Mis compras».'
+        : 'Servicio digital: te pasamos tus accesos por WhatsApp apenas se confirma el pago.';
+
+      const datos = caracteristicasDe(p).concat([[icono('qr'), 'Pago',
+        hayBinance() ? 'QR Bolivia por el monto exacto, o Binance (USDT)' : 'QR Bolivia por el monto exacto']]);
+      const datosHtml = datos.map(([ic, et, val]) =>
+        `<li><span class="ic">${ic}</span><span><b>${et}:</b> ${val}</span></li>`).join('');
+
+      const comprarHtml = agotado
+        ? `<button class="plan-comprar" disabled>Agotado</button>
+           <a class="fi-avisame" href="${waConsulta(p.name)}" target="_blank" rel="noopener">Preguntar cuándo vuelve →</a>`
+        : sinPrecio(p)
+        ? `<a class="plan-comprar" href="${waConsulta(p.name)}" target="_blank" rel="noopener">Consultar por WhatsApp</a>`
+        : `<div class="fi-comprar">
+             <div class="cr-cant" role="group" aria-label="Cantidad">
+               <button type="button" onclick="cantidadFicha(-1)" aria-label="Uno menos">−</button>
+               <span class="cr-qty" id="fiCant" aria-live="polite">${fichaCantidad}</span>
+               <button type="button" onclick="cantidadFicha(1)" aria-label="Uno más">+</button>
+             </div>
+             <button type="button" class="plan-comprar" onclick="anadirDesdeFicha(${id})">
+               ${icono('carrito')}${enCarrito ? 'Ir al carrito' : 'Añadir al carrito'}</button>
+           </div>
+           <p class="fi-tope" id="fiTope" hidden></p>`;
+
+      const incluyeHtml = String(p.detalle || '').trim() ? `
+        <section class="fi-seccion">
+          <div class="fi-titulo">
+            <span class="fi-titulo-ico">${icono('check')}</span>
+            <div><small>Qué incluye</small><b>${escaparHtml(p.name)}</b></div>
+          </div>
+          <div class="fi-caja fi-incluye">${textoAHtml(p.detalle)}</div>
+        </section>` : '';
+
+      const esCuenta = !tiposDe(p).includes('seguidores') && !f.needsEmail;
+      const otros = otrosPlanes(p, g);
+
+      document.getElementById('10').innerHTML = `
+        <div class="fi" style="--acento:${vivo}; --fi-brillo:${rgbaDe(vivo, .28)}">
+          <div class="pl-cab">
+            <span class="fi-migas">
+              <button type="button" onclick="closeModal()">Tienda</button><i>/</i>
+              <button type="button" onclick="volverDeFicha(${id})">${escaparHtml(plataforma)}</button><i>/</i>
+              <b>${escaparHtml(p.name)}</b>
+            </span>
+            <button class="ck-cerrar" onclick="closeModal()" aria-label="Cerrar">✕</button>
+          </div>
+          ${pasosHtml(1)}
+
+          <div class="fi-main">
+            <div class="fi-foto">
+              <span class="fi-foto-fondo" style="background-image:url('${url}')"></span>
+              <img src="${url}" alt="${escaparHtml(p.name)}"
+                   onerror="this.onerror=null;this.src=generateLogoSvg('${p.name.replace(/'/g, "\\'")}','${p.imgColor}');">
+            </div>
+
+            <div class="fi-info">
+              <small class="fi-plataforma">${escaparHtml(plataforma)}</small>
+              <h3 class="fi-nombre" id="fiTitulo" tabindex="-1">${escaparHtml(p.name)}</h3>
+              <div class="plan-chips fi-chips">${chips}</div>
+              ${precioHtml}
+              <p class="fi-lead">${lead}</p>
+              <ul class="fi-datos">${datosHtml}</ul>
+              ${comprarHtml}
+            </div>
+          </div>
+
+          ${incluyeHtml}
+
+          <section class="fi-seccion">
+            <div class="fi-titulo">
+              <span class="fi-titulo-ico">${icono('info')}</span>
+              <div><small>Instrucciones de uso</small><b>Cómo usar tu ${escaparHtml(plataforma)}</b></div>
+            </div>
+            <ol class="fi-pasos">${pasosDeUso(p, plataforma).map(t => `<li><span>${t}</span></li>`).join('')}</ol>
+          </section>
+
+          <div class="fi-ayuda">
+            <span class="fi-ayuda-ico">${icono('escudo')}</span>
+            <div>
+              <b>${esCuenta ? '¿Te pide un código o algo no funciona?' : '¿Tenés alguna duda?'}</b>
+              <p>${esCuenta
+                ? `Si ${escaparHtml(plataforma)} te pide un código de verificación, <b>pedínoslo por WhatsApp</b> con tu número de pedido. No lo pidas a la plataforma ni cambies los datos de la cuenta.`
+                : 'Escribinos por WhatsApp con tu número de pedido y te ayudamos al toque.'}</p>
+              <a class="btn-wa fi-wa" href="${waAyuda(p.name)}" target="_blank" rel="noopener">Escribir a soporte</a>
+            </div>
+          </div>
+
+          ${otros.length ? `
+          <section class="fi-seccion">
+            <h4 class="fi-otros-tit">También te puede interesar</h4>
+            <div class="fi-otros">${otros.map(tarjetaOtro).join('')}</div>
+          </section>` : ''}
+        </div>`;
+
+      document.getElementById('9').classList.remove('compra');
+      document.getElementById('9').classList.add('ancho');
+      document.getElementById('8').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('9').scrollTop = 0;
+      pintarTopeFicha();
+
+      // Una ficha nunca se apila sobre otra: desde "También te puede
+      // interesar" la ficha nueva toma el lugar de la anterior. Así el
+      // "atrás" vuelve siempre a los planes, no ficha por ficha.
+      if (!restaurando) {
+        if (s && s.tienda === 'ficha') history.replaceState({ ...s, clave: id }, '');
+        else anotarPantalla('ficha', id);
+      }
+    }
+
+    function cantidadFicha(cambio) {
+      const p = PRODUCTS.find(x => x.id === fichaId);
+      if (!p) return;
+      fichaCantidad = Math.max(1, Math.min(topeDe(p), fichaCantidad + cambio));
+      const n = document.getElementById('fiCant');
+      if (n) n.textContent = fichaCantidad;
+      pintarTopeFicha(cambio > 0);
+    }
+
+    // Cuando llega al máximo, dice por qué no sube más
+    function pintarTopeFicha(intento = false) {
+      const p = PRODUCTS.find(x => x.id === fichaId);
+      const aviso = document.getElementById('fiTope');
+      if (!p || !aviso) return;
+      const lleno = fichaCantidad >= topeDe(p);
+      aviso.hidden = !(lleno && intento);
+      if (!aviso.hidden) aviso.textContent = mensajeTope(p);
+    }
+
+    // "Añadir al carrito": lleva la cantidad elegida (si ya estaba, la
+    // cambia por esa) y abre el carrito de siempre.
+    function anadirDesdeFicha(id) {
+      const p = PRODUCTS.find(x => x.id === id);
+      if (!p || p.soldOut) return;
+      if (sinPrecio(p)) { window.open(waConsulta(p.name), '_blank', 'noopener'); return; }
+      const qty = Math.max(1, Math.min(fichaCantidad, topeDe(p)));
+      const enCarrito = cart.find(i => i.id === id);
+      if (enCarrito) enCarrito.qty = qty;
+      else cart.push({ ...p, qty });
+      updateCartCount();
+      guardarCarrito();
+      openCart({ agregado: id });
+    }
+
+    // La plataforma de las migas: vuelve a sus planes. Si la ficha se abrió
+    // desde esos planes, por el historial (como el "atrás" del celular); si
+    // vino de un plan de otra plataforma, la ficha se cambia por los planes
+    // de esta, sin apilar otra pantalla.
+    function volverDeFicha(id) {
+      const g = grupoDe(id);
+      if (!g) { closeModal(); return; }
+      if (g.clave === fichaDesde) { atras(1, () => abrirPlataforma(g.clave)); return; }
+      history.replaceState({ tienda: 'planes', clave: g.clave, nivel: Math.max(1, nivelActual()) }, '');
+      restaurando = true;
+      try { abrirPlataforma(g.clave); } finally { restaurando = false; }
     }
 
 
@@ -1747,8 +2048,8 @@
     // de una compra. Cerrar la ventana (✕, tocar afuera, Esc) es volver
     // hasta antes de abrirla.
     //
-    // history.state = { tienda: 'planes' | 'carrito' | 'pago', clave, nivel }
-    //   clave: de qué plataforma son los planes
+    // history.state = { tienda: 'planes' | 'ficha' | 'carrito' | 'pago', clave, nivel }
+    //   clave: de qué plataforma son los planes (en la ficha, el id del plan)
     //   nivel: cuántas pantallas de la ventana hay hasta esta (1 = la primera)
     //
     // Hacia atrás nunca se dibuja a mano: los botones de volver llaman a
@@ -1811,6 +2112,12 @@
 
       if (s.tienda === 'planes') {
         if (PLATAFORMAS_VISIBLES.some(g => g.clave === s.clave)) abrirPlataforma(s.clave);
+        else cerrarVentana();
+        return;
+      }
+
+      if (s.tienda === 'ficha') {
+        if (PRODUCTS.some(p => p.id === s.clave)) abrirFicha(s.clave);
         else cerrarVentana();
         return;
       }
@@ -2092,10 +2399,10 @@
       }, 350);
     }
 
-    // "Seguir comprando" y "✓ Elegir": a los planes del producto recién
-    // agregado, o se cierra si el carrito se abrió desde el ícono. Por el
-    // historial, igual que el "atrás" del celular: una pantalla desde el
-    // carrito, dos desde el pago.
+    // "Seguir comprando" y "✓ Elegir": a la ficha (o los planes) del
+    // producto recién agregado, o se cierra si el carrito se abrió desde
+    // el ícono. Por el historial, igual que el "atrás" del celular: una
+    // pantalla desde el carrito, dos desde el pago.
     function seguirComprando() {
       atras(pasoActual === 3 ? 2 : 1, () => {
         if (planDeVuelta !== null && PRODUCTS.some(p => p.id === planDeVuelta)) volverAPlanes(planDeVuelta);
@@ -2283,11 +2590,13 @@
       if (!ventanaAbierta()) return;
       if (document.getElementById('crPaso2')) { repintarMontosDelCarrito(); return; }
       const s = history.state;
-      if (s && s.tienda === 'planes' && PLATAFORMAS_VISIBLES.some(g => g.clave === s.clave)) {
+      const enPlanes = s && s.tienda === 'planes' && PLATAFORMAS_VISIBLES.some(g => g.clave === s.clave);
+      const enFicha  = s && s.tienda === 'ficha'  && PRODUCTS.some(p => p.id === s.clave);
+      if (enPlanes || enFicha) {
         const sheet = document.getElementById('9');
         const arriba = sheet ? sheet.scrollTop : 0;
         restaurando = true;                // que no sume otra pantalla al historial
-        try { abrirPlataforma(s.clave); } finally { restaurando = false; }
+        try { enFicha ? abrirFicha(s.clave) : abrirPlataforma(s.clave); } finally { restaurando = false; }
         if (sheet) sheet.scrollTop = arriba;
       }
     }

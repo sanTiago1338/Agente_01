@@ -8,8 +8,10 @@
 // El tema de Halloween es css/halloween.css. Todo lo que tiene adentro
 // empieza con html.halloween, así que fuera de fecha no pisa nada. Este
 // archivo pone esa clase en <html>, le cambia el color a la barra del
-// navegador del celular y arma el cielo de atrás: estrellas, telarañas,
-// murciélagos y niebla (la luna y los resplandores son del CSS).
+// navegador del celular, cambia los textos marcados con data-halloween
+// ("Ofertas del momento" pasa a "Descuento Halloween") y arma el cielo de
+// atrás: estrellas, telarañas, murciélagos y niebla (la luz de la luna y
+// los resplandores son del CSS).
 //
 // Va en el <head> sin defer, antes de tenido.js: así la página ya sale
 // de noche desde el primer cuadro, sin un destello blanco.
@@ -52,6 +54,17 @@
   raiz.classList.add(activa.tema);
   const barra = document.querySelector('meta[name="theme-color"]');
   if (barra) barra.content = activa.color;
+
+  // Textos de temporada: en el HTML, data-halloween="…" (con el nombre del
+  // tema) dice qué poner en lugar del texto de siempre mientras dura.
+  // Fuera de fecha queda el texto escrito, sin tocar nada.
+  function textosDeTemporada() {
+    document.querySelectorAll(`[data-${activa.tema}]`).forEach(el => {
+      el.textContent = el.dataset[activa.tema];
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', textosDeTemporada);
+  else textosDeTemporada();
 
   if (activa.tema !== 'halloween') return;
 

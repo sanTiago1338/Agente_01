@@ -733,3 +733,23 @@ html.halloween .aviso-red { background: rgba(255,122,26,.1); border-color: rgba(
    Las credenciales ya iban sobre su caja oscura propia. */
 html.halloween #pedidoTitulo { color: #4fd1b8 !important; }
 html.halloween #pedidoEntregado { background: rgba(52,211,153,.08) !important; }
+
+
+/* ============================================================
+   9. LA FICHA DEL PLAN (css/tienda.css, "FICHA DEL PLAN")
+   ============================================================
+   Casi todo sale de los tonos del vidrio. Acá solo los números de los
+   pasos y los botones naranjas (letras oscuras, como los demás) y la
+   caja de ayuda, en vela en vez de dorado. */
+html.halloween :is(.fi-pasos li::before, .fi-otro-ver) { color: #1d0c02; }
+html.halloween .fi-pasos li::before {
+  background: linear-gradient(180deg, #ff9b3d, #f0690a);
+  box-shadow: 0 3px 10px rgba(240,105,10,.3), inset 0 1px 0 rgba(255,255,255,.45);
+}
+html.halloween .fi-otro-ver { background: linear-gradient(180deg, #ff9b3d, #f0690a); }
+html.halloween .fi-otro--agotado .fi-otro-ver { color: var(--tinta-suave); background: var(--separador-2); }
+html.halloween .fi-ayuda {
+  background: linear-gradient(180deg, rgba(255,150,50,.14), rgba(255,122,26,.04));
+  border-color: rgba(255,150,60,.35);
+}
+html.halloween .fi-otro:hover { box-shadow: 0 14px 30px rgba(0,0,0,.45), 0 0 22px var(--fi-brillo, rgba(255,122,26,.2)); }

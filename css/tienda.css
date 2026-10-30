@@ -3101,3 +3101,398 @@
       font-size: 1rem; cursor: pointer;
     }
     @media (prefers-reduced-motion: reduce) { .app-aviso { transition: none; } }
+
+
+    /* ==========================================================
+       FICHA DEL PLAN
+       ==========================================================
+       Entre "Comprar" y el carrito (abrirFicha en js/tienda.js). Usa la
+       misma ventana que los planes (.ancho): al tocar "Comprar" no cambia
+       el tamaño, solo lo de adentro. Arriba, la foto a la izquierda y lo
+       de comprar a la derecha (en el celular, uno abajo del otro). Abajo:
+       qué incluye, cómo se usa, la ayuda y otros planes.
+       Todo con los tonos del vidrio, así sigue solo al tema de temporada.
+       ========================================================== */
+
+    /* Las migas: Tienda / Plataforma / Plan */
+    .fi-migas {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      min-width: 0;
+      letter-spacing: .1em;
+    }
+    .fi-migas button {
+      flex: none;
+      padding: 0;
+      border: none;
+      background: none;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      color: var(--tinta-suave);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+      max-width: 40%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .fi-migas button:first-child { max-width: none; }
+    .fi-migas button:hover { color: var(--tinta); }
+    .fi-migas i { font-style: normal; color: var(--tinta-suave); opacity: .6; }
+    .fi-migas b {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--tinta);
+    }
+    .fi .cr-pasos { margin-bottom: 1rem; }
+
+    /* ---------- Foto y compra ---------- */
+    .fi-main {
+      display: grid;
+      gap: 1.1rem;
+      margin-bottom: 1.6rem;
+    }
+    @media (min-width: 760px) {
+      .fi-main {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+        gap: 1.75rem;
+      }
+    }
+
+    /* La foto entera (contain), sobre la misma foto agrandada y borrosa:
+       los carteles de cada plan tienen texto, y recortarlos lo cortaba */
+    .fi-foto {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      border-radius: 22px;
+      overflow: hidden;
+      isolation: isolate;
+      background: var(--vidrio-denso);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: 0 18px 44px var(--fi-brillo, rgba(20,22,26,.12)), var(--vidrio-brillo);
+    }
+    @media (min-width: 760px) {
+      .fi-foto { aspect-ratio: 1; }
+    }
+    .fi-foto-fondo {
+      position: absolute;
+      inset: -12%;
+      z-index: -1;
+      background: center / cover no-repeat;
+      filter: blur(26px) saturate(140%);
+      opacity: .55;
+    }
+    .fi-foto img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .fi-plataforma {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: .7rem;
+      font-weight: 900;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--tinta-suave);
+    }
+    .fi-plataforma::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--acento, var(--marca));
+      flex: none;
+    }
+    .fi-nombre {
+      margin: .35rem 0 .7rem;
+      font-size: clamp(1.35rem, 3.4vw, 1.95rem);
+      line-height: 1.15;
+      font-weight: 900;
+      letter-spacing: -.01em;
+      color: var(--tinta);
+    }
+    .fi-nombre:focus { outline: none; }
+    .fi-chips { margin-bottom: 1rem; align-items: center; }
+    .fi-quedan {
+      font-size: .82rem;
+      font-weight: 800;
+      color: var(--oro);
+    }
+    .fi-info .plan-precio { font-size: 2.5rem; }
+    .fi-lead {
+      margin: 1rem 0 1.1rem;
+      font-size: .92rem;
+      line-height: 1.55;
+      color: var(--tinta-media);
+    }
+    .fi-datos {
+      list-style: none;
+      margin: 0 0 1.25rem;
+      padding: 0;
+      display: grid;
+      gap: .55rem;
+    }
+    .fi-datos li {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      font-size: .88rem;
+      line-height: 1.35;
+      color: var(--tinta-media);
+    }
+    .fi-datos b { color: var(--tinta); font-weight: 800; }
+    .fi-datos .ic {
+      flex: none;
+      width: 30px; height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      color: var(--marca);
+      background: var(--vidrio);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: var(--vidrio-brillo);
+    }
+
+    .fi-comprar { display: flex; gap: .6rem; align-items: stretch; }
+    .fi-comprar .cr-cant { flex: none; }
+    .fi-comprar .cr-cant button { height: 100%; min-height: 48px; }
+    .fi-comprar .plan-comprar { flex: 1; min-height: 50px; font-size: .95rem; }
+    .fi-info > .plan-comprar { width: 100%; min-height: 50px; }
+    .fi-tope { margin: .5rem 0 0; font-size: .78rem; font-weight: 600; color: var(--oro); }
+    .fi-avisame {
+      display: inline-block;
+      margin-top: .7rem;
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--marca);
+    }
+
+    /* ---------- Qué incluye y cómo se usa ---------- */
+    .fi-seccion { margin-bottom: 1.5rem; }
+    .fi-titulo {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      margin-bottom: .9rem;
+    }
+    .fi-titulo-ico {
+      flex: none;
+      width: 44px; height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      font-size: 1.15rem;
+      color: var(--marca);
+      background: var(--vidrio);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+    }
+    .fi-titulo small {
+      display: block;
+      font-size: .64rem;
+      font-weight: 900;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--marca);
+    }
+    .fi-titulo b { display: block; font-size: 1.12rem; line-height: 1.25; color: var(--tinta); }
+
+    .fi-caja {
+      padding: 1rem 1.1rem;
+      border-radius: 18px;
+      background: var(--vidrio);
+      -webkit-backdrop-filter: var(--vidrio-blur);
+      backdrop-filter: var(--vidrio-blur);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+    }
+    .fi-incluye { font-size: .9rem; line-height: 1.55; color: var(--tinta-media); }
+    .fi-incluye p { margin: 0 0 .7rem; }
+    .fi-incluye b { color: var(--tinta); }
+    .fi-incluye ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: .45rem 1rem;
+    }
+    .fi-incluye li { display: flex; align-items: flex-start; gap: .5rem; }
+    .fi-incluye li .ico { flex: none; margin-top: .2rem; color: var(--marca); }
+
+    /* Los pasos, numerados, de a dos desde la tablet */
+    .fi-pasos {
+      list-style: none;
+      counter-reset: paso;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: .65rem;
+    }
+    @media (min-width: 700px) { .fi-pasos { grid-template-columns: 1fr 1fr; } }
+    .fi-pasos li {
+      counter-increment: paso;
+      display: flex;
+      align-items: flex-start;
+      gap: .8rem;
+      padding: .9rem 1rem;
+      border-radius: 18px;
+      font-size: .88rem;
+      line-height: 1.5;
+      color: var(--tinta-media);
+      background: var(--vidrio);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: var(--vidrio-brillo);
+    }
+    .fi-pasos li::before {
+      content: counter(paso);
+      flex: none;
+      width: 28px; height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      font-size: .85rem;
+      font-weight: 900;
+      color: #fff;
+      background: linear-gradient(180deg, var(--marca), var(--marca-oscura));
+      box-shadow: 0 3px 10px rgba(20,22,26,.15), inset 0 1px 0 rgba(255,255,255,.35);
+    }
+    .fi-pasos b { color: var(--tinta); }
+
+    /* ---------- La ayuda ---------- */
+    .fi-ayuda {
+      display: flex;
+      align-items: flex-start;
+      gap: .9rem;
+      margin-bottom: 1.6rem;
+      padding: 1.05rem 1.15rem;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(245,197,24,.14), rgba(245,197,24,.04));
+      border: 1px solid rgba(154,116,0,.3);
+      box-shadow: var(--vidrio-brillo);
+    }
+    .fi-ayuda-ico { flex: none; font-size: 1.45rem; color: var(--oro); margin-top: .1rem; }
+    .fi-ayuda b { display: block; margin-bottom: .3rem; font-size: .98rem; color: var(--tinta); }
+    .fi-ayuda p { margin: 0 0 .8rem; font-size: .87rem; line-height: 1.55; color: var(--tinta-media); }
+    .fi-ayuda p b { display: inline; margin: 0; font-size: inherit; }
+    .fi-wa {
+      display: inline-flex;
+      align-items: center;
+      padding: .55rem 1.1rem;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    /* ---------- También te puede interesar ---------- */
+    .fi-otros-tit {
+      position: relative;
+      margin: 0 0 1rem;
+      padding-bottom: .55rem;
+      font-size: clamp(1.15rem, 3vw, 1.5rem);
+      font-weight: 900;
+      color: var(--tinta);
+    }
+    .fi-otros-tit::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 72px; height: 3px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--marca), var(--oro-claro));
+    }
+    .fi-otros {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+      gap: .8rem;
+    }
+    .fi-otro {
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      border-radius: 20px;
+      background: var(--vidrio-denso);
+      border: 1px solid var(--vidrio-borde);
+      box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .fi-otro:hover { transform: translateY(-3px); border-color: var(--acento, var(--marca)); }
+    .fi-otro:focus-visible { outline: 2px solid var(--acento, var(--marca)); outline-offset: 2px; }
+    .fi-otro-foto { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; }
+    .fi-otro-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* Sobre la foto: siempre oscuro, se lea lo que se lea atrás */
+    .fi-otro-estado {
+      position: absolute;
+      top: .5rem; left: .5rem;
+      padding: .22rem .6rem;
+      border-radius: 999px;
+      font-size: .68rem;
+      font-weight: 800;
+      color: #6ee7b7;
+      background: rgba(10,10,14,.72);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+    .fi-otro-estado::before { content: '● '; }
+    .fi-otro-estado.off { color: #fca5a5; }
+    .fi-otro-txt { flex: 1; display: flex; flex-direction: column; gap: .25rem; padding: .75rem .85rem 0; }
+    .fi-otro-txt .fi-plataforma { font-size: .62rem; }
+    .fi-otro-txt b {
+      font-size: .88rem;
+      line-height: 1.25;
+      color: var(--tinta);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .fi-otro-chips { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .3rem; }
+    .fi-otro-chips span {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      padding: .18rem .5rem;
+      border-radius: 999px;
+      font-size: .68rem;
+      color: var(--tinta-suave);
+      border: 1px solid var(--borde);
+    }
+    .fi-otro-pie {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+      margin-top: .7rem;
+      padding: .65rem .85rem .85rem;
+      border-top: 1px solid var(--borde);
+    }
+    .fi-otro-precio { font-size: 1.15rem; font-weight: 900; color: var(--tinta); font-variant-numeric: tabular-nums; }
+    .fi-otro-precio small { font-size: .72rem; font-weight: 700; color: var(--tinta-suave); }
+    .fi-otro-ver {
+      padding: .38rem .85rem;
+      border-radius: 999px;
+      font-size: .76rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(180deg, var(--marca), var(--marca-oscura));
+    }
+    .fi-otro--agotado { opacity: .62; }
+    .fi-otro--agotado .fi-otro-ver { color: var(--tinta-suave); background: var(--separador-2); }
+
+    @media (prefers-reduced-motion: reduce) { .fi-otro { transition: none; } }

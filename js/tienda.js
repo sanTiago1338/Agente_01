@@ -1123,7 +1123,7 @@
     //
     // Todo sale de datos que ya existen: no hay nada nuevo que cargar en
     // el panel. Los links de renovar y de volver a comprar siguen yendo
-    // directo al carrito (abrirCheckout), como siempre.
+    // directo al carrito, como siempre.
     // ==========================================================
 
     // "¡Quedan 3!" solo cuando quedan pocas: con 40 cargadas el apuro
@@ -1245,10 +1245,10 @@
       const f = productFlags(p);
       const enCarrito = cart.find(i => i.id === id);
 
-      // Si se vuelve a la misma ficha (atrás desde el carrito) se respeta
-      // la cantidad que había elegido; si es otra, arranca en 1 (o en lo
-      // que ya tiene en el carrito).
-      if (fichaId !== id) fichaCantidad = enCarrito ? enCarrito.qty : 1;
+      // Si ya está en el carrito, manda lo del carrito (pudo cambiar la
+      // cantidad ahí y volver con "atrás"). Si no, se respeta lo que había
+      // elegido en esta misma ficha, o arranca en 1.
+      fichaCantidad = enCarrito ? enCarrito.qty : (fichaId === id ? fichaCantidad : 1);
       fichaId = id;
       fichaCantidad = Math.max(1, Math.min(fichaCantidad, topeDe(p)));
       // De dónde vino: se anota al abrir una ficha nueva, no al cambiar de
@@ -1521,7 +1521,8 @@
     // ==========================================================
     // COMPRAR EN TRES PASOS
     // ==========================================================
-    //   1. Comprar   — el botón de cada plan lo suma al carrito
+    //   1. Elegir    — la ficha del plan: "Añadir al carrito" lo suma
+    //                  con la cantidad elegida (ver FICHA DEL PLAN)
     //   2. Carrito   — se abre solo: cantidades, aviso de renovación,
     //                  términos y el total
     //   3. Pagar con QR — lleva a pagar-qr.html con todo el carrito
@@ -1554,23 +1555,6 @@
       return { subtotal, unidades, descuento, total: subtotal - descuento };
     }
     const topeDe = p => (p.stock > 0 ? Math.min(p.stock, MAX_POR_PRODUCTO) : MAX_POR_PRODUCTO);
-
-    // Paso 1 -> paso 2. Si ya estaba en el carrito no se suma otra unidad:
-    // tocar "Comprar" dos veces no puede dejarle cantidad 2 sin querer.
-    // Para más unidades está el + del carrito.
-    function abrirCheckout(id) {
-      const p = PRODUCTS.find(x => x.id === id);
-      if (!p || p.soldOut) return;
-      if (sinPrecio(p)) { window.open(waConsulta(p.name), '_blank', 'noopener'); return; }
-
-      if (!cart.find(item => item.id === id)) {
-        cart.push({ ...p, qty: 1 });
-        updateCartCount();
-        guardarCarrito();
-      }
-      openCart({ agregado: id });
-    }
-
 
     // Vuelve del carrito a la ficha del plan, cuando el historial no la
     // tiene (se recargó la página en el medio).

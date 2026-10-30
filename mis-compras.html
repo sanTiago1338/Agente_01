@@ -702,8 +702,17 @@ function ponerFoto(caja) {
   img.alt = '';
   img.loading = 'lazy';
   img.onerror = () => img.remove();
-  img.src = f.imagen;
+  img.src = imgOptimizada(f.imagen);
   caja.appendChild(img);
+}
+
+// Las fotos guardadas como "Img/Deezer.jpg" viven en su versión liviana,
+// Img/opt/Deezer.jpg: la misma regla que la tienda (imgOptimizada en
+// js/tienda.js), así no hay que tocar las rutas de la base
+function imgOptimizada(url) {
+  if (/^Img\/opt\//i.test(url)) return url;
+  const m = String(url).match(/^Img\/(.+)\.(png|jpe?g)$/i);
+  return m ? `Img/opt/${m[1]}.jpg` : url;
 }
 
 // La foto (o las iniciales) de un producto

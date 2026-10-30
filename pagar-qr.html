@@ -670,53 +670,8 @@
   .step-text small { color: var(--texto-dim); font-size: .7rem; }
   .pay-order-usdt { text-align: right; font-size: .82rem; font-weight: 700; color: #8a6508; margin-top: .3rem; }
   .pay-order-usdt[hidden] { display: none; }
-  @media (min-width: 760px) {
-    .pay-container { max-width: 980px; }
-    .pago-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 360px;
-      gap: 1.25rem;
-      align-items: start;
-    }
-    .pago-der { position: sticky; top: 1rem; }
-    .pago-der .pay-card { margin-bottom: .9rem; }
-    .pago-der .pay-status-bar { margin-bottom: .9rem; }
-    .pay-card-header { padding: .85rem 1rem; }
-    .pay-qr-wrap { padding: .9rem; margin: .7rem; }
-    .pay-qr-wrap img { max-width: 230px; }
-    .pay-instructions { padding: .85rem 1.1rem; }
-  }
-  /* Ya no hay nada que pagar (entregada, pagada sin stock o cancelada):
-     una sola columna, en compu y en celular, con el aviso ("Pago
-     confirmado. Tu cuenta está abajo") justo debajo del resumen y la
-     cuenta debajo del aviso. Antes el aviso quedaba último, abajo de todo.
-     La clase la pone esconderLoDePagar(). */
-  .pago-grid.sin-pago { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
-  .pago-grid.sin-pago .pago-izq,
-  .pago-grid.sin-pago .pago-der { display: contents; }
-  .pago-grid.sin-pago #orderSummary          { order: 1; }
-  .pago-grid.sin-pago #statusBar             { order: 2; margin-bottom: .9rem; }
-  .pago-grid.sin-pago #cajaPedido            { order: 3; }
-  .pago-grid.sin-pago #payRef                { order: 4; }
-  /* "Volver a la tienda", último de todo: abajo de la cuenta */
-  .pago-grid.sin-pago .pago-izq > .btn-back  { order: 5; margin-top: .9rem; }
-  /* Celular: una sola columna, en el orden de siempre (el QR arriba) */
-  @media (max-width: 759px) {
-    .pago-grid { display: flex; flex-direction: column; }
-    .pago-izq, .pago-der { display: contents; }
-    #pasosPago        { order: 1; }
-    #statusBar        { order: 2; }
-    #qrCard           { order: 4; }
-    #instruccionesPago,
-    #instruccionesBinance { order: 5; }
-    #customerDataBox  { order: 6; }
-    #btnYaPague       { order: 7; }
-    #ayudaYaPague     { order: 8; }
-    #orderSummary     { order: 9; }
-    #cajaPedido       { order: 10; }
-    .pago-izq > .btn-back { order: 11; }
-    #payRef           { order: 12; }
-  }
+  /* Las dos columnas y el orden en el celular están más abajo, en
+     "PANTALLA DE PAGO". */
 
   /* "Ya pagué" también es vidrio verde; su estilo va escrito en el propio
      enlace, así que la forma y la sombra se pisan con !important */
@@ -771,9 +726,217 @@
   #btnYaPague { padding: .8rem !important; margin-bottom: .35rem !important; font-size: .95rem !important; }
   #ayudaYaPague { margin-bottom: .6rem !important; }
   .btn-back { padding: .6rem; margin-bottom: .5rem; font-size: .85rem; }
+  /* ==========================================================
+     PANTALLA DE PAGO
+     ==========================================================
+     Dos tarjetas, una al lado de la otra en compu:
+       izquierda  el cobro: "Escanea… y paga exactamente", el monto
+                  grande, el QR, cómo va el pago y los botones
+                  "Descargar QR" y "Consultar estado". Cuando el pago se
+                  resuelve, en su lugar va el resultado: "¡Pago
+                  confirmado!" con los accesos, cada dato con su botón
+                  de copiar y la contraseña tapada con el ojo.
+       derecha    "Detalle del pago": pedido, importe, método, glosa,
+                  fecha y estado, con lo que compró. Queda siempre.
+     Va al final para pisar el "COMPACTO" de arriba. Los tonos son los
+     de la página, así que con Halloween (css/halloween.css) se vuelve
+     de noche solo; lo que trae color propio se ajusta allá. */
+  .pay-container { max-width: 460px; }
   @media (min-width: 760px) {
-    .pago-grid { gap: .9rem; }
-    .pay-qr-wrap img { max-width: 200px; }
+    .pay-container { max-width: 1040px; }
+    .pago-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+      gap: 1rem;
+      align-items: start;
+    }
+    .pago-der { position: sticky; top: 1rem; }
+  }
+  /* Celular: una sola columna. El QR (o el resultado) arriba; después
+     cómo pagar, lo que hay que completar y el detalle. */
+  @media (max-width: 759px) {
+    .pago-grid { display: flex; flex-direction: column; }
+    .pago-izq, .pago-der { display: contents; }
+    #qrCard               { order: 1; }
+    #cajaPedido           { order: 2; }
+    #instruccionesPago,
+    #instruccionesBinance { order: 3; }
+    #customerDataBox      { order: 4; }
+    #btnYaPague           { order: 5; }
+    #ayudaYaPague         { order: 6; }
+    #pedidoEsperando      { order: 7; }
+    #orderSummary         { order: 8; }
+    #btnVolver            { order: 9; }
+  }
+
+  /* ---- El cobro ---- */
+  .pp-cobro,
+  .pago-der .pp-cobro { text-align: center; padding: 1.15rem 1rem 1.2rem; margin-bottom: .75rem; }
+  .pp-lead { margin: .15rem 0 .2rem; font-size: .95rem; color: var(--tinta-suave); line-height: 1.35; }
+  .pp-cobro .pay-amount {
+    font-family: 'Outfit', sans-serif; font-weight: 800;
+    font-size: clamp(2.3rem, 7vw, 3.1rem); letter-spacing: -.01em; line-height: 1.08;
+    color: var(--tinta);
+  }
+  .pp-cobro .pay-amount-label { margin-top: .1rem; }
+  .pp-cobro .pay-amount-label:empty { display: none; }
+  .pp-cobro .pay-qr-wrap { width: min(100%, 300px); margin: .9rem auto .55rem; padding: .85rem; }
+  .pp-cobro .pay-qr-wrap img { max-width: 100%; display: block; }
+  .pp-cobro .pay-timer { padding: .1rem .5rem .35rem; font-size: .92rem; color: var(--tinta-media); }
+  .pp-cobro .pay-timer span { color: var(--oro); font-size: 1.05rem; font-weight: 800; }
+  /* "● Esperando confirmación del pago… [Pendiente]": una línea suelta,
+     sin la caja de color que tenía como barra */
+  #qrCard #statusBar {
+    display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    gap: .5rem; margin: .25rem auto .85rem; padding: 0;
+    background: none; border: 0; box-shadow: none;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    font-size: .92rem; font-weight: 500; color: var(--tinta-media);
+  }
+  #qrCard #statusBar .status-dot { width: 12px; height: 12px; box-shadow: 0 0 0 4px rgba(240,165,0,.18); }
+  #qrCard #statusBar.pendiente .status-dot { background: var(--ambar); }
+
+  /* La pastilla del estado: la misma acá y en el detalle */
+  .pp-pill {
+    display: inline-flex; align-items: center; padding: .2rem .72rem;
+    border-radius: 999px; font-size: .78rem; font-weight: 700; white-space: nowrap;
+    border: 1px solid transparent;
+  }
+  .pp-pill.pendiente { background: rgba(20,22,26,.06);  color: var(--tinta-media); border-color: rgba(20,22,26,.12); }
+  .pp-pill.pagado    { background: rgba(18,140,126,.12); color: #0b6e57;           border-color: rgba(18,140,126,.32); }
+  .pp-pill.cancelado { background: rgba(229,9,20,.08);  color: var(--marca);       border-color: rgba(229,9,20,.25); }
+
+  /* Los botones de vidrio: "Descargar QR", "Consultar estado", "Copiar" */
+  .pp-acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; }
+  .pp-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+    padding: .62rem 1.05rem; border-radius: 12px;
+    font: 600 .92rem 'Outfit', sans-serif; color: var(--tinta); text-decoration: none; cursor: pointer;
+    background: var(--vidrio); border: 1px solid var(--vidrio-borde);
+    box-shadow: 0 4px 14px rgba(20,22,26,.07), 0 0 0 .5px rgba(20,22,26,.12), var(--vidrio-brillo);
+    transition: transform .15s ease, background .2s;
+  }
+  .pp-btn[hidden] { display: none; }
+  .pp-btn:hover { transform: translateY(-1px); }
+  .pp-btn:disabled { cursor: default; opacity: .75; transform: none; }
+  .pp-btn svg { width: 18px; height: 18px; flex: none; }
+  .pp-btn.girando svg { animation: spin .8s linear infinite; }
+
+  /* ---- El detalle del pago ---- */
+  .pp-detalle,
+  .pago-der .pp-detalle { padding: 1.1rem 1.2rem 1rem; margin-bottom: .75rem; }
+  .pp-detalle .pay-order-title { font-size: 1.3rem; font-weight: 800; color: var(--tinta); margin-bottom: .45rem; }
+  .pp-filas { margin: 0 0 .35rem; }
+  .pp-filas > div {
+    display: grid; grid-template-columns: 8.6rem minmax(0, 1fr); gap: .6rem;
+    align-items: center; padding: .4rem 0; font-size: .9rem;
+  }
+  .pp-filas > div[hidden] { display: none; }
+  .pp-filas dt { color: var(--tinta-suave); }
+  .pp-filas dd { margin: 0; color: var(--tinta); font-weight: 500; overflow-wrap: anywhere; }
+  .pp-filas dd strong { font-weight: 800; }
+  .pp-copiable { color: var(--oro); cursor: pointer; }
+  #orderItems { border-top: 1px solid var(--separador); margin-top: .3rem; padding-top: .2rem; }
+  .pp-detalle .pay-order-item .item-name { color: var(--tinta-media); }
+  .pp-ayuda {
+    display: inline-block; margin-top: .75rem; font-size: .86rem; font-weight: 700;
+    color: var(--marca); text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  /* ---- Mientras espera: cómo le llega ---- */
+  .pp-espera {
+    margin-bottom: .75rem; padding: .85rem 1rem; border-radius: 20px;
+    background: var(--vidrio); border: 1px solid var(--vidrio-borde);
+    -webkit-backdrop-filter: var(--vidrio-blur); backdrop-filter: var(--vidrio-blur);
+    box-shadow: var(--vidrio-sombra), var(--vidrio-brillo), inset 3px 0 0 var(--ambar);
+  }
+  .pp-espera-tit { font-size: .95rem; font-weight: 800; color: var(--oro); margin-bottom: .3rem; }
+  .pp-espera-txt { font-size: .85rem; color: var(--texto); line-height: 1.6; }
+  .pp-espera-pie { font-size: .76rem; color: var(--tinta-suave); margin-top: .55rem; }
+
+  /* ---- El resultado: "¡Pago confirmado!" y los accesos ---- */
+  .pp-resultado { text-align: center; padding: 1.6rem 1.15rem 1.35rem; margin-bottom: .75rem; }
+  .pp-sello { width: 76px; height: 76px; margin: 0 auto .75rem; animation: pop-in .5s cubic-bezier(.175,.885,.32,1.275); }
+  .pp-sello svg { width: 100%; height: 100%; display: block; }
+  .pp-sello.ok { color: #25b07c; filter: drop-shadow(0 6px 16px rgba(37,176,124,.35)); }
+  .pp-sello.no { color: var(--marca); filter: drop-shadow(0 6px 16px rgba(229,9,20,.3)); }
+  .pp-res-titulo { font-size: clamp(1.65rem, 5vw, 2.15rem); font-weight: 800; line-height: 1.15; color: var(--tinta); }
+  .pp-res-texto { max-width: 30rem; margin: .45rem auto 1.1rem; font-size: 1rem; line-height: 1.5; color: var(--tinta-suave); }
+  .pp-res-texto strong { color: var(--tinta); }
+
+  .pp-accesos {
+    text-align: left; padding: 1rem; border-radius: 18px;
+    background: rgba(20,22,26,.035); border: 1px solid var(--separador-2);
+  }
+  .pp-accesos-cab { display: flex; align-items: center; gap: .75rem; margin-bottom: .85rem; }
+  .pp-llave {
+    width: 44px; height: 44px; flex: none; display: grid; place-items: center;
+    border-radius: 13px; color: #6d28d9; background: rgba(124,58,237,.12); border: 1px solid rgba(124,58,237,.25);
+  }
+  .pp-llave svg { width: 22px; height: 22px; }
+  .pp-accesos-cab strong { display: block; font-size: 1.05rem; color: var(--tinta); }
+  .pp-accesos-cab small { display: block; font-size: .82rem; line-height: 1.4; color: var(--tinta-suave); }
+
+  /* Cada cuenta, en su tarjeta oscura */
+  .pp-cuenta { padding: .85rem 1rem; border-radius: 14px; background: #14161a; color: #e8eaed; }
+  .pp-cuenta + .pp-cuenta { margin-top: .65rem; }
+  .pp-cuenta-nombre {
+    margin-bottom: .45rem; font-size: .78rem; font-weight: 800;
+    letter-spacing: .12em; text-transform: uppercase; color: #fff;
+  }
+  /* El nombre, el valor y sus botones pegados al valor */
+  .pp-dato {
+    display: grid; grid-template-columns: 6.6rem minmax(0, max-content) 1fr;
+    align-items: center; gap: .55rem; padding: .42rem 0; font-size: .92rem;
+  }
+  .pp-dato-botones { justify-self: start; }
+  .pp-dato > span:first-child { color: #9aa0ab; }
+  .pp-dato code {
+    font-family: ui-monospace, Consolas, monospace; font-size: .92rem;
+    color: #ff9d8f; overflow-wrap: anywhere; user-select: all;
+  }
+  .pp-dato code.tapada { letter-spacing: .14em; user-select: none; }
+  .pp-dato b { color: #fff; font-weight: 700; overflow-wrap: anywhere; }
+  .pp-dato-botones { display: flex; gap: .35rem; }
+  .pp-icono {
+    width: 34px; height: 30px; display: grid; place-items: center; cursor: pointer;
+    border-radius: 9px; color: #e8eaed; background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.16);
+  }
+  .pp-icono:hover { background: rgba(255,255,255,.12); }
+  .pp-icono svg { width: 16px; height: 16px; }
+  .pp-icono.ok { color: #34d399; border-color: rgba(52,211,153,.55); }
+  .pp-cuenta-nota { margin-top: .35rem; font-size: .82rem; line-height: 1.5; color: #ffd700; }
+  .pp-cuenta-wa { font-size: .88rem; line-height: 1.55; }
+  .pp-cuenta-wa strong { color: #25D366; }
+  /* Celular angosto: el nombre del dato arriba y el valor con sus
+     botones abajo, así un correo largo no queda en tres renglones */
+  @media (max-width: 440px) {
+    .pp-dato { grid-template-columns: minmax(0, max-content) 1fr; row-gap: .1rem; }
+    .pp-dato > span:first-child { grid-column: 1 / -1; font-size: .8rem; }
+  }
+  .pp-faltan {
+    margin-top: .85rem; padding: .7rem .85rem; border-radius: 10px;
+    font-size: .8rem; line-height: 1.55; color: var(--texto);
+    background: rgba(240,165,0,.09); border: 1px solid rgba(240,165,0,.32);
+  }
+
+  .pp-res-botones { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin-top: 1.15rem; }
+  .pp-btn-primario {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: .78rem 1.7rem; border-radius: 12px; border: 0;
+    font: 700 1rem 'Outfit', sans-serif; color: #fff; text-decoration: none; cursor: pointer;
+    background: linear-gradient(180deg, #ff2a35, var(--marca-oscura));
+    box-shadow: 0 8px 22px rgba(229,9,20,.28), inset 0 1px 0 rgba(255,255,255,.35);
+    transition: transform .15s ease;
+  }
+  .pp-btn-primario:hover { transform: translateY(-1px); }
+  .pp-btn-wa {
+    background: linear-gradient(180deg, #25D366, #128C7E);
+    box-shadow: 0 8px 22px rgba(18,140,126,.28), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pp-sello, .pp-btn.girando svg { animation: none; }
   }
 
   </style>
@@ -816,10 +979,14 @@
 
     <!-- Payment Content -->
     <div id="payContent" style="display:none;">
-      <!-- En compu: los pasos arriba al centro, y dos columnas: el pedido a
-           la izquierda; el estado, el QR y cómo pagar a la
-           derecha, todo en una pantalla. En el celular, una sola columna
-           con el QR arriba (el orden lo da el CSS, ver .pago-grid). -->
+      <!-- La pantalla de pago, en dos tarjetas:
+             izquierda: el cobro (monto, QR, estado y botones) y, cuando el
+                        pago se resuelve, en su lugar el resultado ("¡Pago
+                        confirmado!" con los accesos)
+             derecha:   el detalle del pago, que queda siempre, y lo que el
+                        cliente tiene que hacer (datos, "Ya pagué", volver)
+           En el celular, una sola columna con el QR arriba (el orden lo da
+           el CSS, ver .pago-grid). -->
       <!-- Los tres pasos de la compra, el mismo dibujo del carrito de la
            tienda. Solo si la compra viene de ahí: las recargas de juegos
            llegan directo, sin carrito (ver renderPayment). -->
@@ -830,11 +997,201 @@
       </ol>
 
       <div class="pago-grid">
-        <!-- IZQUIERDA: todo lo del pedido -->
+        <!-- IZQUIERDA: el cobro y, ya resuelto, el resultado -->
         <div class="pago-izq">
-      <!-- Order Summary -->
-      <div class="pay-order-summary" id="orderSummary">
-        <div class="pay-order-title">Resumen del pedido</div>
+
+      <!-- QR Card -->
+      <section class="pay-card pp-cobro" id="qrCard" aria-label="Pagar con QR">
+        <!-- Con qué paga: el método que eligió en el carrito, solo ese.
+             Lo escribe aplicarMetodo(), igual que la frase de arriba del monto. -->
+        <div class="pay-metodo" id="payMetodo"></div>
+        <p class="pp-lead" id="payLead">Escanea con la app de tu banco y paga exactamente:</p>
+        <div class="pay-amount" id="payAmount">0.00 Bs</div>
+        <div class="pay-amount-label" id="payAmountLabel"></div>
+
+        <div class="pay-qr-wrap">
+          <img id="qrImage" src="" alt="QR BancoSol">
+          <div class="pay-qr-overlay" id="qrOverlay">
+            <div class="icon" id="overlayIcon"></div>
+            <div class="text" id="overlayText"></div>
+          </div>
+        </div>
+
+        <div class="pay-timer" id="timerSection">
+          Redirigiendo a WhatsApp en <span id="timerDisplay">5:00</span>
+        </div>
+
+        <!-- Cómo va el pago. Lo actualiza el módulo de entrega automática;
+             la pastilla es la misma que "Estado del pago" en el detalle. -->
+        <div class="pay-status-bar pendiente" id="statusBar" role="status">
+          <div class="status-dot"></div>
+          <span id="statusText">Esperando confirmación del pago…</span>
+          <span class="pp-pill pendiente" id="statusPill">Pendiente</span>
+        </div>
+
+        <div class="pp-acciones">
+          <!-- Guarda la imagen del QR para pagar desde la galería del celular -->
+          <a href="Img/QR%20Bolivianos.jpg" class="pp-btn" id="btnDescargarQr" onclick="descargarQr(event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M4 19h16"/></svg>
+            <span>Descargar QR</span>
+          </a>
+          <!-- Pregunta ya mismo si se confirmó, sin esperar los 4 segundos.
+               Solo con pedido en la base: lo muestra engancharCompra(). -->
+          <button type="button" class="pp-btn" id="btnConsultar" onclick="consultarEstado(this)" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+            <span>Consultar estado</span>
+          </button>
+        </div>
+      </section>
+
+    <!-- ==========================================================
+         ENTREGA AUTOMATICA: EL RESULTADO
+         ==========================================================
+         Aparece solo cuando el pedido se pudo crear en la base, y en lugar
+         del QR cuando el pago ya se resolvió. Si el producto no está
+         migrado o Supabase no contesta, esto queda invisible y la página
+         funciona como siempre. Lo maneja js/pedido-automatico.js.
+         ========================================================== -->
+    <div id="cajaPedido" style="display:none;">
+
+      <!-- Entregado: acá están los accesos -->
+      <section class="pay-card pp-resultado" id="pedidoEntregado" style="display:none;">
+        <div class="pp-sello ok" aria-hidden="true">
+          <svg viewBox="-2 -2 68 68"><path fill="currentColor" d="M25.1 6.4Q32 -1.5 38.9 6.4Q48.8 3 50.7 13.3Q61 15.2 57.6 25.1Q65.5 32 57.6 38.9Q61 48.7 50.7 50.7Q48.8 61 38.9 57.6Q32 65.5 25.1 57.6Q15.3 61 13.3 50.7Q3 48.8 6.4 38.9Q-1.5 32 6.4 25.1Q3 15.3 13.3 13.3Q15.2 3 25.1 6.4Z"/><path d="m22 32.5 7 7 13.5-14" fill="none" stroke="#06231b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2 class="pp-res-titulo">¡Pago confirmado!</h2>
+        <!-- El texto lo pone js: cambia si se entregó por WhatsApp o a medias -->
+        <p class="pp-res-texto" id="pedidoProducto">Tu pedido fue entregado automáticamente. Estos son tus accesos:</p>
+
+        <div class="pp-accesos">
+          <div class="pp-accesos-cab">
+            <span class="pp-llave" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="12" r="3.5"/><path d="M11 12h10M18 12v3M15 12v2"/></svg>
+            </span>
+            <div>
+              <strong id="pedidoTitulo">Tus accesos</strong>
+              <small>Guárdalos en un lugar seguro. No compartas la contraseña.</small>
+            </div>
+          </div>
+
+          <!-- Las credenciales van sobre fondo oscuro, a propósito: es lo
+               único que el cliente tiene que leer sin equivocarse, y el
+               contraste fuerte las separa de todo lo demás. Cada dato con
+               su botón de copiar; la contraseña tapada, con el ojo. -->
+          <div id="pedidoCreds"></div>
+
+          <!-- Solo cuando la compra quedo a medias: se entregaron algunas y
+               de otras no habia stock. Va JUNTO a las que si llegaron, para
+               que el cliente no tenga que contar cuantas recibio y darse
+               cuenta solo de que falta una. -->
+          <div id="pedidoFaltan" class="pp-faltan" style="display:none;"></div>
+        </div>
+
+        <div class="pp-res-botones">
+          <!-- La compra queda guardada en Mis compras, en este navegador -->
+          <a href="mis-compras.html" class="pp-btn-primario">Ir a Mis compras</a>
+          <button type="button" id="pedidoCopiar" class="pp-btn">Copiar los datos</button>
+        </div>
+      </section>
+
+      <!-- Pago confirmado pero sin stock -->
+      <section class="pay-card pp-resultado" id="pedidoSinStock" style="display:none;">
+        <div class="pp-sello ok" aria-hidden="true">
+          <svg viewBox="-2 -2 68 68"><path fill="currentColor" d="M25.1 6.4Q32 -1.5 38.9 6.4Q48.8 3 50.7 13.3Q61 15.2 57.6 25.1Q65.5 32 57.6 38.9Q61 48.7 50.7 50.7Q48.8 61 38.9 57.6Q32 65.5 25.1 57.6Q15.3 61 13.3 50.7Q3 48.8 6.4 38.9Q-1.5 32 6.4 25.1Q3 15.3 13.3 13.3Q15.2 3 25.1 6.4Z"/><path d="m22 32.5 7 7 13.5-14" fill="none" stroke="#06231b" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2 class="pp-res-titulo">¡Recibimos tu pago!</h2>
+        <p class="pp-res-texto">
+          Justo se nos agotó este producto. Te la mandamos por WhatsApp apenas
+          la tengamos, hoy mismo. Tu pago está registrado.
+        </p>
+        <div class="pp-res-botones">
+          <a href="https://wa.me/59157707335?text=Hola,%20ya%20pagu%C3%A9%20mi%20pedido%20y%20espero%20mi%20cuenta"
+             target="_blank" rel="noopener" class="pp-btn-primario pp-btn-wa">Escribinos por WhatsApp</a>
+        </div>
+      </section>
+
+      <!-- El pedido se dio de baja desde el panel.
+           Antes este caso no mostraba NADA: la pagina se quedaba con el QR
+           y "Esperando pago...", y el cliente podia seguir transfiriendo a
+           un pedido que ya no existia. Decirselo es lo minimo. -->
+      <section class="pay-card pp-resultado" id="pedidoCancelado" style="display:none;">
+        <div class="pp-sello no" aria-hidden="true">
+          <svg viewBox="-2 -2 68 68"><path fill="currentColor" d="M25.1 6.4Q32 -1.5 38.9 6.4Q48.8 3 50.7 13.3Q61 15.2 57.6 25.1Q65.5 32 57.6 38.9Q61 48.7 50.7 50.7Q48.8 61 38.9 57.6Q32 65.5 25.1 57.6Q15.3 61 13.3 50.7Q3 48.8 6.4 38.9Q-1.5 32 6.4 25.1Q3 15.3 13.3 13.3Q15.2 3 25.1 6.4Z"/><path d="m24 24 16 16M40 24 24 40" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
+        </div>
+        <h2 class="pp-res-titulo">Este pedido fue cancelado</h2>
+        <p class="pp-res-texto">
+          Su pedido fue cancelado porque no se detectó el pago.
+          <strong>Si ya transferiste</strong>, escribinos por WhatsApp con tu
+          comprobante y lo resolvemos en el momento.
+        </p>
+        <div class="pp-res-botones">
+          <a href="https://wa.me/59157707335?text=Hola,%20mi%20pedido%20figura%20cancelado%20y%20quer%C3%ADa%20consultar"
+             target="_blank" rel="noopener" class="pp-btn-primario pp-btn-wa">Escribinos por WhatsApp</a>
+        </div>
+      </section>
+
+    </div>
+
+        <div class="pay-instructions" id="instruccionesPago">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text">Abre la app de tu banco y escanea el QR</div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text">Ingresa el monto exacto: <strong id="instrMonto" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text">En Glosa/Adjunto escribe: <strong style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar">VARIOS</strong></div>
+          </div>
+          <!-- Sin paso "Confirma el pago y serás redirigido a WhatsApp": con
+               stock la cuenta aparece en esta página, y sin stock ya está
+               el botón "Ya pagué · enviar comprobante" abajo. -->
+        </div>
+        <!-- Los pasos para pagar con Binance Pay (en USDT) -->
+        <div class="pay-instructions" id="instruccionesBinance" hidden>
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text">Abre tu app de <strong>Binance</strong>, toca <strong>Pagar</strong> y escanea el QR</div>
+          </div>
+          <div class="step" id="pasoPayId">
+            <div class="step-num">2</div>
+            <div class="step-text">O envía al Pay ID: <strong id="binancePayId" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text">Envía exactamente: <strong id="instrMontoUsdt" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong>
+              <span id="binanceAuto" hidden><br>Con el monto exacto, tu pago <strong>se confirma solo</strong> en 1 o 2 minutos.</span></div>
+          </div>
+          <!-- Desde otra billetera o exchange: USDT por la red BSC (BEP20) a tu
+               dirección de depósito de Binance. Es la misma opción, solo otra
+               forma de mandar la plata; también se confirma sola. -->
+          <div class="otra-red" id="pasoBsc" hidden>
+            <div class="otra-red-tit">¿Pagas desde otra billetera o exchange?</div>
+            <div class="step-text">Envía <strong>USDT</strong> por la red <strong>BNB Smart Chain (BEP20)</strong> a:
+              <strong id="bscDireccion" class="direccion-red" onclick="copyText(this)" title="Toca para copiar"></strong></div>
+            <div class="aviso-red">Solo por la red <strong>BSC (BEP20)</strong>: por otra red, el pago se pierde.
+              Tienen que llegar exactamente <strong id="instrMontoBsc"></strong>; si tu exchange descuenta la comisión, súmala.</div>
+          </div>
+        </div>
+        </div>
+
+        <!-- DERECHA: el detalle del pago y lo que hay que hacer -->
+        <div class="pago-der">
+      <!-- Detalle del pago: queda a la vista todo el tiempo, también con la
+           cuenta ya entregada (es su comprobante de que compró) -->
+      <section class="pay-order-summary pp-detalle" id="orderSummary" aria-labelledby="detalleTitulo">
+        <h2 class="pay-order-title" id="detalleTitulo">Detalle del pago</h2>
+        <dl class="pp-filas">
+          <div><dt>Pedido</dt><dd id="payRef">—</dd></div>
+          <div><dt>Importe</dt><dd><strong id="detImporte">—</strong></dd></div>
+          <div><dt>Método</dt><dd id="detMetodo">QR Bolivia</dd></div>
+          <!-- Lo que va en la glosa de la transferencia (solo con QR del banco) -->
+          <div id="detGlosaFila"><dt>Glosa</dt><dd><strong class="pp-copiable" onclick="copyText(this)" title="Toca para copiar">VARIOS</strong></dd></div>
+          <div><dt>Fecha</dt><dd id="detFecha"></dd></div>
+          <div><dt>Estado del pago</dt><dd><span class="pp-pill pendiente" id="detEstado">Pendiente</span></dd></div>
+        </dl>
         <div id="orderItems"></div>
         <div class="pay-order-total">
           <span class="label">TOTAL</span>
@@ -842,6 +1199,21 @@
         </div>
         <!-- Con Binance Pay: lo que se paga en USDT, debajo del total -->
         <div class="pay-order-usdt" id="orderTotalUsdt" hidden></div>
+        <a class="pp-ayuda" href="https://wa.me/59157707335?text=Hola,%20tengo%20una%20consulta%20sobre%20mi%20pedido"
+           target="_blank" rel="noopener">¿Necesitas ayuda? Escríbenos</a>
+      </section>
+
+      <!-- Esperando que confirmen el pago: cómo le llega lo que compró -->
+      <div class="pp-espera" id="pedidoEsperando" style="display:none;">
+        <div class="pp-espera-tit">Entrega del pedido <span id="pedidoNumero"></span></div>
+        <!-- El texto lo decide js: cambia segun haya stock o no. Ver la
+             nota en la funcion pintar() sobre por que esto importa. -->
+        <div class="pp-espera-txt" id="pedidoPromesa"></div>
+        <!-- El texto lo pone js: con stock decimos que estamos revisando,
+             sin stock eso se contradiria con "la entrega es por WhatsApp". -->
+        <div class="pp-espera-pie">
+          <span class="latido">●</span> <span id="pedidoLatido">Revisando cada pocos segundos…</span>
+        </div>
       </div>
 
       <!-- Datos de cliente (correo / usuario) - aparece solo si el producto lo requiere -->
@@ -886,196 +1258,8 @@
         }
       </style>
 
-    <!-- ==========================================================
-         ENTREGA AUTOMATICA
-         ==========================================================
-         Aparece solo cuando el pedido se pudo crear en la base. Si el
-         producto no esta migrado, o el carrito tiene mas de un articulo,
-         o Supabase no contesta, esto queda invisible y la pagina funciona
-         como siempre. Lo maneja js/pedido-automatico.js.
-         ========================================================== -->
-    <div id="cajaPedido" style="display:none; margin-top:1rem;">
-
-      <!-- Esperando que confirmen el pago -->
-      <div id="pedidoEsperando" style="
-           background:rgba(240,165,0,0.07); border:1px solid rgba(240,165,0,0.32);
-           border-radius:12px; padding:1rem; text-align:center;">
-        <div style="font-size:0.95rem; font-weight:800; color:var(--oro); margin-bottom:0.35rem;">
-          Pedido <span id="pedidoNumero"></span>
-        </div>
-        <!-- El texto lo decide js: cambia segun haya stock o no. Ver la
-             nota en la funcion pintar() sobre por que esto importa. -->
-        <div style="font-size:0.85rem; color:var(--texto); line-height:1.6;" id="pedidoPromesa"></div>
-        <!-- El texto lo pone js: con stock decimos que estamos revisando,
-             sin stock eso se contradiria con "la entrega es por WhatsApp". -->
-        <div style="font-size:0.74rem; color:var(--tinta-suave); margin-top:0.6rem;">
-          <span class="latido">●</span> <span id="pedidoLatido">Revisando cada pocos segundos…</span>
-        </div>
-      </div>
-
-      <!-- Entregado: aca estan las credenciales -->
-      <div id="pedidoEntregado" style="display:none;
-           background:rgba(18,140,126,0.08); border:1px solid rgba(18,140,126,0.45);
-           border-radius:12px; padding:1.1rem;">
-        <!-- Singular o plural segun cuantas cuentas llegaron: lo pone js -->
-        <div id="pedidoTitulo" style="font-size:1.05rem; font-weight:800; color:var(--verde-wa); margin-bottom:0.2rem;">
-          Listo, ya es tuya
-        </div>
-        <div style="font-size:0.82rem; color:var(--tinta-suave); margin-bottom:0.9rem;" id="pedidoProducto"></div>
-
-        <!-- Las credenciales SI van sobre fondo oscuro, a proposito: es lo
-             unico que el cliente tiene que leer sin equivocarse, y el
-             contraste fuerte las separa de todo lo demas. -->
-        <div id="pedidoCreds" style="
-             background:#14161a; color:#e8eaed;
-             border-radius:9px; padding:0.85rem; font-size:0.9rem; line-height:2;"></div>
-
-        <button id="pedidoCopiar" style="
-                width:100%; margin-top:0.8rem; padding:0.8rem;
-                background:var(--verde-wa); color:#fff; border:none; border-radius:9px;
-                font-size:0.95rem; font-weight:800; font-family:'Outfit',sans-serif;
-                cursor:pointer;">
-          Copiar los datos
-        </button>
-
-        <!-- Solo cuando la compra quedo a medias: se entregaron algunas y
-             de otras no habia stock. Va JUNTO a las que si llegaron, para
-             que el cliente no tenga que contar cuantas recibio y darse
-             cuenta solo de que falta una. -->
-        <div id="pedidoFaltan" style="display:none;
-             margin-top:0.9rem; padding:0.7rem 0.85rem;
-             background:rgba(240,165,0,0.09); border:1px solid rgba(240,165,0,0.32);
-             border-radius:9px; font-size:0.8rem; line-height:1.55;
-             color:var(--texto);"></div>
-
-        <div style="font-size:0.78rem; color:var(--tinta-suave); margin-top:0.8rem; line-height:1.55;">
-          Esta compra queda guardada en
-          <a href="mis-compras.html" style="color:var(--verde-wa); font-weight:700;">Mis compras</a>,
-          en este mismo navegador. Desde ahí la volvés a abrir cuando quieras.
-        </div>
-      </div>
-
-      <!-- Pago confirmado pero sin stock -->
-      <div id="pedidoSinStock" style="display:none;
-           background:rgba(229,9,20,0.06); border:1px solid rgba(229,9,20,0.35);
-           border-radius:12px; padding:1rem;">
-        <div style="font-size:0.95rem; font-weight:800; color:var(--marca); margin-bottom:0.35rem;">
-          Recibimos tu pago
-        </div>
-        <div style="font-size:0.85rem; color:var(--texto); line-height:1.6;">
-          Justo se nos agotó este producto. Te la mandamos por WhatsApp apenas
-          la tengamos, hoy mismo. Tu pago está registrado.
-        </div>
-      </div>
-
-      <!-- El pedido se dio de baja desde el panel.
-           Antes este caso no mostraba NADA: la pagina se quedaba con el QR
-           y "Esperando pago...", y el cliente podia seguir transfiriendo a
-           un pedido que ya no existia. Decirselo es lo minimo. -->
-      <div id="pedidoCancelado" style="display:none;
-           background:rgba(20,22,26,0.04); border:1px solid var(--separador-2);
-           border-radius:12px; padding:1rem;">
-        <div style="font-size:0.95rem; font-weight:800; color:var(--tinta); margin-bottom:0.35rem;">
-          Este pedido fue cancelado
-        </div>
-        <div style="font-size:0.85rem; color:var(--texto); line-height:1.6;">
-          Su pedido fue cancelado porque no se detectó el pago.
-          <strong>Si ya transferiste</strong>, escribinos por WhatsApp con tu
-          comprobante y lo resolvemos en el momento.
-        </div>
-        <a href="https://wa.me/59157707335?text=Hola,%20mi%20pedido%20figura%20cancelado%20y%20quer%C3%ADa%20consultar"
-           target="_blank" rel="noopener"
-           style="display:block; text-align:center; margin-top:0.9rem; padding:0.75rem;
-                  background:var(--verde-wa); color:#fff; border-radius:9px;
-                  font-weight:800; font-size:0.9rem; text-decoration:none;">
-          Escribinos por WhatsApp
-        </a>
-      </div>
-
-    </div>
-
       <!-- Back -->
-      <a href="index.html" class="btn-back">Volver a la tienda</a>
-
-      <!-- Ref -->
-      <div class="pay-ref" id="payRef"></div>
-        </div>
-
-        <!-- DERECHA: el monto y el QR -->
-        <div class="pago-der">
-      <!-- Status bar -->
-      <div class="pay-status-bar pendiente" id="statusBar">
-        <div class="status-dot"></div>
-        <span id="statusText">Esperando pago...</span>
-      </div>
-
-      <!-- QR Card -->
-      <div class="pay-card" id="qrCard">
-        <div class="pay-card-header">
-          <!-- Con qué paga: el método que eligió en el carrito, solo ese.
-               Lo escribe aplicarMetodo(). -->
-          <div class="pay-metodo" id="payMetodo"></div>
-          <div class="pay-amount" id="payAmount">0.00 Bs</div>
-          <div class="pay-amount-label" id="payAmountLabel">Monto a transferir</div>
-        </div>
-
-        <div class="pay-qr-wrap">
-          <img id="qrImage" src="" alt="QR BancoSol">
-          <div class="pay-qr-overlay" id="qrOverlay">
-            <div class="icon" id="overlayIcon"></div>
-            <div class="text" id="overlayText"></div>
-          </div>
-        </div>
-
-        <div class="pay-timer" id="timerSection" style="margin-bottom:0.5rem;">
-          Redirigiendo a WhatsApp en <span id="timerDisplay" style="color:var(--verde-wa);">5:00</span>
-        </div>
-      </div>
-        <div class="pay-instructions" id="instruccionesPago">
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-text">Abre la app de tu banco y escanea el QR</div>
-          </div>
-          <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-text">Ingresa el monto exacto: <strong id="instrMonto" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-text">En Glosa/Adjunto escribe: <strong style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar">VARIOS</strong></div>
-          </div>
-          <!-- Sin paso "Confirma el pago y serás redirigido a WhatsApp": con
-               stock la cuenta aparece en esta página, y sin stock ya está
-               el botón "Ya pagué · enviar comprobante" abajo. -->
-        </div>
-        <!-- Los pasos para pagar con Binance Pay (en USDT) -->
-        <div class="pay-instructions" id="instruccionesBinance" hidden>
-          <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-text">Abre tu app de <strong>Binance</strong>, toca <strong>Pagar</strong> y escanea el QR</div>
-          </div>
-          <div class="step" id="pasoPayId">
-            <div class="step-num">2</div>
-            <div class="step-text">O envía al Pay ID: <strong id="binancePayId" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong></div>
-          </div>
-          <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-text">Envía exactamente: <strong id="instrMontoUsdt" style="color:var(--oro);cursor:pointer;" onclick="copyText(this)" title="Toca para copiar"></strong>
-              <span id="binanceAuto" hidden><br>Con el monto exacto, tu pago <strong>se confirma solo</strong> en 1 o 2 minutos.</span></div>
-          </div>
-          <!-- Desde otra billetera o exchange: USDT por la red BSC (BEP20) a tu
-               dirección de depósito de Binance. Es la misma opción, solo otra
-               forma de mandar la plata; también se confirma sola. -->
-          <div class="otra-red" id="pasoBsc" hidden>
-            <div class="otra-red-tit">¿Pagas desde otra billetera o exchange?</div>
-            <div class="step-text">Envía <strong>USDT</strong> por la red <strong>BNB Smart Chain (BEP20)</strong> a:
-              <strong id="bscDireccion" class="direccion-red" onclick="copyText(this)" title="Toca para copiar"></strong></div>
-            <div class="aviso-red">Solo por la red <strong>BSC (BEP20)</strong>: por otra red, el pago se pierde.
-              Tienen que llegar exactamente <strong id="instrMontoBsc"></strong>; si tu exchange descuenta la comisión, súmala.</div>
-          </div>
-        </div>
-
-
+      <a href="index.html" class="btn-back" id="btnVolver">Volver a la tienda</a>
         </div>
       </div>
     </div>
@@ -1170,9 +1354,11 @@
         cab.innerHTML = `${ICONO_METODO.binance} Pagás con Binance · USDT`;
         document.getElementById('payAmount').textContent = '…';
         document.getElementById('payAmountLabel').textContent = 'Cargando el QR de Binance…';
+        document.getElementById('payLead').textContent = 'Escanea con tu app de Binance y envía exactamente:';
         img.style.visibility = 'hidden';
         document.getElementById('instruccionesPago').hidden = true;
         document.getElementById('instruccionesBinance').hidden = true;
+        pintarDetalle();
         return;
       }
       img.style.visibility = '';
@@ -1184,9 +1370,13 @@
 
       const monto = montoAPagar();
       document.getElementById('payAmount').textContent = monto;
+      document.getElementById('payLead').textContent = binance
+        ? 'Escanea con tu app de Binance y envía exactamente:'
+        : 'Escanea con la app de tu banco y paga exactamente:';
+      // Con QR la frase de arriba ya dice todo; con USDT, cuánto es en Bs
       document.getElementById('payAmountLabel').textContent = binance
-        ? `Monto a enviar en USDT (${Number(s.total).toFixed(2)} Bs)`
-        : 'Monto a transferir';
+        ? `(${Number(s.total).toFixed(2)} Bs)`
+        : '';
       const enUsdt = document.getElementById('orderTotalUsdt');
       enUsdt.textContent = binance ? `Por Binance: ${monto}` : '';
       enUsdt.hidden = !binance;
@@ -1211,6 +1401,80 @@
       document.getElementById('pasoBsc').hidden = !COBRO.bscDireccion;
       document.getElementById('bscDireccion').textContent = COBRO.bscDireccion || '';
       document.getElementById('instrMontoBsc').textContent = monto;
+      pintarDetalle();
+    }
+
+    // ---------- DETALLE DEL PAGO (la tarjeta de la derecha) ----------
+    // Importe, método, glosa y fecha. El número de pedido lo pone
+    // renderPayment (la referencia) y después engancharCompra (el número
+    // de la base); el estado, estadoDelPago().
+    function pintarDetalle() {
+      const s = window._payState;
+      if (!s) return;
+      const cargandoBinance = METODO === 'binance' && !COBRO.cargado;
+      const metodo = cargandoBinance ? 'binance' : metodoEfectivo();
+      document.getElementById('detImporte').textContent = `${Number(s.total).toFixed(2)} Bs`;
+      document.getElementById('detMetodo').textContent = NOMBRE_METODO[metodo];
+      // La glosa es de la transferencia del banco: con USDT no va
+      document.getElementById('detGlosaFila').hidden = metodo !== 'qr';
+      document.getElementById('detFecha').textContent = fechaOrden(window._pedidoCreado);
+    }
+
+    // La pastilla del estado, igual debajo del QR y en el detalle:
+    //   'pendiente' · 'pagado' · 'cancelado'
+    function estadoDelPago(clase, texto) {
+      ['statusPill', 'detEstado'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.className = 'pp-pill ' + clase;
+        el.textContent = texto;
+      });
+    }
+
+    // "Descargar QR": guarda la imagen del QR que está en pantalla (el del
+    // banco o el de Binance), para pagar desde la galería del celular. Si
+    // el navegador no deja bajarla (otro dominio, sin conexión), la abre en
+    // otra pestaña y desde ahí se guarda con el dedo.
+    async function descargarQr(e) {
+      e.preventDefault();
+      const img = document.getElementById('qrImage');
+      const src = img && img.src;
+      if (!src || img.style.visibility === 'hidden') return;
+      const nombre = conBinance() ? 'QR-Binance-Tiago-Store' : 'QR-Tiago-Store';
+      try {
+        const res = await fetch(src);
+        if (!res.ok) throw new Error(res.status);
+        const blob = await res.blob();
+        const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg').replace(/\+.*/, '');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${nombre}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      } catch (err) {
+        window.open(src, '_blank', 'noopener');
+      }
+    }
+
+    // "Consultar estado": le pregunta a la base ya mismo, sin esperar la
+    // vuelta de los 4 segundos, y dice qué encontró. Si el pago ya está,
+    // la pantalla cambia sola a "¡Pago confirmado!".
+    async function consultarEstado(btn) {
+      if (!window.__consultarEstado || btn.disabled) return;
+      const texto = btn.querySelector('span');
+      const antes = 'Consultar estado';
+      btn.disabled = true;
+      btn.classList.add('girando');
+      texto.textContent = 'Consultando…';
+      const estado = await window.__consultarEstado();
+      btn.classList.remove('girando');
+      texto.textContent = estado === null ? 'No se pudo consultar'
+        : ['esperando_pago', 'vencido'].includes(estado) ? 'Aún sin confirmar'
+        : 'Actualizado';
+      setTimeout(() => { texto.textContent = antes; btn.disabled = false; }, 2200);
     }
 
     // Llega del módulo de abajo (datos_de_cobro() en la base)
@@ -1300,7 +1564,8 @@
       document.getElementById('instrMonto').textContent = `${total.toFixed(2)} Bs`;
       document.getElementById('qrImage').src = 'Img/QR%20Bolivianos.jpg';
       document.getElementById('orderTotal').textContent = `${total.toFixed(2)} Bs`;
-      document.getElementById('payRef').textContent = `Ref: ${ref}`;
+      // Al lado de "Pedido", en el detalle: "#12" o la referencia ZV-…
+      document.getElementById('payRef').textContent = String(ref).replace(/^Pedido\s*/, '');
 
       // Descuento combo: los productos van a su precio normal y, si el total
       // es menor que la suma, la diferencia sale en su propia linea. Asi la
@@ -1683,8 +1948,15 @@
     // para irse es invitarlo a salir justo de donde le llega. Se esconde
     // solo ahí. Apenas se entrega vuelve a aparecer, y también sin stock
     // (la entrega es por WhatsApp) y cancelado (no hay nada que esperar).
-    const volver = document.querySelector('.pago-izq > .btn-back');
+    const volver = $('btnVolver');
     if (volver) volver.style.display = (esperando && todoConStock) ? 'none' : '';
+
+    // La pastilla del estado, debajo del QR y en el detalle. Sin stock
+    // también es "Pagado": el pago entró, lo que falta es la cuenta.
+    // Vencido sigue "Pendiente": para el cliente el pedido sigue en pie.
+    if (esperando)            estadoDelPago('pendiente', 'Pendiente');
+    else if (listo || sinStock) estadoDelPago('pagado', 'Pagado');
+    else if (cancelado)       estadoDelPago('cancelado', 'Cancelado');
 
     // ---- LA PROMESA TIENE QUE SER VERDAD ----
     // Si no hay stock, el cliente paga creyendo que la recibe en el momento
@@ -1779,40 +2051,51 @@
     guardarCompra(tokenActual, compra);
 
     // ---- LLEGARON LAS CUENTAS ----
-    const varias = r.entregadas.length > 1;
+    const conAlguna = r.entregadas.some(conDatos);
 
-    const titulo = $('pedidoTitulo');
-    if (titulo) titulo.textContent = varias ? 'Listo, ya son tuyas' : 'Listo, ya es tuya';
+    // Entregada a mano (sin datos guardados): no hay accesos que mostrar
+    $('pedidoProducto').textContent = !conAlguna
+      ? 'Tu pedido te lo entregamos por WhatsApp.'
+      : r.faltan > 0
+        ? 'Parte de tu pedido ya fue entregada. Estos son tus accesos:'
+        : 'Tu pedido fue entregado automáticamente. Estos son tus accesos:';
 
-    $('pedidoProducto').textContent = varias
-      ? `${r.entregadas.length} cuentas`
-      : (r.entregadas[0] && r.entregadas[0].producto) || '';
+    // Un dato de la cuenta: el nombre, el valor y sus botones. La
+    // contraseña sale tapada, con el ojo para verla; todo lo que se tipea
+    // (correo, contraseña, PIN) tiene su botón de copiar. El valor viaja en
+    // data-valor (escapado) para que copiar y ver no dependan de lo que
+    // está escrito en pantalla.
+    const ICONO_COPIAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
+    const ICONO_OJO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+    const copiar = v => `<button type="button" class="pp-icono" data-copiar="${escapar(v)}" aria-label="Copiar" title="Copiar">${ICONO_COPIAR}</button>`;
+    const fila = (etiqueta, valor, como = 'copiar') => {
+      if (!valor) return '';
+      if (como === 'texto') {
+        return `<div class="pp-dato"><span>${etiqueta}</span><b>${escapar(valor)}</b></div>`;
+      }
+      if (como === 'clave') {
+        return `<div class="pp-dato"><span>${etiqueta}</span>
+                  <code class="tapada" data-valor="${escapar(valor)}">••••••••</code>
+                  <span class="pp-dato-botones">
+                    <button type="button" class="pp-icono" data-ver aria-label="Mostrar contraseña" title="Mostrar">${ICONO_OJO}</button>
+                    ${copiar(valor)}
+                  </span></div>`;
+      }
+      return `<div class="pp-dato"><span>${etiqueta}</span><code>${escapar(valor)}</code>
+                <span class="pp-dato-botones">${copiar(valor)}</span></div>`;
+    };
 
-    const fila = (etiqueta, valor) => valor
-      ? `<div><span style="color:#9aa0ab;">${etiqueta}:</span>
-           <strong style="color:#fff; font-family:ui-monospace,Consolas,monospace;
-                          user-select:all;">${escapar(valor)}</strong></div>`
-      : '';
-
-    // Con varias cuentas, cada una lleva el nombre de su producto arriba:
-    // si no, el cliente no sabe cual es cual y nos escribe preguntando.
-    const bloque = (l, i) => {
+    // Cada cuenta en su tarjeta oscura, con el nombre del producto arriba:
+    // con varias, el cliente sabe cuál es cuál sin escribirnos.
+    const bloque = l => {
       const c = l.credenciales || {};
-      const titulo = r.entregadas.length > 1
-        ? `<div style="color:#25D366; font-weight:800; font-size:0.82rem;
-                       margin:${i ? '0.9rem' : '0'} 0 0.35rem;
-                       ${i ? 'border-top:1px solid rgba(255,255,255,0.12); padding-top:0.9rem;' : ''}">
-             ${escapar(l.producto)}
-           </div>`
-        : '';
+      const nombre = `<div class="pp-cuenta-nombre">${escapar(l.producto)}</div>`;
       // Entregada a mano: los datos se los pasamos por el chat, no hay
       // nada que mostrar acá. Se dice, en vez de dejar el hueco.
       if (!conDatos(l)) {
-        return titulo +
-          `<div style="line-height:1.55; font-size:0.88rem;">
-             Esta cuenta te la entregamos <strong style="color:#25D366;">por WhatsApp</strong>.
-             Si todavía no te llegó, escribinos y te la reenviamos.
-           </div>`;
+        return `<div class="pp-cuenta">${nombre}
+                  <div class="pp-cuenta-wa">Esta cuenta te la entregamos <strong>por WhatsApp</strong>.
+                  Si todavía no te llegó, escribinos y te la reenviamos.</div></div>`;
       }
 
       // Plan rebajado: hasta cuándo le dura, que no es un mes entero
@@ -1820,14 +2103,16 @@
         ? String(l.vence).slice(0, 10).split('-').reverse().join('/')
         : '';
 
-      return titulo +
-        fila('Usuario', c.usuario) +
-        fila('Clave',   c.clave)   +
-        fila('Perfil',  c.perfil)  +
-        fila('PIN',     c.pin)     +
-        fila('Vence el', vence)    +
-        (c.notas ? `<div style="color:#ffd700; font-size:0.82rem; line-height:1.5;
-                                margin-top:0.4rem;">${escapar(c.notas)}</div>` : '');
+      // "Correo" si el usuario es un correo, como lo llama la plataforma
+      const usuario = String(c.usuario || '');
+      return `<div class="pp-cuenta">${nombre}` +
+        fila(usuario.includes('@') ? 'Correo' : 'Usuario', usuario) +
+        fila('Contraseña', c.clave, 'clave') +
+        fila('Perfil',     c.perfil, 'texto') +
+        fila('PIN',        c.pin) +
+        fila('Vence el',   vence, 'texto') +
+        (c.notas ? `<div class="pp-cuenta-nota">${escapar(c.notas)}</div>` : '') +
+        '</div>';
     };
 
     $('pedidoCreds').innerHTML = r.entregadas.map(bloque).join('');
@@ -1867,17 +2152,16 @@
   // pagar otra vez, o al menos a dudar de si el pago se registro bien.
   // Con la cuenta entregada, lo unico que tiene que ver es la cuenta.
   //
-  // El resumen del pedido y "Volver a la tienda" se quedan: uno es su
-  // comprobante de que compro y el otro es por donde sigue.
+  // El detalle del pago y "Volver a la tienda" se quedan: uno es su
+  // comprobante de que compro y el otro es por donde sigue. En el lugar
+  // del QR queda el resultado (#cajaPedido): "¡Pago confirmado!" con los
+  // accesos, "Recibimos tu pago" o "Este pedido fue cancelado".
   function esconderLoDePagar() {
     mostrarYaPague(false);     // y queda decidido: el reloj de 8 s no lo vuelve a mostrar
     ['qrCard', 'instruccionesPago', 'instruccionesBinance', 'customerDataBox'].forEach(id => {
       const el = $(id);
       if (el) el.style.display = 'none';
     });
-    // Una columna, con el aviso debajo del resumen (ver .pago-grid.sin-pago)
-    const grilla = document.querySelector('.pago-grid');
-    if (grilla) grilla.classList.add('sin-pago');
   }
 
   function apagarReloj() {
@@ -1902,6 +2186,49 @@
                                      : 'Pago confirmado. Tu cuenta está abajo')
       : 'Pago recibido. Te contactamos por WhatsApp';
   }
+
+  // Los botones de cada dato (se pintan de nuevo en cada repintado, por eso
+  // se escucha en la caja y no en cada botón):
+  //   ojo     muestra u oculta la contraseña
+  //   copiar  copia ese dato solo, y el ícono se pone verde un momento
+  $('pedidoCreds').addEventListener('click', async e => {
+    const ver = e.target.closest('[data-ver]');
+    if (ver) {
+      const valor = ver.closest('.pp-dato').querySelector('code');
+      const mostrar = valor.classList.contains('tapada');
+      valor.textContent = mostrar ? valor.dataset.valor : '••••••••';
+      valor.classList.toggle('tapada', !mostrar);
+      ver.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      ver.title = mostrar ? 'Ocultar' : 'Mostrar';
+      return;
+    }
+    const boton = e.target.closest('[data-copiar]');
+    if (!boton) return;
+    try {
+      await navigator.clipboard.writeText(boton.dataset.copiar);
+      boton.classList.add('ok');
+      boton.title = 'Copiado';
+      setTimeout(() => { boton.classList.remove('ok'); boton.title = 'Copiar'; }, 1400);
+    } catch {
+      // Sin permiso de portapapeles: se muestra el dato para copiarlo a mano
+      const valor = boton.closest('.pp-dato').querySelector('code');
+      if (valor && valor.classList.contains('tapada')) {
+        valor.textContent = valor.dataset.valor;
+        valor.classList.remove('tapada');
+      }
+    }
+  });
+
+  // "Consultar estado" (el botón vive en el script de arriba): una
+  // consulta suelta a la base, que repinta si algo cambió. Devuelve el
+  // estado de la compra, o null si no se pudo preguntar.
+  window.__consultarEstado = async () => {
+    if (!tokenActual) return null;
+    const compra = await mirarPedido(tokenActual);
+    if (!compra) return null;
+    pintar(compra);
+    return resumirCompra(compra).estado;
+  };
 
   $('pedidoCopiar').addEventListener('click', async () => {
     if (!compraActual) return;
@@ -1936,9 +2263,15 @@
     // el cliente te escribe "ZV-1G0Z3AUV" y en el panel vos ves "#7". Gana
     // el numero de pedido, que es el que existe de los dos lados.
     const ref = $('payRef');
-    if (ref) ref.textContent = etiqueta;
+    if (ref) ref.textContent = '#' + compra.numero + (compra.prueba ? ' (prueba)' : '');
+
+    // Con pedido en la base ya se puede preguntar por él a mano
+    const consultar = $('btnConsultar');
+    if (consultar) consultar.hidden = false;
 
     if (typeof buildWhatsappUrl === 'function') buildWhatsappUrl();
+    // La fecha del pedido, la de la base, en el detalle
+    if (typeof pintarDetalle === 'function') pintarDetalle();
     // Si ya escribió el correo antes de que la compra estuviera lista
     window.__guardarCorreo(($('customerEmail') || {}).value);
     pintar(compra);

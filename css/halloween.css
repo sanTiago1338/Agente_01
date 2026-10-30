@@ -729,10 +729,35 @@ html.halloween .pay-metodo { color: var(--oro-claro); background: rgba(255,122,2
 html.halloween .pay-order-usdt { color: var(--oro); }
 html.halloween .otra-red { border-top-color: rgba(255,255,255,.14); }
 html.halloween .aviso-red { background: rgba(255,122,26,.1); border-color: rgba(255,122,26,.3); }
-/* La cuenta entregada: el verde del título, más claro para leerse de noche.
-   Las credenciales ya iban sobre su caja oscura propia. */
-html.halloween #pedidoTitulo { color: #4fd1b8 !important; }
-html.halloween #pedidoEntregado { background: rgba(52,211,153,.08) !important; }
+/* La pantalla de pago (pagar-qr.html, "PANTALLA DE PAGO"): las piezas que
+   traen color propio. Lo demás ya sale de noche con los tonos de arriba. */
+html.halloween .pp-pill.pendiente { background: rgba(255,255,255,.08); color: #e6dcef; border-color: rgba(255,255,255,.18); }
+html.halloween .pp-pill.pagado    { background: rgba(52,211,153,.14);  color: #6ee7b7; border-color: rgba(52,211,153,.38); }
+html.halloween .pp-pill.cancelado { background: rgba(255,90,60,.14);   color: #ff9a7a; border-color: rgba(255,90,60,.38); }
+html.halloween #qrCard #statusBar .status-dot { box-shadow: 0 0 0 4px rgba(255,181,71,.2); }
+html.halloween .pp-btn { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
+html.halloween .pp-btn:hover { background: rgba(255,255,255,.1); }
+html.halloween .pp-ayuda { color: #ff8a5c; }
+html.halloween .pp-espera { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo), inset 3px 0 0 var(--ambar); }
+/* La cuenta entregada: los accesos sobre su caja de noche, la llave en
+   violeta y el botón principal en calabaza, como los de la tienda */
+html.halloween .pp-sello.ok { color: #2fbf8a; filter: drop-shadow(0 6px 18px rgba(47,191,138,.4)); }
+html.halloween .pp-sello.no { color: #ff6a3d; }
+html.halloween .pp-accesos { background: rgba(255,255,255,.035); border-color: rgba(255,196,140,.16); }
+html.halloween .pp-llave { color: #c9a6ff; background: rgba(164,107,255,.16); border-color: rgba(164,107,255,.35); }
+html.halloween .pp-cuenta { background: rgba(8,4,14,.6); border: 1px solid rgba(255,255,255,.07); }
+html.halloween .pp-dato code { color: #ffb27a; }
+html.halloween .pp-faltan { background: rgba(255,181,71,.1); border-color: rgba(255,181,71,.32); }
+html.halloween .pp-btn-primario {
+  color: #1d0c02;
+  background: linear-gradient(180deg, #ff9b3d, #f0690a);
+  box-shadow: 0 8px 22px rgba(240,105,10,.32), inset 0 1px 0 rgba(255,255,255,.45);
+}
+html.halloween .pp-btn-wa {
+  color: #fff;
+  background: linear-gradient(180deg, #25D366, #128C7E);
+  box-shadow: 0 8px 22px rgba(18,140,126,.3), inset 0 1px 0 rgba(255,255,255,.35);
+}
 
 
 /* ============================================================

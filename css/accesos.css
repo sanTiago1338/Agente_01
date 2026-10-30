@@ -1,0 +1,73 @@
+/* ============================================================
+   TIAGO STORE · Los accesos de una compra
+   ============================================================
+   "Tus accesos": la caja con la llave y, adentro, cada cuenta en su
+   tarjeta oscura, con el nombre del producto arriba. Cada dato con su
+   botón de copiar; la contraseña tapada, con el ojo para verla.
+
+   Lo comparten la página de pago ("¡Pago confirmado!", pagar-qr.html)
+   y Mis compras (mis-compras.html), así se ven igual en los dos
+   lugares. El HTML lo arma js/accesos.js. Con Halloween, los ajustes
+   de color están en css/halloween.css (sección 8).
+
+   Las credenciales van sobre fondo oscuro a propósito, también con el
+   tema claro: es lo único que el cliente tiene que leer sin
+   equivocarse, y el contraste fuerte las separa de todo lo demás.
+   ============================================================ */
+
+.pp-accesos {
+  text-align: left; padding: 1rem; border-radius: 18px;
+  background: rgba(20,22,26,.035); border: 1px solid var(--separador-2, rgba(20,22,26,.1));
+}
+.pp-accesos-cab { display: flex; align-items: center; gap: .75rem; margin-bottom: .85rem; }
+.pp-llave {
+  width: 44px; height: 44px; flex: none; display: grid; place-items: center;
+  border-radius: 13px; color: #6d28d9; background: rgba(124,58,237,.12); border: 1px solid rgba(124,58,237,.25);
+}
+.pp-llave svg { width: 22px; height: 22px; }
+.pp-accesos-cab strong { display: block; font-size: 1.05rem; color: var(--tinta); }
+.pp-accesos-cab small { display: block; font-size: .82rem; line-height: 1.4; color: var(--tinta-suave); }
+
+/* Cada cuenta, en su tarjeta oscura */
+.pp-cuenta { padding: .85rem 1rem; border-radius: 14px; background: #14161a; color: #e8eaed; }
+.pp-cuenta + .pp-cuenta { margin-top: .65rem; }
+.pp-cuenta-nombre {
+  margin-bottom: .45rem; font-size: .78rem; font-weight: 800;
+  letter-spacing: .12em; text-transform: uppercase; color: #fff;
+}
+/* El nombre, el valor y sus botones pegados al valor */
+.pp-dato {
+  display: grid; grid-template-columns: 6.6rem minmax(0, max-content) 1fr;
+  align-items: center; gap: .55rem; padding: .42rem 0; font-size: .92rem;
+}
+.pp-dato-botones { justify-self: start; }
+.pp-dato > span:first-child { color: #9aa0ab; }
+.pp-dato code {
+  font-family: ui-monospace, Consolas, monospace; font-size: .92rem;
+  color: #ff9d8f; overflow-wrap: anywhere; user-select: all;
+}
+.pp-dato code.tapada { letter-spacing: .14em; user-select: none; }
+.pp-dato b { color: #fff; font-weight: 700; overflow-wrap: anywhere; }
+.pp-dato-botones { display: flex; gap: .35rem; }
+.pp-icono {
+  width: 34px; height: 30px; display: grid; place-items: center; cursor: pointer;
+  border-radius: 9px; color: #e8eaed; background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.16);
+}
+.pp-icono:hover { background: rgba(255,255,255,.12); }
+.pp-icono svg { width: 16px; height: 16px; }
+.pp-icono.ok { color: #34d399; border-color: rgba(52,211,153,.55); }
+.pp-cuenta-nota { margin-top: .35rem; font-size: .82rem; line-height: 1.5; color: #ffd700; }
+.pp-cuenta-wa { font-size: .88rem; line-height: 1.55; }
+.pp-cuenta-wa strong { color: #25D366; }
+/* Celular angosto: el nombre del dato arriba y el valor con sus
+   botones abajo, así un correo largo no queda en tres renglones */
+@media (max-width: 440px) {
+  .pp-dato { grid-template-columns: minmax(0, max-content) 1fr; row-gap: .1rem; }
+  .pp-dato > span:first-child { grid-column: 1 / -1; font-size: .8rem; }
+}
+.pp-faltan {
+  margin-top: .85rem; padding: .7rem .85rem; border-radius: 10px;
+  font-size: .8rem; line-height: 1.55; color: var(--tinta-media);
+  background: rgba(240,165,0,.09); border: 1px solid rgba(240,165,0,.32);
+}

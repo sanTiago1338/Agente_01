@@ -45,11 +45,18 @@
   una identidad suficiente — el que compró desde este teléfono es el que
   vuelve a abrirlo.
 
-  Solo entran las compras ENTREGADAS. Un pedido que no se pagó no es una
-  compra, es un intento, y llenaría la lista de cosas que nunca compró.
+  Entran las compras ENTREGADAS (js/historial.js) y, además, el pedido
+  en curso de las últimas 24 horas, para que lo encuentre acá con "Pagar
+  ahora". Un pedido viejo que no se pagó no es una compra, es un intento,
+  y llenaría la lista de cosas que nunca compró.
 
-  Se guarda el token, no las credenciales: "Abrir mi cuenta" las vuelve a
-  pedir a la base. Así no quedan contraseñas de Netflix escritas en el
+  Arriba, los filtros por estado (Esperando pago, En preparación,
+  Entregado, Cancelado). Cada pedido en su tarjeta, con "Ver mis accesos"
+  (se abren ahí mismo) y "Ver detalle" (#pedido=…): el seguimiento, los
+  accesos, los productos y la información del pago.
+
+  Se guarda el token, no las credenciales: los accesos se vuelven a pedir
+  a la base cada vez. Así no quedan contraseñas de Netflix escritas en el
   navegador, y si alguna vez cambiás una cuenta entregada, el cliente ve
   la nueva y no una copia vieja.
   ============================================================
@@ -65,10 +72,12 @@
     --superficie:   #fbfbfc;
     --superficie-2: #f4f5f7;
     --separador:    #ececef;
+    --separador-2:  #dfe0e5;
     --tinta:        #14161a;
     --tinta-media:  #3d424b;
     --tinta-suave:  #767c88;
     --marca:        #e50914;
+    --marca-oscura: #b8070f;
     --oro:          #9a7400;
     --ambar:        #f0a500;
     --verde-wa:     #128C7E;
@@ -98,179 +107,34 @@
     color: var(--marca);
   }
 
-  /* Todo el ancho, a 8 px del borde. En pantallas anchas las compras
-     se acomodan en columnas en vez de quedar en una tira angosta. */
-  .caja { padding: 1.5rem 0.5rem 3rem; }
-  @media (min-width: 700px) {
-    #lista {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 0.8rem;
-      margin-bottom: 0.8rem;
-    }
-    #lista .compra { margin-bottom: 0; }
-    #lista .vacio  { grid-column: 1 / -1; }
-  }
+  /* Una columna centrada, como un historial de pedidos: cada pedido es
+     una tarjeta ancha con todo a la vista */
+  .caja { max-width: 1000px; margin: 0 auto; padding: 1.5rem .75rem 3rem; }
 
-  h1 {
-    font-size: 1.35rem;
-    color: var(--tinta);
-    margin-bottom: 0.3rem;
-  }
-  .sub {
-    font-size: 0.85rem;
-    color: var(--tinta-suave);
-    line-height: 1.55;
-    margin-bottom: 1.4rem;
-  }
-
-  /* ---------- Una compra ---------- */
-  .compra {
-    background: var(--superficie);
-    border: 1px solid var(--separador);
-    border-radius: 14px;
-    padding: 0.95rem 1.05rem;
-    margin-bottom: 0.8rem;
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    box-shadow: var(--sombra);
-  }
-
-  .compra-datos { flex: 1; min-width: 0; }
-
-  /* "Tengo un problema con mi cuenta": un enlace chico abajo de los datos,
-     para que no compita con "Abrir mi cuenta" */
-  .btn-problema {
-    display: inline-block;
-    margin-top: 0.45rem;
-    padding: 0;
-    background: none;
-    border: none;
-    color: var(--tinta-suave, #4b515c);
-    font: inherit;
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    cursor: pointer;
-  }
-  .btn-problema:hover { color: #15803d; }
-  .btn-problema:disabled { opacity: .6; cursor: wait; }
-
-  /* "Comprar de nuevo" y el aviso de vencimiento */
-  .compra-links { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; margin-top: 0.5rem; }
-  .compra-links .btn-problema { margin-top: 0; }
-  .btn-otra {
-    padding: 0.4rem 0.85rem;
-    border-radius: 999px;
-    border: 1px solid rgba(21,128,61,.35);
-    background: rgba(34,197,94,.1);
-    color: #15803d;
-    font: inherit; font-size: 0.8rem; font-weight: 800;
-    cursor: pointer;
-  }
-  .btn-otra:hover { background: rgba(34,197,94,.18); }
-  .btn-otra:disabled { opacity: .6; cursor: wait; }
-  .compra-vence {
-    display: inline-block; margin-top: 0.35rem;
-    padding: 0.15rem 0.55rem; border-radius: 999px;
-    background: rgba(180,83,9,.1); color: #92400e;
-    font-size: 0.75rem; font-weight: 700;
-  }
-
-  .compra-num {
-    font-weight: 800;
-    color: var(--tinta);
-    font-size: 0.98rem;
-    font-variant-numeric: tabular-nums;
-  }
-  .compra-prod {
-    font-size: 0.83rem;
-    color: var(--tinta-media);
-    margin-top: 0.2rem;
-    line-height: 1.45;
-  }
-  .compra-fecha {
-    font-size: 0.74rem;
-    color: var(--tinta-suave);
-    margin-top: 0.25rem;
-  }
-  .compra-faltan {
-    display: inline-block;
-    margin-top: 0.35rem;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #7c3d06;
-    background: rgba(240,165,0,0.14);
-    padding: 0.15rem 0.5rem;
-    border-radius: 99px;
-  }
-
-  .btn-abrir {
-    flex: none;
-    background: var(--verde-wa);
-    color: #fff;
-    border: none;
-    border-radius: 9px;
-    padding: 0.65rem 0.9rem;
-    font-size: 0.82rem;
-    font-weight: 800;
-    font-family: inherit;
-    cursor: pointer;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .btn-abrir:hover { filter: brightness(.94); }
+  h1 { font-size: clamp(1.5rem, 4vw, 1.9rem); font-weight: 800; color: var(--tinta); margin-bottom: .25rem; }
+  .sub { font-size: .88rem; color: var(--tinta-suave); line-height: 1.55; margin-bottom: 1.1rem; }
 
   /* ---------- Vacío ---------- */
-  .vacio {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--tinta-suave);
-  }
+  .vacio { text-align: center; padding: 3rem 1rem; color: var(--tinta-suave); }
   .vacio .emo { font-size: 2.6rem; margin-bottom: 0.7rem; }
   .vacio h2 { font-size: 1.05rem; color: var(--tinta); margin-bottom: 0.4rem; }
   .vacio p { font-size: 0.87rem; line-height: 1.6; }
-
   .btn-tienda {
-    display: inline-block;
-    margin-top: 1.3rem;
-    background: var(--marca);
-    color: #fff;
-    text-decoration: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 10px;
-    font-weight: 800;
-    font-size: 0.92rem;
+    display: inline-block; margin-top: 1.3rem; padding: 0.8rem 1.5rem;
+    background: var(--marca); color: #fff; text-decoration: none;
+    border-radius: 999px; font-weight: 800; font-size: 0.92rem;
   }
 
   /* ---------- Pie ---------- */
   .aviso {
-    margin-top: 1.6rem;
-    padding: 0.85rem 1rem;
-    background: var(--superficie-2);
-    border-radius: 10px;
-    font-size: 0.78rem;
-    color: var(--tinta-suave);
-    line-height: 1.6;
+    margin-top: 1.6rem; padding: 0.85rem 1rem; border-radius: 16px;
+    font-size: 0.78rem; color: var(--tinta-suave); line-height: 1.6;
   }
-  .acciones {
-    margin-top: 1.2rem;
-    display: flex;
-    gap: 0.7rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+  .acciones { margin-top: 1.2rem; display: flex; gap: 0.7rem; flex-wrap: wrap; justify-content: center; }
   .link-suave {
-    background: none;
-    border: none;
-    color: var(--tinta-suave);
-    font-size: 0.8rem;
-    font-family: inherit;
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    background: none; border: none; color: var(--tinta-suave);
+    font-size: 0.8rem; font-family: inherit; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 3px;
   }
   .link-suave:hover { color: var(--marca); }
 
@@ -305,8 +169,7 @@
 
   /* ---------- LIQUID GLASS ----------
      El mismo vidrio que la tienda. Los tonos y el fondo con manchas de
-     color están en css/vidrio.css (se carga después). Pisa solo fondos,
-     bordes, brillos y sombras: los textos quedan como estaban. */
+     color están en css/vidrio.css (se carga después). */
   header {
     position: sticky;
     top: .5rem;
@@ -321,38 +184,287 @@
                 0 0 0 .5px rgba(20,22,26,.08),
                 inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
   }
-  .compra {
+  .mc-card, .mc-pedido, .aviso {
     background: var(--vidrio);
     -webkit-backdrop-filter: var(--vidrio-blur);
     backdrop-filter: var(--vidrio-blur);
     border: 1px solid var(--vidrio-borde);
-    border-radius: 20px;
-    box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
+    box-shadow: var(--vidrio-sombra), var(--vidrio-brillo), 0 0 0 .5px rgba(20,22,26,.06);
   }
-  .compra-faltan { box-shadow: inset 0 1px 0 rgba(255,255,255,.7); }
-  /* Los botones son de vidrio (css/vidrio.css): acá solo la forma */
-  .btn-abrir,
-  .btn-tienda { border-radius: 999px; }
-  .aviso {
-    background: var(--vidrio);
-    -webkit-backdrop-filter: var(--vidrio-blur);
-    backdrop-filter: var(--vidrio-blur);
-    border: 1px solid var(--vidrio-borde);
-    border-radius: 16px;
-    box-shadow: 0 4px 14px rgba(20,22,26,.06), var(--vidrio-brillo);
+
+  /* ==========================================================
+     LA LISTA
+     ==========================================================
+     Arriba, los filtros por estado con cuántos hay de cada uno. Abajo,
+     una tarjeta por pedido:
+       cabeza   el número, las fechas, el estado, los días que le
+                quedan a la suscripción y el total
+       medio    cada producto con su foto, los días y el precio
+       pie      "Comprar de nuevo" y "¿Problemas con tu cuenta?" a la
+                izquierda; a la derecha "Ver mis accesos" (se abren ahí
+                mismo, debajo) y "Ver detalle"
+     ========================================================== */
+  .mc-filtros {
+    display: flex; gap: .5rem; margin: 0 -.75rem 1rem; padding: .15rem .75rem .35rem;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .mc-filtros::-webkit-scrollbar { display: none; }
+  .mc-filtros[hidden] { display: none; }
+  .mc-filtro {
+    flex: none; display: inline-flex; align-items: center; gap: .45rem;
+    padding: .55rem 1rem; border-radius: 999px; cursor: pointer;
+    font: 600 .9rem 'Outfit', sans-serif; color: var(--tinta-media);
+    background: var(--vidrio); border: 1px solid var(--vidrio-borde);
+    box-shadow: 0 2px 8px rgba(20,22,26,.05), 0 0 0 .5px rgba(20,22,26,.1), var(--vidrio-brillo);
+    transition: transform .15s ease;
+  }
+  .mc-filtro:hover { transform: translateY(-1px); }
+  .mc-filtro b {
+    min-width: 1.4rem; padding: .05rem .4rem; border-radius: 999px;
+    font-size: .74rem; font-weight: 800; text-align: center;
+    background: rgba(20,22,26,.07); color: var(--tinta-media);
+  }
+  .mc-filtro.vacio-f { opacity: .55; }
+  .mc-filtro[aria-pressed="true"] {
+    color: #fff; border-color: transparent; opacity: 1;
+    background: linear-gradient(180deg, #ff2a35, var(--marca-oscura));
+    box-shadow: 0 6px 18px rgba(229,9,20,.28), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .mc-filtro[aria-pressed="true"] b { background: rgba(255,255,255,.22); color: #fff; }
+
+  #lista { display: grid; gap: .9rem; }
+
+  .mc-pedido { border-radius: 22px; overflow: hidden; }
+  .mc-ped-cab {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: .6rem 1rem; padding: 1rem 1.2rem;
+  }
+  .mc-ped-num { font-size: 1.1rem; font-weight: 800; color: var(--tinta); font-variant-numeric: tabular-nums; }
+  .mc-ped-num small { font-size: .74rem; font-weight: 700; color: var(--tinta-suave); }
+  .mc-ped-fecha {
+    display: flex; align-items: flex-start; gap: .35rem;
+    margin-top: .2rem; font-size: .82rem; line-height: 1.35; color: var(--tinta-suave);
+  }
+  .mc-ped-fecha svg { width: 15px; height: 15px; flex: none; margin-top: .05rem; }
+  .mc-ped-fecha span { min-width: 0; }
+  .mc-ped-lado { display: flex; align-items: center; flex-wrap: wrap; justify-content: flex-end; gap: .55rem .8rem; }
+  .mc-ped-total { font-size: 1.35rem; font-weight: 800; color: var(--tinta); white-space: nowrap; }
+
+  /* El estado del pedido: la misma pastilla en la lista y en el detalle */
+  .mc-estado {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .24rem .75rem; border-radius: 999px; white-space: nowrap;
+    font-size: .78rem; font-weight: 700; border: 1px solid transparent;
+  }
+  .mc-estado::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .mc-estado.esperando   { color: #8a5a00; background: rgba(240,165,0,.13); border-color: rgba(240,165,0,.35); }
+  .mc-estado.preparacion { color: #5b21b6; background: rgba(124,58,237,.1);  border-color: rgba(124,58,237,.28); }
+  .mc-estado.entregado   { color: #0b6e57; background: rgba(18,140,126,.12); border-color: rgba(18,140,126,.32); }
+  .mc-estado.parcial     { color: #0b6e57; background: rgba(240,165,0,.12);  border-color: rgba(240,165,0,.35); }
+  .mc-estado.cancelado   { color: var(--marca); background: rgba(229,9,20,.07); border-color: rgba(229,9,20,.25); }
+
+  /* Cuánto le queda a la suscripción */
+  .mc-dias { display: inline-flex; align-items: center; gap: .3rem; font-size: .84rem; color: var(--tinta-suave); white-space: nowrap; }
+  .mc-dias svg { width: 15px; height: 15px; }
+  .mc-dias.pronto  { color: #92400e; font-weight: 700; }
+  .mc-dias.vencida { color: var(--marca); font-weight: 700; }
+
+  .mc-ped-items { border-top: 1px solid var(--separador); }
+  .mc-item {
+    display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center;
+    gap: .9rem; padding: .85rem 1.2rem;
+  }
+  .mc-item + .mc-item { border-top: 1px solid var(--separador); }
+  .mc-item-nom { font-weight: 700; color: var(--tinta); line-height: 1.3; overflow-wrap: anywhere; }
+  .mc-item-sub { font-size: .82rem; color: var(--tinta-suave); margin-top: .15rem; }
+  .mc-item-precio { font-weight: 700; color: var(--tinta); white-space: nowrap; }
+  .mc-item-desc { padding-top: .55rem; padding-bottom: .55rem; }
+  .mc-item-desc .mc-item-nom, .mc-item-desc .mc-item-precio { color: #0b6e57; font-size: .9rem; }
+
+  /* La foto del producto. Mientras carga, o si no tiene, sus iniciales
+     sobre un degradé (la foto se pone encima cuando llega) */
+  .mc-foto {
+    position: relative; width: 56px; height: 56px; border-radius: 12px; overflow: hidden;
+    display: grid; place-items: center; flex: none;
+    font: 800 1rem 'Outfit', sans-serif; color: #fff; letter-spacing: .02em;
+    background: linear-gradient(135deg, var(--c1, #3b1d6e), var(--c2, #e50914));
+    box-shadow: 0 4px 12px rgba(20,22,26,.12), inset 0 0 0 1px rgba(255,255,255,.12);
+  }
+  .mc-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  .mc-ped-pie {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: .7rem 1rem; padding: .85rem 1.2rem; border-top: 1px solid var(--separador);
+  }
+  .mc-ped-links { display: flex; flex-wrap: wrap; gap: .4rem 1rem; }
+  .mc-link {
+    padding: 0; background: none; border: 0; cursor: pointer;
+    font: 600 .8rem 'Outfit', sans-serif; color: var(--tinta-suave);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .mc-link:hover { color: var(--tinta); }
+  .mc-link:disabled { opacity: .6; cursor: wait; }
+  .mc-ped-botones { display: flex; flex-wrap: wrap; gap: .5rem; margin-left: auto; }
+
+  .mc-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+    padding: .58rem 1rem; border-radius: 12px; cursor: pointer; text-decoration: none; white-space: nowrap;
+    font: 700 .88rem 'Outfit', sans-serif; color: var(--tinta);
+    background: var(--vidrio); border: 1px solid var(--vidrio-borde);
+    box-shadow: 0 4px 12px rgba(20,22,26,.07), 0 0 0 .5px rgba(20,22,26,.12), var(--vidrio-brillo);
+    transition: transform .15s ease;
+  }
+  .mc-btn:hover { transform: translateY(-1px); }
+  .mc-btn:disabled { cursor: wait; opacity: .7; transform: none; }
+  .mc-btn svg { width: 17px; height: 17px; flex: none; }
+  .mc-btn.primario {
+    color: #fff; border-color: transparent;
+    background: linear-gradient(180deg, #ff2a35, var(--marca-oscura));
+    box-shadow: 0 6px 18px rgba(229,9,20,.26), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .mc-btn.wa {
+    color: #fff; border-color: transparent;
+    background: linear-gradient(180deg, #25D366, #128C7E);
+    box-shadow: 0 6px 18px rgba(18,140,126,.26), inset 0 1px 0 rgba(255,255,255,.35);
+  }
+
+  /* "Ver mis accesos": se abren dentro de la misma tarjeta */
+  .mc-ped-accesos { padding: 0 1.2rem 1.2rem; }
+  .mc-ped-accesos[hidden] { display: none; }
+  .mc-nota { font-size: .85rem; color: var(--tinta-suave); padding: .2rem 0; }
+
+  /* Mientras se consulta la base: tarjetas grises que laten */
+  .mc-esqueleto { height: 180px; border-radius: 22px; position: relative; overflow: hidden; }
+  .mc-esqueleto::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent);
+    transform: translateX(-100%); animation: mc-brillo 1.3s ease-in-out infinite;
+  }
+  @keyframes mc-brillo { to { transform: translateX(100%); } }
+  .mc-sin-filtro { text-align: center; padding: 2.2rem 1rem; color: var(--tinta-suave); font-size: .9rem; }
+
+  /* ==========================================================
+     EL DETALLE DE UN PEDIDO (mis-compras.html#pedido=…)
+     ==========================================================
+     El seguimiento (creado → pago → preparación → entregado), los
+     accesos, los productos y la información del pedido. */
+  .mc-volver {
+    display: inline-flex; align-items: center; gap: .35rem; margin-bottom: .8rem;
+    font-size: .9rem; font-weight: 700; color: var(--tinta-media); text-decoration: none;
+  }
+  .mc-volver:hover { color: var(--marca); }
+  .mc-volver svg { width: 18px; height: 18px; }
+  .mc-card { border-radius: 22px; padding: 1.15rem 1.25rem; margin-bottom: .9rem; }
+  .mc-det-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .7rem 1rem; }
+  .mc-det-cab h2 { font-size: clamp(1.35rem, 4vw, 1.7rem); font-weight: 800; color: var(--tinta); }
+  .mc-det-cab p { font-size: .86rem; color: var(--tinta-suave); margin-top: .15rem; }
+  .mc-det-cab .mc-ped-lado { gap: .6rem; }
+
+  /* El seguimiento: cuatro pasos unidos por una línea */
+  .mc-pasos { list-style: none; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .mc-paso { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: .4rem; padding: 0 .2rem; }
+  .mc-paso::before {
+    content: ''; position: absolute; top: 17px; right: 50%; width: 100%; height: 3px;
+    border-radius: 3px; background: var(--separador-2); z-index: 0;
+  }
+  .mc-paso:first-child::before { display: none; }
+  .mc-paso.hecho::before, .mc-paso.actual::before, .mc-paso.cancelado::before {
+    background: linear-gradient(90deg, #ff2a35, var(--marca));
+  }
+  .mc-punto {
+    position: relative; z-index: 1; width: 36px; height: 36px; border-radius: 50%;
+    display: grid; place-items: center; font-size: .85rem; font-weight: 800;
+    color: var(--tinta-suave); background: var(--superficie-2); border: 2px solid var(--separador-2);
+  }
+  .mc-punto svg { width: 18px; height: 18px; }
+  .mc-paso.hecho .mc-punto {
+    color: #fff; border-color: transparent;
+    background: linear-gradient(180deg, #ff2a35, var(--marca-oscura));
+    box-shadow: 0 4px 12px rgba(229,9,20,.3);
+  }
+  .mc-paso.actual .mc-punto {
+    color: var(--marca); background: #fff; border-color: var(--marca);
+    box-shadow: 0 0 0 5px rgba(229,9,20,.12);
+  }
+  .mc-paso.cancelado .mc-punto { color: #fff; border-color: transparent; background: #6b7280; }
+  .mc-paso b { font-size: .88rem; color: var(--tinta); font-weight: 700; line-height: 1.25; }
+  .mc-paso:not(.hecho):not(.actual):not(.cancelado) b { color: var(--tinta-suave); font-weight: 600; }
+  .mc-paso small { font-size: .74rem; color: var(--tinta-suave); line-height: 1.3; }
+
+  .mc-det-grid { display: grid; gap: .9rem; }
+  .mc-det-grid .mc-card { margin-bottom: 0; }
+  @media (min-width: 820px) { .mc-det-grid { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); align-items: start; } }
+  .mc-card h3 { font-size: 1.2rem; font-weight: 800; color: var(--tinta); margin-bottom: .7rem; }
+  /* En el detalle, la tarjeta ya es la caja de "Tus accesos" */
+  #detAccesos > .pp-accesos { padding: 0; background: none; border: 0; }
+
+  /* Los productos, como en una factura */
+  .mc-tabla { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .mc-tabla th {
+    text-align: left; padding: .45rem .4rem; font-size: .72rem; font-weight: 800;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-suave);
+    border-bottom: 1px solid var(--separador-2);
+  }
+  .mc-tabla td { padding: .7rem .4rem; border-bottom: 1px solid var(--separador); color: var(--tinta-media); vertical-align: middle; }
+  .mc-tabla .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .mc-tabla td.num:last-child { color: var(--tinta); font-weight: 700; }
+  .mc-tabla .mc-item-nom { font-size: .92rem; }
+  .mc-tabla tfoot td { border-bottom: 0; padding-top: .55rem; padding-bottom: .2rem; }
+  .mc-tabla tfoot .desc td { color: #0b6e57; font-weight: 700; }
+  .mc-tabla tfoot .tot td { font-size: 1.05rem; font-weight: 800; color: var(--tinta); }
+  .mc-prod { display: flex; align-items: center; gap: .7rem; min-width: 0; }
+  .mc-prod .mc-foto { width: 42px; height: 42px; border-radius: 10px; font-size: .8rem; }
+
+  /* La información, en filas de nombre y valor */
+  .mc-info { display: grid; gap: 0; }
+  .mc-info > div { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: .6rem; align-items: center; padding: .45rem 0; font-size: .9rem; }
+  .mc-info dt { color: var(--tinta-suave); }
+  .mc-info dd { color: var(--tinta); font-weight: 500; overflow-wrap: anywhere; }
+  .mc-info + h3 { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--separador); }
+  .mc-pago { display: flex; align-items: center; justify-content: space-between; gap: .6rem; flex-wrap: wrap; font-size: .9rem; }
+  .mc-pago-met { display: flex; align-items: center; gap: .55rem; color: var(--tinta); font-weight: 600; }
+  .mc-pago-met span { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(20,22,26,.06); color: var(--tinta-media); }
+  .mc-pago-met svg { width: 18px; height: 18px; }
+  .mc-pago strong { color: var(--tinta); font-size: 1rem; }
+  .mc-det-botones { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.1rem; }
+
+  /* Celular */
+  @media (max-width: 640px) {
+    .caja { padding-top: 1.1rem; }
+    .mc-ped-cab, .mc-ped-pie { padding: .9rem 1rem; }
+    .mc-item { grid-template-columns: 48px minmax(0, 1fr); gap: .75rem; padding: .8rem 1rem; }
+    .mc-item .mc-foto { width: 48px; height: 48px; }
+    .mc-item-precio { grid-column: 2; font-size: .9rem; }
+    .mc-ped-lado { width: 100%; justify-content: flex-start; }
+    .mc-ped-lado .mc-ped-total { margin-left: auto; }
+    .mc-ped-botones { width: 100%; }
+    .mc-ped-botones .mc-btn { flex: 1; }
+    .mc-ped-accesos { padding: 0 .75rem .9rem; }
+    .mc-card { padding: 1rem; }
+    .mc-paso b { font-size: .76rem; }
+    .mc-paso small { display: none; }
+    .mc-punto { width: 32px; height: 32px; }
+    .mc-paso::before { top: 15px; }
+    .mc-info > div { grid-template-columns: 7.4rem minmax(0, 1fr); }
+    .mc-tabla th:nth-child(2), .mc-tabla td:nth-child(2) { display: none; }   /* sin "Cant.": va en el renglón */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mc-esqueleto::after { animation: none; }
   }
 </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
-  <link rel="stylesheet" href="css/vidrio.css?v=20261030165422">
+  <link rel="stylesheet" href="css/vidrio.css">
+  <!-- Los accesos de cada cuenta (css/accesos.css): los mismos de la página de pago -->
+  <link rel="stylesheet" href="css/accesos.css">
   <!-- Halloween (css/halloween.css): solo pisa algo cuando js/temporada.js lo prende -->
-  <link rel="stylesheet" href="css/halloween.css?v=20261030165422">
-  <script src="js/barra-vidrio.js?v=20261030165422" defer></script>
+  <link rel="stylesheet" href="css/halloween.css">
+  <script src="js/barra-vidrio.js" defer></script>
   <!-- El registro del cliente: usuario y WhatsApp (botón "Usuario" de arriba) -->
-  <script src="js/usuario.js?v=20261030165422" defer></script>
+  <script src="js/usuario.js" defer></script>
   <!-- Temas de temporada (js/temporada.js): sin defer, así la página ya sale de noche -->
-  <script src="js/temporada.js?v=20261030165422"></script>
+  <script src="js/temporada.js"></script>
   <!-- Transparente o teñido (js/tenido.js): sin defer, así el vidrio ya sale como lo dejó el cliente -->
-  <script src="js/tenido.js?v=20261030165422"></script>
+  <script src="js/tenido.js"></script>
 </head>
 <body>
 
@@ -365,34 +477,44 @@
 </header>
 
 <main class="caja">
-  <h1>Mis compras</h1>
-  <p class="sub" id="sub">Cargando…</p>
+  <!-- LA LISTA: los filtros y una tarjeta por pedido -->
+  <section id="vistaLista">
+    <h1>Mis compras</h1>
+    <p class="sub" id="sub">Cargando…</p>
 
-  <div id="lista"></div>
+    <div class="mc-filtros" id="filtros" aria-label="Filtrar por estado" hidden></div>
+    <div id="lista" aria-live="polite"></div>
 
-  <div class="acciones" id="acciones" hidden>
-    <a class="link-suave" href="index.html" style="text-decoration:underline;">Seguir comprando</a>
-    <button class="link-suave" id="btnVaciar">Borrar esta lista</button>
-  </div>
+    <div class="acciones" id="acciones" hidden>
+      <a class="link-suave" href="index.html" style="text-decoration:underline;">Seguir comprando</a>
+      <button class="link-suave" id="btnVaciar">Borrar esta lista</button>
+    </div>
 
-  <div class="aviso" id="aviso" hidden>
-    Esta lista se guarda solo en este navegador. Si cambiás de celular o
-    borrás los datos de navegación, se pierde — pero tus cuentas siguen
-    siendo tuyas: escribinos por WhatsApp y te las reenviamos.
-  </div>
+    <div class="aviso" id="aviso" hidden>
+      Esta lista se guarda solo en este navegador. Si cambiás de celular o
+      borrás los datos de navegación, se pierde — pero tus cuentas siguen
+      siendo tuyas: escribinos por WhatsApp y te las reenviamos.
+    </div>
+  </section>
+
+  <!-- EL DETALLE de un pedido (#pedido=…): lo arma pintarDetalle() -->
+  <section id="vistaDetalle" hidden></section>
 </main>
 
 <script type="module">
 import { misCompras, olvidarTodo, linkDeCompra } from './js/historial.js';
-import { mirarPedido } from './js/pedido-automatico.js';
+import { mirarPedido, resumirCompra, compraRecordada } from './js/pedido-automatico.js';
+import { htmlDeAccesos, activarAccesos, escapar, fechaCorta } from './js/accesos.js';
+import { sb } from './js/supabase-base.js';
 
 // El WhatsApp de la tienda, el mismo del botón verde
 const WA_TIENDA = '59157707335';
 
 const $ = id => document.getElementById(id);
-const escapar = s => String(s ?? '').replace(/[&<>"]/g,
-  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+// ------------------------------------------------------------
+// Formatos
+// ------------------------------------------------------------
 // "08-09-2026 02:32 PM" — el mismo formato que el cliente tiene en su
 // mensaje de WhatsApp y que el dueño ve en el panel. Si acá se escribiera
 // distinto, cruzar los tres sería adivinar.
@@ -401,6 +523,7 @@ const escapar = s => String(s ?? '').replace(/[&<>"]/g,
 // cliente escribe por un problema con una compra, este es el dato que te
 // va a pasar para que la encuentres.
 function fecha(iso) {
+  if (!iso) return '';
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
   const p = n => String(n).padStart(2, '0');
@@ -409,22 +532,280 @@ function fecha(iso) {
   return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()} ` +
          `${p(h % 12 || 12)}:${p(d.getMinutes())} ${h < 12 ? 'AM' : 'PM'}`;
 }
+const bs = n => `${(Number(n) || 0).toFixed(2)} Bs`;
+const NOMBRE_METODO = { qr: 'QR Bolivia', binance: 'Binance (USDT)', bsc: 'USDT · red BSC' };
 
-// Los nombres repetidos se agrupan: comprar 2 Netflix muestra "2x Netflix"
-// y no dos líneas iguales, que parecería un error de la página.
-function resumirProductos(productos) {
-  const cuenta = new Map();
-  for (const p of productos || []) cuenta.set(p, (cuenta.get(p) || 0) + 1);
-  return [...cuenta.entries()]
-    .map(([nombre, n]) => (n > 1 ? `${n}x ${nombre}` : nombre))
-    .join(' · ');
+// Días que le quedan a la suscripción ("2026-11-29" → 30). null sin fecha.
+function diasQuedan(vence) {
+  const m = String(vence || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  const dia = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  return Math.round((dia - hoy) / 864e5);
+}
+
+// ------------------------------------------------------------
+// Íconos
+// ------------------------------------------------------------
+const ICONO = {
+  fecha:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>',
+  reloj:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"/></svg>',
+  llave:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="12" r="3.5"/><path d="M11 12h10M18 12v3M15 12v2"/></svg>',
+  ojo:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  qr:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>',
+  usdt:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/></svg>',
+  check:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  cruz:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg>',
+  atras:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>',
+  wa:     '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2Z"/></svg>'
+};
+
+// ------------------------------------------------------------
+// Los estados, como los ve el cliente
+// ------------------------------------------------------------
+// El estado de la base (resumirCompra) se agrupa en los cinco filtros de
+// arriba. "vencido" va con los que esperan el pago: para el cliente su
+// pedido sigue en pie, y si paga se lo entregamos.
+const FILTROS = [
+  ['todas',       'Todas'],
+  ['esperando',   'Esperando pago'],
+  ['preparacion', 'En preparación'],
+  ['entregado',   'Entregado'],
+  ['cancelado',   'Cancelado']
+];
+const ESTADO = {
+  esperando_pago: { filtro: 'esperando',   clase: 'esperando',   texto: 'Esperando pago' },
+  vencido:        { filtro: 'esperando',   clase: 'esperando',   texto: 'Esperando pago' },
+  sin_stock:      { filtro: 'preparacion', clase: 'preparacion', texto: 'En preparación' },
+  parcial:        { filtro: 'entregado',   clase: 'parcial',     texto: 'Entrega parcial' },
+  entregado:      { filtro: 'entregado',   clase: 'entregado',   texto: 'Entregado' },
+  cancelado:      { filtro: 'cancelado',   clase: 'cancelado',   texto: 'Cancelado' }
+};
+const pastilla = p => `<span class="mc-estado ${ESTADO[p.estado].clase}">${ESTADO[p.estado].texto}</span>`;
+
+// ------------------------------------------------------------
+// Los pedidos
+// ------------------------------------------------------------
+// Salen de dos lados de este navegador:
+//   · las compras entregadas (js/historial.js), que guardan solo el token
+//   · el pedido en curso de las últimas 24 horas (el que armó y quizás no
+//     pagó todavía): así lo encuentra acá con "Pagar ahora"
+// De cada uno se le pregunta a la base cómo está AHORA (ver_mi_compra,
+// con su token): el estado, las fechas, los precios y las cuentas. Las
+// credenciales no se guardan en el navegador: llegan en el momento.
+//
+// Si la base no contesta, una compra guardada se muestra igual con lo que
+// se sabe de ella (nombres, total, fecha), y sus accesos se piden de nuevo
+// al tocar "Ver mis accesos".
+let pedidos  = [];
+let filtro   = 'todas';
+let cargado  = false;
+const fotos  = new Map();   // producto_id → { imagen, color }
+
+function armarPedido(token, compra, guardada) {
+  if (compra) {
+    const r = resumirCompra(compra);
+    if (!ESTADO[r.estado]) return null;          // 'vacio': no hay nada que mostrar
+    const entregadas = r.entregadas;
+    return {
+      token, compra, enLinea: true,
+      numero:    compra.numero,
+      prueba:    !!compra.prueba,
+      estado:    r.estado,
+      creado:    compra.creado_en || (guardada && guardada.fecha) || null,
+      entregado: entregadas.map(l => l.entregado_en).filter(Boolean).sort()[0] || null,
+      total:     Number(compra.total) || 0,
+      descuento: Number(compra.descuento) || 0,
+      metodo:    compra.metodo || 'qr',
+      lineas:    compra.lineas || [],
+      vence:     entregadas.map(l => l.vence).filter(Boolean).sort()[0] || null,
+      faltan:    r.faltan
+    };
+  }
+  if (!guardada) return null;
+  // Sin conexión con la base: lo que quedó guardado al entregarse
+  return {
+    token, compra: null, enLinea: false,
+    numero:    guardada.numero,
+    prueba:    false,
+    estado:    guardada.faltan > 0 ? 'parcial' : 'entregado',
+    creado:    guardada.fecha,
+    entregado: guardada.fecha,
+    total:     Number(guardada.total) || 0,
+    descuento: 0,
+    metodo:    null,
+    lineas:    (guardada.productos || []).map((nombre, i) => ({
+                 producto: nombre, producto_id: (guardada.fids || [])[i] || null,
+                 precio: null, estado: 'entregado' })),
+    vence:     guardada.vence || null,
+    faltan:    guardada.faltan || 0
+  };
+}
+
+// Los productos del pedido, juntando los repetidos: comprar 2 Netflix
+// muestra "2 × 14.00 Bs" y no dos renglones iguales
+function productosDe(p) {
+  const grupos = new Map();
+  for (const l of p.lineas) {
+    const precio = l.precio === null || l.precio === undefined ? null
+      : (Number(l.precio) || 0) + (Number(l.descuento) || 0);
+    const clave = `${l.producto_id || l.producto}|${precio}`;
+    const g = grupos.get(clave) || { nombre: l.producto, id: l.producto_id, precio, cant: 0,
+                                     dias: Number(l.dias) || Number(l.dias_plan) || null };
+    g.cant++;
+    grupos.set(clave, g);
+  }
+  return [...grupos.values()];
+}
+
+async function cargar() {
+  const guardadas = misCompras();
+  const enCurso   = compraRecordada();
+  const tokens = [...new Set([enCurso && enCurso.token, ...guardadas.map(c => c.token)].filter(Boolean))];
+
+  if (tokens.length === 0) { cargado = true; pintar(); return; }
+
+  // Mientras pregunta: una tarjeta gris por pedido (hasta tres)
+  $('sub').textContent = 'Buscando tus pedidos…';
+  $('lista').innerHTML = Array.from({ length: Math.min(tokens.length, 3) },
+    () => '<div class="mc-pedido mc-esqueleto" aria-hidden="true"></div>').join('');
+
+  const vivas = await Promise.all(tokens.map(t => mirarPedido(t)));
+  pedidos = tokens
+    .map((t, i) => armarPedido(t, vivas[i], guardadas.find(g => g.token === t)))
+    .filter(Boolean)
+    .sort((a, b) => new Date(b.creado || 0) - new Date(a.creado || 0));
+  cargado = true;
+  ruta();
+  cargarFotos();
+}
+
+// Las fotos de los productos, de la base (las mismas de la tienda). Si un
+// producto no tiene, o no carga, quedan sus iniciales.
+async function cargarFotos() {
+  const ids = [...new Set(pedidos.flatMap(p => p.lineas.map(l => l.producto_id)).filter(Boolean))];
+  if (!ids.length) return;
+  try {
+    const { data, error } = await sb.from('productos').select('id, imagen, imagen_color').in('id', ids);
+    if (error || !data) return;
+    data.forEach(f => fotos.set(f.id, { imagen: f.imagen || '', color: f.imagen_color || '' }));
+    document.querySelectorAll('.mc-foto[data-id]').forEach(ponerFoto);
+  } catch { /* quedan las iniciales */ }
+}
+
+function ponerFoto(caja) {
+  const f = fotos.get(caja.dataset.id);
+  if (!f) return;
+  if (/^#[0-9a-f]{3,8}$/i.test(f.color)) caja.style.setProperty('--c1', f.color);
+  if (!f.imagen || caja.querySelector('img')) return;
+  const img = new Image();
+  img.alt = '';
+  img.loading = 'lazy';
+  img.onerror = () => img.remove();
+  img.src = f.imagen;
+  caja.appendChild(img);
+}
+
+// La foto (o las iniciales) de un producto
+function foto(id, nombre) {
+  const iniciales = String(nombre || '?').replace(/[^\p{L}\p{N} ]/gu, ' ').trim()
+    .split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
+  return `<span class="mc-foto"${id ? ` data-id="${escapar(id)}"` : ''} aria-hidden="true">${escapar(iniciales)}</span>`;
+}
+
+// "Quedan 30 días", en ámbar la última semana y en rojo si ya venció
+function diasHtml(p) {
+  if (!['entregado', 'parcial'].includes(p.estado)) return '';
+  const d = diasQuedan(p.vence);
+  if (d === null) return '';
+  const clase = d < 0 ? 'vencida' : d <= 7 ? 'pronto' : '';
+  const texto = d < 0 ? 'Suscripción vencida' : d === 0 ? 'Vence hoy' : d === 1 ? 'Queda 1 día' : `Quedan ${d} días`;
+  return `<span class="mc-dias ${clase}">${ICONO.reloj}${texto}</span>`;
+}
+
+// ------------------------------------------------------------
+// La lista
+// ------------------------------------------------------------
+function pintarFiltros() {
+  const cuantos = f => f === 'todas' ? pedidos.length
+    : pedidos.filter(p => ESTADO[p.estado].filtro === f).length;
+  $('filtros').innerHTML = FILTROS.map(([f, texto]) => {
+    const n = cuantos(f);
+    return `<button type="button" class="mc-filtro${n ? '' : ' vacio-f'}" data-filtro="${f}"
+              aria-pressed="${f === filtro}">${texto} <b>${n}</b></button>`;
+  }).join('');
+  $('filtros').hidden = false;
+  // En el celular los filtros se corren de costado: el elegido, a la vista
+  const elegido = $('filtros').querySelector('[aria-pressed="true"]');
+  if (elegido && filtro !== 'todas') elegido.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+
+function tarjeta(p) {
+  const fechas = [fecha(p.creado)];
+  if (p.entregado && ['entregado', 'parcial'].includes(p.estado)) fechas.push(`Entregado ${fecha(p.entregado)}`);
+  const items = productosDe(p).map(it => `
+      <div class="mc-item">
+        ${foto(it.id, it.nombre)}
+        <div>
+          <div class="mc-item-nom">${escapar(it.nombre)}</div>
+          <div class="mc-item-sub">${[it.dias ? `${it.dias} días` : '', it.precio !== null ? `${it.cant} × ${bs(it.precio)}` : (it.cant > 1 ? `${it.cant} cuentas` : '')].filter(Boolean).join(' · ')}</div>
+        </div>
+        ${it.precio !== null ? `<div class="mc-item-precio">${bs(it.precio * it.cant)}</div>` : ''}
+      </div>`).join('') +
+    // Los productos van a su precio normal: el descuento combo en su propio
+    // renglón, así la cuenta cierra a la vista (17 + 18 − 4 = 31)
+    (p.descuento > 0 ? `
+      <div class="mc-item mc-item-desc">
+        <span></span>
+        <div class="mc-item-nom">Descuento combo</div>
+        <div class="mc-item-precio">-${bs(p.descuento)}</div>
+      </div>` : '');
+
+  // El botón principal, según en qué está el pedido
+  const entregado = ['entregado', 'parcial'].includes(p.estado);
+  const esperando = ESTADO[p.estado].filtro === 'esperando';
+  const principal = entregado
+    ? `<button type="button" class="mc-btn primario" data-accesos aria-expanded="false">${ICONO.llave}<span>Ver mis accesos</span></button>`
+    : esperando
+      ? `<a class="mc-btn primario" href="${linkDeCompra(p.token)}">${ICONO.qr}Pagar ahora</a>`
+      : '';
+
+  return `
+    <article class="mc-pedido" data-token="${escapar(p.token)}">
+      <div class="mc-ped-cab">
+        <div>
+          <div class="mc-ped-num">Pedido #${escapar(p.numero)}${p.prueba ? ' <small>(prueba)</small>' : ''}</div>
+          <div class="mc-ped-fecha">${ICONO.fecha}<span>${fechas.filter(Boolean).join(' · ')}</span></div>
+        </div>
+        <div class="mc-ped-lado">
+          ${pastilla(p)}
+          ${diasHtml(p)}
+          <span class="mc-ped-total">${bs(p.total)}</span>
+        </div>
+      </div>
+      <div class="mc-ped-items">${items}</div>
+      <div class="mc-ped-pie">
+        <div class="mc-ped-links">
+          ${entregado ? '<button type="button" class="mc-link" data-recomprar>Comprar de nuevo</button>' : ''}
+          <button type="button" class="mc-link" data-problema>${entregado ? '¿Problemas con tu cuenta?' : '¿Necesitas ayuda?'}</button>
+        </div>
+        <div class="mc-ped-botones">
+          ${principal}
+          <a class="mc-btn" href="#pedido=${escapar(p.token)}">${ICONO.ojo}Ver detalle</a>
+        </div>
+      </div>
+      <div class="mc-ped-accesos" hidden></div>
+    </article>`;
 }
 
 function pintar() {
-  const compras = misCompras();
+  $('vistaLista').hidden = false;
+  $('vistaDetalle').hidden = true;
+  document.title = 'Mis compras - Tiago Store';
 
-  if (compras.length === 0) {
+  if (pedidos.length === 0) {
     $('sub').textContent = '';
+    $('filtros').hidden = true;
     $('lista').innerHTML = `
       <div class="vacio">
         <div class="emo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></div>
@@ -438,91 +819,221 @@ function pintar() {
     return;
   }
 
-  $('sub').textContent = compras.length === 1
-    ? 'Tu compra, guardada en este navegador.'
-    : `Tus ${compras.length} compras, guardadas en este navegador.`;
+  $('sub').textContent = pedidos.length === 1
+    ? 'Tu pedido, guardado en este navegador.'
+    : `Tus ${pedidos.length} pedidos, guardados en este navegador.`;
+  pintarFiltros();
 
-  $('lista').innerHTML = compras.map(c => `
-    <div class="compra">
-      <div class="compra-datos">
-        <div class="compra-num">Pedido #${c.numero}</div>
-        <div class="compra-prod">${escapar(resumirProductos(c.productos))}</div>
-        <div class="compra-fecha">Fecha de orden: ${fecha(c.fecha)}</div>
-        ${c.faltan > 0
-          ? `<span class="compra-faltan">Falta ${c.faltan === 1 ? '1 cuenta' : c.faltan + ' cuentas'}</span>`
-          : ''}
-        ${avisoDeVencimiento(c.vence)}
-        <div class="compra-links">
-          <button type="button" class="btn-otra" data-recomprar="${escapar(c.token)}">Comprar de nuevo</button>
-          <button type="button" class="btn-problema" data-problema="${escapar(c.token)}">Tengo un problema con mi cuenta</button>
-        </div>
-      </div>
-      <a class="btn-abrir" href="${linkDeCompra(c.token)}">Abrir mi cuenta</a>
-    </div>`).join('');
+  const visibles = pedidos.filter(p => filtro === 'todas' || ESTADO[p.estado].filtro === filtro);
+  $('lista').innerHTML = visibles.length
+    ? visibles.map(tarjeta).join('')
+    : '<div class="mc-sin-filtro">No tenés pedidos en este estado.</div>';
+  document.querySelectorAll('#lista .mc-foto[data-id]').forEach(ponerFoto);
 
   $('acciones').hidden = false;
   $('aviso').hidden = false;
 }
 
+// "Ver mis accesos": se abren dentro de la tarjeta, debajo. Las
+// credenciales ya llegaron con el pedido; si la base no había contestado,
+// se piden ahora.
+async function verAccesos(articulo, boton) {
+  const caja = articulo.querySelector('.mc-ped-accesos');
+  const texto = boton.querySelector('span');
+  if (!caja.hidden) {
+    caja.hidden = true;
+    boton.setAttribute('aria-expanded', 'false');
+    texto.textContent = 'Ver mis accesos';
+    return;
+  }
+  const p = pedidos.find(x => x.token === articulo.dataset.token);
+  if (!p) return;
+
+  if (!p.enLinea) {
+    boton.disabled = true;
+    texto.textContent = 'Cargando…';
+    const compra = await mirarPedido(p.token);
+    boton.disabled = false;
+    texto.textContent = 'Ver mis accesos';
+    if (compra) Object.assign(p, armarPedido(p.token, compra, null));
+  }
+
+  caja.innerHTML = p.enLinea
+    ? (htmlDeAccesos(p.lineas) || '<p class="mc-nota">Este pedido todavía no tiene cuentas entregadas.</p>')
+    : '<p class="mc-nota">No pudimos cargar tus accesos. Revisá tu conexión y volvé a intentar.</p>';
+  activarAccesos(caja);
+  caja.hidden = false;
+  boton.setAttribute('aria-expanded', 'true');
+  texto.textContent = 'Ocultar accesos';
+}
+
 // ------------------------------------------------------------
-// "Tengo un problema con mi cuenta"
+// El detalle de un pedido
+// ------------------------------------------------------------
+// El seguimiento: pedido creado → pago confirmado → en preparación →
+// entregado. Con stock, la preparación es al instante: al confirmarse el
+// pago se marcan las tres juntas.
+function pasosDe(p) {
+  const PASOS = ['Pedido creado', 'Pago confirmado', 'En preparación', 'Entregado'];
+  if (p.estado === 'cancelado') {
+    return [
+      { texto: 'Pedido creado', clase: 'hecho', nota: fecha(p.creado) },
+      { texto: 'Cancelado', clase: 'cancelado', nota: 'No se registró el pago' }
+    ];
+  }
+  // Hasta qué paso llegó (0 = solo creado) y cuál está en curso
+  const hechos = { esperando_pago: 1, vencido: 1, sin_stock: 2, parcial: 3, entregado: 4 }[p.estado];
+  return PASOS.map((texto, i) => {
+    const clase = i < hechos ? 'hecho' : i === hechos ? 'actual' : '';
+    let nota = '';
+    if (i === 0) nota = fecha(p.creado);
+    if (i === 1 && clase === 'actual') { texto = 'Esperando pago'; nota = 'Escanea el QR para pagar'; }
+    if (i === 2 && clase === 'actual') nota = 'Te la mandamos hoy por WhatsApp';
+    if (i === 3 && clase === 'hecho') nota = fecha(p.entregado);
+    if (i === 3 && clase === 'actual') {
+      const de = p.lineas.length;
+      nota = `${de - p.faltan} de ${de} entregadas`;
+    }
+    return { texto, clase, nota };
+  });
+}
+
+function pintarDetalle(token) {
+  const p = pedidos.find(x => x.token === token);
+  $('vistaLista').hidden = true;
+  const vista = $('vistaDetalle');
+  vista.hidden = false;
+  window.scrollTo(0, 0);
+
+  if (!p) {
+    vista.innerHTML = `
+      <a class="mc-volver" href="#">${ICONO.atras}Mis compras</a>
+      <div class="mc-card"><p class="mc-nota">No encontramos ese pedido en este navegador.</p></div>`;
+    return;
+  }
+  document.title = `Pedido #${p.numero} - Tiago Store`;
+
+  const pasos = pasosDe(p).map(s => `
+      <li class="mc-paso ${s.clase}"${s.clase === 'actual' ? ' aria-current="step"' : ''}>
+        <span class="mc-punto">${s.clase === 'hecho' ? ICONO.check : s.clase === 'cancelado' ? ICONO.cruz : ''}</span>
+        <b>${s.texto}</b>${s.nota ? `<small>${escapar(s.nota)}</small>` : ''}
+      </li>`).join('');
+
+  const entregado = ['entregado', 'parcial'].includes(p.estado);
+  const esperando = ESTADO[p.estado].filtro === 'esperando';
+  const accesos = entregado && p.enLinea ? htmlDeAccesos(p.lineas, { siempreVence: true }) : '';
+
+  const filas = productosDe(p).map(it => `
+      <tr>
+        <td><div class="mc-prod">${foto(it.id, it.nombre)}<div>
+          <div class="mc-item-nom">${escapar(it.nombre)}</div>
+          <div class="mc-item-sub">${[it.dias ? `${it.dias} días` : '', `${it.cant} × ${it.precio !== null ? bs(it.precio) : '—'}`].filter(Boolean).join(' · ')}</div>
+        </div></div></td>
+        <td class="num">${it.cant}</td>
+        <td class="num">${it.precio !== null ? bs(it.precio * it.cant) : '—'}</td>
+      </tr>`).join('');
+
+  const d = diasQuedan(p.vence);
+  const metodo = p.metodo ? (NOMBRE_METODO[p.metodo] || 'QR Bolivia') : '';
+  const pagado = !esperando && p.estado !== 'cancelado';
+
+  vista.innerHTML = `
+    <a class="mc-volver" href="#">${ICONO.atras}Mis compras</a>
+
+    <div class="mc-card mc-det-cab">
+      <div>
+        <h2>Pedido #${escapar(p.numero)}${p.prueba ? ' <small style="font-size:.8rem;color:var(--tinta-suave)">(prueba)</small>' : ''}</h2>
+        <p>Creado el ${fecha(p.creado)}</p>
+      </div>
+      <div class="mc-ped-lado">${pastilla(p)}${diasHtml(p)}<span class="mc-ped-total">${bs(p.total)}</span></div>
+    </div>
+
+    <div class="mc-card" aria-label="Seguimiento del pedido"><ol class="mc-pasos">${pasos}</ol></div>
+
+    ${accesos ? `<div class="mc-card" id="detAccesos">${accesos}</div>` : ''}
+
+    <div class="mc-det-grid">
+      <section class="mc-card">
+        <h3>Productos</h3>
+        <table class="mc-tabla">
+          <thead><tr><th>Producto</th><th class="num">Cant.</th><th class="num">Subtotal</th></tr></thead>
+          <tbody>${filas}</tbody>
+          <tfoot>
+            ${p.descuento > 0 ? `<tr class="desc"><td>Descuento combo</td><td></td><td class="num">-${bs(p.descuento)}</td></tr>` : ''}
+            <tr class="tot"><td>Total</td><td></td><td class="num">${bs(p.total)}</td></tr>
+          </tfoot>
+        </table>
+      </section>
+
+      <section class="mc-card">
+        <h3>Información</h3>
+        <dl class="mc-info">
+          <div><dt>Pedido</dt><dd>#${escapar(p.numero)}</dd></div>
+          <div><dt>Creado</dt><dd>${fecha(p.creado) || '—'}</dd></div>
+          ${entregado && p.entregado ? `<div><dt>Entregado</dt><dd>${fecha(p.entregado)}</dd></div>` : ''}
+          ${entregado && p.vence ? `<div><dt>Vence</dt><dd>${fechaCorta(p.vence)}${d !== null && d >= 0 ? ` · ${d === 0 ? 'hoy' : d === 1 ? 'queda 1 día' : `quedan ${d} días`}` : ''}</dd></div>` : ''}
+        </dl>
+        ${metodo ? `
+        <h3>Pago</h3>
+        <div class="mc-pago">
+          <div class="mc-pago-met"><span>${p.metodo === 'qr' ? ICONO.qr : ICONO.usdt}</span>${metodo}</div>
+          <span class="mc-estado ${pagado ? 'entregado' : p.estado === 'cancelado' ? 'cancelado' : 'esperando'}">${pagado ? 'Pagado' : p.estado === 'cancelado' ? 'Sin pago' : 'Pendiente'}</span>
+          <strong>${bs(p.total)}</strong>
+        </div>` : ''}
+        <div class="mc-det-botones">
+          ${esperando ? `<a class="mc-btn primario" href="${linkDeCompra(p.token)}">${ICONO.qr}Pagar ahora</a>` : ''}
+          ${entregado ? '<button type="button" class="mc-btn" data-recomprar>Comprar de nuevo</button>' : ''}
+          <button type="button" class="mc-btn wa" data-problema>${ICONO.wa}${entregado ? '¿Problemas con tu cuenta?' : 'Escribinos'}</button>
+        </div>
+      </section>
+    </div>`;
+
+  vista.dataset.token = p.token;
+  vista.querySelectorAll('.mc-foto[data-id]').forEach(ponerFoto);
+  activarAccesos(vista);
+}
+
+// #pedido=<token> abre el detalle; sin nada, la lista. Así "Ver detalle"
+// es un link de verdad: el botón Atrás del celular vuelve a la lista.
+function ruta() {
+  if (!cargado) return;
+  const m = location.hash.match(/^#pedido=([0-9a-f]{32,})$/i);
+  if (m) pintarDetalle(m[1]);
+  else pintar();
+}
+window.addEventListener('hashchange', ruta);
+
+// ------------------------------------------------------------
+// "¿Problemas con tu cuenta?" / "¿Necesitas ayuda?"
 // ------------------------------------------------------------
 // Abre el WhatsApp de la tienda con el pedido, la fecha, el producto y el
 // usuario de cada cuenta ya escritos: así no hay que preguntarle "¿cuál
 // era tu pedido?" y se resuelve más rápido. La clave NO va: no hace falta
 // para encontrar la cuenta y no tiene por qué andar en un chat.
-//
-// El usuario no está guardado acá (solo el token), así que se consulta al
-// tocar. La ventana se abre ANTES de consultar: si se abriera después, el
-// navegador la tomaría por una ventana emergente y la bloquearía.
-async function escribirPorProblema(token, boton) {
-  const c = misCompras().find(x => x.token === token);
-  if (!c) return;
-
-  const ventana = window.open('', '_blank');
-  boton.disabled = true;
-  const compra = await mirarPedido(token);
-  boton.disabled = false;
-
-  // Una línea por cuenta entregada, con su usuario si se pudo consultar
-  const lineas = compra
-    ? (compra.lineas || []).filter(l => l.estado === 'entregado').map(l => {
-        const usuario = l.credenciales && (l.credenciales.usuario || l.credenciales.email);
-        return `${l.producto}${usuario ? ` · usuario: ${usuario}` : ''}`;
-      })
-    : (c.productos || []);
-
+function escribirPorProblema(p) {
+  const entregado = ['entregado', 'parcial'].includes(p.estado);
+  const lineas = p.lineas.map(l => {
+    const c = l.credenciales || {};
+    const usuario = c.usuario || c.email;
+    return `${l.producto}${usuario ? ` · usuario: ${usuario}` : ''}`;
+  });
   const texto = [
-    'Hola, tengo un problema con mi cuenta de Tiago Store.',
-    `Pedido #${c.numero} · ${fecha(c.fecha)}`,
+    entregado ? 'Hola, tengo un problema con mi cuenta de Tiago Store.'
+              : 'Hola, tengo una consulta sobre mi pedido de Tiago Store.',
+    `Pedido #${p.numero} · ${fecha(p.creado)}`,
     ...lineas,
     '¿Me ayudan?'
   ].join('\n');
-  const url = `https://wa.me/${WA_TIENDA}?text=${encodeURIComponent(texto)}`;
-
-  if (ventana) ventana.location.href = url;
-  else location.href = url;          // sin ventanas nuevas: en la misma
+  window.open(`https://wa.me/${WA_TIENDA}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener');
 }
 
 // ------------------------------------------------------------
 // "Comprar de nuevo"
 // ------------------------------------------------------------
 // Lleva a la tienda con los mismos productos ya en el carrito
-// (index.html#comprar=<id>,<id>: la tienda lo arma al cargar). Las compras
-// guardadas desde ahora traen los ids; las de antes se consultan al tocar.
-async function comprarDeNuevo(token, boton) {
-  const c = misCompras().find(x => x.token === token);
-  if (!c) return;
-
-  let fids = c.fids && c.fids.length ? c.fids : null;
-  if (!fids) {
-    boton.disabled = true;
-    const compra = await mirarPedido(token);
-    boton.disabled = false;
-    fids = compra
-      ? (compra.lineas || []).filter(l => l.estado === 'entregado' && l.producto_id).map(l => l.producto_id)
-      : [];
-  }
+// (index.html#comprar=<id>,<id>: la tienda lo arma al cargar).
+function comprarDeNuevo(p) {
+  const fids = p.lineas.filter(l => l.estado === 'entregado' && l.producto_id).map(l => l.producto_id);
   if (!fids.length) {
     alert('No pudimos encontrar esos productos. Buscalos en la tienda o escribinos por WhatsApp.');
     return;
@@ -530,41 +1041,38 @@ async function comprarDeNuevo(token, boton) {
   location.href = `index.html#comprar=${fids.join(',')}`;
 }
 
-// "Se te vence el 25/10" si falta una semana o menos (o ya se venció)
-function avisoDeVencimiento(vence) {
-  if (!vence) return '';
-  const m = String(vence).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return '';
-  const dia = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
-  const faltan = Math.round((dia - hoy) / 864e5);
-  if (faltan > 7) return '';
-  const fechaTxt = `${m[3]}/${m[2]}`;
-  return `<span class="compra-vence">${faltan < 0 ? `Se te venció el ${fechaTxt}` : faltan === 0 ? 'Se te vence hoy' : `Se te vence el ${fechaTxt}`}</span>`;
-}
+// Un solo oyente para la lista y el detalle
+function alTocar(e) {
+  const f = e.target.closest('[data-filtro]');
+  if (f) { filtro = f.dataset.filtro; pintar(); return; }
 
-$('lista').addEventListener('click', e => {
-  const problema = e.target.closest('[data-problema]');
-  if (problema) { escribirPorProblema(problema.dataset.problema, problema); return; }
-  const otra = e.target.closest('[data-recomprar]');
-  if (otra) comprarDeNuevo(otra.dataset.recomprar, otra);
-});
+  const articulo = e.target.closest('[data-token]');
+  if (!articulo) return;
+  const p = pedidos.find(x => x.token === articulo.dataset.token);
+  if (!p) return;
+
+  const accesos = e.target.closest('[data-accesos]');
+  if (accesos) { verAccesos(articulo, accesos); return; }
+  if (e.target.closest('[data-problema]')) { escribirPorProblema(p); return; }
+  if (e.target.closest('[data-recomprar]')) comprarDeNuevo(p);
+}
+$('filtros').addEventListener('click', alTocar);
+$('lista').addEventListener('click', alTocar);
+$('vistaDetalle').addEventListener('click', alTocar);
 
 $('btnVaciar').addEventListener('click', () => {
   // Se pregunta porque no se puede deshacer desde acá. Las compras siguen
   // existiendo del lado de la tienda; lo que se borra es este recuerdo.
   if (!confirm('¿Borrar la lista de compras de este navegador?\n\nTus cuentas siguen siendo tuyas: si las necesitás, escribinos por WhatsApp.')) return;
   olvidarTodo();
+  pedidos = pedidos.filter(p => ESTADO[p.estado].filtro === 'esperando');
+  filtro = 'todas';
   pintar();
 });
 
-pintar();
+cargar();
 </script>
 
-<!-- "Tenés un pedido esperando el pago → Ver QR": esta lista guarda solo
-     las compras entregadas, y el que vuelve a buscar un pedido sin pagar
-     lo encuentra acá -->
-<script type="module" src="js/pedido-pendiente.js?v=20261030165422"></script>
-<script src="bg-burbujas.js?v=20261030165422" defer></script>
+<script src="bg-burbujas.js" defer></script>
 </body>
 </html>

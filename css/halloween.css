@@ -759,6 +759,44 @@ html.halloween .pp-btn-wa {
   box-shadow: 0 8px 22px rgba(18,140,126,.3), inset 0 1px 0 rgba(255,255,255,.35);
 }
 
+/* Mis compras (mis-compras.html): los filtros, el estado de cada pedido,
+   los botones y el seguimiento. El naranja de calabaza en lugar del rojo;
+   las tarjetas ya salen de noche con el vidrio ahumado. */
+html.halloween .mc-filtro { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
+html.halloween .mc-filtro b { background: rgba(255,255,255,.1); color: var(--tinta-media); }
+html.halloween .mc-filtro[aria-pressed="true"],
+html.halloween .mc-btn.primario,
+html.halloween .mc-paso.hecho .mc-punto {
+  color: #1d0c02; border-color: transparent;
+  background: linear-gradient(180deg, #ff9b3d, #f0690a);
+  box-shadow: 0 6px 18px rgba(240,105,10,.3), inset 0 1px 0 rgba(255,255,255,.45);
+}
+html.halloween .mc-filtro[aria-pressed="true"] b { background: rgba(29,12,2,.15); color: #1d0c02; }
+html.halloween .mc-btn { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
+html.halloween .mc-btn.wa {
+  color: #fff;
+  background: linear-gradient(180deg, #25D366, #128C7E);
+  box-shadow: 0 6px 18px rgba(18,140,126,.3), inset 0 1px 0 rgba(255,255,255,.35);
+}
+html.halloween .mc-estado.esperando   { color: #ffc96e; background: rgba(255,181,71,.13); border-color: rgba(255,181,71,.36); }
+html.halloween .mc-estado.preparacion { color: #c9a6ff; background: rgba(164,107,255,.15); border-color: rgba(164,107,255,.38); }
+html.halloween .mc-estado.entregado   { color: #6ee7b7; background: rgba(52,211,153,.13); border-color: rgba(52,211,153,.36); }
+html.halloween .mc-estado.parcial     { color: #6ee7b7; background: rgba(255,181,71,.12); border-color: rgba(255,181,71,.36); }
+html.halloween .mc-estado.cancelado   { color: #ff9a7a; background: rgba(255,90,60,.13);  border-color: rgba(255,90,60,.36); }
+html.halloween .mc-dias.pronto  { color: #ffc96e; }
+html.halloween .mc-dias.vencida { color: #ff9a7a; }
+html.halloween .mc-paso::before { background: rgba(255,255,255,.14); }
+html.halloween .mc-paso.hecho::before,
+html.halloween .mc-paso.actual::before { background: linear-gradient(90deg, #ff9b3d, #f0690a); }
+html.halloween .mc-punto { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); }
+html.halloween .mc-paso.actual .mc-punto { color: #ff9b3d; background: rgba(20,11,33,.9); border-color: #ff9b3d; box-shadow: 0 0 0 5px rgba(255,122,26,.16); }
+html.halloween .mc-tabla tfoot .desc td,
+html.halloween .mc-item-desc .mc-item-nom,
+html.halloween .mc-item-desc .mc-item-precio { color: #6ee7b7; }
+html.halloween .mc-pago-met span { background: rgba(255,255,255,.08); }
+html.halloween .mc-esqueleto::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,.07), transparent); }
+html.halloween .mc-volver:hover { color: #ff9b3d; }
+
 
 /* ============================================================
    9. LA FICHA DEL PLAN (css/tienda.css, "FICHA DEL PLAN")

@@ -1,8 +1,9 @@
 // ============================================================
 // TIAGO STORE · "Tenés un pedido esperando el pago"
 // ============================================================
-// Si este navegador armó un pedido y no lo pagó, al volver a la tienda (o
-// a Mis compras) le sale abajo un aviso con ese mismo pedido y "Ver QR",
+// Si este navegador armó un pedido y no lo pagó, al volver a la tienda le
+// sale abajo un aviso (en Mis compras no: ahí el pedido ya está en la
+// lista, con "Pagar ahora") con ese mismo pedido y "Ver QR",
 // que lo lleva al QR de ESE pedido (pagar-qr.html#t=...), sin armar otro.
 //
 // Antes no había forma de volver: el que salía a buscar la billetera y

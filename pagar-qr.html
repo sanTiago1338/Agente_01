@@ -864,62 +864,8 @@
   .pp-res-texto { max-width: 30rem; margin: .45rem auto 1.1rem; font-size: 1rem; line-height: 1.5; color: var(--tinta-suave); }
   .pp-res-texto strong { color: var(--tinta); }
 
-  .pp-accesos {
-    text-align: left; padding: 1rem; border-radius: 18px;
-    background: rgba(20,22,26,.035); border: 1px solid var(--separador-2);
-  }
-  .pp-accesos-cab { display: flex; align-items: center; gap: .75rem; margin-bottom: .85rem; }
-  .pp-llave {
-    width: 44px; height: 44px; flex: none; display: grid; place-items: center;
-    border-radius: 13px; color: #6d28d9; background: rgba(124,58,237,.12); border: 1px solid rgba(124,58,237,.25);
-  }
-  .pp-llave svg { width: 22px; height: 22px; }
-  .pp-accesos-cab strong { display: block; font-size: 1.05rem; color: var(--tinta); }
-  .pp-accesos-cab small { display: block; font-size: .82rem; line-height: 1.4; color: var(--tinta-suave); }
-
-  /* Cada cuenta, en su tarjeta oscura */
-  .pp-cuenta { padding: .85rem 1rem; border-radius: 14px; background: #14161a; color: #e8eaed; }
-  .pp-cuenta + .pp-cuenta { margin-top: .65rem; }
-  .pp-cuenta-nombre {
-    margin-bottom: .45rem; font-size: .78rem; font-weight: 800;
-    letter-spacing: .12em; text-transform: uppercase; color: #fff;
-  }
-  /* El nombre, el valor y sus botones pegados al valor */
-  .pp-dato {
-    display: grid; grid-template-columns: 6.6rem minmax(0, max-content) 1fr;
-    align-items: center; gap: .55rem; padding: .42rem 0; font-size: .92rem;
-  }
-  .pp-dato-botones { justify-self: start; }
-  .pp-dato > span:first-child { color: #9aa0ab; }
-  .pp-dato code {
-    font-family: ui-monospace, Consolas, monospace; font-size: .92rem;
-    color: #ff9d8f; overflow-wrap: anywhere; user-select: all;
-  }
-  .pp-dato code.tapada { letter-spacing: .14em; user-select: none; }
-  .pp-dato b { color: #fff; font-weight: 700; overflow-wrap: anywhere; }
-  .pp-dato-botones { display: flex; gap: .35rem; }
-  .pp-icono {
-    width: 34px; height: 30px; display: grid; place-items: center; cursor: pointer;
-    border-radius: 9px; color: #e8eaed; background: rgba(255,255,255,.06);
-    border: 1px solid rgba(255,255,255,.16);
-  }
-  .pp-icono:hover { background: rgba(255,255,255,.12); }
-  .pp-icono svg { width: 16px; height: 16px; }
-  .pp-icono.ok { color: #34d399; border-color: rgba(52,211,153,.55); }
-  .pp-cuenta-nota { margin-top: .35rem; font-size: .82rem; line-height: 1.5; color: #ffd700; }
-  .pp-cuenta-wa { font-size: .88rem; line-height: 1.55; }
-  .pp-cuenta-wa strong { color: #25D366; }
-  /* Celular angosto: el nombre del dato arriba y el valor con sus
-     botones abajo, así un correo largo no queda en tres renglones */
-  @media (max-width: 440px) {
-    .pp-dato { grid-template-columns: minmax(0, max-content) 1fr; row-gap: .1rem; }
-    .pp-dato > span:first-child { grid-column: 1 / -1; font-size: .8rem; }
-  }
-  .pp-faltan {
-    margin-top: .85rem; padding: .7rem .85rem; border-radius: 10px;
-    font-size: .8rem; line-height: 1.55; color: var(--texto);
-    background: rgba(240,165,0,.09); border: 1px solid rgba(240,165,0,.32);
-  }
+  /* Los accesos ("Tus accesos" y cada cuenta con sus botones) están en
+     css/accesos.css: los comparte con Mis compras. */
 
   .pp-res-botones { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; margin-top: 1.15rem; }
   .pp-btn-primario {
@@ -942,6 +888,8 @@
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
   <link rel="stylesheet" href="css/vidrio.css?v=20261030165422">
+  <!-- Los accesos de la cuenta entregada (css/accesos.css): los mismos de Mis compras -->
+  <link rel="stylesheet" href="css/accesos.css">
   <!-- Halloween (css/halloween.css): solo pisa algo cuando js/temporada.js lo prende -->
   <link rel="stylesheet" href="css/halloween.css?v=20261030165422">
   <script src="js/barra-vidrio.js?v=20261030165422" defer></script>
@@ -1765,6 +1713,7 @@
     tokenDeLaUrl, compraRecordada, huellaDeCarrito, credencialesComoTexto, hayStock
   } from './js/pedido-automatico.js';
   import { guardarCompra } from './js/historial.js';
+  import { htmlDeCuentas, activarAccesos, conDatos, escapar } from './js/accesos.js';
   import { sb, SUPABASE_URL, SUPABASE_ANON_KEY } from './js/supabase-base.js';
 
   const $ = id => document.getElementById(id);
@@ -1835,9 +1784,6 @@
     campo.addEventListener('change', () => { clearTimeout(espera); window.__guardarCorreo(campo.value); });
   })();
 
-  const escapar = s => String(s ?? '').replace(/[&<>"]/g,
-    c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-
   let compraActual = null;
   let tokenActual  = null;   // el de la compra que se esta mostrando
   let parar = null;
@@ -1901,17 +1847,7 @@
   // -----------------------------------------------------------
   // Pintar segun el estado
   // -----------------------------------------------------------
-  // ¿Esta linea tiene credenciales guardadas?
-  //
-  // Un pedido que se cierra desde el panel con "Listo" se entrego por
-  // WhatsApp: quedo entregado, pero no hay ninguna cuenta guardada del
-  // lado nuestro. Sin preguntar esto, al cliente le aparecia el recuadro
-  // negro de las credenciales completamente vacio y un boton "Copiar los
-  // datos" que no copiaba nada.
-  function conDatos(l) {
-    const c = (l && l.credenciales) || {};
-    return !!(c.usuario || c.clave || c.perfil || c.pin || c.notas);
-  }
+  // conDatos (¿la línea tiene credenciales guardadas?) viene de js/accesos.js
 
   function pintar(compra, resumen) {
     compraActual = compra;
@@ -2060,62 +1996,9 @@
         ? 'Parte de tu pedido ya fue entregada. Estos son tus accesos:'
         : 'Tu pedido fue entregado automáticamente. Estos son tus accesos:';
 
-    // Un dato de la cuenta: el nombre, el valor y sus botones. La
-    // contraseña sale tapada, con el ojo para verla; todo lo que se tipea
-    // (correo, contraseña, PIN) tiene su botón de copiar. El valor viaja en
-    // data-valor (escapado) para que copiar y ver no dependan de lo que
-    // está escrito en pantalla.
-    const ICONO_COPIAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
-    const ICONO_OJO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
-    const copiar = v => `<button type="button" class="pp-icono" data-copiar="${escapar(v)}" aria-label="Copiar" title="Copiar">${ICONO_COPIAR}</button>`;
-    const fila = (etiqueta, valor, como = 'copiar') => {
-      if (!valor) return '';
-      if (como === 'texto') {
-        return `<div class="pp-dato"><span>${etiqueta}</span><b>${escapar(valor)}</b></div>`;
-      }
-      if (como === 'clave') {
-        return `<div class="pp-dato"><span>${etiqueta}</span>
-                  <code class="tapada" data-valor="${escapar(valor)}">••••••••</code>
-                  <span class="pp-dato-botones">
-                    <button type="button" class="pp-icono" data-ver aria-label="Mostrar contraseña" title="Mostrar">${ICONO_OJO}</button>
-                    ${copiar(valor)}
-                  </span></div>`;
-      }
-      return `<div class="pp-dato"><span>${etiqueta}</span><code>${escapar(valor)}</code>
-                <span class="pp-dato-botones">${copiar(valor)}</span></div>`;
-    };
-
-    // Cada cuenta en su tarjeta oscura, con el nombre del producto arriba:
-    // con varias, el cliente sabe cuál es cuál sin escribirnos.
-    const bloque = l => {
-      const c = l.credenciales || {};
-      const nombre = `<div class="pp-cuenta-nombre">${escapar(l.producto)}</div>`;
-      // Entregada a mano: los datos se los pasamos por el chat, no hay
-      // nada que mostrar acá. Se dice, en vez de dejar el hueco.
-      if (!conDatos(l)) {
-        return `<div class="pp-cuenta">${nombre}
-                  <div class="pp-cuenta-wa">Esta cuenta te la entregamos <strong>por WhatsApp</strong>.
-                  Si todavía no te llegó, escribinos y te la reenviamos.</div></div>`;
-      }
-
-      // Plan rebajado: hasta cuándo le dura, que no es un mes entero
-      const vence = l.vence && Number(l.dias) && Number(l.dias_plan) && Number(l.dias) < Number(l.dias_plan)
-        ? String(l.vence).slice(0, 10).split('-').reverse().join('/')
-        : '';
-
-      // "Correo" si el usuario es un correo, como lo llama la plataforma
-      const usuario = String(c.usuario || '');
-      return `<div class="pp-cuenta">${nombre}` +
-        fila(usuario.includes('@') ? 'Correo' : 'Usuario', usuario) +
-        fila('Contraseña', c.clave, 'clave') +
-        fila('Perfil',     c.perfil, 'texto') +
-        fila('PIN',        c.pin) +
-        fila('Vence el',   vence, 'texto') +
-        (c.notas ? `<div class="pp-cuenta-nota">${escapar(c.notas)}</div>` : '') +
-        '</div>';
-    };
-
-    $('pedidoCreds').innerHTML = r.entregadas.map(bloque).join('');
+    // Cada cuenta en su tarjeta oscura, con sus botones de copiar y el ojo
+    // para la contraseña (js/accesos.js, el mismo dibujo de Mis compras)
+    $('pedidoCreds').innerHTML = htmlDeCuentas(r.entregadas);
 
     // Sin datos en pantalla no hay nada que copiar: el botón sobra y
     // encima haría dudar de si copió algo.
@@ -2187,37 +2070,8 @@
       : 'Pago recibido. Te contactamos por WhatsApp';
   }
 
-  // Los botones de cada dato (se pintan de nuevo en cada repintado, por eso
-  // se escucha en la caja y no en cada botón):
-  //   ojo     muestra u oculta la contraseña
-  //   copiar  copia ese dato solo, y el ícono se pone verde un momento
-  $('pedidoCreds').addEventListener('click', async e => {
-    const ver = e.target.closest('[data-ver]');
-    if (ver) {
-      const valor = ver.closest('.pp-dato').querySelector('code');
-      const mostrar = valor.classList.contains('tapada');
-      valor.textContent = mostrar ? valor.dataset.valor : '••••••••';
-      valor.classList.toggle('tapada', !mostrar);
-      ver.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
-      ver.title = mostrar ? 'Ocultar' : 'Mostrar';
-      return;
-    }
-    const boton = e.target.closest('[data-copiar]');
-    if (!boton) return;
-    try {
-      await navigator.clipboard.writeText(boton.dataset.copiar);
-      boton.classList.add('ok');
-      boton.title = 'Copiado';
-      setTimeout(() => { boton.classList.remove('ok'); boton.title = 'Copiar'; }, 1400);
-    } catch {
-      // Sin permiso de portapapeles: se muestra el dato para copiarlo a mano
-      const valor = boton.closest('.pp-dato').querySelector('code');
-      if (valor && valor.classList.contains('tapada')) {
-        valor.textContent = valor.dataset.valor;
-        valor.classList.remove('tapada');
-      }
-    }
-  });
+  // Los botones de cada dato: copiar y el ojo de la contraseña
+  activarAccesos($('pedidoCreds'));
 
   // "Consultar estado" (el botón vive en el script de arriba): una
   // consulta suelta a la base, que repinta si algo cambió. Devuelve el

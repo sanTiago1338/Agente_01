@@ -852,52 +852,6 @@
     .pp-sello, .pp-btn.girando svg { animation: none; }
   }
 
-  /* ==========================================================
-     COMPACTA
-     ==========================================================
-     Todo el pago en una pantalla: en una compu de 1366×768 la página
-     medía 808 px (había que bajar para ver los pasos para pagar) y en el
-     celular "Ya pagué" quedaba al borde. Menos aire en las tarjetas, el
-     QR de 230 px (se escanea igual) y la frase y el estado en una sola
-     línea. Va al final para pisar lo de arriba. */
-  .pay-container { padding-top: .55rem; padding-bottom: .6rem; }
-  .pp-cobro,
-  .pago-der .pp-cobro { padding: .75rem .9rem .85rem; margin-bottom: .55rem; }
-  .pp-cobro .pay-metodo { margin-bottom: .2rem; padding: .22rem .7rem; font-size: .72rem; }
-  .pp-lead { margin: .05rem 0 0; font-size: .86rem; line-height: 1.3; }
-  .pp-cobro .pay-amount { font-size: clamp(2rem, 6vw, 2.6rem); line-height: 1.05; }
-  .pp-cobro .pay-qr-wrap { width: min(100%, 230px); margin: .5rem auto .35rem; padding: .55rem; }
-  .pp-cobro .pay-timer { padding: 0 .5rem .15rem; font-size: .84rem; }
-  #qrCard #statusBar { margin: .1rem auto .5rem; gap: .25rem .4rem; font-size: .84rem; }
-  #qrCard #statusBar .status-dot { width: 10px; height: 10px; }
-  .pp-pill { padding: .14rem .6rem; font-size: .72rem; }
-  .pp-acciones { gap: .45rem; }
-  .pp-btn { padding: .48rem .85rem; font-size: .86rem; border-radius: 11px; }
-  .pp-btn svg { width: 16px; height: 16px; }
-  .pay-instructions { padding: .5rem .8rem; margin-bottom: .55rem; }
-  .pay-instructions .step { margin-bottom: .3rem; }
-
-  .pp-detalle,
-  .pago-der .pp-detalle { padding: .8rem 1rem .75rem; margin-bottom: .55rem; }
-  .pp-detalle .pay-order-title { font-size: 1.12rem; margin-bottom: .25rem; }
-  .pp-filas > div { padding: .28rem 0; font-size: .86rem; }
-  .pp-detalle .pay-order-item { padding: .3rem 0; }
-  .pp-ayuda { margin-top: .5rem; font-size: .82rem; }
-  .pp-espera,
-  .pago-der .pp-espera { padding: .65rem .9rem; margin-bottom: .55rem; }
-  .pp-espera-txt { font-size: .82rem; line-height: 1.5; }
-  .pp-espera-pie { margin-top: .4rem; }
-  @media (min-width: 760px) {
-    .pago-grid { gap: .8rem; }
-  }
-
-  /* El resultado ("¡Pago confirmado!" con los accesos) también más justo */
-  .pp-resultado { padding: 1.1rem 1rem 1rem; margin-bottom: .55rem; }
-  .pp-sello { width: 60px; height: 60px; margin-bottom: .45rem; }
-  .pp-res-titulo { font-size: clamp(1.45rem, 4.5vw, 1.85rem); }
-  .pp-res-texto { margin: .3rem auto .75rem; font-size: .92rem; }
-  .pp-res-botones { margin-top: .8rem; }
-
   </style>
   <!-- El vidrio común a todas las páginas (css/vidrio.css): va después de los estilos propios -->
   <link rel="stylesheet" href="css/vidrio.css?v=20261031203359">

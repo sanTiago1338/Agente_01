@@ -13,7 +13,9 @@
 //         contenido, hace sus ocho poses y se va
 //       - el evento de terror: dos garras agarran el título por detrás
 //         y, un instante después, sangre de utilería escurre por el fondo.
-//         Dura 7 s y descansa 24 s
+//         Dura 7 s y se repite cada medio minuto
+//   · las garras, seguido (acechar): entre evento y evento salen solas a
+//     zarpazos, una tras otra, sin parar
 //
 // Lo carga js/temporada.js solo cuando el tema de Halloween está
 // prendido. Los estilos están en horror.css.
@@ -158,6 +160,63 @@
     return marco;
   }
 
+  // ---------- Las garras, seguido ----------
+  // El kit saca las garras (con la sangre) una vez cada medio minuto. Entre
+  // uno y otro agarre, acá salen solas, una tras otra: izquierda, derecha,
+  // las dos juntas y un respiro, sin parar. Cada salida es un zarpazo que
+  // aprieta, tiembla y rasguña el logo (los movimientos, en horror.css,
+  // "LOS ZARPAZOS"). Solo se cambia una clase del adorno del kit: nada de
+  // la tienda se mueve.
+  //
+  // Le dejan el lugar al agarre del kit cuando arranca y siguen cuando
+  // termina. Se detienen con la pestaña oculta y con "reducir movimiento".
+  function acechar(marco) {
+    const agarre = marco.querySelector('.ts-agarre');
+    if (!agarre) return;
+    const quieto = matchMedia('(prefers-reduced-motion: reduce)');
+    // [qué mano, cuánto dura el zarpazo, cuánto espera al siguiente] (ms)
+    const TURNOS = [['izq', 2200, 350], ['der', 2200, 600], ['ambas', 2350, 1800]];
+    let n = 0, reloj = null;
+
+    // Ojo: quitar una clase toca el atributo aunque no estuviera, y eso
+    // despierta al vigía de abajo; sin este "if" se llamarían sin fin
+    const soltar = () => {
+      clearTimeout(reloj); reloj = null;
+      if (agarre.classList.contains('hw-zarpazo')) agarre.classList.remove('hw-zarpazo');
+    };
+    const despues = ms => { clearTimeout(reloj); reloj = setTimeout(zarpazo, ms); };
+
+    function zarpazo() {
+      // Pestaña oculta, "reducir movimiento" o el agarre del kit en curso:
+      // espera (lo retoman el aviso de abajo o el fin del agarre)
+      if (document.hidden || quieto.matches || agarre.classList.contains('activo')) { reloj = null; return; }
+      const [mano, dura, espera] = TURNOS[n++ % TURNOS.length];
+      agarre.dataset.zarpazo = mano;
+      agarre.classList.remove('hw-zarpazo');
+      void agarre.offsetWidth;   // así la animación arranca de cero
+      agarre.classList.add('hw-zarpazo');
+      reloj = setTimeout(() => { agarre.classList.remove('hw-zarpazo'); despues(espera); }, dura);
+    }
+
+    // El agarre del kit: cuando arranca, los zarpazos se apartan; cuando
+    // termina, vuelven enseguida
+    new MutationObserver(() => {
+      if (agarre.classList.contains('activo')) soltar();
+      else if (!reloj) despues(500);
+    }).observe(agarre, { attributes: true, attributeFilter: ['class'] });
+
+    const retomar = () => {
+      if (document.hidden || quieto.matches) soltar();
+      else if (!reloj) despues(800);
+    };
+    document.addEventListener('visibilitychange', retomar);
+    quieto.addEventListener('change', retomar);
+
+    // El primer agarre es el del kit (a poco más de un segundo); por si
+    // no llegara a salir, los zarpazos empiezan solos igual
+    despues(9000);
+  }
+
   // ---------- Garras, sangre y aparición (kit de garras) ----------
   // Se monta SOLO el coordinador del kit (TiagoHorrorFondo), que arma
   // por dentro las garras y la aparición, como pide su instrucción.
@@ -181,9 +240,10 @@
       // En el celular el kit no muestra la aparición (ambiente.css, hasta
       // 600 px): ahí no se descarga su imagen de 450 KB, va una vacía
       const celular = matchMedia('(max-width: 600px)').matches;
+      const marco = marcoDeGarras(titulo);
       efecto = window.TiagoHorrorFondo.mount({
         background: cielo,
-        title: marcoDeGarras(titulo),
+        title: marco,
         // La pared del kit: el pasillo húmedo. La dibuja body::before
         // (horror.css), debajo de la mansión; la del kit queda apagada
         wall: foto('web/fondo-garras.jpg'),
@@ -194,6 +254,7 @@
         blood: ruta('web/sangre.webp'),
         onError() { /* un adorno que no cargó: la tienda sigue igual */ }
       });
+      acechar(marco);
     } catch (e) {
       // Sin el kit, la tienda sigue igual: el resto del tema no depende de esto
       efecto = null;

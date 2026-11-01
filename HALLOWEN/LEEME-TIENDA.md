@@ -34,7 +34,12 @@ página:
 | Vidrio carbón en lugar de violeta | Todas las piezas de vidrio | — |
 
 El evento de las garras y la sangre dura 7 segundos y se repite cada
-medio minuto; la aparición sale a los 8 segundos y después cada medio
+medio minuto: las dos garras dan tres zarpazos seguidos sobre el logo
+mientras escurre la sangre. Entre evento y evento las garras no se quedan
+quietas: salen solas a zarpazos, una tras otra (izquierda, derecha, las
+dos juntas y un respiro de casi 2 segundos), apretando, temblando y
+rasguñando el logo (`horror.js`, `acechar`; `horror.css`, "LOS
+ZARPAZOS"). La aparición sale a los 8 segundos y después cada medio
 minuto. Todo se detiene con la pestaña oculta y con "reducir movimiento".
 
 ## Decisiones de la integración

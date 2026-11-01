@@ -156,6 +156,70 @@ html.halloween .hw-garras-marco .ts-garra { width: 3.8em; height: 4.3em; top: -.
 html.halloween .hw-garras-marco .ts-garra:not(.derecha) { left: -.52em; }
 html.halloween .hw-garras-marco .ts-garra.derecha { right: -.52em; }
 
+/* LOS ZARPAZOS: las garras salen seguido, una tras otra.
+   El kit las saca una vez cada medio minuto (7 s, junto con la sangre)
+   con un movimiento lento. Acá cada salida es un zarpazo de terror: la
+   garra se tira de golpe sobre el logo, lo aprieta con los dedos, tiembla
+   como si forcejeara, lo rasguña hacia abajo y se esconde rápido.
+   · Entre agarre y agarre del kit, horror.js (acechar) las saca solas:
+     izquierda, derecha, las dos juntas y un respiro, sin parar.
+   · En el agarre del kit (el de la sangre) las dos dan tres zarpazos
+     seguidos, en los mismos 7 s.
+   Solo se mueven las garras (transform y opacity, en su recorte): nada
+   de la tienda cambia de lugar. */
+html.halloween .hw-garras-marco .ts-garra {
+  /* Más oscuras, con un borde rojo de sangre que las despega del fondo */
+  filter: brightness(.7) contrast(1.25) drop-shadow(0 0 .14em rgba(170, 0, 0, .8));
+}
+html.halloween .hw-garras-marco .ts-agarre.hw-zarpazo[data-zarpazo="izq"] .ts-garra:not(.derecha),
+html.halloween .hw-garras-marco .ts-agarre.hw-zarpazo[data-zarpazo="ambas"] .ts-garra:not(.derecha) {
+  animation: hw-zarpazo-izq 2.2s ease-out both;
+}
+html.halloween .hw-garras-marco .ts-agarre.hw-zarpazo[data-zarpazo="der"] .ts-garra.derecha {
+  animation: hw-zarpazo-der 2.2s ease-out both;
+}
+/* Las dos juntas: la derecha un pelo después, como dos manos de verdad */
+html.halloween .hw-garras-marco .ts-agarre.hw-zarpazo[data-zarpazo="ambas"] .ts-garra.derecha {
+  animation: hw-zarpazo-der 2.2s ease-out .12s both;
+}
+/* El agarre del kit (con la sangre): tres zarpazos seguidos en sus 7 s */
+html.halloween .hw-garras-marco .ts-agarre.activo .ts-garra {
+  animation: hw-zarpazo-izq 2.3s ease-out 3 both;
+}
+html.halloween .hw-garras-marco .ts-agarre.activo .ts-garra.derecha {
+  animation: hw-zarpazo-der 2.3s ease-out .1s 3 both;
+}
+/* Se tira de golpe (9 %), aprieta y tiembla (15-62 %), rasguña hacia
+   abajo (70 %) y se esconde (100 %). Las dos son iguales, en espejo. */
+@keyframes hw-zarpazo-izq {
+  0%   { opacity: 0; transform: translate(-1.2em, .5em) rotate(-24deg) scale(.86, .86); }
+  9%   { opacity: 1; transform: translate(.1em, -.06em) rotate(5deg) scale(1.07, 1.07); }
+  15%  { transform: translate(0, 0) rotate(0deg) scale(1, 1); }
+  21%  { transform: translate(.05em, .03em) rotate(3deg) scale(1.02, .93); }
+  27%  { transform: translate(-.03em, 0) rotate(-1deg) scale(1, 1); }
+  33%  { transform: translate(.04em, .02em) rotate(2deg) scale(1.02, .94); }
+  39%  { transform: translate(-.02em, -.01em) rotate(-1deg) scale(1, 1); }
+  46%  { transform: translate(.05em, .03em) rotate(3deg) scale(1.03, .92); }
+  53%  { transform: translate(-.03em, 0) rotate(0deg) scale(1, 1); }
+  62%  { transform: translate(.03em, .02em) rotate(2deg) scale(1.02, .95); }
+  72%  { opacity: 1; transform: translate(.12em, .22em) rotate(7deg) scale(1, 1); }
+  100% { opacity: 0; transform: translate(-1.2em, .55em) rotate(-24deg) scale(.86, .86); }
+}
+@keyframes hw-zarpazo-der {
+  0%   { opacity: 0; transform: translate(1.2em, .5em) scaleX(-1) rotate(-24deg) scale(.86, .86); }
+  9%   { opacity: 1; transform: translate(-.1em, -.06em) scaleX(-1) rotate(5deg) scale(1.07, 1.07); }
+  15%  { transform: translate(0, 0) scaleX(-1) rotate(0deg) scale(1, 1); }
+  21%  { transform: translate(-.05em, .03em) scaleX(-1) rotate(3deg) scale(1.02, .93); }
+  27%  { transform: translate(.03em, 0) scaleX(-1) rotate(-1deg) scale(1, 1); }
+  33%  { transform: translate(-.04em, .02em) scaleX(-1) rotate(2deg) scale(1.02, .94); }
+  39%  { transform: translate(.02em, -.01em) scaleX(-1) rotate(-1deg) scale(1, 1); }
+  46%  { transform: translate(-.05em, .03em) scaleX(-1) rotate(3deg) scale(1.03, .92); }
+  53%  { transform: translate(.03em, 0) scaleX(-1) rotate(0deg) scale(1, 1); }
+  62%  { transform: translate(-.03em, .02em) scaleX(-1) rotate(2deg) scale(1.02, .95); }
+  72%  { opacity: 1; transform: translate(-.12em, .22em) scaleX(-1) rotate(7deg) scale(1, 1); }
+  100% { opacity: 0; transform: translate(1.2em, .55em) scaleX(-1) rotate(-24deg) scale(.86, .86); }
+}
+
 
 /* ------------------------------------------------------------
    3. LAS TARJETAS
@@ -309,6 +373,7 @@ html.halloween .hw-mansion.lista { opacity: .9; }
   html.halloween .banner-top::before,
   html.halloween .ofertas-title::after { animation: none; }
   html.halloween .hw-mansion { transition: none; }
+  html.halloween .hw-garras-marco .ts-agarre .ts-garra { animation: none !important; opacity: 0; }
 }
 
 @media print {

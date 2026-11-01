@@ -1,0 +1,10 @@
+/* Atributos opt-in: añadir solo sobre el contenedor de FONDO real. */
+[data-tiago-horror-fondo]{background-color:#08090b;background-image:linear-gradient(#07080a55,#07080a66),url('../assets/images/fondo-pasillo.png');background-position:center top;background-size:cover;background-repeat:no-repeat}
+/* Montar SOLO dentro de una franja decorativa ya existente; la geometría pertenece a la aplicación. */
+.tiago-horror-slot{position:absolute;pointer-events:none;overflow:hidden;isolation:isolate}
+.tiago-horror-niebla{position:absolute;inset:0;overflow:hidden;pointer-events:none;isolation:isolate}
+.tiago-horror-niebla::before{content:'';position:absolute;inset:30% -30% -40%;background:radial-gradient(ellipse at 40% 75%,#b0b5c21c,transparent 55%);animation:tiago-humo 32s ease-in-out infinite alternate}
+.tiago-horror-niebla[data-paused]::before{animation-play-state:paused}
+@keyframes tiago-humo{from{transform:translateX(-5%)}to{transform:translateX(5%)}}
+@media(prefers-reduced-motion:reduce){.tiago-horror-niebla::before{animation:none}}
+@media(pointer:coarse){.tiago-horror-niebla::before{opacity:.4}}

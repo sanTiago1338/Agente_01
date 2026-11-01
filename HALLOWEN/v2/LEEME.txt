@@ -1,0 +1,14 @@
+TIAGO STORE — EL CATÁLOGO MALDITO
+
+Envía a Claude Code esta carpeta junto con tu proyecto real.
+
+1. PROMPT-CLAUDE-CODE.md: instrucciones completas de implementación.
+2. referencia-diseno-completo.png: nueva referencia visual de la tienda, generada con IA. Los textos y logos del mockup son orientativos; usar los originales del proyecto al implementar.
+3. logo-tiago-halloween.png: logo transparente del kit anterior, reutilizable.
+4. emblema-calabaza.png: emblema transparente del kit anterior, reutilizable.
+5. fondo-mansion.png: fondo del kit anterior, reutilizable.
+
+Mensaje para Claude Code:
+«Lee PROMPT-CLAUDE-CODE.md y aplica el diseño de referencia a toda mi tienda existente. Usa los assets adjuntos. Incluye todas mis plataformas reales, incluso las que no aparecen en la imagen. Conserva precios, planes, compras, datos y enlaces. No publiques automáticamente.»
+
+La imagen es una referencia de diseño, no una implementación ni un inventario verificado de tus plataformas. El prompt exige que Claude Code descubra y conserve el catálogo completo desde tu código.

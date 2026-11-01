@@ -7,3 +7,7 @@ data/
 *.db-shm
 Img/compartir-*.png
 .DS_Store
+
+# Referencias de los kits de Halloween: solo en esta compu (no publicar la captura)
+HALLOWEN/demo/
+HALLOWEN/v2/referencia-diseno-completo.png

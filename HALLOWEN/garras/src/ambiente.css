@@ -1,0 +1,14 @@
+/* Se monta dentro del FONDO existente, nunca encima del catálogo. */
+.ts-ambiente{position:absolute;inset:0;overflow:hidden;pointer-events:none;isolation:isolate;z-index:0}
+.ts-ambiente .ts-profundidad{position:absolute;inset:0;background-position:center top;background-size:cover;background-repeat:no-repeat;opacity:.95}
+.ts-ambiente .ts-sombra{position:absolute;inset:0;background:linear-gradient(90deg,#000c,transparent 19%,transparent 81%,#000c);animation:ts-acercamiento 17s ease-in-out infinite alternate}
+.ts-ambiente .ts-bruma{position:absolute;inset:55% -15% -10%;background:radial-gradient(ellipse at 20% 80%,#9d919b28,transparent 49%),radial-gradient(ellipse at 80% 90%,#75263520,transparent 48%);filter:blur(15px);animation:ts-bruma 33s ease-in-out infinite alternate}
+.ts-ambiente .ts-bruma.dos{inset:72% -20% -12%;animation-delay:-13s;animation-duration:41s;opacity:.65}
+.ts-ambiente .ts-presencia-fondo{position:absolute;right:2%;top:10%;width:clamp(120px,23%,340px);aspect-ratio:1;opacity:0;transform:translateY(10px);transition:opacity 1200ms ease,transform 3500ms ease;mask-image:radial-gradient(ellipse,black 25%,transparent 72%);filter:brightness(.65)}
+.ts-ambiente .ts-presencia-fondo.visible{opacity:.82;transform:translateY(0)}
+.ts-ambiente.pausado .ts-sombra,.ts-ambiente.pausado .ts-bruma{animation-play-state:paused}
+.ts-ambiente.pausado .ts-presencia-fondo{transition:none}
+@keyframes ts-acercamiento{from{opacity:.35;transform:scaleX(1.08)}to{opacity:.85;transform:scaleX(1)}}
+@keyframes ts-bruma{from{transform:translate(-3%,2%)}to{transform:translate(3%,-2%)}}
+@media(max-width:600px){.ts-ambiente .ts-presencia-fondo{width:130px;right:-18px;opacity:0!important}.ts-ambiente .ts-bruma{filter:none;opacity:.4}.ts-ambiente .ts-bruma.dos{display:none}}
+@media(prefers-reduced-motion:reduce){.ts-ambiente .ts-sombra,.ts-ambiente .ts-bruma{animation:none!important}.ts-ambiente .ts-presencia-fondo{opacity:0!important;transition:none!important}}

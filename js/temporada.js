@@ -13,6 +13,10 @@
 // atrás: estrellas, telarañas, murciélagos y niebla (la luz de la luna y
 // los resplandores son del CSS).
 //
+// En Halloween además carga los kits de terror de la carpeta HALLOWEN:
+// el pasillo y la mansión de fondo, las garras del título, la sangre, la
+// niebla y la aparición detrás del contenido (ver abajo).
+//
 // Va en el <head> sin defer, antes de tenido.js: así la página ya sale
 // de noche desde el primer cuadro, sin un destello blanco.
 //
@@ -67,6 +71,30 @@
   else textosDeTemporada();
 
   if (activa.tema !== 'halloween') return;
+
+  // ---------- El kit de terror (carpeta HALLOWEN) ----------
+  // El pasillo y la mansión de fondo, las garras del título, la sangre,
+  // la niebla y la aparición (HALLOWEN/horror.css y HALLOWEN/horror.js,
+  // ver HALLOWEN/LEEME-TIENDA.md).
+  // Se piden solo en Halloween: fuera de fecha la tienda no descarga
+  // nada de esa carpeta. Llevan la misma versión que este archivo
+  // (?v=…), así se actualizan junto con él. La hoja se pide ya, desde
+  // el <head>, y frena el primer dibujo donde el navegador lo permite
+  // (blocking=render): la página sale con el pasillo desde el inicio.
+  (function () {
+    const yo = document.currentScript;
+    if (!yo || !yo.src) return;
+    const carpeta = new URL('../HALLOWEN/', yo.src);
+    const version = new URL(yo.src).search;
+    const hoja = document.createElement('link');
+    hoja.rel = 'stylesheet';
+    hoja.href = new URL('horror.css', carpeta).href + version;
+    hoja.setAttribute('blocking', 'render');
+    document.head.appendChild(hoja);
+    const guion = document.createElement('script');
+    guion.src = new URL('horror.js', carpeta).href + version;
+    document.head.appendChild(guion);
+  })();
 
   // ---------- El cielo ----------
   // Una sola capa fija detrás de todo (z-index -1, sin clicks), como las

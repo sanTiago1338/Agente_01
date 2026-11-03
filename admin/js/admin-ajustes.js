@@ -6,7 +6,9 @@
 //   TELEGRAM
 //     · Si está conectado (la base le pregunta al bot en el momento)
 //     · Los avisos: pedidos nuevos (cada minuto), vencimientos (9:00) y
-//       sin pagar desde ayer (9:05), si están prendidos y cuándo corrieron
+//       sin pagar desde ayer (9:05), cuándo corrieron y un interruptor
+//       para prender o apagar cada uno, y otro para los botones del chat
+//       (supabase/30-prender-apagar-avisos.sql)
 //     · "Confirmar pagos desde Telegram": prendido, el aviso de pedido
 //       nuevo trae "Confirmar y entregar"; apagado (como viene), se
 //       confirma solo desde el panel y los botones de avisos viejos no
@@ -73,7 +75,17 @@ css.textContent = `
   }
   .aj-lista b { font-size: 13.5px; font-weight: 600; color: var(--tinta); }
   .aj-lista small { grid-column: 1; font-size: 12.5px; color: var(--tinta-suave); }
-  .aj-lista .aj-chip { grid-row: 1 / span 2; grid-column: 2; }
+  .aj-lista > li > .aj-chip { grid-row: 1 / span 2; grid-column: 2; }
+  /* A la derecha de cada aviso: el interruptor (y, si falló, el cartel) */
+  .aj-lista .aj-der {
+    grid-row: 1 / span 2; grid-column: 2;
+    display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+  }
+  .aj-lista .sw-riel { width: 38px; height: 22px; }
+  .aj-lista .sw-bola { width: 18px; height: 18px; }
+  .aj-lista .sw[aria-checked="true"] .sw-bola { transform: translateX(16px); }
+  .aj-lista li.apagado b { color: var(--tinta-suave); }
+  @media (max-width: 560px) { .aj-lista .aj-der .aj-chip { display: none; } }
 
   .aj-opcion {
     display: flex; align-items: flex-start; gap: 16px;
@@ -260,6 +272,15 @@ async function cargar() {
   dibujar();
 }
 
+// El interruptor de cada aviso (el mismo .sw de Productos y de "Confirmar
+// pagos"). Lo nombra el título de su fila.
+function interruptor(aviso, prendido) {
+  return `<button type="button" class="sw" role="switch" data-aviso="${escapar(aviso)}"
+            aria-checked="${prendido ? 'true' : 'false'}" aria-labelledby="ajAv-${escapar(aviso)}">
+            <span class="sw-riel"><span class="sw-bola"></span></span>
+          </button>`;
+}
+
 function ponerEstado(clase, texto) {
   $('ajEstado').className = `aj-chip ${clase}`;
   $('ajEstado').textContent = texto;
@@ -279,34 +300,39 @@ function dibujar() {
   const trabajos = Array.isArray(e.trabajos) ? e.trabajos : null;
   const filas = AVISOS.map(a => {
     const t = trabajos ? trabajos.find(x => x.nombre === a.job) : null;
-    let chip, detalle;
+    // Sin el reloj no hay nada que prender: queda el cartel de antes
     if (!trabajos) {
-      chip = '<span class="aj-chip apag">No se pudo ver</span>';
-      detalle = 'pg_cron no dejó leer sus horarios';
-    } else if (!t) {
-      chip = '<span class="aj-chip apag">No programado</span>';
-      detalle = 'No está en pg_cron';
-    } else {
-      const fallo = t.estado === 'failed';
-      chip = !t.activo ? '<span class="aj-chip apag">Apagado</span>'
-           : fallo     ? '<span class="aj-chip mal">Falló la última vez</span>'
-           :             '<span class="aj-chip ok">Prendido</span>';
-      const ultimo = a.ultimo(e);
-      detalle = [horario(t.horario),
-                 ultimo ? `${a.ultimoTxt}: ${cuando(ultimo)}`
-                        : t.ultima ? `corrió por última vez ${cuando(t.ultima)}` : 'todavía no corrió']
-                .filter(Boolean).join(' · ');
+      return `<li><b>${a.nombre}</b><small>pg_cron no dejó leer sus horarios</small>
+        <span class="aj-chip apag">No se pudo ver</span></li>`;
     }
-    return `<li><b>${a.nombre}</b><small>${escapar(detalle)}</small>${chip}</li>`;
+    if (!t) {
+      return `<li><b>${a.nombre}</b><small>No está en pg_cron</small>
+        <span class="aj-chip apag">No programado</span></li>`;
+    }
+    const prendido = !!t.activo;
+    const fallo = prendido && t.estado === 'failed';
+    const ultimo = a.ultimo(e);
+    let detalle = prendido
+      ? [horario(t.horario),
+         ultimo ? `${a.ultimoTxt}: ${cuando(ultimo)}`
+                : t.ultima ? `corrió por última vez ${cuando(t.ultima)}` : 'todavía no corrió']
+        .filter(Boolean).join(' · ')
+      : `Apagado: no te llega este aviso · prendido va ${horario(t.horario).toLowerCase()}`;
+    // Sin pagar desde ayer manda un botón para cancelar: sin botones, nada
+    if (prendido && a.job === 'avisar-sin-pagar' && !e.clave_botones) {
+      detalle += ' · con los botones del chat apagados no manda nada';
+    }
+    return `<li class="${prendido ? '' : 'apagado'}"><b id="ajAv-${a.job}">${a.nombre}</b><small>${escapar(detalle)}</small>
+      <span class="aj-der">${fallo ? '<span class="aj-chip mal">Falló la última vez</span>' : ''}${interruptor(a.job, prendido)}</span></li>`;
   });
 
   // Los botones del chat (los de "Sigue sin pagar", y confirmar si está
   // prendido) necesitan que los toques lleguen a la Edge Function
-  filas.push(`<li><b>Botones del chat</b>
+  filas.push(`<li class="${e.clave_botones ? '' : 'apagado'}"><b id="ajAv-botones">Botones del chat</b>
     <small>${e.clave_botones
       ? 'Los toques llegan a la base (Cancelar, Dejarlo y, si está prendido, Confirmar)'
-      : 'Sin activar: los avisos no traen botones. Desde el SQL Editor: select public.activar_boton_telegram();'}</small>
-    ${e.clave_botones ? '<span class="aj-chip ok">Activos</span>' : '<span class="aj-chip ojo">Sin activar</span>'}</li>`);
+      : 'Apagado: los avisos llegan sin botones y "Sin pagar desde ayer" no manda nada'}</small>
+    <span class="aj-der">${interruptor('botones', !!e.clave_botones)}</span></li>`);
 
   $('ajCuerpo').innerHTML = `
     ${e.error ? `<p class="aj-error">${escapar(e.error)}</p>` : ''}
@@ -356,6 +382,38 @@ async function cambiarConfirmar(btn) {
   await cargar();
 }
 
+// Prender o apagar un aviso (o los botones del chat). Lo hace la base:
+// supabase/30-prender-apagar-avisos.sql (poner_aviso_telegram).
+async function cambiarAviso(btn) {
+  const cual = btn.dataset.aviso;
+  const prender = btn.getAttribute('aria-checked') !== 'true';
+  // Apagar estos dos te deja sin enterarte de algo: se pregunta antes
+  if (!prender && cual === 'avisar-pedidos-nuevos' &&
+      !confirm('¿Apagar el aviso de pedidos nuevos?\n\nNo te va a llegar nada a Telegram cuando alguien compre. ' +
+               'Al volver a prenderlo te llegan los pedidos del último día que no se avisaron.')) return;
+  if (!prender && cual === 'botones' &&
+      !confirm('¿Apagar los botones del chat?\n\nLos avisos llegan sin botones, los de avisos viejos dejan de andar ' +
+               'y "Sin pagar desde ayer" no manda nada hasta que los vuelvas a prender.')) return;
+
+  btn.disabled = true;
+  btn.setAttribute('aria-checked', String(prender));   // se ve en el acto
+
+  const { data, error } = await sbAdmin.rpc('poner_aviso_telegram', { p_aviso: cual, p_prendido: prender });
+  if (error) {
+    btn.setAttribute('aria-checked', String(!prender));
+    btn.disabled = false;
+    const falta = error.code === 'PGRST202' || error.code === '42883' ||
+                  /could not find the function|does not exist/i.test(error.message || '');
+    aviso(falta
+      ? 'Falta preparar la base: corré supabase/30-prender-apagar-avisos.sql en Supabase → SQL Editor.'
+      : `No se pudo cambiar: ${error.message}`, 'error');
+    return;
+  }
+  const texto = data || (prender ? 'Prendido' : 'Apagado');
+  aviso(texto, /^(Prendido|Apagado|Listo)/.test(texto) ? 'ok' : 'error');
+  await cargar();
+}
+
 async function probar(btn) {
   btn.disabled = true;
   const antes = btn.innerHTML;
@@ -373,6 +431,7 @@ $('vistaAjustes').addEventListener('click', e => {
   const b = e.target.closest('button');
   if (!b || b.disabled) return;
   if (b.id === 'ajConfirmar') cambiarConfirmar(b);
+  if (b.dataset.aviso)        cambiarAviso(b);
   if (b.id === 'ajProbar')    probar(b);
   if (b.id === 'ajRefrescar') {
     $('ajCuerpo').innerHTML = '<div class="aj-vacio"><p>Revisando Telegram…</p></div>';

@@ -159,7 +159,7 @@ css.textContent = `
     font-family: inherit; flex: none;
   }
   .st-mini:hover { border-color: var(--acento); color: var(--acento); }
-  .st-mini[data-anular]:hover { border-color: var(--rojo); color: var(--rojo); }
+  .st-mini[data-anular]:hover { border-color: var(--error); color: var(--error); }
   .st-mini.seguro, .st-mini.seguro:hover { background: #dc2626; border-color: #dc2626; color: #fff; }
 
   .st-vacio { padding: 46px 20px; text-align: center; color: var(--gris-dim); }
@@ -812,9 +812,21 @@ function urlImagen(img) {
 
 // "Img/Claude.jpg" -> "Img/opt/Claude.jpg" · "Img/iQIYI VIP.png" -> ".../iQIYI VIP.jpg"
 // Lo que ya apunta a Img/opt, o no es png/jpg (los .svg), pasa de largo.
+// Red de seguridad del WebP: si una foto de /Img/opt no tiene todavía su
+// .webp (una nueva hecha con optimizar-imagenes.ps1, que solo genera
+// .jpg), se pide la .jpg de al lado. El error de una imagen no sube por
+// la página, por eso se escucha en la captura.
+document.addEventListener('error', e => {
+  const img = e.target;
+  if (img && img.tagName === 'IMG' && /\/Img\/opt\/[^?#]+\.webp(?:[?#]|$)/.test(img.src) && !img.dataset.sinWebp) {
+    img.dataset.sinWebp = '1';
+    img.src = img.src.replace(/\.webp(?=[?#]|$)/, '.jpg');
+  }
+}, true);
+
 function aOptimizada(ruta) {
   if (/^Img\/opt\//i.test(ruta)) return ruta;
-  return ruta.replace(/^Img\/(.+)\.(png|jpe?g)$/i, 'Img/opt/$1.jpg');
+  return ruta.replace(/^Img\/opt\/(.+)\.jpe?g$/i, 'Img/opt/$1.webp').replace(/^Img\/(?!opt\/)(.+)\.(png|jpe?g)$/i, 'Img/opt/$1.webp');
 }
 
 

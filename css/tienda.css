@@ -29,8 +29,12 @@
       --tinta-suave:  #767c88;   /* secundario */
 
       /* Marca */
-      --marca:        #e50914;
-      --marca-oscura: #b8070f;
+      --marca:        #f472b6;  /* rosa claro (antes rojo #e50914) */
+      --marca-oscura: #ec4899;
+      --marca-rgb:    236,72,153;  /* transparencias: rgba(var(--marca-rgb), .1) */
+      --marca-texto:  #db2777;     /* letras y precios sobre blanco: el rosa claro solo no se lee */
+      --marca-tinta:  #500724;     /* letra encima de un fondo rosa */
+      --error:        #dc2626;     /* solo avisos: vencido, cancelado, borrar */
       --oro:          #9a7400;   /* oro legible sobre blanco */
       --oro-claro:    #f5c518;   /* solo sobre fondos de color */
       --verde-wa:     #128C7E;
@@ -72,11 +76,11 @@
       z-index: 0;
       pointer-events: none;
       background:
-        radial-gradient(circle 220px at 12% 14%,  rgba(229,9,20,.05),  transparent 70%),
+        radial-gradient(circle 220px at 12% 14%,  rgba(var(--marca-rgb),.05),  transparent 70%),
         radial-gradient(circle 170px at 88% 22%,  rgba(245,197,24,.07), transparent 70%),
-        radial-gradient(circle 130px at 78% 68%,  rgba(229,9,20,.035), transparent 70%),
+        radial-gradient(circle 130px at 78% 68%,  rgba(var(--marca-rgb),.035), transparent 70%),
         radial-gradient(circle 190px at 8%  76%,  rgba(245,197,24,.05), transparent 70%),
-        radial-gradient(circle 90px  at 46% 40%,  rgba(229,9,20,.028), transparent 70%);
+        radial-gradient(circle 90px  at 46% 40%,  rgba(var(--marca-rgb),.028), transparent 70%);
     }
     body > * { position: relative; z-index: 1; }
     @media (max-width: 600px) { body::before { display: none; } }
@@ -100,7 +104,7 @@
       font-weight: 700;
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      color: white;
+      color: var(--marca-tinta);
       animation: pulse-banner 3s ease-in-out infinite;
     }
 
@@ -129,7 +133,7 @@
       font-family: 'Bebas Neue', sans-serif;
       font-size: 1.45rem;
       letter-spacing: 2px;
-      background: linear-gradient(135deg, var(--rojo), var(--oro));
+      background: linear-gradient(135deg, var(--marca-texto), var(--marca-oscura) 55%, var(--marca));   /* rosa intenso a rosa claro */
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -284,7 +288,7 @@
       transition: background .15s, color .15s;
     }
     .moneda-op:hover { background: rgba(20,22,26,.05); color: var(--tinta); }
-    .moneda-op.activo { background: var(--marca); color: #fff; font-weight: 700; }
+    .moneda-op.activo { background: var(--marca); color: var(--marca-tinta); font-weight: 700; }
 
     /* ---- Seleccioná una opción de pago (paso 3 del carrito) ----
        Tarjetas cuadradas, una al lado de la otra: arriba el "logo" del
@@ -322,7 +326,7 @@
     .cr-metodo.elegido {
       border-color: var(--marca);
       background: rgba(255,255,255,.95);
-      box-shadow: 0 0 0 3px rgba(229,9,20,.12), 0 6px 16px rgba(20,22,26,.08);
+      box-shadow: 0 0 0 3px rgba(var(--marca-rgb),.12), 0 6px 16px rgba(20,22,26,.08);
     }
     /* El "logo": QR rojo sobre claro; Binance dorado sobre oscuro */
     .cr-metodo-img {
@@ -344,9 +348,9 @@
       text-transform: uppercase;
     }
     .cr-metodo-img.qr {
-      color: var(--marca);
+      color: var(--marca-texto);
       background: linear-gradient(135deg, #fff 0%, #fdecee 100%);
-      border: 1px solid rgba(229,9,20,.12);
+      border: 1px solid rgba(var(--marca-rgb),.12);
     }
     .cr-metodo-img.binance {
       color: #f0b90b;
@@ -372,9 +376,9 @@
       display: grid;
       place-items: center;
       font-size: 0.8rem;
-      color: #fff;
+      color: var(--marca-tinta);
       background: var(--marca);
-      box-shadow: 0 2px 6px rgba(229,9,20,.35);
+      box-shadow: 0 2px 6px rgba(var(--marca-rgb),.35);
       opacity: 0;
       transform: scale(.5);
       transition: opacity .2s, transform .2s;
@@ -417,7 +421,7 @@
       font: inherit;
       text-transform: none;
       letter-spacing: 0;
-      color: var(--rojo);
+      color: var(--marca-texto);
       cursor: pointer;
     }
 
@@ -466,7 +470,7 @@
     }
 
     /* La parte que el cliente ya escribió va en rojo */
-    .sug-nombre b { color: var(--rojo); }
+    .sug-nombre b { color: var(--marca-texto); }
 
     .sug-meta {
       display: block;
@@ -495,7 +499,7 @@
     .promo-banner {
       margin: 0.5rem 1rem;
       background: linear-gradient(135deg, #eef0f8 0%, #e8ecf7 50%, #e2e9f6 100%);
-      border: 1px solid rgba(229,9,20,0.3);
+      border: 1px solid rgba(var(--marca-rgb),0.3);
       border-radius: 14px;
       padding: 0.5rem 0.6rem 0.5rem 1rem;
       display: flex;
@@ -510,7 +514,7 @@
       position: absolute;
       top: -30px; right: -30px;
       width: 100px; height: 100px;
-      background: rgba(229,9,20,0.15);
+      background: rgba(var(--marca-rgb),0.15);
       border-radius: 50%;
     }
 
@@ -676,7 +680,7 @@
     }
 
     .cat-tab:hover { color: var(--blanco); }
-    .cat-tab.active { color: var(--rojo); border-bottom-color: var(--rojo); }
+    .cat-tab.active { color: var(--marca-texto); border-bottom-color: var(--rojo); }
 
     /* ===== SUBCATEGORY PILLS ===== */
     .sub-pills {
@@ -704,9 +708,9 @@
     }
 
     .sub-pill:hover, .sub-pill.active {
-      background: rgba(229,9,20,0.12);
-      border-color: rgba(229,9,20,0.4);
-      color: var(--rojo);
+      background: rgba(var(--marca-rgb),0.12);
+      border-color: rgba(var(--marca-rgb),0.4);
+      color: var(--marca-texto);
     }
 
     /* Los íconos de línea que dibuja js/tienda.js (icono()): miden lo
@@ -813,13 +817,13 @@
       position: absolute;
       top: 0.6rem; right: 0.6rem;
       background: var(--marca);
-      color: #fff;
+      color: var(--marca-tinta);
       font-size: 0.75rem;
       font-weight: 800;
       line-height: 1;
       padding: 0.3rem 0.45rem;
       border-radius: 999px;
-      box-shadow: 0 2px 8px rgba(229,9,20,0.45), inset 0 1px 0 rgba(255,255,255,0.35);
+      box-shadow: 0 2px 8px rgba(var(--marca-rgb),0.45), inset 0 1px 0 rgba(255,255,255,0.35);
     }
     .oferta-precio {
       display: flex;
@@ -1333,7 +1337,7 @@
       white-space: nowrap;
     }
     .plan-chip.ok   { background: rgba(18,140,126,.11); color: #0f7a6e; }
-    .plan-chip.off  { background: rgba(229,9,20,.09);   color: var(--marca); }
+    .plan-chip.off  { background: rgba(var(--marca-rgb),.09);   color: var(--marca-texto); }
     .plan-chip.zona { background: var(--superficie-2);  color: var(--tinta-suave); }
     .plan-chip.correo { background: rgba(154,116,0,.12); color: var(--oro); }
     /* Sale solo cuando hay una cuenta comprada esperando. Verde fuerte:
@@ -1400,8 +1404,8 @@
     .plan-ahorro { display: flex; align-items: center; gap: .4rem; margin-top: .35rem; font-size: .78rem; color: var(--tinta-suave); }
     .plan-ahorro s { text-decoration-thickness: 1.5px; }
     .plan-desc {
-      background: rgba(229,9,20,.1);
-      color: var(--marca-oscura);
+      background: rgba(var(--marca-rgb),.1);
+      color: var(--marca-texto);
       font-weight: 800;
       font-size: .7rem;
       padding: .12rem .45rem;
@@ -1418,7 +1422,7 @@
 
     .plan-comprar {
       background: linear-gradient(135deg, var(--marca), var(--marca-oscura));
-      color: #fff;
+      color: var(--marca-tinta);
       border: none;
       border-radius: 12px;
       min-height: 46px;
@@ -1432,7 +1436,7 @@
       align-items: center;
       justify-content: center;
       gap: .45rem;
-      box-shadow: 0 4px 14px rgba(229,9,20,.24);
+      box-shadow: 0 4px 14px rgba(var(--marca-rgb),.24);
       transition: filter .15s, transform .15s;
       text-decoration: none;
     }
@@ -1488,8 +1492,8 @@
       border-radius: 11px;
       display: grid;
       place-items: center;
-      background: rgba(229,9,20,.09);
-      color: var(--marca);
+      background: rgba(var(--marca-rgb),.09);
+      color: var(--marca-texto);
       font-size: 1.05rem;
       flex-shrink: 0;
     }
@@ -1584,17 +1588,17 @@
       animation: ck-latido 1.7s ease-in-out infinite;
     }
     .ck-terminos-caja:has(input:checked) {
-      border-color: rgba(229,9,20,.35);
-      background: rgba(229,9,20,.03);
+      border-color: rgba(var(--marca-rgb),.35);
+      background: rgba(var(--marca-rgb),.03);
       animation: none;
     }
     @keyframes ck-latido {
-      0%, 100% { border-color: var(--borde);      box-shadow: 0 0 0 0   rgba(229,9,20,0);   }
-      50%      { border-color: rgba(229,9,20,.65); box-shadow: 0 0 0 5px rgba(229,9,20,.13); }
+      0%, 100% { border-color: var(--borde);      box-shadow: 0 0 0 0   rgba(var(--marca-rgb),0);   }
+      50%      { border-color: rgba(var(--marca-rgb),.65); box-shadow: 0 0 0 5px rgba(var(--marca-rgb),.13); }
     }
     /* La casilla también se marca en rojo mientras siga vacía */
     .ck-terminos-caja:not(:has(input:checked)) .ck-terminos input {
-      outline: 2px solid rgba(229,9,20,.45);
+      outline: 2px solid rgba(var(--marca-rgb),.45);
       outline-offset: 2px;
     }
     @media (prefers-reduced-motion: reduce) {
@@ -1617,7 +1621,7 @@
       flex-shrink: 0;
       margin-top: .02rem;
     }
-    .ck-terminos a { color: var(--marca); font-weight: 600; }
+    .ck-terminos a { color: var(--marca-texto); font-weight: 600; }
     .ck-terminos b { color: var(--tinta); font-weight: 700; }
 
     /* Detalle de los términos, plegado por defecto */
@@ -1626,7 +1630,7 @@
       padding: 0;
       background: none;
       border: none;
-      color: var(--marca);
+      color: var(--marca-texto);
       font-family: inherit;
       font-size: .77rem;
       font-weight: 600;
@@ -1660,8 +1664,8 @@
       padding: 1rem;
       border: none;
       border-radius: 12px;
-      background: linear-gradient(135deg, #ff2b38, var(--marca) 55%, var(--marca-oscura));
-      color: #fff;
+      background: linear-gradient(135deg, #f9a8d4, var(--marca) 55%, var(--marca-oscura));
+      color: var(--marca-tinta);
       font-family: inherit;
       font-size: .95rem;
       font-weight: 900;
@@ -1672,7 +1676,7 @@
       align-items: center;
       justify-content: center;
       gap: .55rem;
-      box-shadow: 0 6px 20px rgba(229,9,20,.28);
+      box-shadow: 0 6px 20px rgba(var(--marca-rgb),.28);
       transition: filter .15s, transform .15s;
     }
     .ck-pagar:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
@@ -1739,11 +1743,11 @@
       font: inherit; color: var(--tinta-media);
       cursor: pointer;
     }
-    .cr-pasos li.hecho button:hover { color: var(--marca); }
+    .cr-pasos li.hecho button:hover { color: var(--marca-texto); }
     .cr-pasos li.hecho button:focus-visible { outline: 2px solid var(--marca); outline-offset: 3px; border-radius: 6px; }
-    .cr-pasos li.hecho span  { background: var(--marca); border-color: var(--marca); color: #fff; }
+    .cr-pasos li.hecho span  { background: var(--marca); border-color: var(--marca); color: var(--marca-tinta); }
     .cr-pasos li.actual      { color: var(--tinta); }
-    .cr-pasos li.actual span { border-color: var(--marca); color: var(--marca); background: #fff; box-shadow: 0 0 0 3px rgba(229,9,20,.12); }
+    .cr-pasos li.actual span { border-color: var(--marca); color: var(--marca-texto); background: #fff; box-shadow: 0 0 0 3px rgba(var(--marca-rgb),.12); }
 
     @media (min-width: 760px) {
       .cr-pasos li { font-size: .95rem; }
@@ -1826,8 +1830,8 @@
       margin-top: .45rem;
       padding: .25rem .6rem;
       border-radius: 7px;
-      background: rgba(229,9,20,.09);
-      color: var(--marca-oscura);
+      background: rgba(var(--marca-rgb),.09);
+      color: var(--marca-texto);
       font-size: .8rem;
       font-weight: 800;
     }
@@ -1876,7 +1880,7 @@
       cursor: pointer;
     }
     .cr-quitar svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .cr-quitar:hover { color: var(--marca); background: rgba(229,9,20,.07); }
+    .cr-quitar:hover { color: var(--marca-texto); background: rgba(var(--marca-rgb),.07); }
 
     /* ---- Descuento combo (paso 2) ----
        Con 2 o más productos, verde y con el monto; con 1, una invitación
@@ -1912,7 +1916,7 @@
       font: 700 .82rem 'Outfit', sans-serif; color: var(--tinta-media);
       cursor: pointer;
     }
-    .cr-editar:hover { color: var(--marca); border-color: var(--marca); }
+    .cr-editar:hover { color: var(--marca-texto); border-color: var(--marca); }
     .cr-resumen { list-style: none; margin: 0; padding: 0; }
     .cr-resumen li {
       display: flex; align-items: baseline; gap: .5rem;
@@ -1966,7 +1970,7 @@
       color: var(--tinta-media);
       cursor: pointer;
     }
-    .cr-atras:hover { color: var(--marca); }
+    .cr-atras:hover { color: var(--marca-texto); }
     .cr-pie .ck-aviso { margin-top: .35rem; font-size: .76rem; }
 
     /* Desde 900 px, el pie entra en una fila: volver · total · botón.
@@ -2081,7 +2085,7 @@
     .product-card:hover {
       transform: translateY(-4px);
       box-shadow: var(--sombra-alta);
-      border-color: rgba(229,9,20,0.28);
+      border-color: rgba(var(--marca-rgb),0.28);
     }
 
     .product-card:active { transform: scale(0.98); }
@@ -2125,7 +2129,7 @@
     .page-btn:hover, .page-btn.active {
       background: var(--rojo);
       border-color: var(--rojo);
-      color: white;
+      color: var(--marca-tinta);
     }
 
     /* ===== PIE DE PÁGINA =====
@@ -2163,7 +2167,7 @@
       line-height: 1;
       margin-bottom: 0.45rem;
     }
-    .pie-logo span { color: var(--marca); }
+    .pie-logo span { color: var(--marca-texto); }
 
     .pie-lema {
       margin: 0 0 0.55rem;
@@ -2204,7 +2208,7 @@
       align-items: center;
       gap: 0.45rem;
     }
-    .pie-lista a:hover { color: var(--marca); }
+    .pie-lista a:hover { color: var(--marca-texto); }
 
     .pie-ico { font-size: 0.95rem; display: inline-flex; flex: none; }
 
@@ -2379,7 +2383,7 @@
     .nav-item:focus-visible { outline: 2px solid var(--rojo); outline-offset: -2px; }
 
     .nav-item.active,
-    .nav-item.active:hover { color: var(--rojo); }
+    .nav-item.active:hover { color: var(--marca-texto); }
     .nav-item.active::before { opacity: 1; transform: scale(1); }
     .nav-item.active .nav-icon svg { stroke-width: 2.1; }
 
@@ -2392,7 +2396,7 @@
       padding: 0 4px;
       border-radius: 99px;
       background: var(--rojo);
-      color: #fff;
+      color: var(--marca-tinta);
       font-size: 0.58rem;
       font-weight: 800;
       display: flex; align-items: center; justify-content: center;
@@ -2495,7 +2499,7 @@
       inset: 0;
       background:
         radial-gradient(circle at 80% 30%, rgba(255,255,255,0.08) 0%, transparent 55%),
-        radial-gradient(circle at 20% 80%, rgba(229,9,20,0.18) 0%, transparent 60%);
+        radial-gradient(circle at 20% 80%, rgba(var(--marca-rgb),0.18) 0%, transparent 60%);
       pointer-events: none;
     }
 
@@ -2539,7 +2543,7 @@
 
     .hero-tag--new {
       background: linear-gradient(135deg, var(--rojo), var(--rojo2));
-      box-shadow: 0 4px 12px rgba(229,9,20,0.5);
+      box-shadow: 0 4px 12px rgba(var(--marca-rgb),0.5);
       border-color: transparent;
     }
 
@@ -2632,7 +2636,7 @@
       transition: background 0.2s;
     }
 
-    .hero-arrow:hover { background: rgba(229,9,20,0.85); }
+    .hero-arrow:hover { background: rgba(var(--marca-rgb),0.85); }
     .hero-arrow--prev { left: 0.5rem; }
     .hero-arrow--next { right: 0.5rem; }
 
@@ -2686,8 +2690,8 @@
       white-space: nowrap;
       transition: color 0.2s;
     }
-    .nav-link:hover { color: var(--rojo); }
-    .nav-link--activo { color: var(--rojo); font-weight: 700; }
+    .nav-link:hover { color: var(--marca-texto); }
+    .nav-link--activo { color: var(--marca-texto); font-weight: 700; }
     .nav-link--oro    { color: var(--dorado); font-weight: 700; }
     .nav-link[hidden] { display: none; }   /* "Ofertas" sin ninguna oferta */
 
@@ -2720,8 +2724,8 @@
       -webkit-backdrop-filter: var(--vidrio-blur-barra);
       backdrop-filter: var(--vidrio-blur-barra);
       border: 1px solid rgba(255,255,255,.85);
-      box-shadow: 0 8px 24px rgba(229,9,20,.08), 0 1px 3px rgba(20,22,26,.05),
-                  0 0 0 .5px rgba(229,9,20,.18),
+      box-shadow: 0 8px 24px rgba(var(--marca-rgb),.08), 0 1px 3px rgba(20,22,26,.05),
+                  0 0 0 .5px rgba(var(--marca-rgb),.18),
                   inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
       animation: none;
     }
@@ -2790,8 +2794,8 @@
       transition: border-color .2s, box-shadow .2s;
     }
     .search-input-wrap:focus-within {
-      border-color: rgba(229,9,20,.4);
-      box-shadow: 0 0 0 4px rgba(229,9,20,.10), var(--vidrio-sombra), var(--vidrio-brillo);
+      border-color: rgba(var(--marca-rgb),.4);
+      box-shadow: 0 0 0 4px rgba(var(--marca-rgb),.10), var(--vidrio-sombra), var(--vidrio-brillo);
     }
     .search-sug {
       background: var(--vidrio-denso);
@@ -2887,9 +2891,9 @@
     .sub-pill:hover,
     .sub-pill.active {
       background: linear-gradient(180deg, rgba(255,240,241,.38), rgba(253,222,224,.27));
-      border-color: rgba(229,9,20,.35);
-      color: var(--rojo);
-      box-shadow: 0 2px 8px rgba(229,9,20,.12), inset 0 1px 0 rgba(255,255,255,.9);
+      border-color: rgba(var(--marca-rgb),.35);
+      color: var(--marca-texto);
+      box-shadow: 0 2px 8px rgba(var(--marca-rgb),.12), inset 0 1px 0 rgba(255,255,255,.9);
     }
 
     /* ---------- Tarjetas de plataforma ----------
@@ -2993,7 +2997,7 @@
       -webkit-backdrop-filter: blur(10px) saturate(180%);
       backdrop-filter: blur(10px) saturate(180%);
       border-color: rgba(255,255,255,.45);
-      box-shadow: 0 4px 12px rgba(229,9,20,.3), inset 0 1px 0 rgba(255,255,255,.5);
+      box-shadow: 0 4px 12px rgba(var(--marca-rgb),.3), inset 0 1px 0 rgba(255,255,255,.5);
     }
 
     /* Etiquetas de los planes: vidrio */
@@ -3267,7 +3271,7 @@
       color: var(--tinta);
       border-color: var(--marca);
       background: var(--vidrio-lente);
-      box-shadow: 0 0 0 3px rgba(229,9,20,.12), var(--vidrio-brillo);
+      box-shadow: 0 0 0 3px rgba(var(--marca-rgb),.12), var(--vidrio-brillo);
     }
     .fi-plan.agotado { opacity: .55; }
     .fi-plan.agotado b { color: var(--tinta-suave); }
@@ -3300,7 +3304,7 @@
       display: grid;
       place-items: center;
       border-radius: 9px;
-      color: var(--marca);
+      color: var(--marca-texto);
       background: var(--vidrio);
       border: 1px solid var(--vidrio-borde);
       box-shadow: var(--vidrio-brillo);
@@ -3317,7 +3321,7 @@
       margin-top: .7rem;
       font-size: .85rem;
       font-weight: 700;
-      color: var(--marca);
+      color: var(--marca-texto);
     }
 
     /* ---------- Qué incluye y cómo se usa ---------- */
@@ -3335,7 +3339,7 @@
       place-items: center;
       border-radius: 14px;
       font-size: 1.15rem;
-      color: var(--marca);
+      color: var(--marca-texto);
       background: var(--vidrio);
       border: 1px solid var(--vidrio-borde);
       box-shadow: var(--vidrio-sombra), var(--vidrio-brillo);
@@ -3346,7 +3350,7 @@
       font-weight: 900;
       letter-spacing: .18em;
       text-transform: uppercase;
-      color: var(--marca);
+      color: var(--marca-texto);
     }
     .fi-titulo b { display: block; font-size: 1.12rem; line-height: 1.25; color: var(--tinta); }
 
@@ -3371,7 +3375,7 @@
       gap: .45rem 1rem;
     }
     .fi-incluye li { display: flex; align-items: flex-start; gap: .5rem; }
-    .fi-incluye li .ico { flex: none; margin-top: .2rem; color: var(--marca); }
+    .fi-incluye li .ico { flex: none; margin-top: .2rem; color: var(--marca-texto); }
 
     /* Los pasos, numerados, de a dos desde la tablet */
     .fi-pasos {
@@ -3406,7 +3410,7 @@
       border-radius: 50%;
       font-size: .85rem;
       font-weight: 900;
-      color: #fff;
+      color: var(--marca-tinta);
       background: linear-gradient(180deg, var(--marca), var(--marca-oscura));
       box-shadow: 0 3px 10px rgba(20,22,26,.15), inset 0 1px 0 rgba(255,255,255,.35);
     }
@@ -3554,7 +3558,7 @@
       border-radius: 999px;
       font-size: .76rem;
       font-weight: 800;
-      color: #fff;
+      color: var(--marca-tinta);
       background: linear-gradient(180deg, var(--marca), var(--marca-oscura));
     }
     .fi-otro--agotado { opacity: .62; }

@@ -3,6 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- MÓDULOS EN PARALELO: los archivos que trae los datos de Supabase se
+       importan unos a otros en cadena (este pide aquel, que pide el otro...)
+       y el navegador recién se enteraba de cada uno al terminar el anterior.
+       Acá se piden todos juntos desde el principio. Van dentro de un script
+       y no como <link> sueltos para que el script de versiones no les
+       agregue ?v=: tienen que quedar con la misma dirección que el import. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://doydkjztynjqecwdvoto.supabase.co" crossorigin>
+  <script>
+    [
+      'js/productos-service.js',
+      'js/productos-service-supabase.js',
+      'js/stock-tienda.js',
+      'js/supabase-base.js',
+      'js/mapeo.js',
+      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/auth-js@2.65.0/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/postgrest-js@1.16.1/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/realtime-js@2.10.2/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/storage-js@2.7.0/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/functions-js@2.4.1/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/node-fetch@2.6.15/+esm'
+    ].forEach(function (u) {
+      var l = document.createElement('link');
+      l.rel = 'modulepreload';
+      l.href = u;
+      document.head.appendChild(l);
+    });
+  </script>
   <title>Tiago Store | Planes & Precios</title>
 
   <!-- Vista previa al compartir el link: ver el comentario en index.html -->
@@ -19,7 +49,7 @@
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:alt" content="Tiago Store: streaming, IA y recargas de juegos en Bolivia">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#e50914">
+  <meta name="theme-color" content="#f472b6">
 
   <!-- Icono de la pestana y de la pantalla de inicio del telefono.
        El SVG lo usan los navegadores modernos y se ve nitido en
@@ -96,7 +126,7 @@
             <li>Ideal para uso individual</li>
             <li>Renovación mensual disponible</li>
           </ul>
-          <a href="index.html" class="btn-outline" style="display:block; text-align:center; border-color:rgba(229,9,20,0.4); color:var(--rojo);">Ver precios →</a>
+          <a href="index.html" class="btn-outline" style="display:block; text-align:center; border-color:rgba(var(--marca-rgb),0.4); color:var(--marca-texto);">Ver precios →</a>
         </div>
       </div>
 
@@ -133,7 +163,7 @@
             <li>Disponible en IPTV, Crunchyroll y más</li>
             <li>Sin preocuparte de renovar cada mes</li>
           </ul>
-          <a href="index.html" class="btn-outline" style="display:block; text-align:center; border-color:rgba(229,9,20,0.4); color:var(--rojo);">Ver opciones →</a>
+          <a href="index.html" class="btn-outline" style="display:block; text-align:center; border-color:rgba(var(--marca-rgb),0.4); color:var(--marca-texto);">Ver opciones →</a>
         </div>
       </div>
 
@@ -359,7 +389,7 @@
         <div class="tabla-precios">
           <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
             <thead>
-              <tr style="background:rgba(229,9,20,0.08);">
+              <tr style="background:rgba(var(--marca-rgb),0.08);">
                 <th style="padding:1rem; text-align:left; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Plataforma</th>
                 <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">1 Pantalla</th>
                 <th style="padding:1rem; text-align:center; color:var(--gris-claro); font-weight:600; letter-spacing:0.5px; font-size:0.78rem; text-transform:uppercase;">Cuenta Completa</th>

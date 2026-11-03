@@ -3,6 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- MÓDULOS EN PARALELO: los archivos que trae los datos de Supabase se
+       importan unos a otros en cadena (este pide aquel, que pide el otro...)
+       y el navegador recién se enteraba de cada uno al terminar el anterior.
+       Acá se piden todos juntos desde el principio. Van dentro de un script
+       y no como <link> sueltos para que el script de versiones no les
+       agregue ?v=: tienen que quedar con la misma dirección que el import. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://doydkjztynjqecwdvoto.supabase.co" crossorigin>
+  <script>
+    [
+      'js/pedido-automatico.js',
+      'js/historial.js',
+      'js/accesos.js',
+      'js/supabase-base.js',
+      'js/modo-prueba.js',
+      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/auth-js@2.65.0/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/postgrest-js@1.16.1/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/realtime-js@2.10.2/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/storage-js@2.7.0/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/functions-js@2.4.1/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/node-fetch@2.6.15/+esm'
+    ].forEach(function (u) {
+      var l = document.createElement('link');
+      l.rel = 'modulepreload';
+      l.href = u;
+      document.head.appendChild(l);
+    });
+  </script>
   <title>Pagar con QR - Tiago Store</title>
 
   <!-- Vista previa al compartir el link: ver el comentario en index.html -->
@@ -19,7 +49,7 @@
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:alt" content="Tiago Store: streaming, IA y recargas de juegos en Bolivia">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#e50914">
+  <meta name="theme-color" content="#f472b6">
 
   <!-- Icono de la pestana y de la pantalla de inicio del telefono.
        El SVG lo usan los navegadores modernos y se ve nitido en
@@ -56,8 +86,12 @@
   --tinta:        #14161a;
   --tinta-media:  #3d424b;
   --tinta-suave:  #767c88;
-  --marca:        #e50914;
-  --marca-oscura: #b8070f;
+  --marca:        #f472b6;  /* rosa claro (antes rojo #e50914) */
+  --marca-oscura: #ec4899;
+  --marca-rgb:    236,72,153;  /* transparencias: rgba(var(--marca-rgb), .1) */
+  --marca-texto:  #db2777;     /* letras y precios sobre blanco: el rosa claro solo no se lee */
+  --marca-tinta:  #500724;     /* letra encima de un fondo rosa */
+  --error:        #dc2626;     /* solo avisos: vencido, cancelado, borrar */
   --oro:          #9a7400;
   --oro-claro:    #f5c518;
   --ambar:        #f0a500;
@@ -117,7 +151,7 @@
       font-family: 'Bebas Neue', sans-serif;
       font-size: 1.5rem;
       letter-spacing: 3px;
-      color: var(--rojo);
+      color: var(--marca-texto);
     }
 
     .pay-container {
@@ -154,9 +188,9 @@
     }
 
     .pay-status-bar.expirado {
-      background: rgba(229,9,20,0.1);
-      border: 1px solid rgba(229,9,20,0.3);
-      color: var(--rojo);
+      background: rgba(220,38,38,0.1);
+      border: 1px solid rgba(220,38,38,0.3);
+      color: var(--error);
     }
 
     .status-dot {
@@ -167,7 +201,7 @@
 
     .pendiente .status-dot { background: var(--dorado); animation: pulse-dot 1.5s infinite; }
     .pagado .status-dot { background: var(--verde); }
-    .expirado .status-dot { background: var(--rojo); }
+    .expirado .status-dot { background: var(--error); }
 
     @keyframes pulse-dot {
       0%, 100% { opacity: 1; transform: scale(1); }
@@ -259,7 +293,7 @@
     .step-num {
       width: 24px; height: 24px;
       background: var(--rojo);
-      color: white;
+      color: var(--marca-tinta);
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -358,8 +392,8 @@
     }
 
     .pay-notice {
-      background: rgba(229,9,20,0.08);
-      border: 1px solid rgba(229,9,20,0.2);
+      background: rgba(var(--marca-rgb),0.08);
+      border: 1px solid rgba(var(--marca-rgb),0.2);
       border-radius: 10px;
       padding: 0.75rem 1rem;
       margin-bottom: 1.25rem;
@@ -370,7 +404,7 @@
       color: var(--texto-dim);
     }
 
-    .pay-notice strong { color: var(--rojo); }
+    .pay-notice strong { color: var(--marca-texto); }
 
     .btn-back {
       display: block;
@@ -491,7 +525,7 @@
     .error-title {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 1.5rem;
-      color: var(--rojo);
+      color: var(--error);
     }
 
     .error-msg {
@@ -518,11 +552,11 @@
     z-index: 0;
     pointer-events: none;
     background:
-      radial-gradient(circle 220px at 12% 14%, rgba(229,9,20,.05),   transparent 70%),
+      radial-gradient(circle 220px at 12% 14%, rgba(var(--marca-rgb),.05),   transparent 70%),
       radial-gradient(circle 170px at 88% 22%, rgba(245,197,24,.07), transparent 70%),
-      radial-gradient(circle 130px at 78% 68%, rgba(229,9,20,.035),  transparent 70%),
+      radial-gradient(circle 130px at 78% 68%, rgba(var(--marca-rgb),.035),  transparent 70%),
       radial-gradient(circle 190px at 8%  76%, rgba(245,197,24,.05), transparent 70%),
-      radial-gradient(circle 90px  at 46% 40%, rgba(229,9,20,.028),  transparent 70%);
+      radial-gradient(circle 90px  at 46% 40%, rgba(var(--marca-rgb),.028),  transparent 70%);
   }
   body > * { position: relative; z-index: 1; }
   @media (max-width: 600px) { body::before { display: none; } }
@@ -570,7 +604,7 @@
     background: linear-gradient(180deg, rgba(255,245,246,.27), rgba(253,228,230,.07));
     -webkit-backdrop-filter: var(--vidrio-blur);
     backdrop-filter: var(--vidrio-blur);
-    box-shadow: 0 4px 14px rgba(229,9,20,.07), inset 0 1px 0 rgba(255,255,255,.8);
+    box-shadow: 0 4px 14px rgba(var(--marca-rgb),.07), inset 0 1px 0 rgba(255,255,255,.8);
   }
   #customerDataBox {
     border-radius: 18px !important;
@@ -619,9 +653,9 @@
     font-size: .76rem;
     font-weight: 800;
     letter-spacing: .02em;
-    color: var(--rojo);
-    background: rgba(229,9,20,.07);
-    border: 1px solid rgba(229,9,20,.14);
+    color: var(--marca-texto);
+    background: rgba(var(--marca-rgb),.07);
+    border: 1px solid rgba(var(--marca-rgb),.14);
   }
   .pay-metodo:empty { display: none; }
   .pay-metodo svg { width: 16px; height: 16px; flex: none; }
@@ -634,7 +668,7 @@
   .otra-red-tit { font-size: .78rem; font-weight: 700; color: var(--tinta); margin-bottom: .25rem; }
   .aviso-red {
     font-size: .74rem; line-height: 1.4; color: var(--tinta);
-    background: rgba(229,9,20,.07); border: 1px solid rgba(229,9,20,.25);
+    background: rgba(220,38,38,.07); border: 1px solid rgba(220,38,38,.25);
     border-radius: 10px; padding: .45rem .65rem; margin-top: .45rem;
   }
   .direccion-red {
@@ -771,7 +805,7 @@
   }
   .pp-pill.pendiente { background: rgba(20,22,26,.06);  color: var(--tinta-media); border-color: rgba(20,22,26,.12); }
   .pp-pill.pagado    { background: rgba(18,140,126,.12); color: #0b6e57;           border-color: rgba(18,140,126,.32); }
-  .pp-pill.cancelado { background: rgba(229,9,20,.08);  color: var(--marca);       border-color: rgba(229,9,20,.25); }
+  .pp-pill.cancelado { background: rgba(220,38,38,.08);  color: var(--error);       border-color: rgba(220,38,38,.25); }
 
   /* Los botones de vidrio: "Descargar QR", "Consultar estado", "Copiar" */
   .pp-acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: .6rem; }
@@ -807,7 +841,7 @@
   .pp-detalle .pay-order-item .item-name { color: var(--tinta-media); }
   .pp-ayuda {
     display: inline-block; margin-top: .75rem; font-size: .86rem; font-weight: 700;
-    color: var(--marca); text-decoration: underline; text-underline-offset: 3px;
+    color: var(--marca-texto); text-decoration: underline; text-underline-offset: 3px;
   }
 
   /* ---- Mientras espera: cómo le llega ---- */
@@ -826,7 +860,7 @@
   .pp-sello { width: 76px; height: 76px; margin: 0 auto .75rem; animation: pop-in .5s cubic-bezier(.175,.885,.32,1.275); }
   .pp-sello svg { width: 100%; height: 100%; display: block; }
   .pp-sello.ok { color: #25b07c; filter: drop-shadow(0 6px 16px rgba(37,176,124,.35)); }
-  .pp-sello.no { color: var(--marca); filter: drop-shadow(0 6px 16px rgba(229,9,20,.3)); }
+  .pp-sello.no { color: var(--marca-texto); filter: drop-shadow(0 6px 16px rgba(var(--marca-rgb),.3)); }
   .pp-res-titulo { font-size: clamp(1.65rem, 5vw, 2.15rem); font-weight: 800; line-height: 1.15; color: var(--tinta); }
   .pp-res-texto { max-width: 30rem; margin: .45rem auto 1.1rem; font-size: 1rem; line-height: 1.5; color: var(--tinta-suave); }
   .pp-res-texto strong { color: var(--tinta); }
@@ -838,9 +872,9 @@
   .pp-btn-primario {
     display: inline-flex; align-items: center; justify-content: center;
     padding: .78rem 1.7rem; border-radius: 12px; border: 0;
-    font: 700 1rem 'Outfit', sans-serif; color: #fff; text-decoration: none; cursor: pointer;
-    background: linear-gradient(180deg, #ff2a35, var(--marca-oscura));
-    box-shadow: 0 8px 22px rgba(229,9,20,.28), inset 0 1px 0 rgba(255,255,255,.35);
+    font: 700 1rem 'Outfit', sans-serif; color: var(--marca-tinta); text-decoration: none; cursor: pointer;
+    background: linear-gradient(180deg, #f9a8d4, var(--marca));
+    box-shadow: 0 8px 22px rgba(var(--marca-rgb),.28), inset 0 1px 0 rgba(255,255,255,.35);
     transition: transform .15s ease;
   }
   .pp-btn-primario:hover { transform: translateY(-1px); }
@@ -1137,7 +1171,7 @@
           <input id="customerUsername" type="text" placeholder="Nombre o usuario" autocomplete="name" style="width:100%; padding:0.7rem 0.8rem; background:#fff; color:var(--tinta); border:1px solid var(--separador-2); border-radius:8px; font-size:0.9rem; font-family:'Outfit',sans-serif;">
         </div>
 
-        <div id="customerDataError" style="display:none; color:#e50914; font-size:0.78rem; margin-top:0.5rem; font-weight:600;"></div>
+        <div id="customerDataError" style="display:none; color:var(--error, #dc2626); font-size:0.78rem; margin-top:0.5rem; font-weight:600;"></div>
       </div>
 
       <!-- Boton Ya Pague -->

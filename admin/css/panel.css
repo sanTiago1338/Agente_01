@@ -76,13 +76,17 @@
   --tinta-tenue: #656b77;
 
   /* Marca */
-  --marca:        #e50914;
-  --marca-oscura: #b8070f;
+  --marca:        #f472b6;  /* rosa claro (antes rojo #e50914) */
+  --marca-oscura: #ec4899;
+  --marca-rgb:    236,72,153;  /* transparencias: rgba(var(--marca-rgb), .1) */
+  --marca-texto:  #db2777;     /* letras y precios sobre blanco: el rosa claro solo no se lee */
+  --marca-tinta:  #500724;     /* letra encima de un fondo rosa */
 
   /* El color del panel: Cielo, un celeste suave. Va en lo que se usa:
      la sección abierta, los botones principales, las barras de los
-     gráficos y el borde de los campos al escribir. El rojo de la marca
-     queda para lo que rechaza o anula, las ofertas y los contadores. */
+     gráficos y el borde de los campos al escribir. El rosa de la marca
+     (antes rojo) queda para las ofertas, los contadores y el logo; lo que
+     rechaza, anula o avisa algo malo va en el rojo de --error. */
   --acento:          #3b7fd6;
   --acento-oscuro:   #2f6bbd;
   --acento-rgb:      59,127,214;
@@ -245,9 +249,9 @@ body.menu-abierto .lateral {
   display: grid; place-items: center;
   border-radius: 9px;
   background: var(--marca);
-  color: #fff;
+  color: var(--marca-tinta);
   font: 800 17px/1 var(--letra);
-  box-shadow: 0 4px 12px rgba(229,9,20,.25);
+  box-shadow: 0 4px 12px rgba(var(--marca-rgb),.25);
 }
 .marca-txt b {
   display: block;
@@ -658,8 +662,8 @@ body.menu-abierto .lateral {
    btn-peligro los vuelve rojos: Rechazar. */
 .btn-rojo, .btn-primario { background: var(--acento-boton); color: #fff; }
 .btn-rojo:hover:not(:disabled), .btn-primario:hover:not(:disabled) { background: var(--acento-boton-2); }
-.btn-primario.btn-peligro { background: var(--marca); }
-.btn-primario.btn-peligro:hover:not(:disabled) { background: var(--marca-oscura); }
+.btn-primario.btn-peligro { background: var(--error); }
+.btn-primario.btn-peligro:hover:not(:disabled) { background: #b91c1c; }
 .btn-oscuro { background: var(--tinta); color: #fff; }
 .btn-oscuro:hover:not(:disabled) { background: #1f2937; }
 .btn-fantasma { background: var(--capa-campo); color: var(--tinta-media); border-color: var(--separador-2); }
@@ -705,7 +709,8 @@ body.menu-abierto .lateral {
 .metrica-n.ok     { color: var(--ok); }
 .metrica-n.warn   { color: var(--warn); }
 .metrica-n.dorado { color: var(--oro); }
-.metrica-n.rojo   { color: var(--marca); }
+.metrica-n.rojo   { color: var(--marca-texto); }
+.metrica-n.alerta { color: var(--error); }
 .metrica-n.info   { color: var(--info); }
 .metrica-l {
   margin-top: 4px;
@@ -1013,7 +1018,7 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
 .tag + .tag { margin-left: 4px; }
 .tag-ok        { background: #ecfdf3; color: var(--ok); }
 .tag-agotado   { background: #fef2f2; color: var(--error); }
-.tag-oferta    { background: #fef2f2; color: var(--marca-oscura); }
+.tag-oferta    { background: #fdf2f8; color: var(--marca-texto); }
 .tag-destacado { background: #fefce8; color: var(--oro); }
 .tag-cat       { background: var(--superficie-3); color: var(--tinta-media); font-weight: 500; }
 .tag-planes    { background: #eff6ff; color: var(--info); }
@@ -1227,7 +1232,7 @@ body :is(.zv-modal, .jg-modal, .st-modal, .vt-modal)
 body.pagina-acceso {
   background-color: #fff;
   background-image:
-    radial-gradient(900px 420px at 50% -120px, rgba(229,9,20,.06),  transparent 65%),
+    radial-gradient(900px 420px at 50% -120px, rgba(var(--marca-rgb),.06),  transparent 65%),
     radial-gradient(600px 300px at 85% 110%, rgba(245,197,24,.08), transparent 60%);
   background-attachment: fixed;
 }
@@ -1270,7 +1275,7 @@ body.pagina-acceso {
   font-size: 14px;
   color: var(--tinta-media);
 }
-.acceso-lista .ico { color: var(--marca); }
+.acceso-lista .ico { color: var(--marca-texto); }
 .acceso-pie { display: none; font-size: 12.5px; color: var(--tinta-tenue); }
 
 .acceso-form {

@@ -3,6 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- MÓDULOS EN PARALELO: los archivos que trae los datos de Supabase se
+       importan unos a otros en cadena (este pide aquel, que pide el otro...)
+       y el navegador recién se enteraba de cada uno al terminar el anterior.
+       Acá se piden todos juntos desde el principio. Van dentro de un script
+       y no como <link> sueltos para que el script de versiones no les
+       agregue ?v=: tienen que quedar con la misma dirección que el import. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://doydkjztynjqecwdvoto.supabase.co" crossorigin>
+  <script>
+    [
+      'js/juegos-service.js',
+      'js/juegos-service-supabase.js',
+      'js/supabase-base.js',
+      'js/mapeo.js',
+      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/auth-js@2.65.0/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/postgrest-js@1.16.1/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/realtime-js@2.10.2/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/storage-js@2.7.0/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/functions-js@2.4.1/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/node-fetch@2.6.15/+esm'
+    ].forEach(function (u) {
+      var l = document.createElement('link');
+      l.rel = 'modulepreload';
+      l.href = u;
+      document.head.appendChild(l);
+    });
+  </script>
   <title>Tiago Store | Recarga de Juegos</title>
 
   <!-- Vista previa al compartir el link: ver el comentario en index.html -->
@@ -19,7 +48,7 @@
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:alt" content="Tiago Store: recargas de Free Fire, Mobile Legends, Roblox y más">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#e50914">
+  <meta name="theme-color" content="#f472b6">
 
   <!-- Icono de la pestana y de la pantalla de inicio del telefono.
        El SVG lo usan los navegadores modernos y se ve nitido en
@@ -58,8 +87,12 @@
   --tinta:        #14161a;
   --tinta-media:  #3d424b;
   --tinta-suave:  #767c88;
-  --marca:        #e50914;
-  --marca-oscura: #b8070f;
+  --marca:        #f472b6;  /* rosa claro (antes rojo #e50914) */
+  --marca-oscura: #ec4899;
+  --marca-rgb:    236,72,153;  /* transparencias: rgba(var(--marca-rgb), .1) */
+  --marca-texto:  #db2777;     /* letras y precios sobre blanco: el rosa claro solo no se lee */
+  --marca-tinta:  #500724;     /* letra encima de un fondo rosa */
+  --error:        #dc2626;     /* solo avisos: vencido, cancelado, borrar */
   --oro:          #9a7400;
   --oro-claro:    #f5c518;
   --ambar:        #f0a500;
@@ -118,7 +151,7 @@
       min-height: 100vh;
       background-image:
         radial-gradient(ellipse at top, rgba(255,215,0,0.06) 0%, transparent 55%),
-        radial-gradient(ellipse at bottom, rgba(229,9,20,0.05) 0%, transparent 55%);
+        radial-gradient(ellipse at bottom, rgba(var(--marca-rgb),0.05) 0%, transparent 55%);
     }
 
     /* ===== BANNER TOP ===== */
@@ -149,7 +182,7 @@
       font-family: 'Bebas Neue', sans-serif;
       font-size: 1.7rem;
       letter-spacing: 3px;
-      background: linear-gradient(135deg, var(--rojo), var(--dorado));
+      background: linear-gradient(135deg, var(--marca-texto), var(--marca-oscura) 55%, var(--marca));   /* rosa intenso a rosa claro */
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -167,7 +200,7 @@
     }
     .header-icon-btn:hover { color: var(--blanco); background: rgba(20,22,26,0.054); }
     .header-user {
-      background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(229,9,20,0.15));
+      background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(var(--marca-rgb),0.15));
       border: 1px solid var(--borde-dorado);
       border-radius: 50px;
       padding: 0.25rem 0.75rem 0.25rem 0.3rem;
@@ -264,9 +297,9 @@
     }
     .hero-tag--promo {
       background: linear-gradient(135deg, var(--rojo), var(--rojo2));
-      color: #fff;
+      color: var(--marca-tinta);
       border-color: transparent;
-      box-shadow: 0 4px 12px rgba(229,9,20,0.5);
+      box-shadow: 0 4px 12px rgba(var(--marca-rgb),0.5);
     }
     .hero-title {
       font-family: 'Bebas Neue', sans-serif;
@@ -336,7 +369,7 @@
       backdrop-filter: blur(4px);
       transition: background 0.2s;
     }
-    .hero-arrow:hover { background: rgba(229,9,20,0.85); color: #fff; }
+    .hero-arrow:hover { background: rgba(var(--marca-rgb),0.85); color: #fff; }
     .hero-arrow--prev { left: 0.5rem; }
     .hero-arrow--next { right: 0.5rem; }
     @media (min-width: 600px) {
@@ -390,7 +423,7 @@
     .game-card:hover {
       transform: translateY(-6px) scale(1.02);
       box-shadow: 0 12px 35px rgba(255,215,0,0.25),
-                  0 0 20px rgba(229,9,20,0.15);
+                  0 0 20px rgba(var(--marca-rgb),0.15);
       border-color: var(--dorado);
     }
     .game-card:active { transform: scale(0.98); }
@@ -625,7 +658,7 @@
     .nav-item:active { transform: scale(.93); }
     .nav-item:focus-visible { outline: 2px solid var(--rojo); outline-offset: -2px; }
     .nav-item.active,
-    .nav-item.active:hover { color: var(--rojo); }
+    .nav-item.active:hover { color: var(--marca-texto); }
     .nav-item.active::before { opacity: 1; transform: scale(1); }
     .nav-item.active .nav-icon svg { stroke-width: 2.1; }
     @media (prefers-reduced-motion: reduce) {
@@ -715,7 +748,7 @@
     }
     .pkg-item:hover {
       border-color: var(--borde-dorado);
-      background: linear-gradient(135deg, rgba(255,215,0,0.07), rgba(229,9,20,0.07));
+      background: linear-gradient(135deg, rgba(255,215,0,0.07), rgba(var(--marca-rgb),0.07));
     }
     .pkg-info {
       display: flex;
@@ -764,7 +797,7 @@
       width: 30px; height: 30px;
       border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(229,9,20,0.12));
+      background: linear-gradient(135deg, rgba(255,215,0,0.18), rgba(var(--marca-rgb),0.12));
       flex-shrink: 0;
       font-size: 1rem;
     }
@@ -1239,11 +1272,11 @@
     z-index: 0;
     pointer-events: none;
     background:
-      radial-gradient(circle 220px at 12% 14%, rgba(229,9,20,.05),   transparent 70%),
+      radial-gradient(circle 220px at 12% 14%, rgba(var(--marca-rgb),.05),   transparent 70%),
       radial-gradient(circle 170px at 88% 22%, rgba(245,197,24,.07), transparent 70%),
-      radial-gradient(circle 130px at 78% 68%, rgba(229,9,20,.035),  transparent 70%),
+      radial-gradient(circle 130px at 78% 68%, rgba(var(--marca-rgb),.035),  transparent 70%),
       radial-gradient(circle 190px at 8%  76%, rgba(245,197,24,.05), transparent 70%),
-      radial-gradient(circle 90px  at 46% 40%, rgba(229,9,20,.028),  transparent 70%);
+      radial-gradient(circle 90px  at 46% 40%, rgba(var(--marca-rgb),.028),  transparent 70%);
   }
   body > * { position: relative; z-index: 1; }
   @media (max-width: 600px) { body::before { display: none; } }
@@ -1500,7 +1533,7 @@
       <div class="hero-track" id="heroTrack">
         <!-- Free Fire -->
         <div class="hero-slide" data-juego="Free Fire" style="--bg: linear-gradient(135deg,#ff4500 0%, #8b0000 60%, #1a0000 100%);">
-          <img src="Img/opt/Free fire.jpg" alt="Free Fire" class="hero-slide-img" fetchpriority="high">
+          <img src="Img/opt/Free fire.webp" alt="Free Fire" class="hero-slide-img" fetchpriority="high">
           <div class="hero-content">
             <span class="hero-tag hero-tag--promo">PROMO</span>
             <div class="hero-title">DIAMANTES <span class="gold">FREE FIRE</span></div>
@@ -1510,7 +1543,7 @@
         </div>
         <!-- Mobile Legends -->
         <div class="hero-slide" data-juego="Mobile Legends" style="--bg: linear-gradient(135deg,#0d47a1 0%, #1976d2 60%, #0a1f3d 100%);">
-          <img data-src="Img/opt/Mobile Legends.jpg" alt="Mobile Legends" class="hero-slide-img" decoding="async">
+          <img data-src="Img/opt/Mobile Legends.webp" alt="Mobile Legends" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">MOBA</span>
             <div class="hero-title">DIAMANTES <span class="gold">ML</span></div>
@@ -1520,7 +1553,7 @@
         </div>
         <!-- Brawl Stars -->
         <div class="hero-slide" data-juego="Brawl Stars" style="--bg: linear-gradient(135deg,#4a0080 0%, #9b00ff 60%, #1a0033 100%);">
-          <img data-src="Img/opt/Brawl Stars.jpg" alt="Brawl Stars" class="hero-slide-img" decoding="async">
+          <img data-src="Img/opt/Brawl Stars.webp" alt="Brawl Stars" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">GEMAS</span>
             <div class="hero-title">GEMAS <span class="gold">BRAWL STARS</span></div>
@@ -1530,7 +1563,7 @@
         </div>
         <!-- Roblox -->
         <div class="hero-slide" data-juego="Roblox" style="--bg: linear-gradient(135deg,#e60023 0%, #8b0000 60%, #1a1a1a 100%);">
-          <img data-src="Img/opt/Roblox.jpg" alt="Roblox" class="hero-slide-img" decoding="async">
+          <img data-src="Img/opt/Roblox.webp" alt="Roblox" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">ROBUX</span>
             <div class="hero-title">ROBUX <span class="gold">ROBLOX</span></div>
@@ -1540,7 +1573,7 @@
         </div>
         <!-- PUBG Mobile -->
         <div class="hero-slide" data-juego="PUBG Mobile" style="--bg: linear-gradient(135deg,#665200 0%, #332900 60%, #0d0d0d 100%);">
-          <img data-src="Img/opt/Pug Mobile.jpg" alt="PUBG Mobile" class="hero-slide-img" decoding="async">
+          <img data-src="Img/opt/Pug Mobile.webp" alt="PUBG Mobile" class="hero-slide-img" decoding="async">
           <div class="hero-content">
             <span class="hero-tag">UC</span>
             <div class="hero-title">UC <span class="gold">PUBG MOBILE</span></div>
@@ -1673,7 +1706,7 @@
       const grid = document.getElementById("allGrid");
       if (grid) grid.innerHTML =
         `<div style="grid-column:1/-1; text-align:center; padding:3rem 1rem; color:#9a9a9a;">` +
-        `<div style="font-size:2.5rem; margin-bottom:.7rem; display:flex; justify-content:center; color:#e50914;"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>` +
+        `<div style="font-size:2.5rem; margin-bottom:.7rem; display:flex; justify-content:center; color:var(--error, #dc2626);"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>` +
         `<div style="font-weight:900; color:#fff; margin-bottom:.35rem;">No se pudieron cargar los juegos</div>` +
         `<div style="font-size:.9rem;">${mensaje}</div></div>`;
     };
@@ -1682,13 +1715,29 @@
     // Los logos de juegos eran PNG de hasta 3,7 MB para verse en 242 px.
     // Se hace acá y no renombrando archivos porque la ruta de cada logo
     // vive en Supabase. Las genera optimizar-imagenes.ps1.
+    // Red de seguridad del WebP: si una foto de /Img/opt no tiene todavía su
+    // .webp (una nueva hecha con optimizar-imagenes.ps1, que solo genera
+    // .jpg), se pide la .jpg de al lado. El error de una imagen no sube por
+    // la página, por eso se escucha en la captura.
+    document.addEventListener('error', e => {
+      const img = e.target;
+      if (img && img.tagName === 'IMG' && /\/Img\/opt\/[^?#]+\.webp(?:[?#]|$)/.test(img.src) && !img.dataset.sinWebp) {
+        img.dataset.sinWebp = '1';
+        img.src = img.src.replace(/\.webp(?=[?#]|$)/, '.jpg');
+      }
+    }, true);
+
     function imgOptimizada(url) {
       if (typeof url !== 'string') return url;
       // Si ya apunta a la carpeta optimizada, no la volvemos a mapear
       // (si no, una ruta cargada a mano desde el panel daría Img/opt/opt/…).
+      // Las de /Img/opt van en WebP (un 27% menos que el JPEG, oct 2026);
+      // el .jpg sigue al lado como respaldo
+      const o = url.match(/^Img\/opt\/(.+)\.jpe?g$/i);
+      if (o) return `Img/opt/${o[1]}.webp`;
       if (/^Img\/opt\//i.test(url)) return url;
       const m = url.match(/^Img\/(.+)\.(png|jpe?g)$/i);
-      return m ? `Img/opt/${m[1]}.jpg` : url;
+      return m ? `Img/opt/${m[1]}.webp` : url;
     }
 
     // ===== FOTOS DEL CARRUSEL =====

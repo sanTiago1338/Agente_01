@@ -27,15 +27,24 @@
     // ==========================================================
     let PRODUCTS = [];
     let catalogoCargado = false;
+    // El que llegó de Supabase en esta visita (no el guardado de la anterior)
+    let catalogoFresco = false;
 
     // Supabase llama a esto en cada cambio (tiempo real).
-    window.__aplicarCatalogo = function (productos) {
+    // Con { guardado: true } lo llama el final de este archivo con el
+    // catálogo de la visita anterior: se dibuja la tienda al instante, pero
+    // los links de "Comprar de nuevo" y "Renovar" esperan al de verdad.
+    window.__aplicarCatalogo = function (productos, opciones) {
+      const guardado = !!(opciones && opciones.guardado);
+      if (guardado && catalogoFresco) return;   // ya llegó el de verdad: el viejo no lo pisa
       PRODUCTS = productos;
       catalogoCargado = true;
+      if (!guardado) catalogoFresco = true;
       renderCategorias();   // pestañas según lo que haya en Supabase
       renderSubfiltros();
       renderProducts();
       actualizarFotosDePlataforma();   // banners con la foto de su plataforma, y las Ofertas
+      if (guardado) return;
       // El carrito se rearma con los precios frescos que acaban de llegar.
       reconstruirCarrito();
       // Si volvió con "atrás" a una pantalla de la ventana, se la abre
@@ -117,7 +126,7 @@
     // Los dos links también pueden llegar con la tienda ya abierta en esta
     // pestaña: ahí no se recarga la página, solo cambia lo de después del #.
     window.addEventListener('hashchange', () => {
-      if (!catalogoCargado || !/^#(comprar|renovar)=/i.test(location.hash)) return;
+      if (!catalogoFresco || !/^#(comprar|renovar)=/i.test(location.hash)) return;
       recompraHecha = false;
       recomprarDesdeElLink();
       renovarDesdeElLink();
@@ -125,11 +134,17 @@
 
     // Si Supabase falla, lo mostramos en la grilla en vez de dejarla vacía.
     window.__errorCatalogo = function (mensaje) {
+      // Ya se ve el catálogo guardado: mejor dejarlo que tapar la tienda
+      // con el error (se actualiza solo cuando Supabase vuelva a responder)
+      if (catalogoCargado && !catalogoFresco) {
+        console.warn('Catálogo: se muestra el guardado.', mensaje);
+        return;
+      }
       catalogoCargado = true;
       const grid = document.getElementById('5');
       if (!grid) return;
       grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3.5rem 1rem;">
-        <div style="font-size:2.2rem; margin-bottom:.75rem; color:var(--marca);">${icono('alerta')}</div>
+        <div style="font-size:2.2rem; margin-bottom:.75rem; color:var(--error, #dc2626);">${icono('alerta')}</div>
         <div style="font-weight:900; color:#fff; margin-bottom:.4rem;">No se pudo cargar el catálogo</div>
         <div style="font-size:.9rem; color:var(--gris-texto);">${mensaje}</div>
       </div>`;
@@ -339,13 +354,29 @@
     // rutas viven en Supabase (campo "imagen" de cada producto): así no hay
     // que migrar la base y los originales siguen sirviendo de respaldo.
     // Las genera optimizar-imagenes.ps1.
+    // Red de seguridad del WebP: si una foto de /Img/opt no tiene todavía su
+    // .webp (una nueva hecha con optimizar-imagenes.ps1, que solo genera
+    // .jpg), se pide la .jpg de al lado. El error de una imagen no sube por
+    // la página, por eso se escucha en la captura.
+    document.addEventListener('error', e => {
+      const img = e.target;
+      if (img && img.tagName === 'IMG' && /\/Img\/opt\/[^?#]+\.webp(?:[?#]|$)/.test(img.src) && !img.dataset.sinWebp) {
+        img.dataset.sinWebp = '1';
+        img.src = img.src.replace(/\.webp(?=[?#]|$)/, '.jpg');
+      }
+    }, true);
+
     function imgOptimizada(url) {
       if (typeof url !== 'string') return url;
       // Si ya apunta a la carpeta optimizada, no la volvemos a mapear
       // (si no, una ruta cargada a mano desde el panel daría Img/opt/opt/…).
+      // Las de /Img/opt van en WebP (un 27% menos que el JPEG, oct 2026);
+      // el .jpg sigue al lado como respaldo
+      const o = url.match(/^Img\/opt\/(.+)\.jpe?g$/i);
+      if (o) return `Img/opt/${o[1]}.webp`;
       if (/^Img\/opt\//i.test(url)) return url;
       const m = url.match(/^Img\/(.+)\.(png|jpe?g)$/i);
-      return m ? `Img/opt/${m[1]}.jpg` : url;
+      return m ? `Img/opt/${m[1]}.webp` : url;
     }
 
     // Envoltura: todo lo que devuelva getImageUrlBase pasa por el redirector,
@@ -3171,4 +3202,23 @@
       else window.addEventListener('load', () => precargar(0), { once: true });
 
       start();
+    })();
+
+    // ==========================================================
+    // EL ÚLTIMO CATÁLOGO, AL INSTANTE
+    // ==========================================================
+    // js/tienda-catalogo.js guarda en este navegador cada catálogo que
+    // llega de Supabase. Al volver a la tienda se dibuja ese enseguida, sin
+    // los cuadros grises de "cargando", y cuando llega el de ahora (uno o
+    // dos segundos después) se repinta solo. Si tiene más de 3 días no se
+    // usa: espera al nuevo, como antes. Va al final del archivo porque usa
+    // todo lo de arriba.
+    (function catalogoGuardado() {
+      if (catalogoCargado) return;
+      try {
+        const g = JSON.parse(localStorage.getItem('tiago-catalogo') || 'null');
+        if (!g || !Array.isArray(g.productos) || !g.productos.length) return;
+        if (!(Date.now() - g.t < 3 * 24 * 60 * 60 * 1000)) return;
+        window.__aplicarCatalogo(g.productos, { guardado: true });
+      } catch (e) { /* nada guardado o dañado: espera al de Supabase */ }
     })();

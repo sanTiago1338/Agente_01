@@ -97,7 +97,26 @@
 
     function aplicar(productos) {
       ultimoCatalogo = productos;
-      window.__aplicarCatalogo(productos.map(aFormaTienda));
+      const lista = productos.map(aFormaTienda);
+      window.__aplicarCatalogo(lista);
+      guardarCatalogo(lista);
+    }
+
+    // ---------- EL CATÁLOGO GUARDADO ----------
+    // Lo último que llegó queda en este navegador: la próxima vez que el
+    // cliente abra la tienda, js/tienda.js lo muestra al instante, sin
+    // esperar a Supabase, y apenas llega el de verdad se repinta solo.
+    // El precio que se cobra lo calcula siempre la base al crear el pedido
+    // (crear_pedido), así que un precio viejo en pantalla nunca se cobra.
+    // Llega varias veces seguidas (catálogo, stock, rebajas): se guarda una.
+    let esperaGuardar = null;
+    function guardarCatalogo(lista) {
+      clearTimeout(esperaGuardar);
+      esperaGuardar = setTimeout(() => {
+        try {
+          localStorage.setItem('tiago-catalogo', JSON.stringify({ t: Date.now(), productos: lista }));
+        } catch (e) { /* sin lugar o modo incógnito: la próxima vez espera, como antes */ }
+      }, 1500);
     }
 
     subscribeProductos(

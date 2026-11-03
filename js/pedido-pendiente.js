@@ -103,9 +103,9 @@ function estilos() {
       flex: none;
       padding: .5rem .95rem;
       border-radius: 999px;
-      background: var(--marca, #e50914); color: #fff;
+      background: var(--marca, #f472b6); color: var(--marca-tinta, #500724);
       font-size: .82rem; font-weight: 800; text-decoration: none;
-      box-shadow: 0 4px 12px rgba(229,9,20,.25);
+      box-shadow: 0 4px 12px rgba(var(--marca-rgb, 236,72,153),.25);
     }
     .pendiente-no {
       flex: none; width: 30px; height: 30px;

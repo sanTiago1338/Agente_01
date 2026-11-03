@@ -74,10 +74,36 @@ const SOPORTA_WEBP = (() => {
   return c.toDataURL('image/webp').startsWith('data:image/webp');
 })();
 
+// AHORA TAMBIÉN EN SAFARI (nov 2026): si el navegador no sabe, el WebP lo
+// arma el codificador de Google (libwebp, el de Squoosh) en WebAssembly.
+// Se baja solo la primera vez que hace falta (unos 300 KB, del CDN) y
+// después queda en caché. Si no carga (sin internet, CDN caído), la foto
+// sale en JPEG o PNG como antes: subir nunca se traba por esto.
+const CODIFICADOR_WEBP = 'https://cdn.jsdelivr.net/npm/@jsquash/webp@1.4.0/encode.js/+esm';
+let codificadorWebp = null;   // la promesa del módulo, una sola vez
+let sinCodificador = false;   // falló una vez: en esta visita, JPEG/PNG
+
 function formatoPara(tieneAlfa) {
-  if (SOPORTA_WEBP) return { mime: 'image/webp', nombre: 'WebP', conCalidad: true  };
-  if (tieneAlfa)    return { mime: 'image/png',  nombre: 'PNG',  conCalidad: false };
-  return                   { mime: 'image/jpeg', nombre: 'JPEG', conCalidad: true  };
+  if (SOPORTA_WEBP)    return { mime: 'image/webp', nombre: 'WebP', conCalidad: true  };
+  if (!sinCodificador) return { mime: 'image/webp', nombre: 'WebP', conCalidad: true, wasm: true };
+  return formatoSinWebp(tieneAlfa);
+}
+
+function formatoSinWebp(tieneAlfa) {
+  if (tieneAlfa) return { mime: 'image/png',  nombre: 'PNG',  conCalidad: false };
+  return                { mime: 'image/jpeg', nombre: 'JPEG', conCalidad: true  };
+}
+
+// El lienzo en el formato elegido, como data URI
+async function aDataUri(lienzo, formato, calidad) {
+  if (!formato.wasm) return lienzo.toDataURL(formato.mime, calidad);
+  codificadorWebp = codificadorWebp || import(CODIFICADOR_WEBP);
+  const { default: codificar } = await codificadorWebp;
+  const datos = lienzo.getContext('2d').getImageData(0, 0, lienzo.width, lienzo.height);
+  const bytes = new Uint8Array(await codificar(datos, { quality: Math.round(calidad * 100) }));
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return 'data:image/webp;base64,' + btoa(bin);
 }
 
 // "data:image/webp;base64,..." -> "WebP"
@@ -422,7 +448,7 @@ function comprimir(file) {
  * Orden de los reintentos: primero baja la calidad, recién después el
  * tamaño, y nunca por debajo de LADO_MINIMO.
  */
-function codificar(img, file) {
+async function codificar(img, file) {
   if (!(img.width > 0 && img.height > 0)) {
     throw new Error('la imagen no tiene medidas (¿es un SVG sin ancho y alto?)');
   }
@@ -430,7 +456,7 @@ function codificar(img, file) {
 
   // ¿Tiene transparencia? Un JPEG nunca; el resto se mira píxel a píxel.
   const tieneAlfa = file.type !== 'image/jpeg' && detectarAlfa(img);
-  const formato   = formatoPara(tieneAlfa);
+  let formato     = formatoPara(tieneAlfa);
 
   // Cada tamaño se achica una sola vez, aunque se pruebe con varias calidades.
   const lienzos = new Map();
@@ -460,7 +486,16 @@ function codificar(img, file) {
     if (probados.has(clave)) continue;
     probados.add(clave);
 
-    const dataUri = lienzo.toDataURL(formato.mime, calidad);
+    let dataUri;
+    try {
+      dataUri = await aDataUri(lienzo, formato, calidad);
+    } catch (e) {
+      // El codificador WebP no cargó: de acá en adelante, como antes
+      console.warn('WebP en WebAssembly no disponible, va JPEG/PNG:', e);
+      sinCodificador = true;
+      formato = formatoSinWebp(tieneAlfa);
+      dataUri = lienzo.toDataURL(formato.mime, calidad);
+    }
     const bytes   = Math.round(dataUri.length * 0.75);
 
     mejor = { dataUri, ancho: lienzo.width, alto: lienzo.height, bytes,
@@ -593,5 +628,5 @@ function aplanar(lienzo) {
 console.log(
   SOPORTA_WEBP
     ? '%c✓ Subida de imágenes lista (WebP)'
-    : '%c✓ Subida de imágenes lista (JPEG/PNG: este navegador no genera WebP)',
+    : '%c✓ Subida de imágenes lista (WebP con el codificador de Google: este navegador no lo genera solo)',
   'color:#22c55e;font-weight:bold');

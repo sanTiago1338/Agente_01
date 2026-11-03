@@ -64,6 +64,7 @@
   --vidrio-reflejo: linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,0) 55%);
   --vidrio-verde:   var(--vidrio-reflejo), linear-gradient(180deg, rgba(34,190,160,.8), rgba(14,128,114,.74));
   --vidrio-fucsia:  var(--vidrio-reflejo), linear-gradient(180deg, rgba(240,80,200,.8), rgba(186,40,196,.74));
+  --vidrio-rosa:    var(--vidrio-reflejo), linear-gradient(180deg, rgba(249,168,212,.93), rgba(244,114,182,.87));
   --vidrio-canto-color: inset 0 1px 0 rgba(255,255,255,.6), inset 0 -2px 6px rgba(0,0,0,.16),
                         inset 0 0 0 1px rgba(255,255,255,.16);
   --vidrio-brillo: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 1px rgba(20,22,26,.04);
@@ -95,7 +96,7 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(38rem 30rem at 6% 4%,   rgba(229,9,20,.10),   transparent 62%),
+    radial-gradient(38rem 30rem at 6% 4%,   rgba(var(--marca-rgb),.10),   transparent 62%),
     radial-gradient(34rem 28rem at 96% 16%, rgba(245,197,24,.17), transparent 62%),
     radial-gradient(30rem 26rem at 88% 80%, rgba(110,145,255,.11), transparent 62%),
     radial-gradient(32rem 28rem at 4% 88%,  rgba(255,110,150,.10), transparent 62%),
@@ -171,8 +172,8 @@ body::before {
    que se vean iguales en todo el sitio.
 
    Los principales (Comprar, Pagar con QR, Solicitar, Ir a la tienda, y
-   la página en la que estás) NO son rojos: vidrio claro con letras
-   negras, como los del iPhone. Se distinguen del resto por el reflejo
+   la página en la que estás) son de vidrio rosa claro con letras oscuras
+   (ver más abajo, NOV 2026); antes eran vidrio blanco, como los del iPhone. Se distinguen del resto por el reflejo
    de arriba, una sombra más marcada y el borde tornasolado de la lente.
    Los de WhatsApp siguen verdes y los de Juegos fucsia, pero de vidrio. */
 .plan-comprar, .plan-comprar:hover,
@@ -258,6 +259,29 @@ body::before {
 .btn-tienda:hover {
   background: var(--vidrio-reflejo),
               linear-gradient(180deg, rgba(255,255,255,.67), rgba(255,255,255,.35));
+}
+/* NOV 2026: los de comprar y pagar, en vidrio ROSA CLARO (el color nuevo
+   de la marca, antes era rojo) con letras oscuras: son lo primero que se
+   ve, sin dejar de ser vidrio. El del carrusel sigue blanco porque va
+   encima de fotos de todos los colores. Halloween los pinta de calabaza
+   (css/halloween.css) y le gana a esto. */
+.plan-comprar, .plan-comprar:hover,
+.ck-pagar, .ck-pagar:hover,
+.btn-primary, .btn-primary:hover,
+.btn-tienda,
+.page-btn.active {
+  background: var(--vidrio-rosa);
+  border-color: rgba(255,255,255,.7);
+  color: var(--marca-tinta, #500724);
+  box-shadow: 0 8px 24px rgba(236,72,153,.28), 0 1px 3px rgba(20,22,26,.08),
+              inset 0 1.5px 0 rgba(255,255,255,.75), inset 0 -2px 5px rgba(157,23,77,.12);
+}
+.plan-comprar:hover:not(:disabled),
+.ck-pagar:hover:not(:disabled),
+.btn-primary:hover,
+.btn-tienda:hover {
+  background: var(--vidrio-reflejo),
+              linear-gradient(180deg, rgba(251,190,224,.97), rgba(244,114,182,.93));
 }
 .btn-wa:hover,
 .nav-links a.nav-wa:hover { filter: brightness(1.08) saturate(1.1); }

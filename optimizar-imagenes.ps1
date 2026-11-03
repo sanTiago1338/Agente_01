@@ -12,6 +12,11 @@
 #   la tienda redirige sola de "Img/X.png" a "Img/opt/X.jpg" desde
 #   enAlta() en index.html.
 #
+# WEBP (nov 2026): la tienda pide primero Img/opt/X.webp, que pesa un 27%
+# menos. Este script solo sabe hacer .jpg (System.Drawing no escribe WebP):
+# si una foto nueva no tiene su .webp, la tienda usa la .jpg sola, sin
+# romperse. Las 56 de octubre ya tienen las dos.
+#
 # Uso:
 #   powershell -File optimizar-imagenes.ps1
 #   powershell -File optimizar-imagenes.ps1 -MaxLado 900 -Calidad 95

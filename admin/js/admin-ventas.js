@@ -206,7 +206,7 @@ css.textContent = `
   }
   .vt-mini:hover { border-color: #15803d; color: #15803d; }
   .vt-mini.no { padding: 5px 9px; }
-  .vt-mini.no:hover { border-color: var(--rojo); color: var(--rojo); }
+  .vt-mini.no:hover { border-color: var(--error); color: var(--error); }
 
   /* Credenciales entregadas, por si hay que reenviarlas a mano */
   .vt-cred {
@@ -276,7 +276,7 @@ css.textContent = `
     border-radius: 99px; padding: 6px 13px;
     font-size: 12.5px; font-family: inherit; cursor: pointer;
   }
-  .vt-motivo:hover { border-color: var(--rojo); color: var(--rojo); }
+  .vt-motivo:hover { border-color: var(--error); color: var(--error); }
   .vt-motivo.elegido { background: var(--tinta); border-color: var(--tinta); color: #fff; }
 
   /* El motivo escrito a mano, en la fila del pedido rechazado */
@@ -383,12 +383,27 @@ css.textContent = `
   }
   .vt-fila {
     display: grid;
-    grid-template-columns: minmax(80px, 1fr) minmax(120px, 1.2fr) minmax(80px, .9fr) minmax(110px, 1.2fr) auto;
+    grid-template-columns: minmax(70px, .7fr) minmax(170px, 2.2fr) minmax(110px, 1.1fr) minmax(80px, .8fr) minmax(110px, 1fr) auto;
     align-items: center; gap: 12px;
     padding: 11px 16px;
     border-top: 1px solid var(--borde);
     cursor: pointer;
   }
+  /* Qué se compró y quién */
+  .vt-f-compra { min-width: 0; }
+  .vt-f-compra b {
+    display: block; font-size: 13.5px; font-weight: 600; color: var(--tinta);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .vt-f-compra small {
+    display: block; font-size: 12px; color: var(--gris-dim);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  /* Más de un día esperando el pago: probablemente no paga. Apagada y
+     con la raya gris en vez de la naranja */
+  .vt-fila.vieja { opacity: .62; }
+  .vt-fila.vieja:hover { opacity: 1; }
+  .vt-fila.espera.vieja { box-shadow: inset 3px 0 0 #cbd5e1; }
   .vt-fila:not(.vt-fila-cab):hover { background: rgba(255,255,255,.45); }
   .vt-fila-cab {
     border-top: none; cursor: default;
@@ -560,11 +575,12 @@ css.textContent = `
        las columnas sobran. */
     .vt-fila {
       grid-template-columns: 1fr auto auto;
-      grid-template-areas: "num bs ver" "fecha estado ver";
+      grid-template-areas: "num bs ver" "compra compra ver" "fecha estado ver";
       gap: 4px 10px; padding: 11px 12px;
     }
     .vt-fila-cab { display: none; }
     .vt-f-num    { grid-area: num; }
+    .vt-f-compra { grid-area: compra; }
     .vt-f-fecha  { grid-area: fecha; }
     .vt-f-fecha small { display: inline; margin-left: 5px; }
     .vt-f-bs     { grid-area: bs; justify-self: end; }
@@ -615,7 +631,7 @@ document.head.appendChild(css);
 $('vistaVentas').innerHTML = `
   <div class="vt-wrap">
     <section class="resumen" style="margin-bottom:22px;">
-      <div class="metrica"><div class="metrica-n warn" id="vtEsperando">–</div><div class="metrica-l">Esperando pago</div></div>
+      <div class="metrica"><div class="metrica-n warn" id="vtEsperando">–</div><div class="metrica-l" id="vtEsperandoL">Esperando pago</div></div>
       <div class="metrica"><div class="metrica-n ok"   id="vtHoy">–</div><div class="metrica-l">Entregados hoy</div></div>
       <div class="metrica"><div class="metrica-n"      id="vtHoyBs">–</div><div class="metrica-l">Vendido hoy</div></div>
       <div class="metrica"><div class="metrica-n"      id="vtProblemas">–</div><div class="metrica-l">Necesitan atención</div></div>
@@ -1008,6 +1024,10 @@ function metricas() {
   const bsHoy = dadosHoy.reduce((s, p) => s + Number(p.precio || 0), 0);
 
   $('vtEsperando').textContent = cuantasCompras(esperando);
+  // Y cuánta plata es: lo que entraría si pagan todos
+  const bsEsperando = esperando.reduce((s, p) => s + Number(p.precio || 0), 0);
+  $('vtEsperandoL').textContent = bsEsperando > 0
+    ? `Esperando pago · ${bsEsperando.toFixed(bsEsperando % 1 ? 2 : 0)} Bs` : 'Esperando pago';
   $('vtHoy').textContent       = cuantasCompras(dadosHoy);
   $('vtHoyBs').textContent     = bsHoy > 0 ? `${bsHoy.toFixed(0)} Bs` : '–';
   $('vtProblemas').textContent = cuantasCompras(problemas);
@@ -1139,7 +1159,7 @@ function listar() {
   $('vtLista').innerHTML = `
     <div class="vt-tabla">
       <div class="vt-fila vt-fila-cab">
-        <span>Código</span><span>Fecha</span><span>Total</span><span>Estado</span><span></span>
+        <span>Código</span><span>Compra</span><span>Fecha</span><span>Total</span><span>Estado</span><span></span>
       </div>
       ${estas.map(filaCompra).join('')}
     </div>
@@ -1148,25 +1168,57 @@ function listar() {
   pintarVer();
 }
 
-// Una fila de la lista: lo justo para encontrar la compra. Todo lo demás
-// (qué se compró, el cliente, las cuentas, los botones) está en "Ver".
+// Una fila de la lista: lo justo para encontrar la compra y saber de un
+// vistazo qué se compró y quién (nov 2026: antes había que abrir cada una
+// con "Ver"). Las cuentas, los datos completos y los botones, en "Ver".
 function filaCompra(c) {
   const L = c.lineas;
   const principal = estadoPrincipal(L);
+  // Esperando pago desde hace más de un día: lo más probable es que ya no
+  // pague. Queda en la lista, pero apagada y con cuántos días lleva.
+  const horas = (Date.now() - new Date(c.primera.creado_en).getTime()) / 36e5;
+  const vieja = principal === 'esperando_pago' && horas >= 24;
   const clase = principal === 'sin_stock' ? 'urgente'
               : principal === 'esperando_pago' || principal === 'pagado' ? 'espera' : '';
   // "19-09-2026 04:04 PM": el día arriba, la hora abajo en chico
   const [dia, ...hora] = fechaOrden(c.primera.creado_en).split(' ');
+  const dias = Math.floor(horas / 24);
 
   return `
-    <div class="vt-fila ${clase}" data-ver="${escapar(c.clave)}">
+    <div class="vt-fila ${clase}${vieja ? ' vieja' : ''}" data-ver="${escapar(c.clave)}">
       <span class="vt-f-num">${numerosDeCompra(L)}${esPrueba(c) ? '<span class="vt-prueba">Prueba</span>' : ''}</span>
-      <span class="vt-f-fecha">${dia}<small>${hora.join(' ')}</small></span>
+      ${queYQuien(c)}
+      <span class="vt-f-fecha">${dia}<small>${hora.join(' ')}${vieja ? ` · hace ${dias} ${dias === 1 ? 'día' : 'días'}` : ''}</small></span>
       <span class="vt-f-bs">${bsTxt(c.total)}${usdtDe(c) ? `<small>${usdtDe(c)}</small>` : ''}</span>
       <span class="vt-f-estado">${cartelDe(c)}</span>
       <button class="vt-ver" data-ver="${escapar(c.clave)}">Ver</button>
       ${pideCorreo(c) && algunaEn(c, EN_ATENCION) ? filaCorreo(c) : ''}
     </div>`;
+}
+
+// Qué se compró ("2× Netflix Premium +1") y quién (el nombre que dejó o
+// su WhatsApp). Las líneas canceladas no cuentan, salvo que lo estén todas.
+function queYQuien(c) {
+  const vivas = c.lineas.filter(o => o.estado !== 'cancelado');
+  const cuantas = new Map();
+  (vivas.length ? vivas : c.lineas).forEach(o => {
+    const n = String(o.producto_nombre || '').trim() || 'Producto';
+    cuantas.set(n, (cuantas.get(n) || 0) + 1);
+  });
+  const nombres = [...cuantas.keys()];
+  const [primero] = nombres;
+  const veces = cuantas.get(primero);
+  const texto = (veces > 1 ? `${veces}× ` : '') + primero +
+                (nombres.length > 1 ? ` +${nombres.length - 1}` : '');
+  const todo = nombres.map(n => (cuantas.get(n) > 1 ? `${cuantas.get(n)}× ` : '') + n).join(', ');
+
+  const cli = clienteDe(c);
+  const quien = cli.nombre || (cli.whatsapp ? '+591 ' + celularParaMostrar(cli.whatsapp) : '');
+  return `
+      <span class="vt-f-compra">
+        <b title="${escapar(todo)}">${escapar(texto)}</b>
+        <small>${quien ? escapar(quien) : 'Sin datos del cliente'}</small>
+      </span>`;
 }
 
 // ------------------------------------------------------------

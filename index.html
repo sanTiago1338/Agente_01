@@ -3,6 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- MÓDULOS EN PARALELO: los archivos que trae los datos de Supabase se
+       importan unos a otros en cadena (este pide aquel, que pide el otro...)
+       y el navegador recién se enteraba de cada uno al terminar el anterior.
+       Acá se piden todos juntos desde el principio. Van dentro de un script
+       y no como <link> sueltos para que el script de versiones no les
+       agregue ?v=: tienen que quedar con la misma dirección que el import. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://doydkjztynjqecwdvoto.supabase.co" crossorigin>
+  <script>
+    [
+      'js/productos-service.js',
+      'js/productos-service-supabase.js',
+      'js/juegos-service.js',
+      'js/juegos-service-supabase.js',
+      'js/stock-tienda.js',
+      'js/supabase-base.js',
+      'js/mapeo.js',
+      'js/modo-prueba.js',
+      'js/pedido-automatico.js',
+      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/auth-js@2.65.0/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/postgrest-js@1.16.1/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/realtime-js@2.10.2/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/storage-js@2.7.0/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/functions-js@2.4.1/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/node-fetch@2.6.15/+esm'
+    ].forEach(function (u) {
+      var l = document.createElement('link');
+      l.rel = 'modulepreload';
+      l.href = u;
+      document.head.appendChild(l);
+    });
+  </script>
   <title>Tiago Store | Tienda</title>
 
   <!-- Vista previa al compartir el link (WhatsApp, Facebook, Telegram).
@@ -23,7 +57,7 @@
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:alt" content="Tiago Store: streaming, IA y recargas de juegos en Bolivia">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#e50914">
+  <meta name="theme-color" content="#f472b6">
 
   <!-- Icono de la pestana y de la pantalla de inicio del telefono.
        El SVG lo usan los navegadores modernos y se ve nitido en
@@ -135,7 +169,7 @@
     <div class="hero-track" id="heroTrack">
       <!-- Slide 1: Free Fire -->
       <div class="hero-slide" data-juego="Free Fire" style="--bg: linear-gradient(135deg,#4a0080 0%, #1a0033 60%, #0d0d0d 100%);">
-        <img src="Img/opt/Free fire.jpg" alt="Free Fire" class="hero-slide-img" fetchpriority="high">
+        <img src="Img/opt/Free fire.webp" alt="Free Fire" class="hero-slide-img" fetchpriority="high">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">NEW</span>
           <div class="hero-title">DIAMANTES <span>FREE FIRE</span></div>
@@ -145,7 +179,7 @@
       </div>
       <!-- Slide 2: Paramount+ -->
       <div class="hero-slide" data-plataforma="Paramount+ UFC" style="--bg: linear-gradient(135deg,#003087 0%, #001a4d 60%, #0d0d0d 100%);">
-        <img data-src="Img/opt/Paramount%2B.jpg" alt="Paramount+" class="hero-slide-img" decoding="async">
+        <img data-src="Img/opt/Paramount%2B.webp" alt="Paramount+" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag">UFC INCLUIDO</span>
           <div class="hero-title">PARAMOUNT+ <span>PREMIUM</span></div>
@@ -155,7 +189,7 @@
       </div>
       <!-- Slide 3: Spotify Renovable -->
       <div class="hero-slide" data-plataforma="Spotify" style="--bg: linear-gradient(135deg,#1DB954 0%, #0a5d2a 60%, #0d0d0d 100%);">
-        <img data-src="Img/opt/Spotyfi.jpg" alt="Spotify Renovable" class="hero-slide-img" decoding="async">
+        <img data-src="Img/opt/Spotyfi.webp" alt="Spotify Renovable" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">RENOVABLE</span>
           <div class="hero-title">SPOTIFY <span>RENOVABLE</span></div>
@@ -165,7 +199,7 @@
       </div>
       <!-- Slide 5: Magis TV PRO -->
       <div class="hero-slide" data-plataforma="Magis TV" style="--bg: linear-gradient(135deg,#1a0533 0%, #7b1fa2 50%, #0d0d0d 100%);">
-        <img data-src="Img/opt/Magis%20TV.jpg" alt="Magis TV PRO" class="hero-slide-img" decoding="async">
+        <img data-src="Img/opt/Magis%20TV.webp" alt="Magis TV PRO" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">LIGA BOLIVIANA</span>
           <div class="hero-title">MAGIS TV <span>PRO</span></div>
@@ -175,7 +209,7 @@
       </div>
       <!-- Slide: IPTV Smarters PRO -->
       <div class="hero-slide" data-plataforma="IPTV Smarters" style="--bg: linear-gradient(135deg,#003300 0%, #1a6600 60%, #0d0d0d 100%);">
-        <img data-src="Img/opt/IPTV.jpg" alt="IPTV Smarters PRO" class="hero-slide-img" decoding="async">
+        <img data-src="Img/opt/IPTV.webp" alt="IPTV Smarters PRO" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag hero-tag--new">LIGA BOLIVIANA</span>
           <div class="hero-title">IPTV <span>SMARTERS PRO</span></div>
@@ -185,7 +219,7 @@
       </div>
       <!-- Slide 4: IA -->
       <div class="hero-slide" data-plataforma="Claude IA" style="--bg: linear-gradient(135deg,#7c3aed 0%, #2e1065 60%, #0d0d0d 100%);">
-        <img data-src="Img/opt/Claude.jpg" alt="Claude IA" class="hero-slide-img" decoding="async">
+        <img data-src="Img/opt/Claude.webp" alt="Claude IA" class="hero-slide-img" decoding="async">
         <div class="hero-slide-info">
           <span class="hero-tag">NUEVO</span>
           <div class="hero-title">IA PREMIUM <span>CLAUDE & GEMINI</span></div>

@@ -199,7 +199,7 @@
     /* El ícono, en la lente de vidrio de la tienda (lo activo de las
        pestañas): más clara arriba, con brillo y el borde tornasolado */
     '.tu-ico{position:relative;isolation:isolate;width:56px;height:56px;margin:0 auto .75rem;border-radius:50%;',
-    '  display:grid;place-items:center;color:var(--marca,#e50914);',
+    '  display:grid;place-items:center;color:var(--marca-texto,#db2777);',
     '  background:var(--vidrio-lente,radial-gradient(120% 90% at 50% 0%,#fff 0%,rgba(255,255,255,.14) 55%,rgba(255,255,255,.02) 100%));',
     '  box-shadow:inset 0 1.5px 0 #fff,inset 0 -1.5px 2px rgba(20,22,26,.07),inset 0 0 0 1px rgba(255,255,255,.55),',
     '             0 6px 16px rgba(20,22,26,.13),0 1px 3px rgba(20,22,26,.08)}',
@@ -225,8 +225,8 @@
     '  transition:border-color .2s,box-shadow .2s,background .2s}',
     '.tu-caja input{padding:0 .95rem;font:inherit;font-size:1rem}',
     '.tu-caja input::placeholder{color:var(--tinta-tenue,#656b77)}',
-    '.tu-caja input:focus,.tu-tel:focus-within{outline:none;border-color:rgba(229,9,20,.4);background:rgba(255,255,255,.72);',
-    '  box-shadow:0 0 0 4px rgba(229,9,20,.10),inset 0 1px 2px rgba(20,22,26,.06)}',
+    '.tu-caja input:focus,.tu-tel:focus-within{outline:none;border-color:rgba(var(--marca-rgb,236,72,153),.4);background:rgba(255,255,255,.72);',
+    '  box-shadow:0 0 0 4px rgba(var(--marca-rgb,236,72,153),.10),inset 0 1px 2px rgba(20,22,26,.06)}',
     /* Separadas: un navegador que no entiende :has() descartaría la regla
        entera, también el rojo del campo Usuario */
     '.tu-caja input.mal{border-color:#dc2626;box-shadow:0 0 0 4px rgba(220,38,38,.12)}',
@@ -263,7 +263,7 @@
     '             linear-gradient(180deg,rgba(255,255,255,.67),rgba(255,255,255,.35))}',
     '.tu-no{padding:.55rem;border:none;border-radius:999px;background:none;cursor:pointer;',
     '  font:inherit;font-size:.9rem;font-weight:700;color:var(--tinta-suave,#4b515c)}',
-    '.tu-no:hover{color:var(--marca,#e50914)}',
+    '.tu-no:hover{color:var(--marca-texto,#db2777)}',
     /* El cartelito de "Listo": una píldora de vidrio, como la barra de abajo */
     '.tu-aviso{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));z-index:1001;',
     '  transform:translateX(-50%);max-width:min(92vw,380px);padding:.75rem 1.1rem;border-radius:999px;',

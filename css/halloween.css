@@ -39,6 +39,12 @@ html.halloween {
   /* Marca: calabaza y vela */
   --marca:        #ff7a1a;
   --marca-oscura: #e0560b;
+  /* Las piezas nuevas de la marca (nov 2026, el rojo pasó a rosa claro).
+     En Halloween queda todo como estaba: letras en calabaza, blanco
+     encima de la calabaza y los brillos rojos de siempre */
+  --marca-rgb:    229,9,20;
+  --marca-texto:  var(--marca);
+  --marca-tinta:  #fff;
   --oro:          #ffb547;
   --oro-claro:    #ffc96e;
   --ambar:        #ffb547;

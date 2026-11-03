@@ -3,6 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- MÓDULOS EN PARALELO: los archivos que trae los datos de Supabase se
+       importan unos a otros en cadena (este pide aquel, que pide el otro...)
+       y el navegador recién se enteraba de cada uno al terminar el anterior.
+       Acá se piden todos juntos desde el principio. Van dentro de un script
+       y no como <link> sueltos para que el script de versiones no les
+       agregue ?v=: tienen que quedar con la misma dirección que el import. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://doydkjztynjqecwdvoto.supabase.co" crossorigin>
+  <script>
+    [
+      'js/historial.js',
+      'js/pedido-automatico.js',
+      'js/accesos.js',
+      'js/supabase-base.js',
+      'js/modo-prueba.js',
+      'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/auth-js@2.65.0/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/postgrest-js@1.16.1/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/realtime-js@2.10.2/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/storage-js@2.7.0/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/functions-js@2.4.1/+esm',
+      'https://cdn.jsdelivr.net/npm/@supabase/node-fetch@2.6.15/+esm'
+    ].forEach(function (u) {
+      var l = document.createElement('link');
+      l.rel = 'modulepreload';
+      l.href = u;
+      document.head.appendChild(l);
+    });
+  </script>
 <title>Mis compras - Tiago Store</title>
 
 <!-- Vista previa al compartir el link: ver el comentario en index.html -->
@@ -19,7 +49,7 @@
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:alt" content="Tiago Store: streaming, IA y recargas de juegos en Bolivia">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#e50914">
+<meta name="theme-color" content="#f472b6">
 
   <!-- Icono de la pestana y de la pantalla de inicio del telefono.
        El SVG lo usan los navegadores modernos y se ve nitido en
@@ -76,8 +106,12 @@
     --tinta:        #14161a;
     --tinta-media:  #3d424b;
     --tinta-suave:  #767c88;
-    --marca:        #e50914;
-    --marca-oscura: #b8070f;
+    --marca:        #f472b6;  /* rosa claro (antes rojo #e50914) */
+    --marca-oscura: #ec4899;
+    --marca-rgb:    236,72,153;  /* transparencias: rgba(var(--marca-rgb), .1) */
+    --marca-texto:  #db2777;     /* letras y precios sobre blanco: el rosa claro solo no se lee */
+    --marca-tinta:  #500724;     /* letra encima de un fondo rosa */
+    --error:        #dc2626;     /* solo avisos: vencido, cancelado, borrar */
     --oro:          #9a7400;
     --ambar:        #f0a500;
     --verde-wa:     #128C7E;
@@ -104,7 +138,7 @@
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.5rem;
     letter-spacing: 3px;
-    color: var(--marca);
+    color: var(--marca-texto);
   }
 
   /* Una columna centrada, como un historial de pedidos: cada pedido es
@@ -121,7 +155,7 @@
   .vacio p { font-size: 0.87rem; line-height: 1.6; }
   .btn-tienda {
     display: inline-block; margin-top: 1.3rem; padding: 0.8rem 1.5rem;
-    background: var(--marca); color: #fff; text-decoration: none;
+    background: var(--marca); color: var(--marca-tinta); text-decoration: none;
     border-radius: 999px; font-weight: 800; font-size: 0.92rem;
   }
 
@@ -136,7 +170,7 @@
     font-size: 0.8rem; font-family: inherit; cursor: pointer;
     text-decoration: underline; text-underline-offset: 3px;
   }
-  .link-suave:hover { color: var(--marca); }
+  .link-suave:hover { color: var(--marca-texto); }
 
   /* "Usuario", a la derecha de la marca: abre el registro (js/usuario.js).
      El header es sticky (más abajo): el botón se acomoda contra él. */
@@ -226,11 +260,11 @@
   }
   .mc-filtro.vacio-f { opacity: .55; }
   .mc-filtro[aria-pressed="true"] {
-    color: #fff; border-color: transparent; opacity: 1;
-    background: linear-gradient(180deg, #ff2a35, var(--marca-oscura));
-    box-shadow: 0 6px 18px rgba(229,9,20,.28), inset 0 1px 0 rgba(255,255,255,.35);
+    color: var(--marca-tinta); border-color: transparent; opacity: 1;
+    background: linear-gradient(180deg, #f9a8d4, var(--marca));
+    box-shadow: 0 6px 18px rgba(var(--marca-rgb),.28), inset 0 1px 0 rgba(255,255,255,.35);
   }
-  .mc-filtro[aria-pressed="true"] b { background: rgba(255,255,255,.22); color: #fff; }
+  .mc-filtro[aria-pressed="true"] b { background: rgba(80,7,36,.12); color: var(--marca-tinta); }
 
   #lista { display: grid; gap: .9rem; }
 
@@ -261,13 +295,13 @@
   .mc-estado.preparacion { color: #5b21b6; background: rgba(124,58,237,.1);  border-color: rgba(124,58,237,.28); }
   .mc-estado.entregado   { color: #0b6e57; background: rgba(18,140,126,.12); border-color: rgba(18,140,126,.32); }
   .mc-estado.parcial     { color: #0b6e57; background: rgba(240,165,0,.12);  border-color: rgba(240,165,0,.35); }
-  .mc-estado.cancelado   { color: var(--marca); background: rgba(229,9,20,.07); border-color: rgba(229,9,20,.25); }
+  .mc-estado.cancelado   { color: var(--error); background: rgba(220,38,38,.07); border-color: rgba(220,38,38,.25); }
 
   /* Cuánto le queda a la suscripción */
   .mc-dias { display: inline-flex; align-items: center; gap: .3rem; font-size: .84rem; color: var(--tinta-suave); white-space: nowrap; }
   .mc-dias svg { width: 15px; height: 15px; }
   .mc-dias.pronto  { color: #92400e; font-weight: 700; }
-  .mc-dias.vencida { color: var(--marca); font-weight: 700; }
+  .mc-dias.vencida { color: var(--error); font-weight: 700; }
 
   .mc-ped-items { border-top: 1px solid var(--separador); }
   .mc-item {
@@ -287,7 +321,7 @@
     position: relative; width: 56px; height: 56px; border-radius: 12px; overflow: hidden;
     display: grid; place-items: center; flex: none;
     font: 800 1rem 'Outfit', sans-serif; color: #fff; letter-spacing: .02em;
-    background: linear-gradient(135deg, var(--c1, #3b1d6e), var(--c2, #e50914));
+    background: linear-gradient(135deg, var(--c1, #3b1d6e), var(--c2, #ec4899));
     box-shadow: 0 4px 12px rgba(20,22,26,.12), inset 0 0 0 1px rgba(255,255,255,.12);
   }
   .mc-foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -318,9 +352,9 @@
   .mc-btn:disabled { cursor: wait; opacity: .7; transform: none; }
   .mc-btn svg { width: 17px; height: 17px; flex: none; }
   .mc-btn.primario {
-    color: #fff; border-color: transparent;
-    background: linear-gradient(180deg, #ff2a35, var(--marca-oscura));
-    box-shadow: 0 6px 18px rgba(229,9,20,.26), inset 0 1px 0 rgba(255,255,255,.35);
+    color: var(--marca-tinta); border-color: transparent;
+    background: linear-gradient(180deg, #f9a8d4, var(--marca));
+    box-shadow: 0 6px 18px rgba(var(--marca-rgb),.26), inset 0 1px 0 rgba(255,255,255,.35);
   }
   .mc-btn.wa {
     color: #fff; border-color: transparent;
@@ -352,7 +386,7 @@
     display: inline-flex; align-items: center; gap: .35rem; margin-bottom: .8rem;
     font-size: .9rem; font-weight: 700; color: var(--tinta-media); text-decoration: none;
   }
-  .mc-volver:hover { color: var(--marca); }
+  .mc-volver:hover { color: var(--marca-texto); }
   .mc-volver svg { width: 18px; height: 18px; }
   .mc-card { border-radius: 22px; padding: 1.15rem 1.25rem; margin-bottom: .9rem; }
   .mc-det-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .7rem 1rem; }
@@ -369,7 +403,7 @@
   }
   .mc-paso:first-child::before { display: none; }
   .mc-paso.hecho::before, .mc-paso.actual::before, .mc-paso.cancelado::before {
-    background: linear-gradient(90deg, #ff2a35, var(--marca));
+    background: linear-gradient(90deg, #f9a8d4, var(--marca));
   }
   .mc-punto {
     position: relative; z-index: 1; width: 36px; height: 36px; border-radius: 50%;
@@ -378,13 +412,13 @@
   }
   .mc-punto svg { width: 18px; height: 18px; }
   .mc-paso.hecho .mc-punto {
-    color: #fff; border-color: transparent;
-    background: linear-gradient(180deg, #ff2a35, var(--marca-oscura));
-    box-shadow: 0 4px 12px rgba(229,9,20,.3);
+    color: var(--marca-tinta); border-color: transparent;
+    background: linear-gradient(180deg, #f9a8d4, var(--marca));
+    box-shadow: 0 4px 12px rgba(var(--marca-rgb),.3);
   }
   .mc-paso.actual .mc-punto {
-    color: var(--marca); background: #fff; border-color: var(--marca);
-    box-shadow: 0 0 0 5px rgba(229,9,20,.12);
+    color: var(--marca-texto); background: #fff; border-color: var(--marca);
+    box-shadow: 0 0 0 5px rgba(var(--marca-rgb),.12);
   }
   .mc-paso.cancelado .mc-punto { color: #fff; border-color: transparent; background: #6b7280; }
   .mc-paso b { font-size: .88rem; color: var(--tinta); font-weight: 700; line-height: 1.25; }
@@ -709,10 +743,25 @@ function ponerFoto(caja) {
 // Las fotos guardadas como "Img/Deezer.jpg" viven en su versión liviana,
 // Img/opt/Deezer.jpg: la misma regla que la tienda (imgOptimizada en
 // js/tienda.js), así no hay que tocar las rutas de la base
+// Red de seguridad del WebP: si una foto de /Img/opt no tiene todavía su
+// .webp (una nueva hecha con optimizar-imagenes.ps1, que solo genera
+// .jpg), se pide la .jpg de al lado. El error de una imagen no sube por
+// la página, por eso se escucha en la captura.
+document.addEventListener('error', e => {
+  const img = e.target;
+  if (img && img.tagName === 'IMG' && /\/Img\/opt\/[^?#]+\.webp(?:[?#]|$)/.test(img.src) && !img.dataset.sinWebp) {
+    img.dataset.sinWebp = '1';
+    img.src = img.src.replace(/\.webp(?=[?#]|$)/, '.jpg');
+  }
+}, true);
+
 function imgOptimizada(url) {
+  // Las de /Img/opt van en WebP; el .jpg sigue al lado como respaldo
+  const o = String(url).match(/^Img\/opt\/(.+)\.jpe?g$/i);
+  if (o) return `Img/opt/${o[1]}.webp`;
   if (/^Img\/opt\//i.test(url)) return url;
   const m = String(url).match(/^Img\/(.+)\.(png|jpe?g)$/i);
-  return m ? `Img/opt/${m[1]}.jpg` : url;
+  return m ? `Img/opt/${m[1]}.webp` : url;
 }
 
 // La foto (o las iniciales) de un producto

@@ -17,8 +17,12 @@
   --tinta:        #14161a;
   --tinta-media:  #3d424b;
   --tinta-suave:  #767c88;
-  --marca:        #e50914;
-  --marca-oscura: #b8070f;
+  --marca:        #f472b6;  /* rosa claro (antes rojo #e50914) */
+  --marca-oscura: #ec4899;
+  --marca-rgb:    236,72,153;  /* transparencias: rgba(var(--marca-rgb), .1) */
+  --marca-texto:  #db2777;     /* letras y precios sobre blanco: el rosa claro solo no se lee */
+  --marca-tinta:  #500724;     /* letra encima de un fondo rosa */
+  --error:        #dc2626;     /* solo avisos: vencido, cancelado, borrar */
   --oro:          #9a7400;
   --oro-claro:    #f5c518;
   --ambar:        #f0a500;
@@ -78,7 +82,7 @@ nav {
   font-size: 2rem;
   letter-spacing: 3px;
   text-decoration: none;
-  background: linear-gradient(135deg, var(--rojo), var(--dorado));
+  background: linear-gradient(135deg, var(--marca-texto), var(--marca-oscura) 55%, var(--marca));   /* rosa intenso a rosa claro */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -106,11 +110,11 @@ nav {
 .nav-links a:hover,
 .nav-links a.active {
   color: var(--blanco);
-  background: rgba(229,9,20,0.15);
+  background: rgba(var(--marca-rgb),0.15);
 }
 
 .nav-links a.active {
-  color: var(--rojo);
+  color: var(--marca-texto);
   border-bottom: 2px solid var(--rojo);
 }
 
@@ -143,17 +147,17 @@ nav {
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(ellipse at 20% 50%, rgba(229,9,20,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 50%, rgba(var(--marca-rgb),0.15) 0%, transparent 60%),
     radial-gradient(ellipse at 80% 20%, rgba(255,215,0,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 60% 80%, rgba(229,9,20,0.1) 0%, transparent 50%);
+    radial-gradient(ellipse at 60% 80%, rgba(var(--marca-rgb),0.1) 0%, transparent 50%);
 }
 
 .hero-grid {
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(229,9,20,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(229,9,20,0.05) 1px, transparent 1px);
+    linear-gradient(rgba(var(--marca-rgb),0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--marca-rgb),0.05) 1px, transparent 1px);
   background-size: 60px 60px;
   opacity: 0.4;
 }
@@ -168,9 +172,9 @@ nav {
 
 .hero-badge {
   display: inline-block;
-  background: rgba(229,9,20,0.15);
-  border: 1px solid rgba(229,9,20,0.4);
-  color: var(--rojo);
+  background: rgba(var(--marca-rgb),0.15);
+  border: 1px solid rgba(var(--marca-rgb),0.4);
+  color: var(--marca-texto);
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0.35rem 1.2rem;
@@ -210,7 +214,7 @@ nav {
 
 .btn-primary {
   background: var(--rojo);
-  color: white;
+  color: var(--marca-tinta);
   font-weight: 700;
   font-size: 0.95rem;
   padding: 0.85rem 2.5rem;
@@ -293,7 +297,7 @@ nav {
 .stat-num {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 2.5rem;
-  color: var(--rojo);
+  color: var(--marca-texto);
   letter-spacing: 2px;
   display: block;
 }
@@ -329,7 +333,7 @@ main {
 .section-title .line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, rgba(229,9,20,0.5), transparent);
+  background: linear-gradient(90deg, rgba(var(--marca-rgb),0.5), transparent);
 }
 
 /* ===== CATEGORY TABS ===== */
@@ -355,7 +359,7 @@ main {
 }
 
 .cat-tab:hover { color: white; border-color: rgba(20,22,26,0.120); }
-.cat-tab.active { background: var(--rojo); border-color: var(--rojo); color: white; }
+.cat-tab.active { background: var(--rojo); border-color: var(--rojo); color: var(--marca-tinta); }
 
 /* ===== CATALOG GRID ===== */
 .catalog-grid {
@@ -498,7 +502,7 @@ main {
 }
 
 .plan-header {
-  background: linear-gradient(135deg, rgba(229,9,20,0.2), rgba(229,9,20,0.05));
+  background: linear-gradient(135deg, rgba(var(--marca-rgb),0.2), rgba(var(--marca-rgb),0.05));
   padding: 1.5rem;
   text-align: center;
   border-bottom: 1px solid rgba(20,22,26,0.054);
@@ -520,7 +524,7 @@ main {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 3.5rem;
   line-height: 1;
-  color: var(--rojo);
+  color: var(--marca-texto);
 }
 
 .plan-card.featured .plan-price { color: var(--dorado); }
@@ -547,7 +551,7 @@ main {
 
 .plan-list li::before {
   content: '✓';
-  color: var(--rojo);
+  color: var(--marca-texto);
   font-weight: 800;
   font-size: 0.85rem;
 }
@@ -639,7 +643,7 @@ main {
   font-size: 1.3rem;
   min-width: 2rem;
   text-align: center;
-  color: var(--rojo);
+  color: var(--marca-texto);
 }
 
 .contact-label {
@@ -660,12 +664,12 @@ main {
 .divisor {
   border: none;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(229,9,20,0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--marca-rgb),0.3), transparent);
   margin: 1.5rem 0;
 }
 
 /* ===== GLOW ACCENT ===== */
-.glow-red { color: var(--rojo); }
+.glow-red { color: var(--marca-texto); }
 .glow-gold { color: var(--dorado); }
 
 /* ===== FOOTER ===== */
@@ -709,7 +713,7 @@ footer strong { color: var(--dorado); font-family: 'Bebas Neue', sans-serif; fon
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(229,9,20,0.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(var(--marca-rgb),0.12) 0%, transparent 70%);
 }
 
 .hero-inner h1 {
@@ -774,11 +778,11 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle 220px at 12% 14%, rgba(229,9,20,.05),   transparent 70%),
+    radial-gradient(circle 220px at 12% 14%, rgba(var(--marca-rgb),.05),   transparent 70%),
     radial-gradient(circle 170px at 88% 22%, rgba(245,197,24,.07), transparent 70%),
-    radial-gradient(circle 130px at 78% 68%, rgba(229,9,20,.035),  transparent 70%),
+    radial-gradient(circle 130px at 78% 68%, rgba(var(--marca-rgb),.035),  transparent 70%),
     radial-gradient(circle 190px at 8%  76%, rgba(245,197,24,.05), transparent 70%),
-    radial-gradient(circle 90px  at 46% 40%, rgba(229,9,20,.028),  transparent 70%);
+    radial-gradient(circle 90px  at 46% 40%, rgba(var(--marca-rgb),.028),  transparent 70%);
 }
 body > * { position: relative; z-index: 1; }
 @media (max-width: 600px) { body::before { display: none; } }
@@ -835,8 +839,8 @@ body > nav {
 }
 .hero-badge {
   background: linear-gradient(180deg, rgba(255,255,255,.27), rgba(253,226,228,.17));
-  border: 1px solid rgba(229,9,20,.3);
-  box-shadow: 0 2px 8px rgba(229,9,20,.1), inset 0 1px 0 #fff;
+  border: 1px solid rgba(var(--marca-rgb),.3);
+  box-shadow: 0 2px 8px rgba(var(--marca-rgb),.1), inset 0 1px 0 #fff;
 }
 
 /* Botones: píldoras. El principal es vidrio claro y el verde vidrio verde
@@ -894,8 +898,8 @@ body > nav {
 }
 .buscar-plan:focus {
   outline: none;
-  border-color: rgba(229,9,20,.4);
-  box-shadow: 0 0 0 4px rgba(229,9,20,.1), var(--vidrio-sombra), var(--vidrio-brillo);
+  border-color: rgba(var(--marca-rgb),.4);
+  box-shadow: 0 0 0 4px rgba(var(--marca-rgb),.1), var(--vidrio-sombra), var(--vidrio-brillo);
 }
 .tabla-precios {
   background: var(--vidrio);
@@ -980,4 +984,4 @@ footer {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.55);
 }
 .etiqueta-vidrio-desc { margin-left: 4px; color: #fff; background: linear-gradient(180deg, rgba(240,40,50,.7), rgba(196,8,18,.58)); }
-.etiqueta-vidrio-agotado { margin-left: 6px; color: var(--marca-oscura); background: linear-gradient(180deg, rgba(255,236,236,.7), rgba(253,210,212,.5)); }
+.etiqueta-vidrio-agotado { margin-left: 6px; color: var(--error); background: linear-gradient(180deg, rgba(255,236,236,.7), rgba(253,210,212,.5)); }

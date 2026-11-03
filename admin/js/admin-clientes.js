@@ -192,7 +192,7 @@ $('vistaClientes').innerHTML = `
       <button type="button" class="metrica" data-filtro="por-vencer">
         <div class="metrica-n warn" id="clMPor">–</div><div class="metrica-l">Por vencer (${POR_VENCER} días)</div></button>
       <button type="button" class="metrica" data-filtro="vencidas">
-        <div class="metrica-n rojo" id="clMVen">–</div><div class="metrica-l">Con suscripción vencida</div></button>
+        <div class="metrica-n alerta" id="clMVen">–</div><div class="metrica-l">Con suscripción vencida</div></button>
     </section>
 
     <section class="herramientas">

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -20 40 40">
+  <!-- Tiago Store · Navidad: la estrella de Belén (arriba a la derecha del cielo) -->
+  <defs>
+    <radialGradient id="g" cx="0" cy="0" r="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fffbe8"/><stop offset=".35" stop-color="#ffe7a3"/><stop offset="1" stop-color="#ffd36b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle r="20" fill="url(#g)" opacity=".55"/>
+  <path d="M0-19L2.2-2.2 19 0 2.2 2.2 0 19-2.2 2.2-19 0-2.2-2.2Z" fill="#fff6d6"/>
+  <path d="M0-9L1.3-1.3 9 0 1.3 1.3 0 9-1.3 1.3-9 0-1.3-1.3Z" fill="#fff" transform="rotate(45)" opacity=".9"/>
+</svg>

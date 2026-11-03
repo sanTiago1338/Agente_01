@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Tiago Store · Navidad: el regalo del título de ofertas -->
+  <defs>
+    <linearGradient id="caja" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8414f"/><stop offset="1" stop-color="#a0121d"/>
+    </linearGradient>
+    <linearGradient id="cinta" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe7a0"/><stop offset="1" stop-color="#e2a92a"/>
+    </linearGradient>
+  </defs>
+  <path d="M16 9.5C13.6 5 8.6 3.9 7.6 6.6c-.9 2.6 3.4 3.4 8.4 2.9Zm0 0c2.4-4.5 7.4-5.6 8.4-2.9.9 2.6-3.4 3.4-8.4 2.9Z" fill="none" stroke="url(#cinta)" stroke-width="2.2" stroke-linejoin="round"/>
+  <rect x="5" y="15" width="22" height="14" rx="1.6" fill="url(#caja)"/>
+  <rect x="3.5" y="9.5" width="25" height="6.5" rx="1.6" fill="#c81e2c"/>
+  <rect x="3.5" y="9.5" width="25" height="2.2" rx="1.1" fill="#ff8a95" opacity=".45"/>
+  <rect x="14" y="9.5" width="4" height="19.5" fill="url(#cinta)"/>
+</svg>

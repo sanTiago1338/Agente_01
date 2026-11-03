@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 56">
+  <!-- Tiago Store · Navidad: el gorro de Papá Noel que va sobre la T del logo -->
+  <defs>
+    <linearGradient id="rojo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0505c"/><stop offset="1" stop-color="#b3141f"/>
+    </linearGradient>
+    <radialGradient id="piel" cx=".42" cy=".35" r=".75">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d6e2ee"/>
+    </radialGradient>
+  </defs>
+  <path d="M7 42C9 25 20 11 36 8.5c10-1.5 18 3.5 21 12.5 1.2 3.6.6 7.4-1.6 10.2-2.6-5.6-7.6-8.4-12-5.6-3.4 2.2-2.6 9.6 1.6 16.4Z" fill="url(#rojo)"/>
+  <path d="M14 38c3-11 10.5-19.5 21-23" stroke="#ff9aa3" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".45"/>
+  <rect x="2.5" y="38" width="50" height="12.5" rx="6.25" fill="url(#piel)"/>
+  <path d="M8 41.5h38" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>
+  <circle cx="55.5" cy="32" r="6.8" fill="url(#piel)"/>
+</svg>

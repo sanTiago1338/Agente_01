@@ -17,18 +17,26 @@
 // el pasillo y la mansión de fondo, las garras del título, la sangre, la
 // niebla y la aparición detrás del contenido (ver abajo).
 //
+// NAVIDAD (del 4 de noviembre al 6 de enero) es NAVIDAD/navidad.css, que
+// también empieza todo con html.navidad, y NAVIDAD/navidad.js, que este
+// archivo pide solo en esas fechas: el cielo de invierno con nieve, el
+// pueblo nevado, y la nieve y las luces de las barras. data-navidad
+// cambia los textos ("Ofertas del momento" pasa a "Ofertas navideñas").
+//
 // Va en el <head> sin defer, antes de tenido.js: así la página ya sale
 // de noche desde el primer cuadro, sin un destello blanco.
 //
 // Para verlo fuera de fecha, o apagarlo para comparar, en la URL:
-//   ?tema=halloween   ·   ?tema=normal   ·   ?tema=auto (vuelve a las fechas)
+//   ?tema=navidad · ?tema=halloween · ?tema=normal · ?tema=auto (vuelve a las fechas)
 // Se acuerda en esa pestaña mientras navegás (sessionStorage).
 // ============================================================
 (function () {
   // Desde y hasta, inclusive (mes-día), con la fecha del celular del
   // cliente. "color" es el de la barra del navegador en el celular.
+  // Si "hasta" es menor que "desde", cruza el año (Navidad termina en enero).
   const TEMPORADAS = [
-    { tema: 'halloween', desde: '10-24', hasta: '11-02', color: '#0e0818' }
+    { tema: 'halloween', desde: '10-24', hasta: '11-02', color: '#0e0818' },
+    { tema: 'navidad',   desde: '11-04', hasta: '01-06', color: '#071425' }
   ];
   const LLAVE = 'tiago-tema';
   const raiz  = document.documentElement;
@@ -48,7 +56,9 @@
     const hoy = new Date();
     const md  = String(hoy.getMonth() + 1).padStart(2, '0') + '-' +
                 String(hoy.getDate()).padStart(2, '0');
-    return TEMPORADAS.find(t => md >= t.desde && md <= t.hasta);
+    return TEMPORADAS.find(t => t.desde <= t.hasta
+      ? md >= t.desde && md <= t.hasta          // dentro del mismo año
+      : md >= t.desde || md <= t.hasta);        // de noviembre a enero
   }
 
   const pedido = elegido();
@@ -69,6 +79,22 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', textosDeTemporada);
   else textosDeTemporada();
+
+  // ---------- Navidad (carpeta NAVIDAD) ----------
+  // Los colores ya están en cada página (NAVIDAD/navidad.css, solo pisa
+  // algo con html.navidad). Acá se pide lo que se mueve: el cielo, la
+  // nieve y las luces de las barras (NAVIDAD/navidad.js, ver
+  // NAVIDAD/LEEME.md). Fuera de fecha no se descarga. Lleva la misma
+  // versión que este archivo, así se actualiza junto con él.
+  if (activa.tema === 'navidad') {
+    const yo = document.currentScript;
+    if (yo && yo.src) {
+      const guion = document.createElement('script');
+      guion.src = new URL('../NAVIDAD/navidad.js', yo.src).href + new URL(yo.src).search;
+      document.head.appendChild(guion);
+    }
+    return;
+  }
 
   if (activa.tema !== 'halloween') return;
 

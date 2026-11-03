@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 24 24">
+  <!-- Tiago Store · Navidad: un copo de nieve de seis brazos -->
+  <g stroke="#fff" stroke-width="1.3" stroke-linecap="round" fill="none">
+    <g id="b"><path d="M0 0V-10.5M0 -6.2l-2.8 -2.6M0 -6.2l2.8 -2.6M0 -3l-1.8 -1.6M0 -3l1.8 -1.6"/></g>
+    <use href="#b" transform="rotate(60)"/><use href="#b" transform="rotate(120)"/>
+    <use href="#b" transform="rotate(180)"/><use href="#b" transform="rotate(240)"/><use href="#b" transform="rotate(300)"/>
+  </g>
+</svg>

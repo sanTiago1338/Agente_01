@@ -129,8 +129,8 @@
   // ---------- Una barra adornada ----------
   // La capa va DENTRO de la barra (así acompaña al menú cuando queda
   // pegado arriba al bajar) pero suelta, con position: absolute: no es
-  // parte de la fila del menú y no corre nada. Se ubica midiendo, igual
-  // que el marco de las garras de Halloween: funciona tenga la barra
+  // parte de la fila del menú y no corre nada. Se ubica midiendo:
+  // funciona tenga la barra
   // posición propia o no.
   function adornar(barra, { luces }) {
     if (barra.querySelector(':scope > .nv-barra')) return;

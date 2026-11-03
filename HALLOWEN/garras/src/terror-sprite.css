@@ -1,9 +1,0 @@
-/* Sin estilos globales ni cambios de geometría del catálogo. */
-.ts-secuencia{position:absolute;inset:0;pointer-events:none;isolation:isolate;overflow:hidden}
-.ts-secuencia .ts-fotograma{position:absolute;inset:0;background-size:400% 200%;background-repeat:no-repeat;opacity:0;transition:opacity 100ms linear;filter:contrast(1.12) brightness(.85)}
-.ts-secuencia .ts-fotograma.visible{opacity:1}
-.ts-secuencia .ts-velo{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 35%,#080808bd 94%);pointer-events:none}
-.ts-secuencia[data-pausa] .ts-fotograma{transition:none}
-@media(prefers-reduced-motion:reduce){.ts-secuencia .ts-fotograma{transition:none}}
-[data-terror-card]:hover{box-shadow:0 0 0 1px #b8293b,0 0 20px #8f182c40}
-[data-terror-card]:focus-within{outline:2px solid #f37f89;outline-offset:2px}

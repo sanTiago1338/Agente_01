@@ -15,6 +15,7 @@
      · en las ofertas: el % de descuento en metal brillante, con un
        reflejo que pasa cada tanto, y el precio en vidrio oscuro
      · un aro de foco elegante al moverse con el teclado
+     · los botones de comprar en menta a turquesa (sección 5)
      · EFECTOS (js/efectos.js): la foto de la ficha y las tarjetas se
        inclinan en 3D siguiendo el puntero, con un brillo; al comprar
        explotan nieve y destellos; el carrito salta
@@ -343,6 +344,50 @@ button.btn-comprar:not(:disabled):active { transform: scale(.97); }
   20% { transform: rotate(-14deg); }
   45% { transform: rotate(10deg); }
   70% { transform: rotate(-5deg); }
+}
+
+
+/* ============================================================
+   5. LOS BOTONES DE COMPRAR: MENTA A TURQUESA
+   ============================================================
+   Añadir al carrito, Continuar, Pagar con QR y Comprar ahora, todo el
+   año (también en Navidad): un degradé de verde menta a turquesa, con
+   letras blancas, un brillo de vidrio arriba y una sombra de su color.
+   Tonos elegidos para que el blanco se lea bien encima. Le gana al rosa
+   de css/vidrio.css; los apagados ("Agotado") quedan como estaban. */
+:root {
+  --compra-1: #0c9f76;   /* menta */
+  --compra-2: #0b9a92;
+  --compra-3: #0b93b0;   /* turquesa */
+  --compra-brillo-1: #11b386;
+  --compra-brillo-3: #0ea5c6;
+}
+button.plan-comprar:not(:disabled), button.plan-comprar:not(:disabled):hover,
+.ck-pagar:not(:disabled), .ck-pagar:not(:disabled):hover,
+.btn-comprar:not(:disabled), .btn-comprar:not(:disabled):hover {
+  background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,0) 52%),
+              linear-gradient(135deg, var(--compra-1) 0%, var(--compra-2) 50%, var(--compra-3) 100%);
+  border-color: rgba(255,255,255,.6);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(3,52,58,.35);
+  box-shadow: 0 8px 22px rgba(11,150,160,.3), 0 1px 3px rgba(20,22,26,.1),
+              inset 0 1.5px 0 rgba(255,255,255,.55), inset 0 -2px 5px rgba(3,70,80,.2);
+}
+@media (hover: hover) {
+  button.plan-comprar:not(:disabled):hover,
+  .ck-pagar:not(:disabled):hover,
+  .btn-comprar:not(:disabled):hover {
+    background: linear-gradient(180deg, rgba(255,255,255,.36), rgba(255,255,255,0) 52%),
+                linear-gradient(135deg, var(--compra-brillo-1) 0%, #0daaa2 50%, var(--compra-brillo-3) 100%);
+    box-shadow: 0 12px 28px rgba(11,150,160,.38), 0 1px 3px rgba(20,22,26,.1),
+                inset 0 1.5px 0 rgba(255,255,255,.6), inset 0 -2px 5px rgba(3,70,80,.2);
+  }
+}
+button.plan-comprar:not(:disabled):focus-visible,
+.ck-pagar:not(:disabled):focus-visible,
+.btn-comprar:not(:disabled):focus-visible {
+  outline: 2px solid #0b93b0;
+  outline-offset: 3px;
 }
 
 

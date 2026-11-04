@@ -263,8 +263,8 @@ body::before {
 /* NOV 2026: los de comprar y pagar, en vidrio ROSA CLARO (el color nuevo
    de la marca, antes era rojo) con letras oscuras: son lo primero que se
    ve, sin dejar de ser vidrio. El del carrusel sigue blanco porque va
-   encima de fotos de todos los colores. Navidad los pinta de dorado
-   (NAVIDAD/navidad.css) y le gana a esto. */
+   encima de fotos de todos los colores. En la tienda y en Recargas los
+   de comprar van en menta a turquesa (css/premium.css, le gana a esto). */
 .plan-comprar, .plan-comprar:hover,
 .ck-pagar, .ck-pagar:hover,
 .btn-primary, .btn-primary:hover,

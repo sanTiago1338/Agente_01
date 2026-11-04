@@ -15,6 +15,9 @@
      · en las ofertas: el % de descuento en metal brillante, con un
        reflejo que pasa cada tanto, y el precio en vidrio oscuro
      · un aro de foco elegante al moverse con el teclado
+     · EFECTOS (js/efectos.js): la foto de la ficha y las tarjetas se
+       inclinan en 3D siguiendo el puntero, con un brillo; al comprar
+       explotan nieve y destellos; el carrito salta
 
    SIN MOVER NADA. Solo colores, sombras, reflejos y transform (que no
    corre a nadie). Ni un borde más grueso, ni un margen, ni un relleno,
@@ -239,6 +242,111 @@
 
 
 /* ============================================================
+   4. EFECTOS (js/efectos.js)
+   ============================================================
+   La capa de la explosión al comprar, la inclinación 3D que sigue al
+   puntero y el carrito que salta. Todo es transform o una capa suelta:
+   nada corre de lugar. */
+
+/* La explosión de nieve y destellos: una capa fija encima de todo, sin clics */
+.fx-lienzo {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2147483000;
+}
+
+/* La inclinación 3D: js/efectos.js pone .fx-tilt mientras el puntero
+   está encima, y --rx / --ry (cuánto se inclina), --gx / --gy (dónde va
+   el brillo) y --px / --py (cuánto se corre la foto por dentro). Solo con
+   mouse. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .plat-card.fx-tilt {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-5px);
+    transition: transform .14s linear, box-shadow .45s var(--premium-curva), border-color .45s var(--premium-curva);
+  }
+  .game-card.fx-tilt {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-6px) scale(1.02);
+    transition: transform .14s linear, box-shadow .45s var(--premium-curva), border-color .45s var(--premium-curva);
+  }
+
+  /* La foto grande de la ficha: se inclina más, la foto se corre por
+     dentro hacia el otro lado y crece apenas (se siente la profundidad) */
+  .fi-foto {
+    transition: transform .6s var(--premium-curva), box-shadow .6s var(--premium-curva);
+  }
+  .fi-foto img { transition: transform .6s var(--premium-curva); }
+  .fi-foto.fx-tilt {
+    transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.012);
+    transition: transform .14s linear, box-shadow .6s var(--premium-curva);
+    box-shadow: 0 26px 60px var(--fi-brillo, rgba(20,22,26,.18)), var(--vidrio-brillo);
+  }
+  .fi-foto.fx-tilt img {
+    transform: translate(var(--px, 0px), var(--py, 0px)) scale(1.05);
+    transition: transform .14s linear;
+  }
+
+  /* El brillo de luz que sigue al puntero */
+  .fi-foto::after,
+  .plat-img::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%),
+                  rgba(255,255,255,.42) 0%, rgba(255,255,255,.12) 28%, rgba(255,255,255,0) 58%);
+    mix-blend-mode: soft-light;
+    opacity: 0;
+    transition: opacity .35s var(--premium-curva);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .fi-foto.fx-tilt::after,
+  .plat-card.fx-tilt .plat-img::before { opacity: 1; }
+  /* El de la tarjeta hereda la posición del puntero de la tarjeta */
+  .plat-card.fx-tilt .plat-img::before {
+    background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%),
+                  rgba(255,255,255,.5) 0%, rgba(255,255,255,.14) 30%, rgba(255,255,255,0) 62%);
+  }
+
+  /* Los botones de comprar brillan un poco más al pasar el puntero */
+  button.plan-comprar:not(:disabled),
+  #cartPagarQR:not(:disabled),
+  button.btn-comprar:not(:disabled) {
+    transition: filter .3s var(--premium-curva), box-shadow .3s var(--premium-curva), transform .3s var(--premium-curva);
+  }
+  button.plan-comprar:not(:disabled):hover,
+  #cartPagarQR:not(:disabled):hover,
+  button.btn-comprar:not(:disabled):hover {
+    filter: brightness(1.06) saturate(1.12);
+  }
+}
+
+/* Al tocar un botón de comprar: se hunde un poquito */
+button.plan-comprar:not(:disabled):active,
+#cartPagarQR:not(:disabled):active,
+button.btn-comprar:not(:disabled):active { transform: scale(.97); }
+
+/* El carrito salta cuando sube el número */
+.nav-cart-badge.fx-salta { animation: fx-salta .6s var(--premium-curva); }
+@keyframes fx-salta {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.55); }
+  55%  { transform: scale(.88); }
+  75%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.nav-item.fx-sacude .nav-cart-wrap { animation: fx-sacude .55s ease-in-out; }
+@keyframes fx-sacude {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-14deg); }
+  45% { transform: rotate(10deg); }
+  70% { transform: rotate(-5deg); }
+}
+
+
+/* ============================================================
    CON "REDUCIR MOVIMIENTO"
    ============================================================
    Nada sube, nada se acerca y no pasan reflejos: quedan el canto de luz,
@@ -249,6 +357,7 @@
   .oferta-desc::after { animation: none; display: none; }
   .plat-card:hover, .oferta-card:hover { transform: none; }
   .plat-card:hover .plat-img img { transform: none; }
+  .nav-cart-badge.fx-salta, .nav-item.fx-sacude .nav-cart-wrap { animation: none; }
 }
 @media print {
   .plat-card::before, .plat-card::after, .oferta-card::after, .game-card::after, .oferta-desc::after { display: none; }

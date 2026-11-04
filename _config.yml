@@ -1,0 +1,21 @@
+# ============================================================
+# TIAGO STORE · Qué NO se publica en la página
+# ============================================================
+# GitHub Pages arma la página con todo lo que hay en el repositorio.
+# Esto le dice que deje afuera los archivos internos: el plano de la
+# base de datos (supabase/), las notas, la copia vieja y los scripts de
+# la compu. Siguen guardados en el repositorio, pero ya no se abren
+# desde santiago1338.github.io/Agente_01/...
+#
+# Si agregás otro archivo interno, sumalo a la lista.
+# ============================================================
+exclude:
+  - supabase/
+  - backup/
+  - COBROS.md
+  - README.md
+  - NAVIDAD/LEEME.md
+  - nueva-version.ps1
+  - optimizar-imagenes.ps1
+  - servidor.ps1
+  - .gitignore

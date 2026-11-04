@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 64">
+  <!-- Una esfera de Navidad dorada que cuelga de un hilo fino -->
+  <defs>
+    <radialGradient id="b" cx="36%" cy="34%" r="70%">
+      <stop offset="0" stop-color="#fff4cf"/>
+      <stop offset=".28" stop-color="#ffd877"/>
+      <stop offset=".68" stop-color="#d49a2e"/>
+      <stop offset="1" stop-color="#7a4f12"/>
+    </radialGradient>
+    <linearGradient id="t" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8a6420"/>
+      <stop offset=".5" stop-color="#ffe7a8"/>
+      <stop offset="1" stop-color="#8a6420"/>
+    </linearGradient>
+  </defs>
+  <path d="M24 0v15" stroke="#e8c77a" stroke-width="1" stroke-opacity=".8"/>
+  <circle cx="24" cy="16.5" r="2.6" fill="none" stroke="#f3d48a" stroke-width="1.2"/>
+  <rect x="18.5" y="18" width="11" height="6.5" rx="1.6" fill="url(#t)"/>
+  <circle cx="24" cy="43" r="19" fill="url(#b)"/>
+  <path d="M6.6 40.5c5.6 3.2 11.4 4.6 17.4 4.6s11.8-1.4 17.4-4.6" fill="none" stroke="#fff3c9" stroke-opacity=".55" stroke-width="1.1"/>
+  <path d="M8.4 49.5c5 2.4 10.2 3.5 15.6 3.5s10.6-1.1 15.6-3.5" fill="none" stroke="#fff3c9" stroke-opacity=".35" stroke-width="1"/>
+  <ellipse cx="17" cy="35" rx="4.6" ry="3" fill="#fffaf0" opacity=".7" transform="rotate(-28 17 35)"/>
+</svg>

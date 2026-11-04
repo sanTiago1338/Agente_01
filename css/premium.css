@@ -1,0 +1,255 @@
+/* ============================================================
+   TIAGO STORE · ACABADO PREMIUM DE LAS TARJETAS
+   ============================================================
+   El terminado fino de las tarjetas de la tienda, todo el año:
+
+     · las plataformas (Netflix, Claude...)  .plat-card   index.html
+     · las ofertas del carrusel              .oferta-card index.html
+     · los juegos                            .game-card   recarga-juegos.html
+
+   Lo que suma:
+     · un canto de luz finito alrededor, en el color de cada marca
+     · sombras en capas (una cerca y una lejos), como un objeto real
+     · al pasar el mouse: la tarjeta sube suave, la foto se acerca apenas
+       y un reflejo de luz cruza la tarjeta en diagonal
+     · en las ofertas: el % de descuento en metal brillante, con un
+       reflejo que pasa cada tanto, y el precio en vidrio oscuro
+     · un aro de foco elegante al moverse con el teclado
+
+   SIN MOVER NADA. Solo colores, sombras, reflejos y transform (que no
+   corre a nadie). Ni un borde más grueso, ni un margen, ni un relleno,
+   ni otra letra: cada tarjeta queda en el mismo píxel, con y sin este
+   archivo. Los reflejos son ::before / ::after sueltos (position:
+   absolute) y sin clics (pointer-events: none).
+
+   Usa los colores de la marca (--marca-rgb): rosa el resto del año y
+   dorado en Navidad (NAVIDAD/navidad.css), sin tocar nada.
+
+   Va DESPUÉS de css/vidrio.css y ANTES de NAVIDAD/navidad.css.
+   Con "reducir movimiento" no hay reflejos que se muevan.
+   ============================================================ */
+
+/* La curva de todo: arranca rápido y frena suave, como algo con peso */
+:root { --premium-curva: cubic-bezier(.2, .8, .2, 1); }
+
+
+/* ============================================================
+   1. TARJETAS DE PLATAFORMA (.plat-card)
+   ============================================================ */
+.plat-card {
+  isolation: isolate;
+  transition: transform .45s var(--premium-curva), box-shadow .45s var(--premium-curva),
+              border-color .45s var(--premium-curva);
+}
+
+/* El canto de luz: un filo de 1px que va de blanco arriba al color de
+   la marca de la tarjeta abajo. Va encima del borde de siempre (mismo
+   lugar, mismo ancho), recortado al canto con una máscara. */
+.plat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(165deg,
+                rgba(255,255,255,.95) 0%,
+                rgba(255,255,255,.35) 32%,
+                color-mix(in srgb, var(--acento) 38%, transparent) 70%,
+                color-mix(in srgb, var(--acento) 18%, transparent) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: .9;
+  transition: opacity .45s var(--premium-curva);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* El reflejo: una franja de luz en diagonal que espera afuera, a la
+   izquierda, y cruza la tarjeta al pasar el mouse */
+.plat-card::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 55%;
+  background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,0) 20%,
+                rgba(255,255,255,.42) 50%, rgba(255,255,255,0) 80%, transparent 100%);
+  transform: translateX(-160%) skewX(-14deg);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* La foto se acerca apenas, despacio (la caja la recorta: no crece) */
+.plat-img img { transition: transform .9s var(--premium-curva); }
+
+@media (hover: hover) {
+  .plat-card:hover {
+    transform: translateY(-5px);
+    box-shadow:
+      0 1px 1px rgba(20,22,26,.04),
+      0 6px 12px -4px rgba(20,22,26,.1),
+      0 22px 44px -12px color-mix(in srgb, var(--acento) 30%, rgba(20,22,26,.22)),
+      inset 0 1px 0 #fff;
+  }
+  .plat-card:hover::before { opacity: 1; }
+  .plat-card:hover::after {
+    opacity: 1;
+    transform: translateX(260%) skewX(-14deg);
+    transition: transform .95s var(--premium-curva), opacity .2s;
+  }
+  .plat-card:hover .plat-img img { transform: scale(1.055); }
+}
+
+/* Al tocar: se hunde un poquito, como un botón de verdad */
+.plat-card:active { transform: translateY(-1px) scale(.985); transition-duration: .12s; }
+
+/* El botón "Ver catálogo": un brillo fino arriba y una sombra de su color */
+.plat-cta {
+  box-shadow: 0 1px 2px rgba(20,22,26,.06),
+              0 4px 12px -4px color-mix(in srgb, var(--acento) 35%, transparent),
+              inset 0 1px 0 rgba(255,255,255,.95);
+  transition: background .3s var(--premium-curva), color .3s var(--premium-curva),
+              border-color .3s var(--premium-curva), box-shadow .3s var(--premium-curva);
+}
+@media (hover: hover) {
+  .plat-card:hover .plat-cta {
+    box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--acento) 55%, transparent),
+                inset 0 1px 0 rgba(255,255,255,.28);
+  }
+}
+
+/* El foco con teclado: un aro doble, blanco y del color de la marca */
+.plat-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--acento), 0 12px 30px -10px rgba(20,22,26,.25);
+}
+
+
+/* ============================================================
+   2. OFERTAS DEL CARRUSEL (.oferta-card)
+   ============================================================ */
+.oferta-card {
+  isolation: isolate;
+  /* El mismo borde, más fino a la vista: casi transparente, con un filo
+     de luz por dentro */
+  border-color: rgba(255,255,255,.26);
+  box-shadow: 0 2px 4px rgba(20,22,26,.08), 0 14px 30px -10px rgba(20,22,26,.3),
+              inset 0 1px 0 rgba(255,255,255,.4), inset 0 0 0 1px rgba(255,255,255,.12);
+  transition: transform .45s var(--premium-curva), box-shadow .45s var(--premium-curva),
+              border-color .45s var(--premium-curva);
+}
+.oferta-card::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 60%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.3) 50%, transparent);
+  transform: translateX(-170%) skewX(-14deg);
+  pointer-events: none;
+  z-index: 1;
+}
+@media (hover: hover) {
+  .oferta-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(var(--marca-rgb), .7);
+    box-shadow: 0 4px 8px rgba(20,22,26,.1), 0 22px 40px -12px rgba(var(--marca-rgb), .45),
+                inset 0 1px 0 rgba(255,255,255,.5), inset 0 0 0 1px rgba(255,255,255,.16);
+  }
+  .oferta-card:hover::after {
+    transform: translateX(270%) skewX(-14deg);
+    transition: transform 1s var(--premium-curva);
+  }
+}
+.oferta-card:active { transform: translateY(-1px) scale(.985); transition-duration: .12s; }
+
+/* El % de descuento: una placa de metal en el color de la marca, con un
+   brillo arriba y un reflejo que la cruza cada 5 segundos */
+.oferta-desc {
+  overflow: hidden;
+  background: linear-gradient(180deg,
+                color-mix(in srgb, var(--marca) 70%, #fff) 0%,
+                var(--marca) 48%,
+                color-mix(in srgb, var(--marca) 78%, #000) 100%);
+  box-shadow: 0 3px 10px rgba(var(--marca-rgb), .5), 0 1px 2px rgba(0,0,0,.3),
+              inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(0,0,0,.18);
+  z-index: 2;
+}
+.oferta-desc::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.75) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: premium-placa 5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes premium-placa {
+  0%, 72%  { transform: translateX(-120%); }
+  88%, 100% { transform: translateX(120%); }
+}
+
+/* El precio: vidrio oscuro más fino, con un filo de luz arriba */
+.oferta-precio {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(14,14,18,.5), rgba(6,6,10,.68));
+  border-color: rgba(255,255,255,.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 4px 12px rgba(0,0,0,.25);
+}
+.oferta-nombre { position: relative; z-index: 2; }
+
+.oferta-card:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px #fff, 0 0 0 3px rgba(var(--marca-rgb), .9), 0 14px 30px -10px rgba(20,22,26,.3);
+}
+
+
+/* ============================================================
+   3. JUEGOS (.game-card, recarga-juegos.html)
+   ============================================================ */
+.game-card {
+  isolation: isolate;
+  transition: transform .45s var(--premium-curva), box-shadow .45s var(--premium-curva),
+              border-color .45s var(--premium-curva);
+}
+.game-card::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 55%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.28) 50%, transparent);
+  transform: translateX(-160%) skewX(-14deg);
+  pointer-events: none;
+  z-index: 7;
+}
+@media (hover: hover) {
+  .game-card:hover::after {
+    transform: translateX(260%) skewX(-14deg);
+    transition: transform .95s var(--premium-curva);
+  }
+}
+.game-card .game-img img { transition: transform .9s var(--premium-curva); }
+
+
+/* ============================================================
+   CON "REDUCIR MOVIMIENTO"
+   ============================================================
+   Nada sube, nada se acerca y no pasan reflejos: quedan el canto de luz,
+   las sombras y los colores. */
+@media (prefers-reduced-motion: reduce) {
+  .plat-card, .oferta-card, .game-card, .plat-img img, .game-card .game-img img { transition: none; }
+  .plat-card::after, .oferta-card::after, .game-card::after { display: none; }
+  .oferta-desc::after { animation: none; display: none; }
+  .plat-card:hover, .oferta-card:hover { transform: none; }
+  .plat-card:hover .plat-img img { transform: none; }
+}
+@media print {
+  .plat-card::before, .plat-card::after, .oferta-card::after, .game-card::after, .oferta-desc::after { display: none; }
+}

@@ -12,8 +12,8 @@
    html.navidad o con .nv-: fuera de fecha no toca nada y la tienda
    queda como siempre. Va DESPUÉS de css/vidrio.css en cada página.
 
-   SIN MOVER NADA: ningún adorno ocupa lugar. El gorro del logo, el
-   regalo del título, los copos de la franja, la nieve y las luces de
+   SIN MOVER NADA: ningún adorno ocupa lugar. El destello del logo,
+   la esfera del título, los destellos de la franja, la nieve y las luces de
    las barras van sueltos (position: absolute) encima o debajo de lo que
    ya estaba; el cielo va detrás de todo (position: fixed, z-index -1).
    Medido: con y sin este archivo, todo queda en el mismo píxel.
@@ -23,7 +23,7 @@
    Orden:
      1. los tonos (pisan los de cada página y los del vidrio)
      2. el cielo (fondo, aurora, estrella, pueblo, nieve)
-     3. la marca y los adornos (gorro, franja, regalo, nieve y luces
+     3. la marca y los adornos (destello, franja, esfera, nieve y luces
         de las barras)
      4. en adelante, las piezas de cada página, en su bloque
    ============================================================ */
@@ -106,9 +106,9 @@ html.navidad body::before {
   background:
     /* El resplandor de la estrella de Belén */
     radial-gradient(circle at 84% 9%, rgba(255,236,170,.16) 0, rgba(255,220,140,.06) 90px, transparent 180px),
-    /* La aurora, verde y celeste */
-    radial-gradient(60rem 26rem at 16% -6%, rgba(56,200,160,.16), transparent 70%),
-    radial-gradient(50rem 22rem at 72% -4%, rgba(90,140,255,.14), transparent 70%),
+    /* La aurora, champán y azul hielo */
+    radial-gradient(60rem 26rem at 16% -6%, rgba(255,210,140,.09), transparent 70%),
+    radial-gradient(50rem 22rem at 72% -4%, rgba(90,140,255,.15), transparent 70%),
     /* La luz tibia de las ventanas del pueblo */
     radial-gradient(70rem 24rem at 50% 112%, rgba(255,210,130,.12), transparent 70%),
     linear-gradient(180deg, #0a1d36 0%, #071425 55%, #0b1e33 100%);
@@ -154,10 +154,11 @@ html.navidad .bg-burbujas { display: none; }
   left: -20%;
   width: 140%;
   height: 46vh;
+  /* Un velo de champán y azul hielo: más fino que el verde de antes */
   background:
-    radial-gradient(40% 55% at 30% 60%, rgba(64,220,170,.18), transparent 70%),
-    radial-gradient(35% 50% at 62% 50%, rgba(90,150,255,.14), transparent 70%),
-    radial-gradient(30% 45% at 85% 64%, rgba(64,220,170,.1), transparent 70%);
+    radial-gradient(40% 55% at 30% 60%, rgba(255,214,140,.1), transparent 70%),
+    radial-gradient(35% 50% at 62% 50%, rgba(110,160,255,.13), transparent 70%),
+    radial-gradient(30% 45% at 85% 64%, rgba(255,226,170,.07), transparent 70%);
   animation: nv-aurora 28s ease-in-out infinite alternate;
   will-change: transform;
 }
@@ -216,11 +217,19 @@ html.navidad .bg-burbujas { display: none; }
   opacity: var(--o);
   animation: nv-meca var(--m) ease-in-out infinite alternate;
 }
-/* Unos pocos, más grandes, son copos de seis brazos que giran */
+/* Unos pocos, más grandes, son copos de seis brazos que giran: finos,
+   en oro pálido, como joyas que caen */
 .nv-copo.grande i {
   border-radius: 0;
   background: url('adornos/copo.svg') center / contain no-repeat;
   animation-name: nv-gira;
+  filter: sepia(1) saturate(2.2) hue-rotate(-8deg) brightness(1.08) drop-shadow(0 0 3px rgba(255,210,120,.45));
+}
+/* Polvo de oro: uno de cada cuatro copos chicos es un brillo dorado
+   desenfocado, como las luces lejanas de una foto de noche */
+.nv-copo:nth-child(4n):not(.grande) i {
+  background: radial-gradient(circle, rgba(255,236,180,.95) 0 26%, rgba(255,205,110,.32) 52%, transparent 70%);
+  filter: blur(.3px);
 }
 @keyframes nv-cae  { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 114vh, 0); } }
 @keyframes nv-meca { from { transform: translateX(-16px); } to { transform: translateX(16px); } }
@@ -240,63 +249,103 @@ html.navidad .bg-burbujas { display: none; }
    estaba, y lo que los sostiene solo pasa a position: relative, que no
    corre nada. */
 
-/* El gorro de Papá Noel sobre la T del logo, en el menú de cada página,
-   en la del pago, en Mis compras y en el pie. El logo sale dorado por
-   los tonos de arriba (su degradé usa los colores de la marca). */
+/* NOCHE DORADA: el lujo va en los detalles. Nada de caricaturas: oro,
+   champán y azul de noche, brillos finos que aparecen y se van despacio.
+
+   Un destello dorado de cuatro puntas arriba a la derecha del logo, en
+   el menú de cada página, en la del pago, en Mis compras y en el pie.
+   Titila despacio, como una luz que pasa por el oro. El logo sale
+   dorado por los tonos de arriba (su degradé usa los colores de la
+   marca). */
 html.navidad :is(.nav-marca, .nav-logo, .header-logo, .pie-logo, .pay-header a, header a.logo) {
   position: relative;
 }
 html.navidad :is(.nav-marca, .nav-logo, .header-logo, .pie-logo, .pay-header a, header a.logo)::after {
   content: '';
   position: absolute;
-  left: -.36em;
-  top: -.52em;
-  width: 1.02em;
-  height: .9em;
-  background: url('adornos/gorro.svg') center / contain no-repeat;
-  transform: rotate(-17deg);
-  filter: drop-shadow(0 2px 3px rgba(0,0,0,.45));
+  right: -.42em;
+  top: -.34em;
+  width: .62em;
+  height: .62em;
+  background: url('adornos/destello.svg') center / contain no-repeat;
+  filter: drop-shadow(0 0 4px rgba(255,214,120,.55));
+  animation: nv-destello 3.8s ease-in-out infinite;
   pointer-events: none;
 }
+@keyframes nv-destello {
+  0%, 100% { transform: scale(.55) rotate(0deg);  opacity: .45; }
+  45%      { transform: scale(1)   rotate(45deg); opacity: 1; }
+  70%      { transform: scale(.75) rotate(70deg); opacity: .8; }
+}
 
-/* La franja de arriba: azul noche y verde pino, letras doradas, y un
-   copo de nieve en cada punta (sueltos: el texto no se corre) */
+/* La franja de arriba: azul noche con un filo de oro abajo, letras
+   champán, y un destello en cada punta (sueltos: el texto no se corre) */
 html.navidad .banner-top {
   position: relative;
-  background: linear-gradient(90deg, rgba(14,40,72,.92), rgba(14,84,58,.86), rgba(14,40,72,.92));
-  color: var(--oro-claro);
-  border-color: rgba(255,232,165,.25);
+  background: linear-gradient(90deg, rgba(10,26,48,.94), rgba(20,40,70,.9) 50%, rgba(10,26,48,.94));
+  color: #f6e3b4;
+  border-color: rgba(255,232,165,.22);
 }
 html.navidad .banner-top::before {
   content: '';
   position: absolute;
-  inset: 0 16px;
+  inset: 0 14px;
   background:
-    url('adornos/copo.svg') left center / 14px 14px no-repeat,
-    url('adornos/copo.svg') right center / 14px 14px no-repeat;
-  opacity: .85;
+    url('adornos/destello.svg') left center / 13px 13px no-repeat,
+    url('adornos/destello.svg') right center / 13px 13px no-repeat,
+    /* El filo de oro, finito, a lo largo del canto de abajo */
+    linear-gradient(90deg, transparent, rgba(255,214,120,.55) 25%, rgba(255,240,200,.8) 50%,
+                    rgba(255,214,120,.55) 75%, transparent) center bottom / 100% 1px no-repeat;
   pointer-events: none;
 }
 
 /* El título de las ofertas dice "OFERTAS NAVIDEÑAS" (data-navidad en
-   index.html) y lleva un regalo pegado al final, suelto */
-html.navidad .ofertas-title { position: relative; }
+   index.html), en letras de oro laminado con un reflejo que lo recorre
+   cada tanto, y una esfera dorada que cuelga al final, suelta. El
+   degradé va recortado a las letras: mismo tamaño, mismo lugar. */
+html.navidad .ofertas-title {
+  position: relative;
+  background: linear-gradient(100deg, #c8912e 0%, #ffd36b 30%, #fff3cf 46%, #ffe29a 54%, #d9a23a 72%, #ffd36b 100%)
+              0 0 / 260% 100%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 10px rgba(255,200,90,.22));
+  animation: nv-oro 7s ease-in-out infinite;
+}
+@keyframes nv-oro {
+  0%, 30%  { background-position: 100% 0; }
+  70%, 100% { background-position: 0 0; }
+}
 html.navidad .ofertas-title::after {
   content: '';
   position: absolute;
-  left: calc(100% + .32em);
-  top: 50%;
-  width: 1.05em;
-  height: 1.05em;
-  transform: translateY(-58%) rotate(-8deg);
-  background: url('adornos/regalo.svg') center / contain no-repeat;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,.4));
+  left: calc(100% + .28em);
+  top: -.32em;
+  width: .78em;
+  height: 1.04em;
+  background: url('adornos/esfera.svg') center top / contain no-repeat;
+  transform-origin: 50% 0;
+  animation: nv-esfera 5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,.4));
   pointer-events: none;
 }
+/* Se mece apenas, como recién colgada */
+@keyframes nv-esfera {
+  from { transform: rotate(-5deg); }
+  to   { transform: rotate(5deg); }
+}
 /* En los celulares más angostos "Plataformas con descuento" queda pegado
-   al título: ahí el regalo no va */
+   al título: ahí la esfera no va */
 @media (max-width: 379px) {
   html.navidad .ofertas-title::after { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.navidad :is(.nav-marca, .nav-logo, .header-logo, .pie-logo, .pay-header a, header a.logo)::after,
+  html.navidad .ofertas-title,
+  html.navidad .ofertas-title::after { animation: none; }
 }
 
 /* La nieve y las luces de las barras de arriba (y la nieve de la barra
@@ -315,19 +364,38 @@ html.navidad .ofertas-title::after {
   overflow: visible;
   pointer-events: none;
 }
-.nv-barra .nv-tope  { top: -5px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
+/* La nieve del canto, fina como escarcha: la mitad de alto y en marfil
+   (se achica desde arriba, sigue apoyada en el mismo canto) */
+.nv-barra .nv-tope  {
+  top: -4px;
+  transform: scaleY(.55);
+  transform-origin: 50% 0;
+  opacity: .82;
+  filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.22));
+}
 .nv-barra .nv-luces { top: calc(100% - 3px); }
-.nv-foco ellipse { filter: drop-shadow(0 0 3px var(--c)) drop-shadow(0 0 7px var(--c)); fill: var(--c); }
+/* La guirnalda de lujo: hilo de oro finito y perlas de luz en cinco
+   tonos de oro (oro, champán, marfil, ámbar y oro rosa), más chicas */
+.nv-barra .nv-luces path { stroke: rgba(222,186,104,.62); stroke-width: .7; }
+.nv-foco rect { fill: #9a7430; transform: scale(.78); transform-box: fill-box; transform-origin: 50% 0; }
+.nv-foco ellipse {
+  fill: var(--c);
+  transform: scale(.74);
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  filter: drop-shadow(0 0 2px var(--c)) drop-shadow(0 0 6px color-mix(in srgb, var(--c) 70%, transparent));
+}
 .nv-foco.oro   { --c: #ffd36b; }
-.nv-foco.rojo  { --c: #ff5a6e; }
-.nv-foco.verde { --c: #5fe3a1; }
-.nv-foco.azul  { --c: #7cc4ff; }
-.nv-foco.rosa  { --c: #ff9ad5; }
-/* Titilan en tres turnos, para que nunca se apaguen todas juntas */
-.nv-foco { animation: nv-foco 2.6s ease-in-out infinite alternate; }
-.nv-foco.t2 { animation-delay: -.9s; }
-.nv-foco.t3 { animation-delay: -1.8s; }
-@keyframes nv-foco { from { opacity: .5; } to { opacity: 1; } }
+.nv-foco.rojo  { --c: #f6e3b4; }   /* champán */
+.nv-foco.verde { --c: #fff4dc; }   /* marfil */
+.nv-foco.azul  { --c: #ffc46b; }   /* ámbar */
+.nv-foco.rosa  { --c: #f3c7a0; }   /* oro rosa */
+/* Respiran despacio en tres turnos, como velas: nunca se apagan todas
+   juntas y ninguna parpadea */
+.nv-foco { animation: nv-foco 4.2s ease-in-out infinite alternate; }
+.nv-foco.t2 { animation-delay: -1.4s; }
+.nv-foco.t3 { animation-delay: -2.8s; }
+@keyframes nv-foco { from { opacity: .62; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .nv-foco { animation: none; } }
 @media print { .nv-barra { display: none; } }
 
@@ -541,6 +609,24 @@ html.navidad .plat-card:hover {
   box-shadow: 0 18px 38px rgba(0,0,0,.5), 0 0 26px color-mix(in oklab, var(--acento) 35%, transparent),
               inset 0 1px 0 rgba(255,255,255,.12);
 }
+/* El canto de luz del acabado premium (css/premium.css), de noche: un
+   filo de oro champán arriba que baja al color de la marca, en lugar
+   del blanco, que de noche se veía duro */
+html.navidad .plat-card::before {
+  background: linear-gradient(165deg,
+                rgba(255,232,180,.55) 0%,
+                rgba(255,214,140,.16) 34%,
+                color-mix(in srgb, var(--acento) 34%, transparent) 72%,
+                color-mix(in srgb, var(--acento) 14%, transparent) 100%);
+}
+html.navidad .plat-card::after {
+  background: linear-gradient(100deg, transparent 0%, rgba(255,236,190,0) 20%,
+                rgba(255,236,190,.22) 50%, rgba(255,236,190,0) 80%, transparent 100%);
+}
+html.navidad .plat-card:focus-visible {
+  box-shadow: 0 0 0 2px #0a1d36, 0 0 0 4px var(--marca), 0 12px 30px -10px rgba(0,0,0,.5);
+}
+
 /* La foto se funde con la tarjeta de noche, no con blanco */
 html.navidad .plat-img::after {
   background: linear-gradient(to bottom, rgba(12,30,52,0), rgba(12,30,52,.6) 55%, rgb(12,30,52));

@@ -8,14 +8,14 @@ de la tienda. Se prende solo el **4 de noviembre** y se apaga solo después del
 
 | Adorno | Dónde |
 |---|---|
-| Noche de invierno: azul profundo, aurora verde y celeste, estrellas | Fondo de todas las páginas |
+| Noche dorada: azul profundo, aurora champán y azul hielo, estrellas | Fondo de todas las páginas |
 | Estrella de Belén que late | Arriba a la derecha del cielo |
-| Nieve que cae (menos copos en el celular) | Detrás del contenido |
+| Nieve que cae, con polvo de oro y copos dorados (menos en el celular) | Detrás del contenido |
 | El pueblo nevado: montañas, pinos, casitas con luz, iglesia y el árbol con luces | Abajo de todo, detrás del contenido |
-| Nieve sobre el canto de las barras y guirnalda de luces que titila | Menú de arriba de cada página (y nieve en la barra de abajo) |
-| Gorro de Papá Noel sobre la T | Logo del menú, del pago, de Mis compras y del pie |
-| Copos en las puntas | Franja de arriba |
-| "OFERTAS NAVIDEÑAS" con un regalo | Título de las ofertas (index.html, `data-navidad`) |
+| Escarcha fina sobre el canto de las barras y guirnalda de perlas de luz en tonos de oro, que respiran despacio | Menú de arriba de cada página (y nieve en la barra de abajo) |
+| Destello dorado de cuatro puntas que titila | Logo del menú, del pago, de Mis compras y del pie |
+| Destellos en las puntas y un filo de oro abajo | Franja de arriba |
+| "OFERTAS NAVIDEÑAS" en oro laminado con reflejo, y una esfera dorada que cuelga | Título de las ofertas (index.html, `data-navidad`) |
 | Dorado de las luces como color de la marca, verde pino de acento | Botones, pestañas, precios, descuentos ("Navidad -7 %") |
 
 La caja del QR del pago sigue blanca a propósito: el banco lee mejor el código.
@@ -27,7 +27,7 @@ La caja del QR del pago sigue blanca a propósito: el banco lee mejor el código
 - `navidad.js`: lo que se mueve (el cielo, la nieve, las luces de las barras).
   Lo pide `js/temporada.js` solo en fecha; fuera de fecha no se descarga.
 - `fondos/pueblo-nevado.svg`: el pueblo de abajo.
-- `adornos/`: el gorro, el regalo, el copo y la estrella.
+- `adornos/`: el destello, la esfera, el copo y la estrella.
 
 ## Sin mover nada
 

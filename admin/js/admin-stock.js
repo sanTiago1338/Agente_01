@@ -95,7 +95,7 @@ css.textContent = `
     flex: none;
   }
   .st-pill.libre  { background: rgba(21,128,61,.11);  color: #15803d; }
-  .st-pill.cero   { background: rgba(220,38,38,.10);  color: #dc2626; }
+  .st-pill.cero   { background: rgba(219,39,119,.10);  color: #db2777; }
   .st-pill.dadas  { background: var(--panel-2);        color: var(--gris); }
 
   .st-flecha { color: var(--gris-dim); font-size: 13px; flex: none; transition: transform .15s; }
@@ -160,7 +160,7 @@ css.textContent = `
   }
   .st-mini:hover { border-color: var(--acento); color: var(--acento); }
   .st-mini[data-anular]:hover { border-color: var(--error); color: var(--error); }
-  .st-mini.seguro, .st-mini.seguro:hover { background: #dc2626; border-color: #dc2626; color: #fff; }
+  .st-mini.seguro, .st-mini.seguro:hover { background: #db2777; border-color: #db2777; color: #fff; }
 
   .st-vacio { padding: 46px 20px; text-align: center; color: var(--gris-dim); }
   .st-vacio .emo { font-size: 40px; margin-bottom: 10px; }
@@ -225,11 +225,11 @@ css.textContent = `
     font-family: ui-monospace, Consolas, monospace;
     max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .st-previa tr.mala td { background: rgba(220,38,38,.06); color: #dc2626; }
+  .st-previa tr.mala td { background: rgba(219,39,119,.06); color: #db2777; }
 
   .st-resumen-previa { font-size: 13px; margin-top: 9px; font-weight: 600; }
   .st-resumen-previa .bien { color: #15803d; }
-  .st-resumen-previa .mal  { color: #dc2626; }
+  .st-resumen-previa .mal  { color: #db2777; }
 
   /* ---------- Te conviene cargar ----------
      Lo que más se vende y no tiene cuentas: ahí es donde la entrega

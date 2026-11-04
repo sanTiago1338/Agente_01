@@ -58,7 +58,7 @@ css.textContent = `
   }
   .jg-chip.pop  { background:rgba(154,116,0,.12);  color:var(--dorado); }
   .jg-chip.new  { background:rgba(21,128,61,.11);  color:var(--ok); }
-  .jg-chip.off  { background:rgba(220,38,38,.10);  color:var(--error); }
+  .jg-chip.off  { background:rgba(219,39,119,.10);  color:var(--error); }
   .jg-chip.pk   { background:var(--panel-3);              color:var(--gris); }
   .jg-acciones { display:flex; gap:6px; margin-top:auto; }
   .jg-acciones button { flex:1; }

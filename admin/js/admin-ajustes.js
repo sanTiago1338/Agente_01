@@ -61,11 +61,11 @@ css.textContent = `
   }
   .aj-chip::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
   .aj-chip.ok    { background: #ecfdf3; color: #15803d; }
-  .aj-chip.mal   { background: #fef2f2; color: #dc2626; }
+  .aj-chip.mal   { background: #fdf2f8; color: #db2777; }
   .aj-chip.apag  { background: #f3f4f6; color: #6b7280; }
   .aj-chip.ojo   { background: #fffbeb; color: #b45309; }
 
-  .aj-error { margin: 0; padding: 10px 18px; font-size: 13px; color: #991b1b; background: #fef2f2; border-bottom: 1px solid #fecaca; }
+  .aj-error { margin: 0; padding: 10px 18px; font-size: 13px; color: #9d174d; background: #fdf2f8; border-bottom: 1px solid #fbcfe8; }
 
   .aj-lista { list-style: none; margin: 0; padding: 0; }
   .aj-lista li {
@@ -119,7 +119,7 @@ css.textContent = `
   .aj-op .ico { width: 18px; height: 18px; color: var(--tinta-suave); }
   .aj-op span { flex: 1; min-width: 0; }
   .aj-op small { display: block; font-size: 12px; font-weight: 400; color: var(--tinta-suave); }
-  .aj-op.peligro:hover { background: #fef2f2; color: var(--error); }
+  .aj-op.peligro:hover { background: #fdf2f8; color: var(--error); }
   .aj-op.peligro:hover .ico { color: var(--error); }
 
   .aj-vacio { padding: 36px 18px; text-align: center; color: var(--tinta-suave); font-size: 13.5px; }

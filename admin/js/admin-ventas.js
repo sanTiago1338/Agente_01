@@ -104,7 +104,7 @@ function compraDe(p) {
 
 // El orden importa: es el orden en que te tenés que ocupar de las cosas.
 const ESTADOS = {
-  sin_stock:      { txt: 'Sin stock',    color: '#dc2626', bg: 'rgba(220,38,38,.10)' },
+  sin_stock:      { txt: 'Sin stock',    color: '#db2777', bg: 'rgba(219,39,119,.10)' },
   esperando_pago: { txt: 'Esperando',    color: '#b45309', bg: 'rgba(180,83,9,.10)' },
   pagado:         { txt: 'Pagado',       color: '#b45309', bg: 'rgba(180,83,9,.10)' },
   entregado:      { txt: 'Entregado',    color: '#15803d', bg: 'rgba(21,128,61,.10)' },
@@ -152,7 +152,7 @@ css.textContent = `
     align-items: center;
   }
   /* Lo que necesita tu atención se ve distinto sin tener que leerlo */
-  .vt-pedido.urgente { border-color: rgba(220,38,38,.4); background: rgba(220,38,38,.03); }
+  .vt-pedido.urgente { border-color: rgba(219,39,119,.4); background: rgba(219,39,119,.03); }
   .vt-pedido.espera  { border-color: rgba(180,83,9,.35); }
 
   .vt-num {
@@ -412,7 +412,7 @@ css.textContent = `
     text-transform: uppercase; color: var(--gris-dim);
   }
   /* Lo que te pide algo, marcado al costado sin tener que leerlo */
-  .vt-fila.urgente { box-shadow: inset 3px 0 0 #dc2626; background: rgba(220,38,38,.04); }
+  .vt-fila.urgente { box-shadow: inset 3px 0 0 #db2777; background: rgba(219,39,119,.04); }
   .vt-fila.espera  { box-shadow: inset 3px 0 0 #d97706; }
   .vt-f-num {
     font-family: ui-monospace, Consolas, monospace;
@@ -1685,7 +1685,7 @@ function pintarCompra(c) {
       ${cuentas}
 
       ${sinStock.length ? `
-        <div class="vt-cred" style="background:rgba(220,38,38,.06);color:#8f1616;font-family:inherit;">
+        <div class="vt-cred" style="background:rgba(219,39,119,.06);color:#8f1616;font-family:inherit;">
           <span>Pagó y no había cuentas libres${n > 1 ? ` de <strong>${escapar(nombreDeCompra(sinStock))}</strong>` : ''}.
           Cargá stock y tocá <strong>Reintentar</strong>, o resolvelo por WhatsApp.</span>
         </div>` : ''}

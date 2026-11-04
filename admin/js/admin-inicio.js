@@ -30,7 +30,7 @@ const POCO_STOCK = 2;
 
 // Los mismos colores y nombres de estado que usa Ventas
 const ESTADOS = {
-  sin_stock:      { txt: 'Sin stock',  color: '#dc2626', bg: 'rgba(220,38,38,.10)' },
+  sin_stock:      { txt: 'Sin stock',  color: '#db2777', bg: 'rgba(219,39,119,.10)' },
   esperando_pago: { txt: 'Esperando',  color: '#b45309', bg: 'rgba(180,83,9,.10)' },
   pagado:         { txt: 'Pagado',     color: '#b45309', bg: 'rgba(180,83,9,.10)' },
   entregado:      { txt: 'Entregado',  color: '#15803d', bg: 'rgba(21,128,61,.10)' },
@@ -212,7 +212,7 @@ css.textContent = `
     display: inline-block; padding: 3px 9px; border-radius: 99px;
     font-size: 11.5px; font-weight: 700; white-space: nowrap;
   }
-  .ini-pill.cero { background: rgba(220,38,38,.10); color: #b91c1c; }
+  .ini-pill.cero { background: rgba(219,39,119,.10); color: #be185d; }
   .ini-pill.poco { background: rgba(180,83,9,.10);  color: #92400e; }
 
   /* Clientes frecuentes: el nombre arriba y los números abajo, en chico.
@@ -300,7 +300,7 @@ css.textContent = `
   .ini-paso-n { font-size: 18px; font-weight: 800; color: var(--tinta); text-align: right; font-variant-numeric: tabular-nums; }
   .ini-paso-pc { font-size: 12.5px; color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
   .ini-paso-pc b { color: var(--tinta); }
-  .ini-paso-pc.peor b { color: #dc2626; }
+  .ini-paso-pc.peor b { color: #db2777; }
   .ini-embudo-nota { margin: 14px 0 0; font-size: 12.5px; color: var(--tinta-suave); }
   .ini-embudo-nota b { color: var(--tinta); }
 

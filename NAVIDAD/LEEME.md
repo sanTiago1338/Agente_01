@@ -16,7 +16,7 @@ de la tienda. Se prende solo el **4 de noviembre** y se apaga solo después del
 | Destello dorado de cuatro puntas que titila | Logo del menú, del pago, de Mis compras y del pie |
 | Verde pino con destellos en las puntas y un filo de oro abajo | Franja de arriba |
 | "OFERTAS NAVIDEÑAS" en oro laminado con reflejo, y una esfera dorada que cuelga | Título de las ofertas (index.html, `data-navidad`) |
-| Dorado de las luces como color de la marca, verde pino de acento | Botones, pestañas, precios, descuentos ("Navidad -7 %") |
+| La marca sigue en su rosa (botones, pestañas, precios); adornos en oro y verde pino | Cinta verde "Navidad -7 %" en las rebajas |
 
 La caja del QR del pago sigue blanca a propósito: el banco lee mejor el código.
 

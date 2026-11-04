@@ -43,7 +43,7 @@ let abierto  = null;      // el WhatsApp con el detalle abierto
 
 // Los mismos nombres y colores de estado que Ventas e Inicio
 const ESTADOS = {
-  sin_stock:      { txt: 'Sin stock',  color: '#dc2626', bg: '#fef2f2' },
+  sin_stock:      { txt: 'Sin stock',  color: '#db2777', bg: '#fdf2f8' },
   esperando_pago: { txt: 'Esperando',  color: '#b45309', bg: '#fffbeb' },
   pagado:         { txt: 'Pagado',     color: '#b45309', bg: '#fffbeb' },
   entregado:      { txt: 'Entregado',  color: '#15803d', bg: '#ecfdf3' },
@@ -85,7 +85,7 @@ css.textContent = `
   .cl-chip.noreg    { background: #f3f4f6; color: #6b7280; }
   .cl-chip.activa   { background: #ecfdf3; color: #15803d; }
   .cl-chip.porvencer{ background: #fffbeb; color: #b45309; }
-  .cl-chip.vencida  { background: #fef2f2; color: #dc2626; }
+  .cl-chip.vencida  { background: #fdf2f8; color: #db2777; }
   .cl-chip.ninguna  { background: none; color: var(--tinta-tenue); padding-left: 0; }
 
   .cl-acc { white-space: nowrap; text-align: right; }

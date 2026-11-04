@@ -101,7 +101,7 @@
   /* Estados */
   --ok:    #15803d;
   --warn:  #b45309;
-  --error: #dc2626;
+  --error: #db2777;
   --info:  #1d4ed8;
 
   /* El menú lateral */
@@ -546,7 +546,7 @@ body.menu-abierto .lateral {
 }
 .perfil-op:hover { background: var(--superficie-3); color: var(--tinta); }
 .perfil-op .ico { width: 16px; height: 16px; color: var(--tinta-suave); }
-.perfil-op.peligro:hover { background: #fef2f2; color: var(--error); }
+.perfil-op.peligro:hover { background: #fdf2f8; color: var(--error); }
 .perfil-op.peligro:hover .ico { color: var(--error); }
 
 /* ---------- Título de la vista (compu) ---------- */
@@ -663,13 +663,13 @@ body.menu-abierto .lateral {
 .btn-rojo, .btn-primario { background: var(--acento-boton); color: #fff; }
 .btn-rojo:hover:not(:disabled), .btn-primario:hover:not(:disabled) { background: var(--acento-boton-2); }
 .btn-primario.btn-peligro { background: var(--error); }
-.btn-primario.btn-peligro:hover:not(:disabled) { background: #b91c1c; }
+.btn-primario.btn-peligro:hover:not(:disabled) { background: #be185d; }
 .btn-oscuro { background: var(--tinta); color: #fff; }
 .btn-oscuro:hover:not(:disabled) { background: #1f2937; }
 .btn-fantasma { background: var(--capa-campo); color: var(--tinta-media); border-color: var(--separador-2); }
 .btn-fantasma:hover:not(:disabled) { background: var(--superficie-2); color: var(--tinta); }
-.btn-peligro { background: rgba(255,255,255,.86); color: var(--error); border-color: #fecaca; }
-.btn-peligro:hover:not(:disabled) { background: #fef2f2; }
+.btn-peligro { background: rgba(255,255,255,.86); color: var(--error); border-color: #fbcfe8; }
+.btn-peligro:hover:not(:disabled) { background: #fdf2f8; }
 .btn-icono {
   padding: 6px 9px;
   background: var(--capa-campo);
@@ -896,7 +896,7 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
   background: #fff;
 }
 .precio-edicion input:focus { outline: none; border-color: var(--info); box-shadow: 0 0 0 3px rgba(29,78,216,.12); }
-.precio-edicion input.malo { border-color: var(--error); box-shadow: 0 0 0 3px rgba(220,38,38,.12); }
+.precio-edicion input.malo { border-color: var(--error); box-shadow: 0 0 0 3px rgba(219,39,119,.12); }
 .pe-botones { display: flex; gap: 6px; }
 .pe-botones button {
   flex: 1;
@@ -1017,7 +1017,7 @@ tbody tr.inactivo .celda-precio { opacity: .48; }
 }
 .tag + .tag { margin-left: 4px; }
 .tag-ok        { background: #ecfdf3; color: var(--ok); }
-.tag-agotado   { background: #fef2f2; color: var(--error); }
+.tag-agotado   { background: #fdf2f8; color: var(--error); }
 .tag-oferta    { background: #fdf2f8; color: var(--marca-texto); }
 .tag-destacado { background: #fefce8; color: var(--oro); }
 .tag-cat       { background: var(--superficie-3); color: var(--tinta-media); font-weight: 500; }
@@ -1174,7 +1174,7 @@ body :is(.ini-cifra, .ini-caja, .vt-pedido, .vt-tabla, .st-prod, .st-sugerir, .j
   border-radius: var(--radio);
   box-shadow: var(--sombra);
 }
-body .vt-pedido.urgente { border-color: #fecaca; background: rgba(255,245,245,.8); }
+body .vt-pedido.urgente { border-color: #fbcfe8; background: rgba(253,242,248,.8); }
 
 /* Las ventanas, como la del carrito de la tienda: lo de atrás bien
    esmerilado y la hoja de vidrio claro */
@@ -1408,7 +1408,7 @@ body.pagina-acceso {
   line-height: 1.5;
 }
 .acceso .mensaje.visible { display: block; }
-.acceso .mensaje.error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+.acceso .mensaje.error { background: #fdf2f8; border: 1px solid #fbcfe8; color: #9d174d; }
 .acceso .mensaje.ok    { background: #ecfdf3; border: 1px solid #bbf7d0; color: #166534; }
 
 .acceso-enlaces {

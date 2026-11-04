@@ -2,8 +2,8 @@
    TIAGO STORE · NAVIDAD (tema de temporada)
    ============================================================
    "Mañana nevada": la tienda clara de siempre, con un cielo celeste de
-   invierno, nieve que cae, el pueblo nevado de día abajo, oro como color
-   de la marca y verde pino de acento. El vidrio sigue siendo el vidrio
+   invierno, nieve que cae, el pueblo nevado de día abajo, y adornos en
+   oro y verde pino. La marca sigue en su rosa. El vidrio sigue siendo el vidrio
    claro de la tienda: blanco, con su canto y su brillo.
 
    Lo prende js/temporada.js del 4 de noviembre al 6 de enero (pone la
@@ -20,36 +20,20 @@
    Lo que se mueve (nieve, luces, estrella) lo arma NAVIDAD/navidad.js.
 
    Orden:
-     1. los tonos (el oro de la marca)
+     1. los tonos (la marca queda en su rosa)
      2. el cielo (fondo, aurora, estrella, pueblo, nieve)
      3. la marca y los adornos (destello, franja, esfera, nieve y luces
         de las barras)
-     4. los botones y las piezas en oro de cada página
+     4. las cintas navideñas (verde pino)
    ============================================================ */
 
 html.navidad {
-  /* Marca: oro. Relleno dorado con letras oscuras; para letras sobre
-     blanco, un oro viejo que se lee bien (--marca-texto, --oro). */
-  --marca:        #e0a72e;
-  --marca-oscura: #b47c12;
-  --marca-rgb:    224,167,46;
-  --marca-texto:  #946200;
-  --marca-tinta:  #2b1b00;
-  --oro:          #946200;
-  --oro-claro:    #a87510;
-  --ambar:        #c98a12;
-  --violeta:      #1f8a5c;
-
-  /* La lente del vidrio (pestaña elegida, botón de la barra de abajo):
-     blanca arriba y con un toque de oro abajo, en lugar del rosa */
-  --vidrio-lente:  radial-gradient(120% 90% at 50% 0%, #fff 0%, rgba(255,232,180,.42) 55%,
-                                   rgba(245,196,81,.16) 100%);
-  /* Los botones de Juegos (fucsia el resto del año): verde pino */
-  --vidrio-fucsia: var(--vidrio-reflejo), linear-gradient(180deg, rgba(52,170,118,.92), rgba(20,112,76,.88));
-  /* El borde tornasolado de la lente: oro, marfil, hielo y pino */
+  /* La marca sigue siendo el rosa de siempre (botones, pestañas, precios,
+     el logo): la Navidad va en los adornos, en oro, verde pino y nieve.
+     Solo el borde tornasolado de la lente pasa a rosa, marfil, hielo y oro. */
   --vidrio-tornasol: conic-gradient(from 210deg,
-                       rgba(224,167,46,.9), rgba(255,244,214,.9), rgba(150,195,240,.85),
-                       rgba(52,170,118,.8), rgba(224,167,46,.9));
+                       rgba(244,114,182,.9), rgba(255,244,214,.9), rgba(150,195,240,.85),
+                       rgba(240,180,41,.8), rgba(244,114,182,.9));
 }
 
 
@@ -365,107 +349,10 @@ html.navidad .ofertas-title::after {
 
 
 /* ============================================================
-   4. LOS BOTONES Y LAS PIEZAS EN ORO
+   4. LOS DETALLES NAVIDEÑOS DE LA TIENDA
    ============================================================
-   Lo demás es la tienda clara de siempre. Solo los botones principales,
-   los números de los pasos y algunas etiquetas pasan a oro: relleno
-   dorado con letras oscuras, como una cinta de regalo. */
-
-/* Botones principales (Comprar, Pagar, Recargar ahora, Ir a la tienda,
-   la página elegida) */
-html.navidad .plan-comprar, html.navidad .plan-comprar:hover,
-html.navidad .ck-pagar, html.navidad .ck-pagar:hover,
-html.navidad .btn-primary, html.navidad .btn-primary:hover,
-html.navidad .btn-tienda,
-html.navidad .hero-cta, html.navidad .hero-cta:hover,
-html.navidad .page-btn:hover, html.navidad .page-btn.active {
-  border: 1px solid rgba(190,130,20,.45);
-}
-html.navidad .plan-comprar, html.navidad .plan-comprar:hover,
-html.navidad .ck-pagar, html.navidad .ck-pagar:hover,
-html.navidad .btn-primary, html.navidad .btn-primary:hover,
-html.navidad .btn-tienda,
-html.navidad .hero-cta, html.navidad .hero-cta:hover,
-html.navidad .page-btn:hover, html.navidad .page-btn.active,
-/* Estos solo cambian el color del borde: el ancho queda el de siempre */
-html.navidad .tu-ok,
-html.navidad .pp-btn-primario,
-html.navidad .mc-btn.primario,
-html.navidad .mc-filtro[aria-pressed="true"] {
-  background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,0) 55%),
-              linear-gradient(180deg, #ffd978, #e5a422);
-  border-color: rgba(190,130,20,.45);
-  color: #2b1b00;
-  box-shadow: 0 6px 18px rgba(214,150,20,.28), 0 1px 2px rgba(120,80,0,.2),
-              inset 0 1px 0 rgba(255,255,255,.6), inset 0 -2px 5px rgba(150,90,0,.18);
-}
-html.navidad .plan-comprar:hover:not(:disabled),
-html.navidad .ck-pagar:hover:not(:disabled),
-html.navidad .btn-primary:hover,
-html.navidad .btn-tienda:hover,
-html.navidad .hero-cta:hover,
-html.navidad .tu-ok:hover,
-html.navidad .pp-btn-primario:hover,
-html.navidad .mc-btn.primario:hover {
-  background: linear-gradient(180deg, rgba(255,255,255,.38), rgba(255,255,255,0) 55%),
-              linear-gradient(180deg, #ffe390, #eeb036);
-}
-html.navidad .plan-comprar:disabled,
-html.navidad .ck-pagar:disabled {
-  background: var(--vidrio);
-  border: 1px solid var(--vidrio-borde);
-  color: var(--tinta-suave);
-  box-shadow: 0 2px 10px rgba(20,22,26,.08), var(--vidrio-brillo);
-}
-html.navidad .mc-filtro[aria-pressed="true"] b { background: rgba(43,27,0,.12); color: #2b1b00; }
-
-/* Los botones de Juegos y de comprar recargas: verde pino */
-html.navidad .btn-comprar,
-html.navidad .pkg-tab.active { box-shadow: 0 8px 20px rgba(20,112,76,.25), var(--vidrio-canto-color); }
-
-/* Los números de los pasos (carrito, pago, Contacto, Mis compras, la
-   ficha del plan) */
-html.navidad .cr-pasos li.hecho span,
-html.navidad .cr-pasos li.actual span,
-html.navidad .paso-num,
-html.navidad .step-num,
-html.navidad .fi-pasos li::before,
-html.navidad .mc-paso.hecho .mc-punto {
-  color: #2b1b00;
-  background: linear-gradient(180deg, #ffd978, #e5a422);
-  border-color: rgba(190,130,20,.45);
-  box-shadow: 0 3px 10px rgba(214,150,20,.25), inset 0 1px 0 rgba(255,255,255,.55);
-}
-html.navidad .mc-paso.hecho::before,
-html.navidad .mc-paso.actual::before { background: linear-gradient(90deg, #ffd978, #e5a422); }
-html.navidad .mc-paso.actual .mc-punto { color: #946200; border-color: #e0a72e; box-shadow: 0 0 0 5px rgba(224,167,46,.16); }
-html.navidad .fi-otro-ver { color: #2b1b00; background: linear-gradient(180deg, #ffd978, #e5a422); }
-html.navidad .fi-otro--agotado .fi-otro-ver { color: var(--tinta-suave); background: var(--separador-2); }
-
-/* Las píldoras de subcategoría elegidas: oro claro */
-html.navidad .sub-pill:hover,
-html.navidad .sub-pill.active {
-  background: linear-gradient(180deg, rgba(255,248,228,.75), rgba(255,228,168,.42));
-  border-color: rgba(var(--marca-rgb),.45);
-  color: var(--marca-texto);
-  box-shadow: 0 2px 8px rgba(var(--marca-rgb),.18), inset 0 1px 0 rgba(255,255,255,.9);
-}
-
-/* El plan destacado de Planes, con su canto de oro */
-html.navidad .plan-card.featured { border-color: rgba(var(--marca-rgb),.55); box-shadow: 0 0 30px rgba(var(--marca-rgb),.18); }
-
-/* El paquete elegido en Recargas */
-html.navidad .pkg-card.selected {
-  background: linear-gradient(150deg, rgba(255,236,190,.7), rgba(240,196,100,.32));
-  box-shadow: 0 8px 22px rgba(214,150,20,.22), inset 0 1px 0 rgba(255,255,255,.7), 0 0 0 1px var(--marca);
-}
-
-/* La etiqueta dorada de los productos */
-html.navidad .etiqueta-vidrio-oro {
-  color: #2b1b00;
-  background: linear-gradient(180deg, #ffd978, #e5a422);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 10px rgba(214,150,20,.25);
-}
+   Los botones, las pestañas y los precios quedan en el rosa de la
+   tienda. Lo navideño son estas cintas en verde pino. */
 
 /* La rebaja de cada plan, en la ficha y en el carrito, dice "Navidad
    -7 %" en una cinta verde pino */
@@ -479,10 +366,6 @@ html.navidad .plan-desc {
   box-shadow: 0 3px 10px rgba(21,122,74,.25);
 }
 html.navidad .plan-desc::before { content: 'Navidad '; }
-
-/* La palabra de color del carrusel de arriba ("FREE FIRE") va sobre una
-   foto oscura: ahí el oro viejo no se leía, va oro claro */
-html.navidad .hero-title span { color: #f4c95d; }
 
 /* La etiqueta "New" del carrusel de arriba: verde pino */
 html.navidad .hero-tag--new {

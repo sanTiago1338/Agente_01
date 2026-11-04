@@ -17,7 +17,7 @@
 // cambia los textos ("Ofertas del momento" pasa a "Ofertas navideñas").
 //
 // Va en el <head> sin defer, antes de tenido.js: así la página ya sale
-// de noche desde el primer cuadro, sin un destello blanco.
+// con su tema desde el primer cuadro, sin un salto de colores.
 //
 // Para verlo fuera de fecha, o apagarlo para comparar, en la URL:
 //   ?tema=navidad · ?tema=normal · ?tema=auto (vuelve a las fechas)
@@ -28,7 +28,7 @@
   // cliente. "color" es el de la barra del navegador en el celular.
   // Si "hasta" es menor que "desde", cruza el año (Navidad termina en enero).
   const TEMPORADAS = [
-    { tema: 'navidad',   desde: '11-04', hasta: '01-06', color: '#071425' }
+    { tema: 'navidad',   desde: '11-04', hasta: '01-06', color: '#e9f1f9' }
   ];
   const LLAVE = 'tiago-tema';
   const raiz  = document.documentElement;

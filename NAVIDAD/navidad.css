@@ -1,11 +1,10 @@
 /* ============================================================
    TIAGO STORE · NAVIDAD (tema de temporada)
    ============================================================
-   La tienda en una noche de invierno: cielo azul de noche con una
-   aurora suave, la estrella de Belén, nieve que cae, el pueblo nevado
-   abajo, el dorado de las luces como color de la marca y el verde pino
-   de acento. El vidrio pasa a ser vidrio de noche: oscuro, con el mismo
-   canto y el mismo brillo de siempre.
+   "Mañana nevada": la tienda clara de siempre, con un cielo celeste de
+   invierno, nieve que cae, el pueblo nevado de día abajo, oro como color
+   de la marca y verde pino de acento. El vidrio sigue siendo el vidrio
+   claro de la tienda: blanco, con su canto y su brillo.
 
    Lo prende js/temporada.js del 4 de noviembre al 6 de enero (pone la
    clase "navidad" en <html>). Todo lo de este archivo empieza con
@@ -13,81 +12,44 @@
    queda como siempre. Va DESPUÉS de css/vidrio.css en cada página.
 
    SIN MOVER NADA: ningún adorno ocupa lugar. El destello del logo,
-   la esfera del título, los destellos de la franja, la nieve y las luces de
-   las barras van sueltos (position: absolute) encima o debajo de lo que
-   ya estaba; el cielo va detrás de todo (position: fixed, z-index -1).
-   Medido: con y sin este archivo, todo queda en el mismo píxel.
+   la esfera del título, los destellos de la franja, la nieve y las luces
+   de las barras van sueltos (position: absolute) encima o debajo de lo
+   que ya estaba; el cielo va detrás de todo (position: fixed, z-index
+   -1). Medido: con y sin este archivo, todo queda en el mismo píxel.
 
    Lo que se mueve (nieve, luces, estrella) lo arma NAVIDAD/navidad.js.
 
    Orden:
-     1. los tonos (pisan los de cada página y los del vidrio)
+     1. los tonos (el oro de la marca)
      2. el cielo (fondo, aurora, estrella, pueblo, nieve)
      3. la marca y los adornos (destello, franja, esfera, nieve y luces
         de las barras)
-     4. en adelante, las piezas de cada página, en su bloque
+     4. los botones y las piezas en oro de cada página
    ============================================================ */
 
 html.navidad {
-  color-scheme: dark;
-
-  /* Superficies: azul de noche de invierno. Las "sólidas" son casi
-     opacas para que el texto se lea aunque caiga nieve por detrás. */
-  --fondo:        #071425;
-  --superficie:   rgba(14,32,54,.86);
-  --superficie-2: rgba(22,46,76,.82);
-  --separador:    rgba(255,255,255,.08);
-  --separador-2:  rgba(255,255,255,.14);
-
-  /* Texto: blanco nieve, y celeste hielo para lo secundario */
-  --tinta:        #fbf8f0;
-  --tinta-media:  #dde8f3;
-  --tinta-suave:  #a9bdd2;
-  --tinta-tenue:  #8ea5bd;
-
-  /* Marca: el dorado de las luces (letras oscuras encima) */
-  --marca:        #f5c451;
-  --marca-oscura: #dc9e22;
-  --marca-rgb:    245,196,81;
-  --marca-texto:  #ffd36b;
+  /* Marca: oro. Relleno dorado con letras oscuras; para letras sobre
+     blanco, un oro viejo que se lee bien (--marca-texto, --oro). */
+  --marca:        #e0a72e;
+  --marca-oscura: #b47c12;
+  --marca-rgb:    224,167,46;
+  --marca-texto:  #946200;
   --marca-tinta:  #2b1b00;
-  --oro:          #ffd36b;
-  --oro-claro:    #ffe29a;
-  --ambar:        #ffcf5c;
-  --violeta:      #5fd39a;
+  --oro:          #946200;
+  --oro-claro:    #a87510;
+  --ambar:        #c98a12;
+  --violeta:      #1f8a5c;
 
-  --borde:        rgba(255,255,255,.09);
-  --sombra:       0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.32);
-  --sombra-alta:  0 4px 10px rgba(0,0,0,.45), 0 18px 40px rgba(0,0,0,.5);
-
-  /* EL VIDRIO DE NOCHE. Sigue a --tenido igual que el claro (js/tenido.js):
-     transparente deja ver el cielo; teñido lo tapa más. */
-  --vidrio:        linear-gradient(180deg, rgba(28,56,92, calc(.5 + .36 * var(--tenido))),
-                                           rgba(9,22,40, calc(.42 + .46 * var(--tenido))));
-  --vidrio-claro:  linear-gradient(180deg, rgba(28,56,92, calc(.34 + .46 * var(--tenido))),
-                                           rgba(9,22,40, calc(.3 + .54 * var(--tenido))));
-  --vidrio-denso:  linear-gradient(180deg, rgba(24,48,80, calc(.82 + .12 * var(--tenido))),
-                                           rgba(8,20,36, calc(.84 + .12 * var(--tenido))));
-  --vidrio-transparente: linear-gradient(180deg, rgba(20,42,70, calc(.28 + .5 * var(--tenido))),
-                                                 rgba(7,17,30, calc(.16 + .66 * var(--tenido))));
-  --vidrio-tinte:  rgba(8,19,34, calc(.86 * var(--tenido)));
-  --vidrio-lente:  radial-gradient(120% 90% at 50% 0%, rgba(255,214,120,.42) 0%,
-                                   rgba(245,196,81,.16) 55%, rgba(245,196,81,.05) 100%);
-  --vidrio-borde:  rgba(200,225,255,.16);
-  --vidrio-blur:   blur(calc(6px + 16px * var(--tenido))) saturate(140%);
-  --vidrio-blur-barra: blur(calc(10px + 14px * var(--tenido))) saturate(140%) brightness(.82);
-  --vidrio-reflejo: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,0) 55%);
+  /* La lente del vidrio (pestaña elegida, botón de la barra de abajo):
+     blanca arriba y con un toque de oro abajo, en lugar del rosa */
+  --vidrio-lente:  radial-gradient(120% 90% at 50% 0%, #fff 0%, rgba(255,232,180,.42) 55%,
+                                   rgba(245,196,81,.16) 100%);
   /* Los botones de Juegos (fucsia el resto del año): verde pino */
-  --vidrio-fucsia:  var(--vidrio-reflejo), linear-gradient(180deg, rgba(52,190,130,.9), rgba(20,120,82,.86));
-  --vidrio-canto-color: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -2px 6px rgba(0,0,0,.25),
-                        inset 0 0 0 1px rgba(255,255,255,.08);
-  --vidrio-brillo: inset 0 1px 0 rgba(255,255,255,.1), inset 0 -1px 1px rgba(0,0,0,.25);
-  --vidrio-sombra: 0 10px 30px rgba(0,0,0,.38), 0 1px 3px rgba(0,0,0,.3),
-                   0 0 0 .5px rgba(255,255,255,.05);
-  /* El borde tornasolado de la lente: dorado, nieve, hielo y pino */
+  --vidrio-fucsia: var(--vidrio-reflejo), linear-gradient(180deg, rgba(52,170,118,.92), rgba(20,112,76,.88));
+  /* El borde tornasolado de la lente: oro, marfil, hielo y pino */
   --vidrio-tornasol: conic-gradient(from 210deg,
-                       rgba(245,196,81,.9), rgba(255,244,214,.85), rgba(120,200,255,.85),
-                       rgba(60,207,130,.8), rgba(245,196,81,.9));
+                       rgba(224,167,46,.9), rgba(255,244,214,.9), rgba(150,195,240,.85),
+                       rgba(52,170,118,.8), rgba(224,167,46,.9));
 }
 
 
@@ -95,26 +57,26 @@ html.navidad {
    2. EL CIELO
    ============================================================
    La capa de atrás que ya tenían todas las páginas (body::before, la de
-   las manchas de color) pasa a ser la noche: azul profundo, la aurora
-   verde y celeste arriba, el resplandor de la estrella arriba a la
-   derecha y la luz tibia del pueblo abajo. Lo que va encima (estrellas,
-   aurora que se mueve, la estrella, el pueblo y la nieve) lo arma
+   las manchas de color) pasa a ser una mañana de invierno: celeste
+   arriba, blanco nieve al medio y un marfil tibio abajo, con el
+   resplandor dorado de la estrella arriba a la derecha. Lo que va
+   encima (brillos, aurora, la estrella, el pueblo y la nieve) lo arma
    NAVIDAD/navidad.js en .nv-cielo. */
-html.navidad body { background-color: var(--fondo); color: var(--tinta-media); }
+html.navidad body { background-color: #f3f7fc; }
 
 html.navidad body::before {
   background:
-    /* El resplandor de la estrella de Belén */
-    radial-gradient(circle at 84% 9%, rgba(255,236,170,.16) 0, rgba(255,220,140,.06) 90px, transparent 180px),
-    /* La aurora, champán y azul hielo */
-    radial-gradient(60rem 26rem at 16% -6%, rgba(255,210,140,.09), transparent 70%),
-    radial-gradient(50rem 22rem at 72% -4%, rgba(90,140,255,.15), transparent 70%),
-    /* La luz tibia de las ventanas del pueblo */
-    radial-gradient(70rem 24rem at 50% 112%, rgba(255,210,130,.12), transparent 70%),
-    linear-gradient(180deg, #0a1d36 0%, #071425 55%, #0b1e33 100%);
+    /* El resplandor dorado de la estrella de Belén */
+    radial-gradient(circle at 84% 9%, rgba(255,214,120,.38) 0, rgba(255,214,120,.12) 90px, transparent 200px),
+    /* El cielo celeste y un velo champán */
+    radial-gradient(60rem 26rem at 16% -6%, rgba(168,204,240,.6), transparent 70%),
+    radial-gradient(50rem 22rem at 72% -4%, rgba(255,230,186,.5), transparent 70%),
+    /* La luz tibia de abajo, sobre la nieve */
+    radial-gradient(70rem 24rem at 50% 112%, rgba(255,238,206,.6), transparent 70%),
+    linear-gradient(180deg, #e3eefa 0%, #f1f6fc 38%, #fbfcfe 68%, #fff9f0 100%);
 }
 
-/* Las burbujas claras no van de noche (y así hay menos que mover) */
+/* Las burbujas rosadas no van en Navidad (y así hay menos que mover) */
 html.navidad .bg-burbujas { display: none; }
 
 .nv-cielo {
@@ -126,39 +88,36 @@ html.navidad .bg-burbujas { display: none; }
   contain: strict;
 }
 
-/* Estrellas: un mosaico de puntitos que titila apenas */
+/* Brillitos dorados en el aire, que titilan apenas */
 .nv-estrellas {
   position: absolute;
   inset: 0 0 40%;
   background-image:
-    radial-gradient(1.2px 1.2px at 12% 18%, rgba(255,255,255,.9), transparent),
-    radial-gradient(1px 1px at 34% 8%,   rgba(255,255,255,.7), transparent),
-    radial-gradient(1.4px 1.4px at 58% 26%, rgba(255,248,220,.85), transparent),
-    radial-gradient(1px 1px at 76% 14%,  rgba(255,255,255,.6), transparent),
-    radial-gradient(1.2px 1.2px at 92% 36%, rgba(220,235,255,.75), transparent),
-    radial-gradient(1px 1px at 22% 44%,  rgba(255,255,255,.55), transparent),
-    radial-gradient(1px 1px at 48% 52%,  rgba(255,255,255,.5), transparent),
-    radial-gradient(1.3px 1.3px at 66% 62%, rgba(255,240,210,.6), transparent),
-    radial-gradient(1px 1px at 6% 70%,   rgba(255,255,255,.45), transparent);
+    radial-gradient(1.4px 1.4px at 12% 18%, rgba(214,160,50,.7), transparent),
+    radial-gradient(1px 1px at 34% 8%,     rgba(214,160,50,.5), transparent),
+    radial-gradient(1.6px 1.6px at 58% 26%, rgba(230,180,70,.65), transparent),
+    radial-gradient(1px 1px at 76% 14%,    rgba(214,160,50,.45), transparent),
+    radial-gradient(1.4px 1.4px at 92% 36%, rgba(150,185,225,.7), transparent),
+    radial-gradient(1px 1px at 22% 44%,    rgba(214,160,50,.4), transparent),
+    radial-gradient(1.3px 1.3px at 66% 62%, rgba(230,180,70,.45), transparent);
   background-size: 420px 300px;
   -webkit-mask-image: linear-gradient(180deg, #000 40%, transparent);
           mask-image: linear-gradient(180deg, #000 40%, transparent);
   animation: nv-titila-cielo 6s ease-in-out infinite alternate;
 }
-@keyframes nv-titila-cielo { from { opacity: .55; } to { opacity: 1; } }
+@keyframes nv-titila-cielo { from { opacity: .5; } to { opacity: 1; } }
 
-/* La aurora: un velo verde y celeste que ondula muy despacio */
+/* La aurora de día: un velo celeste y champán que ondula muy despacio */
 .nv-aurora {
   position: absolute;
   top: -12vh;
   left: -20%;
   width: 140%;
   height: 46vh;
-  /* Un velo de champán y azul hielo: más fino que el verde de antes */
   background:
-    radial-gradient(40% 55% at 30% 60%, rgba(255,214,140,.1), transparent 70%),
-    radial-gradient(35% 50% at 62% 50%, rgba(110,160,255,.13), transparent 70%),
-    radial-gradient(30% 45% at 85% 64%, rgba(255,226,170,.07), transparent 70%);
+    radial-gradient(40% 55% at 30% 60%, rgba(255,226,170,.32), transparent 70%),
+    radial-gradient(35% 50% at 62% 50%, rgba(160,200,245,.34), transparent 70%),
+    radial-gradient(30% 45% at 85% 64%, rgba(255,236,200,.28), transparent 70%);
   animation: nv-aurora 28s ease-in-out infinite alternate;
   will-change: transform;
 }
@@ -175,30 +134,32 @@ html.navidad .bg-burbujas { display: none; }
   width: clamp(34px, 4vw, 54px);
   aspect-ratio: 1;
   background: url('adornos/estrella.svg') center / contain no-repeat;
+  filter: drop-shadow(0 0 1px rgba(150,100,10,.45)) drop-shadow(0 0 8px rgba(255,200,90,.55));
   animation: nv-belen 4.5s ease-in-out infinite alternate;
 }
 @keyframes nv-belen {
-  from { transform: scale(.88) rotate(-4deg); opacity: .75; }
+  from { transform: scale(.88) rotate(-4deg); opacity: .8; }
   to   { transform: scale(1.06) rotate(4deg); opacity: 1; }
 }
 
-/* El pueblo nevado de noche, abajo de todo (fondos/pueblo-nevado.svg) */
+/* El pueblo nevado de día, abajo de todo (fondos/pueblo-de-dia.svg) */
 .nv-pueblo {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   height: clamp(190px, 22vw, 330px);
-  background: url('fondos/pueblo-nevado.svg') center bottom / cover no-repeat;
-  /* La nieve va en azul de luna y el cielo se funde arriba: los títulos
-     y precios que pasan por delante se siguen leyendo */
-  opacity: .9;
+  background: url('fondos/pueblo-de-dia.svg') center bottom / cover no-repeat;
+  /* El cielo se funde arriba: los títulos y precios que pasan por
+     delante se siguen leyendo */
+  opacity: .8;
   -webkit-mask-image: linear-gradient(to top, #000 72%, transparent);
           mask-image: linear-gradient(to top, #000 72%, transparent);
 }
 
 /* La nieve: cada copo baja (.nv-copo) y se mece de costado (su <i>).
-   Solo transform: lo resuelve la placa de video, sin trabajo por cuadro. */
+   Solo transform: lo resuelve la placa de video, sin trabajo por cuadro.
+   Sobre el cielo claro el copo es blanco con un canto celeste, así se ve. */
 .nv-copo {
   position: absolute;
   top: -6vh;
@@ -213,23 +174,22 @@ html.navidad .bg-burbujas { display: none; }
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,.95) 0 34%, rgba(255,255,255,.28) 58%, transparent 70%);
+  background: radial-gradient(circle, #fff 0 32%, rgba(196,216,238,.95) 46%,
+                              rgba(150,182,218,.35) 60%, transparent 72%);
   opacity: var(--o);
   animation: nv-meca var(--m) ease-in-out infinite alternate;
 }
 /* Unos pocos, más grandes, son copos de seis brazos que giran: finos,
-   en oro pálido, como joyas que caen */
+   en oro, como joyas que caen */
 .nv-copo.grande i {
   border-radius: 0;
   background: url('adornos/copo.svg') center / contain no-repeat;
   animation-name: nv-gira;
-  filter: sepia(1) saturate(2.2) hue-rotate(-8deg) brightness(1.08) drop-shadow(0 0 3px rgba(255,210,120,.45));
+  filter: sepia(1) saturate(3) hue-rotate(-12deg) brightness(.86) drop-shadow(0 0 2px rgba(214,160,50,.45));
 }
-/* Polvo de oro: uno de cada cuatro copos chicos es un brillo dorado
-   desenfocado, como las luces lejanas de una foto de noche */
+/* Polvo de oro: uno de cada cuatro copos chicos es un brillo dorado */
 .nv-copo:nth-child(4n):not(.grande) i {
-  background: radial-gradient(circle, rgba(255,236,180,.95) 0 26%, rgba(255,205,110,.32) 52%, transparent 70%);
-  filter: blur(.3px);
+  background: radial-gradient(circle, rgba(240,190,80,.95) 0 26%, rgba(224,167,46,.35) 52%, transparent 70%);
 }
 @keyframes nv-cae  { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, 114vh, 0); } }
 @keyframes nv-meca { from { transform: translateX(-16px); } to { transform: translateX(16px); } }
@@ -247,12 +207,10 @@ html.navidad .bg-burbujas { display: none; }
    ============================================================
    Ninguno ocupa lugar: van sueltos (position: absolute) sobre lo que ya
    estaba, y lo que los sostiene solo pasa a position: relative, que no
-   corre nada. */
+   corre nada. El lujo va en los detalles: oro, marfil y verde pino,
+   brillos finos que aparecen y se van despacio. */
 
-/* NOCHE DORADA: el lujo va en los detalles. Nada de caricaturas: oro,
-   champán y azul de noche, brillos finos que aparecen y se van despacio.
-
-   Un destello dorado de cuatro puntas arriba a la derecha del logo, en
+/* Un destello dorado de cuatro puntas arriba a la derecha del logo, en
    el menú de cada página, en la del pago, en Mis compras y en el pie.
    Titila despacio, como una luz que pasa por el oro. El logo sale
    dorado por los tonos de arriba (su degradé usa los colores de la
@@ -268,24 +226,27 @@ html.navidad :is(.nav-marca, .nav-logo, .header-logo, .pie-logo, .pay-header a, 
   width: .62em;
   height: .62em;
   background: url('adornos/destello.svg') center / contain no-repeat;
-  filter: drop-shadow(0 0 4px rgba(255,214,120,.55));
+  filter: drop-shadow(0 0 .6px rgba(140,92,0,.7)) drop-shadow(0 0 4px rgba(240,180,60,.55));
   animation: nv-destello 3.8s ease-in-out infinite;
   pointer-events: none;
 }
 @keyframes nv-destello {
-  0%, 100% { transform: scale(.55) rotate(0deg);  opacity: .45; }
+  0%, 100% { transform: scale(.55) rotate(0deg);  opacity: .5; }
   45%      { transform: scale(1)   rotate(45deg); opacity: 1; }
-  70%      { transform: scale(.75) rotate(70deg); opacity: .8; }
+  70%      { transform: scale(.75) rotate(70deg); opacity: .85; }
 }
 
-/* La franja de arriba: azul noche con un filo de oro abajo, letras
-   champán, y un destello en cada punta (sueltos: el texto no se corre) */
+/* La franja de arriba: verde pino con un filo de oro abajo, letras
+   marfil, y un destello en cada punta (sueltos: el texto no se corre) */
 html.navidad .banner-top {
   position: relative;
-  background: linear-gradient(90deg, rgba(10,26,48,.94), rgba(20,40,70,.9) 50%, rgba(10,26,48,.94));
-  color: #f6e3b4;
-  border-color: rgba(255,232,165,.22);
+  background: linear-gradient(90deg, #0f4a35, #17694b 50%, #0f4a35);
+  color: #fbeac0;
+  border-color: rgba(255,232,165,.4);
+  text-shadow: 0 1px 2px rgba(0,0,0,.3);
+  box-shadow: 0 8px 22px rgba(15,74,53,.22), inset 0 1px 0 rgba(255,240,205,.25);
 }
+html.navidad .banner-top::after { background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0)); }
 html.navidad .banner-top::before {
   content: '';
   position: absolute;
@@ -294,8 +255,8 @@ html.navidad .banner-top::before {
     url('adornos/destello.svg') left center / 13px 13px no-repeat,
     url('adornos/destello.svg') right center / 13px 13px no-repeat,
     /* El filo de oro, finito, a lo largo del canto de abajo */
-    linear-gradient(90deg, transparent, rgba(255,214,120,.55) 25%, rgba(255,240,200,.8) 50%,
-                    rgba(255,214,120,.55) 75%, transparent) center bottom / 100% 1px no-repeat;
+    linear-gradient(90deg, transparent, rgba(255,214,120,.6) 25%, rgba(255,240,200,.9) 50%,
+                    rgba(255,214,120,.6) 75%, transparent) center bottom / 100% 1px no-repeat;
   pointer-events: none;
 }
 
@@ -305,14 +266,14 @@ html.navidad .banner-top::before {
    degradé va recortado a las letras: mismo tamaño, mismo lugar. */
 html.navidad .ofertas-title {
   position: relative;
-  background: linear-gradient(100deg, #c8912e 0%, #ffd36b 30%, #fff3cf 46%, #ffe29a 54%, #d9a23a 72%, #ffd36b 100%)
+  background: linear-gradient(100deg, #8a5a00 0%, #b8800f 26%, #f0c65c 44%, #c99424 56%, #8a5a00 74%, #a8740c 100%)
               0 0 / 260% 100%;
   -webkit-background-clip: text;
           background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
   text-shadow: none;
-  filter: drop-shadow(0 2px 10px rgba(255,200,90,.22));
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.9)) drop-shadow(0 2px 8px rgba(214,160,50,.25));
   animation: nv-oro 7s ease-in-out infinite;
 }
 @keyframes nv-oro {
@@ -329,7 +290,7 @@ html.navidad .ofertas-title::after {
   background: url('adornos/esfera.svg') center top / contain no-repeat;
   transform-origin: 50% 0;
   animation: nv-esfera 5s ease-in-out infinite alternate;
-  filter: drop-shadow(0 3px 5px rgba(0,0,0,.4));
+  filter: drop-shadow(0 3px 4px rgba(120,80,0,.25));
   pointer-events: none;
 }
 /* Se mece apenas, como recién colgada */
@@ -364,32 +325,35 @@ html.navidad .ofertas-title::after {
   overflow: visible;
   pointer-events: none;
 }
-/* La nieve del canto, fina como escarcha: la mitad de alto y en marfil
-   (se achica desde arriba, sigue apoyada en el mismo canto) */
+/* La nieve del canto, fina como escarcha: la mitad de alto, con una
+   sombra celeste para que se vea sobre el vidrio blanco (se achica
+   desde arriba, sigue apoyada en el mismo canto) */
 .nv-barra .nv-tope  {
   top: -4px;
   transform: scaleY(.55);
   transform-origin: 50% 0;
-  opacity: .82;
-  filter: drop-shadow(0 1px 1.5px rgba(0,0,0,.22));
+  filter: drop-shadow(0 1px 1.2px rgba(70,105,150,.4));
 }
 .nv-barra .nv-luces { top: calc(100% - 3px); }
 /* La guirnalda de lujo: hilo de oro finito y perlas de luz en cinco
-   tonos de oro (oro, champán, marfil, ámbar y oro rosa), más chicas */
-.nv-barra .nv-luces path { stroke: rgba(222,186,104,.62); stroke-width: .7; }
-.nv-foco rect { fill: #9a7430; transform: scale(.78); transform-box: fill-box; transform-origin: 50% 0; }
+   tonos de oro (oro, champán, miel, ámbar y oro rosa), más chicas, con
+   un canto fino para que se vean sobre el claro */
+.nv-barra .nv-luces path { stroke: rgba(176,128,32,.7); stroke-width: .7; }
+.nv-foco rect { fill: #a07a32; transform: scale(.78); transform-box: fill-box; transform-origin: 50% 0; }
 .nv-foco ellipse {
   fill: var(--c);
+  stroke: rgba(130,82,0,.35);
+  stroke-width: .5;
   transform: scale(.74);
   transform-box: fill-box;
   transform-origin: 50% 0;
-  filter: drop-shadow(0 0 2px var(--c)) drop-shadow(0 0 6px color-mix(in srgb, var(--c) 70%, transparent));
+  filter: drop-shadow(0 0 2px var(--c)) drop-shadow(0 0 5px color-mix(in srgb, var(--c) 70%, transparent));
 }
-.nv-foco.oro   { --c: #ffd36b; }
-.nv-foco.rojo  { --c: #f6e3b4; }   /* champán */
-.nv-foco.verde { --c: #fff4dc; }   /* marfil */
-.nv-foco.azul  { --c: #ffc46b; }   /* ámbar */
-.nv-foco.rosa  { --c: #f3c7a0; }   /* oro rosa */
+.nv-foco.oro   { --c: #f0b429; }
+.nv-foco.rojo  { --c: #e8bd62; }   /* champán */
+.nv-foco.verde { --c: #f6cf6a; }   /* miel */
+.nv-foco.azul  { --c: #e09a1c; }   /* ámbar */
+.nv-foco.rosa  { --c: #e9a77a; }   /* oro rosa */
 /* Respiran despacio en tres turnos, como velas: nunca se apagan todas
    juntas y ninguna parpadea */
 .nv-foco { animation: nv-foco 4.2s ease-in-out infinite alternate; }
@@ -401,601 +365,127 @@ html.navidad .ofertas-title::after {
 
 
 /* ============================================================
-   4. LO COMÚN A TODAS LAS PÁGINAS
-   ============================================================ */
+   4. LOS BOTONES Y LAS PIEZAS EN ORO
+   ============================================================
+   Lo demás es la tienda clara de siempre. Solo los botones principales,
+   los números de los pasos y algunas etiquetas pasan a oro: relleno
+   dorado con letras oscuras, como una cinta de regalo. */
 
-/* La lente (lo que está activo): dorado encendido */
-html.navidad .nav-link--activo,
-html.navidad .cat-tab.active,
-html.navidad .nav-links a.active {
-  color: #fff;
-  box-shadow:
-    inset 0 1.5px 0 rgba(255,240,205,.5),
-    inset 0 -1.5px 2px rgba(0,0,0,.25),
-    inset 0 0 0 1px rgba(255,220,130,.3),
-    0 6px 18px rgba(235,175,50,.22),
-    0 1px 3px rgba(0,0,0,.4);
-}
-html.navidad .nav-item.active::before {
-  background: radial-gradient(120% 90% at 50% 0%, rgba(255,214,120,.36) 0%, rgba(245,196,81,.12) 55%, rgba(245,196,81,.03) 100%);
-  box-shadow:
-    inset 0 1.5px 0 rgba(255,240,205,.4),
-    inset 0 -1.5px 2px rgba(0,0,0,.2),
-    inset 0 0 0 1px rgba(255,220,130,.26),
-    0 6px 16px rgba(235,175,50,.18);
-}
-
-/* Los botones principales: dorado, con letras casi negras (se leen
-   mejor que blancas sobre dorado) */
+/* Botones principales (Comprar, Pagar, Recargar ahora, Ir a la tienda,
+   la página elegida) */
 html.navidad .plan-comprar, html.navidad .plan-comprar:hover,
 html.navidad .ck-pagar, html.navidad .ck-pagar:hover,
 html.navidad .btn-primary, html.navidad .btn-primary:hover,
 html.navidad .btn-tienda,
 html.navidad .hero-cta, html.navidad .hero-cta:hover,
 html.navidad .page-btn:hover, html.navidad .page-btn.active {
-  background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,0) 55%),
-              linear-gradient(180deg, #ffd978, #e9a825);
-  border: 1px solid rgba(255,232,165,.65);
+  border: 1px solid rgba(190,130,20,.45);
+}
+html.navidad .plan-comprar, html.navidad .plan-comprar:hover,
+html.navidad .ck-pagar, html.navidad .ck-pagar:hover,
+html.navidad .btn-primary, html.navidad .btn-primary:hover,
+html.navidad .btn-tienda,
+html.navidad .hero-cta, html.navidad .hero-cta:hover,
+html.navidad .page-btn:hover, html.navidad .page-btn.active,
+/* Estos solo cambian el color del borde: el ancho queda el de siempre */
+html.navidad .tu-ok,
+html.navidad .pp-btn-primario,
+html.navidad .mc-btn.primario,
+html.navidad .mc-filtro[aria-pressed="true"] {
+  background: linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,0) 55%),
+              linear-gradient(180deg, #ffd978, #e5a422);
+  border-color: rgba(190,130,20,.45);
   color: #2b1b00;
-  box-shadow: 0 8px 24px rgba(214,150,20,.32), 0 1px 3px rgba(0,0,0,.35),
-              inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 5px rgba(120,40,0,.25);
+  box-shadow: 0 6px 18px rgba(214,150,20,.28), 0 1px 2px rgba(120,80,0,.2),
+              inset 0 1px 0 rgba(255,255,255,.6), inset 0 -2px 5px rgba(150,90,0,.18);
 }
 html.navidad .plan-comprar:hover:not(:disabled),
 html.navidad .ck-pagar:hover:not(:disabled),
 html.navidad .btn-primary:hover,
 html.navidad .btn-tienda:hover,
-html.navidad .hero-cta:hover {
-  background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0) 55%),
-              linear-gradient(180deg, #ffe390, #f0b43a);
+html.navidad .hero-cta:hover,
+html.navidad .tu-ok:hover,
+html.navidad .pp-btn-primario:hover,
+html.navidad .mc-btn.primario:hover {
+  background: linear-gradient(180deg, rgba(255,255,255,.38), rgba(255,255,255,0) 55%),
+              linear-gradient(180deg, #ffe390, #eeb036);
 }
 html.navidad .plan-comprar:disabled,
 html.navidad .ck-pagar:disabled {
   background: var(--vidrio);
   border: 1px solid var(--vidrio-borde);
   color: var(--tinta-suave);
-  box-shadow: 0 2px 10px rgba(0,0,0,.3), var(--vidrio-brillo);
+  box-shadow: 0 2px 10px rgba(20,22,26,.08), var(--vidrio-brillo);
 }
+html.navidad .mc-filtro[aria-pressed="true"] b { background: rgba(43,27,0,.12); color: #2b1b00; }
+
+/* Los botones de Juegos y de comprar recargas: verde pino */
 html.navidad .btn-comprar,
-html.navidad .pkg-tab.active { box-shadow: 0 8px 22px rgba(34,160,110,.35), var(--vidrio-canto-color); }
+html.navidad .pkg-tab.active { box-shadow: 0 8px 20px rgba(20,112,76,.25), var(--vidrio-canto-color); }
 
-/* Las barras con texto: de noche el halo de las letras va oscuro */
-html.navidad:not(.tenido) .nav-principal,
-html.navidad:not(.tenido) .header,
-html.navidad:not(.tenido) body > nav,
-html.navidad:not(.tenido) .banner-top,
-html.navidad:not(.tenido) .bottom-nav .nav-item {
-  text-shadow: 0 0 2px rgba(4,10,20,.9), 0 0 8px rgba(4,10,20,.7);
+/* Los números de los pasos (carrito, pago, Contacto, Mis compras, la
+   ficha del plan) */
+html.navidad .cr-pasos li.hecho span,
+html.navidad .cr-pasos li.actual span,
+html.navidad .paso-num,
+html.navidad .step-num,
+html.navidad .fi-pasos li::before,
+html.navidad .mc-paso.hecho .mc-punto {
+  color: #2b1b00;
+  background: linear-gradient(180deg, #ffd978, #e5a422);
+  border-color: rgba(190,130,20,.45);
+  box-shadow: 0 3px 10px rgba(214,150,20,.25), inset 0 1px 0 rgba(255,255,255,.55);
 }
-html.navidad:not(.tenido) .bottom-nav .nav-item svg {
-  filter: drop-shadow(0 0 1.5px rgba(4,10,20,.9)) drop-shadow(0 0 5px rgba(4,10,20,.7));
-}
-html.navidad:not(.tenido) .nav-marca,
-html.navidad:not(.tenido) .nav-logo,
-html.navidad:not(.tenido) .header-logo { text-shadow: none; }
+html.navidad .mc-paso.hecho::before,
+html.navidad .mc-paso.actual::before { background: linear-gradient(90deg, #ffd978, #e5a422); }
+html.navidad .mc-paso.actual .mc-punto { color: #946200; border-color: #e0a72e; box-shadow: 0 0 0 5px rgba(224,167,46,.16); }
+html.navidad .fi-otro-ver { color: #2b1b00; background: linear-gradient(180deg, #ffd978, #e5a422); }
+html.navidad .fi-otro--agotado .fi-otro-ver { color: var(--tinta-suave); background: var(--separador-2); }
 
-/* Las listas desplegables */
-@supports (appearance: base-select) {
-  html.navidad select::picker(select) {
-    border-color: rgba(200,225,255,.2);
-    background: linear-gradient(180deg, rgba(24,48,80,.92), rgba(8,20,36,.94));
-    box-shadow: 0 18px 44px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
-  }
-  html.navidad select option { color: var(--tinta); }
-  html.navidad select option:hover,
-  html.navidad select option:focus-visible { background: rgba(255,255,255,.08); }
-  html.navidad select option:checked {
-    box-shadow: inset 0 1px 0 rgba(255,240,205,.4), 0 2px 8px rgba(0,0,0,.3);
-  }
-  html.navidad select::picker-icon { color: var(--tinta-suave); }
-}
-
-/* La barra de desplazamiento: varilla clara sobre la noche */
-html.navidad ::-webkit-scrollbar-thumb {
-  background-color: rgba(255,255,255,.22);
-  background-image: linear-gradient(90deg, rgba(255,255,255,.25), rgba(255,255,255,0) 70%);
-}
-html.navidad ::-webkit-scrollbar-thumb:hover,
-html.navidad ::-webkit-scrollbar-thumb:active { background-color: rgba(255,255,255,.38); }
-html.navidad .barra-quieta::-webkit-scrollbar-thumb { background-color: transparent; background-image: none; }
-
-/* El control de transparente o teñido, ahumado como lo demás */
-html.navidad .tenido-panel,
-html.navidad .tenido-boton {
-  background: linear-gradient(180deg, rgba(28,56,92,.88), rgba(10,26,46,.9));
-  border-color: rgba(200,225,255,.22);
-  box-shadow: 0 6px 18px rgba(0,0,0,.4), var(--vidrio-brillo);
-}
-html.navidad .tenido-boton,
-html.navidad .tenido-ico { color: var(--tinta-suave); }
-html.navidad .tenido-control.abierto .tenido-boton { color: var(--marca); }
-html.navidad .tenido-relleno { background: var(--marca); }
-html.navidad .tenido-riel { background: rgba(255,255,255,.18); }
-html.navidad .tenido-punto { background: rgba(255,255,255,.4); }
-
-@media (prefers-reduced-transparency: reduce) {
-  html.navidad {
-    --vidrio:       rgba(14,32,54,.97);
-    --vidrio-claro: rgba(14,32,54,.95);
-    --vidrio-denso: #0e2036;
-  }
-}
-
-
-/* ============================================================
-   5. LA TIENDA (index.html · css/tienda.css)
-   ============================================================ */
-
-/* Los vidrios que traían su borde blanco propio */
-html.navidad :is(.banner-top, .nav-principal, .promo-banner, .pie, .modal-sheet,
-                   .oferta-card, .cr-pasos span, .cr-cant, .cr-editar, .cr-total,
-                   .app-aviso-si, .hero-arrow) {
-  border-color: var(--vidrio-borde);
-}
-
-/* La franja: reflejo apagado y sombra de noche */
-html.navidad .banner-top {
-  box-shadow: 0 8px 24px rgba(0,0,0,.35), 0 0 0 .5px rgba(245,200,90,.25),
-              inset 0 1px 0 rgba(255,240,205,.22);
-}
-html.navidad .banner-top::after { background: linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,0)); }
-
-/* El menú de arriba */
-html.navidad .nav-principal { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
-html.navidad .nav-link {
-  color: var(--tinta-media);
-  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 .5px rgba(255,255,255,.08);
-}
-html.navidad .nav-link:hover { background: rgba(255,255,255,.1); color: var(--tinta); }
-html.navidad .nav-link--oro { color: var(--oro); }
-
-/* Cartel de agentes */
-html.navidad .promo-banner { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
-html.navidad .promo-text strong { color: var(--oro-claro); }
-html.navidad .promo-text span   { color: var(--tinta-suave); }
-
-/* Buscador y moneda */
-html.navidad .search-input-wrap:focus-within {
-  border-color: rgba(245,196,81,.5);
-  box-shadow: 0 0 0 4px rgba(245,196,81,.14), var(--vidrio-sombra), var(--vidrio-brillo);
-}
-html.navidad .search-input-wrap input { color: var(--tinta); }
-html.navidad .search-input-wrap input::placeholder { color: var(--tinta-tenue); }
-html.navidad .moneda-menu { background: rgba(12,30,52,.97); box-shadow: 0 10px 30px rgba(0,0,0,.5); }
-html.navidad .moneda-op:hover { background: rgba(255,255,255,.07); }
-html.navidad .moneda-op.activo { color: #2b1b00; }
-
-/* El carrusel: la flecha y los puntos ya van sobre la foto */
-html.navidad .hero-cta { box-shadow: 0 6px 18px rgba(0,0,0,.35), 0 0 18px rgba(245,196,81,.25),
-                                       inset 0 1px 0 rgba(255,255,255,.5); }
-html.navidad .hero-tag--new {
-  background: linear-gradient(180deg, rgba(52,190,130,.85), rgba(20,120,82,.8));
-  box-shadow: 0 4px 12px rgba(34,160,110,.35), inset 0 1px 0 rgba(255,255,255,.3);
-}
-
-/* Ofertas: borde dorado al pasar el mouse */
-html.navidad .oferta-card {
-  box-shadow: 0 10px 26px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.18),
-              inset 0 0 0 1px rgba(255,255,255,.06);
-}
-html.navidad .oferta-card:hover {
-  border-color: rgba(245,200,90,.6);
-  box-shadow: 0 12px 30px rgba(0,0,0,.45), 0 0 22px rgba(245,196,81,.28);
-}
-
-/* Orden, filtros y categorías */
-html.navidad :is(.sort-select, .filter-btn, .cat-tabs, .sub-pill, .page-btn) {
-  box-shadow: 0 2px 10px rgba(0,0,0,.3), var(--vidrio-brillo);
-}
-html.navidad :is(.sort-select, .filter-btn) { color: var(--tinta-media); }
-html.navidad :is(.cat-tab:hover, .filtro-op:hover) { background: rgba(255,255,255,.08); }
+/* Las píldoras de subcategoría elegidas: oro claro */
 html.navidad .sub-pill:hover,
 html.navidad .sub-pill.active {
-  background: linear-gradient(180deg, rgba(245,200,90,.24), rgba(235,175,50,.14));
-  border-color: rgba(245,200,90,.5);
-  color: var(--oro-claro);
-  box-shadow: 0 2px 10px rgba(235,175,50,.18), inset 0 1px 0 rgba(255,240,205,.25);
+  background: linear-gradient(180deg, rgba(255,248,228,.75), rgba(255,228,168,.42));
+  border-color: rgba(var(--marca-rgb),.45);
+  color: var(--marca-texto);
+  box-shadow: 0 2px 8px rgba(var(--marca-rgb),.18), inset 0 1px 0 rgba(255,255,255,.9);
 }
 
-/* Tarjetas de plataforma. El nombre y el botón van en el color de cada
-   marca, pero aclarado: el tono oscuro de siempre (--acento-txt) no se
-   leía sobre la noche. */
-html.navidad .plat-card {
-  box-shadow: 0 10px 26px rgba(0,0,0,.4), 0 0 0 .5px rgba(255,255,255,.05),
-              inset 0 1px 0 rgba(255,255,255,.1);
-}
-html.navidad .plat-card:hover {
-  border-color: color-mix(in oklab, var(--acento) 60%, #ffe3a0);
-  box-shadow: 0 18px 38px rgba(0,0,0,.5), 0 0 26px color-mix(in oklab, var(--acento) 35%, transparent),
-              inset 0 1px 0 rgba(255,255,255,.12);
-}
-/* El canto de luz del acabado premium (css/premium.css), de noche: un
-   filo de oro champán arriba que baja al color de la marca, en lugar
-   del blanco, que de noche se veía duro */
-html.navidad .plat-card::before {
-  background: linear-gradient(165deg,
-                rgba(255,232,180,.55) 0%,
-                rgba(255,214,140,.16) 34%,
-                color-mix(in srgb, var(--acento) 34%, transparent) 72%,
-                color-mix(in srgb, var(--acento) 14%, transparent) 100%);
-}
-html.navidad .plat-card::after {
-  background: linear-gradient(100deg, transparent 0%, rgba(255,236,190,0) 20%,
-                rgba(255,236,190,.22) 50%, rgba(255,236,190,0) 80%, transparent 100%);
-}
-html.navidad .plat-card:focus-visible {
-  box-shadow: 0 0 0 2px #0a1d36, 0 0 0 4px var(--marca), 0 12px 30px -10px rgba(0,0,0,.5);
+/* El plan destacado de Planes, con su canto de oro */
+html.navidad .plan-card.featured { border-color: rgba(var(--marca-rgb),.55); box-shadow: 0 0 30px rgba(var(--marca-rgb),.18); }
+
+/* El paquete elegido en Recargas */
+html.navidad .pkg-card.selected {
+  background: linear-gradient(150deg, rgba(255,236,190,.7), rgba(240,196,100,.32));
+  box-shadow: 0 8px 22px rgba(214,150,20,.22), inset 0 1px 0 rgba(255,255,255,.7), 0 0 0 1px var(--marca);
 }
 
-/* La foto se funde con la tarjeta de noche, no con blanco */
-html.navidad .plat-img::after {
-  background: linear-gradient(to bottom, rgba(12,30,52,0), rgba(12,30,52,.6) 55%, rgb(12,30,52));
-}
-html.navidad .plat-nombre { color: color-mix(in oklab, var(--acento) 52%, #fff); }
-html.navidad .plat-cta {
-  color: color-mix(in oklab, var(--acento) 45%, #fff);
-  border-color: color-mix(in oklab, var(--acento) 55%, transparent);
-  background: linear-gradient(180deg, rgba(255,255,255,.06), color-mix(in oklab, var(--acento) 22%, transparent));
-  box-shadow: 0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.1);
-}
-html.navidad .plat-card:hover .plat-cta {
-  background: color-mix(in oklab, var(--acento) 80%, #000);
-  border-color: color-mix(in oklab, var(--acento) 80%, #000);
-  color: #fff;
-}
-html.navidad .product-card { background: var(--vidrio-denso); }
-
-/* El pie */
-html.navidad .pie { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
-
-/* La ventana de planes y el carrito */
-html.navidad .modal-overlay { background: rgba(3,8,16,.55); }
-html.navidad .modal-sheet {
-  background: linear-gradient(180deg, rgba(20,42,70,.94), rgba(8,19,34,.96));
-  box-shadow: 0 -12px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,240,205,.18);
-}
-html.navidad :is(.pl-cab, .cr-pie) { border-color: rgba(255,255,255,.08); }
-html.navidad :is(.plan-features, .cr-combo) {
-  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 0 .5px rgba(255,255,255,.06);
-}
-html.navidad .plan-chip.zona {
-  background: rgba(255,255,255,.08);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 0 0 .5px rgba(255,255,255,.1);
-}
-html.navidad :is(.cr-pasos span, .cr-cant, .cr-editar, .cr-total) {
-  background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 2px 8px rgba(0,0,0,.25);
-}
-html.navidad .cr-pasos li.hecho span,
-html.navidad .cr-pasos li.actual span {
-  background: linear-gradient(180deg, #ffd978, #e9a825);
-  border-color: rgba(255,232,165,.65);
-  color: #2b1b00;
-  box-shadow: 0 4px 12px rgba(214,150,20,.3), inset 0 1px 0 rgba(255,255,255,.45);
-}
-html.navidad .cr-metodo { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.12); }
-html.navidad .cr-metodo:hover { border-color: rgba(255,255,255,.28); }
-html.navidad .cr-metodo.elegido {
-  background: rgba(245,196,81,.1);
-  border-color: var(--marca);
-  box-shadow: 0 0 0 3px rgba(245,196,81,.16), 0 6px 16px rgba(0,0,0,.3);
-}
-html.navidad .cr-metodo-img.qr { background: rgba(255,255,255,.06); border-color: rgba(245,196,81,.25); }
-html.navidad .ck-switch-pista {
-  background: rgba(255,255,255,.1);
-  box-shadow: inset 0 1px 3px rgba(0,0,0,.4), 0 0 0 .5px rgba(255,255,255,.12);
-}
-
-/* El aviso de instalar la app */
-html.navidad .app-aviso { box-shadow: 0 14px 34px rgba(0,0,0,.5), var(--vidrio-brillo); }
-html.navidad .app-aviso-si {
-  background: var(--vidrio-lente);
-  box-shadow: inset 0 1px 0 rgba(255,240,205,.4), 0 4px 12px rgba(0,0,0,.3);
-}
-
-/* La barra de abajo: de noche lleva relleno, si no las letras se
-   pierden contra las fotos de las tarjetas */
-html.navidad .bottom-nav {
-  background: linear-gradient(180deg, rgba(24,48,80,.72), rgba(8,20,36,.8));
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  backdrop-filter: blur(14px) saturate(140%);
-  border-color: rgba(200,225,255,.18);
-  box-shadow: 0 12px 32px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.1);
-}
-html.navidad .bottom-nav::before { background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0)); }
-html.navidad .nav-item { color: var(--tinta-media); }
-html.navidad .nav-item:hover { color: #fff; }
-html.navidad .nav-item.active,
-html.navidad .nav-item.active:hover { color: var(--oro-claro); }
-
-/* La ventana "¿Cómo te llamamos?" (js/usuario.js) */
-html.navidad .tu-fondo { background: rgba(3,8,16,.5); }
-html.navidad .tu-caja {
-  background: linear-gradient(180deg, rgba(20,42,70,.94), rgba(8,19,34,.96));
-  border-color: var(--vidrio-borde);
-  box-shadow: 0 -12px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,240,205,.18);
-}
-html.navidad .tu-asa { background: rgba(255,255,255,.2); }
-html.navidad .tu-x:hover { background: rgba(255,255,255,.08); }
-html.navidad :is(.tu-caja input, .tu-tel) {
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.14);
-  color: var(--tinta);
-}
-html.navidad .tu-tel input { background: none; }
-html.navidad :is(.tu-caja input:focus, .tu-tel:focus-within) {
-  background: rgba(255,255,255,.09);
-  border-color: rgba(245,196,81,.55);
-  box-shadow: 0 0 0 4px rgba(245,196,81,.14);
-}
-html.navidad .tu-tel span {
-  border-right-color: rgba(255,255,255,.1);
-  background: rgba(255,255,255,.04);
-  color: var(--tinta-media);
-}
-html.navidad .tu-ok {
-  color: #2b1b00;
-  border-color: rgba(255,232,165,.65);
-  background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,0) 55%),
-              linear-gradient(180deg, #ffd978, #e9a825);
-  box-shadow: 0 8px 24px rgba(214,150,20,.3), inset 0 1px 0 rgba(255,255,255,.5);
-}
-html.navidad .tu-ok:hover {
-  background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0) 55%),
-              linear-gradient(180deg, #ffe390, #f0b43a);
-}
-html.navidad .tu-aviso {
-  background: linear-gradient(180deg, rgba(24,48,80,.95), rgba(9,22,40,.95));
-  border-color: var(--vidrio-borde);
-  box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1);
-}
-
-/* Los verdes de "Disponible" y "Agregaste…" eran para leerse sobre
-   blanco: de noche, más claros */
-html.navidad .plan-chip.ok { background: rgba(52,211,153,.12); color: #6ee7b7; }
-html.navidad .cr-agregado { background: rgba(52,211,153,.1); color: #86efac; }
-
-/* Los términos laten en dorado, no en rojo, hasta que se tilda la casilla */
-html.navidad .ck-terminos-caja:not(:has(input:checked)) { animation-name: nv-latido; }
-html.navidad .ck-terminos-caja:has(input:checked) {
-  border-color: rgba(245,196,81,.4);
-  background: rgba(245,196,81,.05);
-}
-html.navidad .ck-terminos-caja:not(:has(input:checked)) .ck-terminos input { outline-color: rgba(245,196,81,.55); }
-@keyframes nv-latido {
-  0%, 100% { border-color: var(--borde);         box-shadow: 0 0 0 0   rgba(245,196,81,0);   }
-  50%      { border-color: rgba(245,196,81,.7);  box-shadow: 0 0 0 5px rgba(245,196,81,.15); }
-}
-
-
-/* ============================================================
-   6. PLANES Y CONTACTO (planes.html, contacto.html · styles.css)
-   ============================================================ */
-html.navidad :is(body > nav, .aviso-precios, .cta-vidrio, .paso-num,
-                   .etiqueta-vidrio-oro, .etiqueta-vidrio-verde,
-                   .etiqueta-vidrio-desc, .etiqueta-vidrio-agotado) {
-  border-color: var(--vidrio-borde);
-}
-html.navidad body > nav { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
-html.navidad .nav-links a:hover { background: rgba(255,255,255,.1); color: var(--tinta); }
-html.navidad .btn-outline:hover { background: rgba(255,255,255,.1); }
-html.navidad .plan-header {
-  border-bottom-color: rgba(255,255,255,.08);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
-}
-html.navidad .plan-card.featured { border-color: rgba(245,200,90,.5); box-shadow: 0 0 30px rgba(245,196,81,.16); }
-html.navidad .contact-item { border-bottom-color: rgba(255,255,255,.07); }
-html.navidad .aviso-precios {
-  background: linear-gradient(180deg, rgba(245,200,90,.14), rgba(245,196,81,.04));
-  box-shadow: 0 6px 18px rgba(0,0,0,.3), 0 0 0 .5px rgba(245,200,90,.3), var(--vidrio-brillo);
-}
-html.navidad .buscar-plan:focus { border-color: rgba(245,196,81,.5); }
-html.navidad footer {
-  border-top-color: rgba(200,225,255,.14);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-}
-html.navidad .cta-vidrio { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
-html.navidad .paso-num {
-  color: #2b1b00;
-  background: linear-gradient(180deg, #ffd978, #e9a825);
-  box-shadow: 0 4px 12px rgba(214,150,20,.3), inset 0 1px 0 rgba(255,255,255,.45);
-}
-html.navidad .hero-badge {
-  border-color: rgba(245,196,81,.4);
-  box-shadow: 0 2px 10px rgba(245,196,81,.18), inset 0 1px 0 rgba(255,240,205,.25);
-}
+/* La etiqueta dorada de los productos */
 html.navidad .etiqueta-vidrio-oro {
   color: #2b1b00;
-  background: linear-gradient(180deg, #ffd27a, #f5a524);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 2px 10px rgba(245,165,36,.3);
-}
-html.navidad .etiqueta-vidrio-agotado {
-  color: #fca5a5;
-  background: rgba(239,68,68,.16);
-}
-/* Los botones de redes traen su color escrito en el HTML: de noche, el
-   azul de Facebook y el verde de WhatsApp se aclaran para leerse */
-html.navidad .btn-outline[style*="#1877F2"] { color: #6aa8ff !important; border-color: #4a90f5 !important; }
-html.navidad .btn-outline[style*="verde-wa"] { color: #4fd1b8 !important; border-color: #2bb39b !important; }
-html.navidad .btn-outline[style*="#E1306C"] { color: #ff7aa8 !important; }
-
-
-/* ============================================================
-   7. RECARGAS DE JUEGOS (recarga-juegos.html, en su <style>)
-   ============================================================ */
-html.navidad :is(.header, .modal-box, .hero-tag--promo, .badge-promo, .badge-nuevo, .badge-check) {
-  border-color: var(--vidrio-borde);
-}
-html.navidad .header { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
-html.navidad .header-icon-btn:hover { background: rgba(255,255,255,.1); }
-html.navidad .header-user {
-  background: linear-gradient(180deg, rgba(255,214,120,.16), rgba(245,196,81,.05));
-}
-html.navidad .header-user .avatar {
-  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.05));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 0 0 .5px rgba(255,255,255,.12);
+  background: linear-gradient(180deg, #ffd978, #e5a422);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 10px rgba(214,150,20,.25);
 }
 
-/* La ventana de paquetes: hoja de noche, no vidrio claro */
-html.navidad .modal-box {
-  background: linear-gradient(180deg, rgba(20,42,70,.95), rgba(8,19,34,.97));
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  backdrop-filter: blur(20px) saturate(140%);
-  box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 0 0 .5px rgba(245,200,90,.25),
-              inset 0 1px 0 rgba(255,240,205,.18);
-}
-html.navidad .pkg-tabs { box-shadow: 0 4px 14px rgba(0,0,0,.3), var(--vidrio-brillo); }
-html.navidad .pkg-card { border-color: rgba(255,255,255,.1); box-shadow: 0 6px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.1); }
-/* El paquete elegido: encendido en dorado */
-html.navidad .pkg-card.selected {
-  background: linear-gradient(150deg, rgba(245,200,90,.3), rgba(150,105,10,.22));
-  box-shadow: 0 8px 22px rgba(235,175,50,.25), inset 0 1px 0 rgba(255,240,205,.3), 0 0 0 1px var(--marca);
-}
-html.navidad .pkg-card-price {
-  border-color: rgba(255,255,255,.2);
-  box-shadow: 0 3px 10px rgba(34,160,110,.35), inset 0 1px 0 rgba(255,255,255,.3);
-}
-html.navidad .pkg-card.selected .pkg-card-price { color: #2b1b00; }
-html.navidad .id-input {
-  color: var(--tinta);
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.14);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-}
-html.navidad .id-input::placeholder { color: var(--tinta-tenue); }
-html.navidad .id-input:focus { border-color: rgba(245,196,81,.55); box-shadow: 0 0 0 4px rgba(245,196,81,.14); }
-html.navidad .btn-cancel:hover { background: rgba(255,255,255,.1); }
-
-
-/* ============================================================
-   8. EL PAGO (pagar-qr.html, en su <style>)
-   ============================================================
-   La caja del QR (.pay-qr-wrap) sigue BLANCA a propósito: el banco
-   lee mejor el código sobre blanco, y así se ve como un papel encima
-   de la noche. No se toca. */
-html.navidad .pay-header { border-color: var(--vidrio-borde); box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
-html.navidad .pay-card-header { border-bottom-color: rgba(255,255,255,.08); }
-html.navidad .pay-qr-wrap { box-shadow: 0 8px 24px rgba(0,0,0,.45), 0 0 30px rgba(245,196,81,.18); }
-html.navidad .pay-status-bar { box-shadow: 0 4px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08); }
-html.navidad .pay-notice {
-  background: linear-gradient(180deg, rgba(245,196,81,.12), rgba(245,196,81,.03));
-}
-html.navidad #customerDataBox {
-  background: linear-gradient(180deg, rgba(245,205,110,.12), rgba(245,205,110,.03)) !important;
-  border-color: rgba(245,205,110,.3) !important;
-}
-html.navidad .btn-back:hover { background: rgba(255,255,255,.1); }
-html.navidad .step-num {
-  color: #2b1b00;
-  background: linear-gradient(180deg, #ffd978, #e9a825);
-  border-color: rgba(255,232,165,.65);
-  box-shadow: 0 3px 10px rgba(214,150,20,.3), inset 0 1px 0 rgba(255,255,255,.45);
-}
-html.navidad .pay-metodo { color: var(--oro-claro); background: rgba(245,196,81,.12); border-color: rgba(245,196,81,.3); }
-html.navidad .pay-order-usdt { color: var(--oro); }
-html.navidad .otra-red { border-top-color: rgba(255,255,255,.14); }
-html.navidad .aviso-red { background: rgba(245,196,81,.1); border-color: rgba(245,196,81,.3); }
-/* La pantalla de pago (pagar-qr.html, "PANTALLA DE PAGO"): las piezas que
-   traen color propio. Lo demás ya sale de noche con los tonos de arriba. */
-html.navidad .pp-pill.pendiente { background: rgba(255,255,255,.08); color: #dde8f3; border-color: rgba(255,255,255,.18); }
-html.navidad .pp-pill.pagado    { background: rgba(52,211,153,.14);  color: #6ee7b7; border-color: rgba(52,211,153,.38); }
-html.navidad .pp-pill.cancelado { background: rgba(255,90,60,.14);   color: #ff9a7a; border-color: rgba(255,90,60,.38); }
-html.navidad #qrCard #statusBar .status-dot { box-shadow: 0 0 0 4px rgba(255,181,71,.2); }
-html.navidad .pp-btn { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
-html.navidad .pp-btn:hover { background: rgba(255,255,255,.1); }
-html.navidad .pp-ayuda { color: #ffd36b; }
-html.navidad .pp-espera { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo), inset 3px 0 0 var(--ambar); }
-/* La cuenta entregada: los accesos sobre su caja de noche, la llave en
-   verde pino y el botón principal en dorado, como los de la tienda */
-html.navidad .pp-sello.ok { color: #2fbf8a; filter: drop-shadow(0 6px 18px rgba(47,191,138,.4)); }
-html.navidad .pp-sello.no { color: #ff6a3d; }
-html.navidad .pp-accesos { background: rgba(255,255,255,.035); border-color: rgba(200,225,255,.16); }
-html.navidad .pp-llave { color: #8fe3b8; background: rgba(95,211,154,.16); border-color: rgba(95,211,154,.35); }
-html.navidad .pp-cuenta { background: rgba(3,9,18,.6); border: 1px solid rgba(255,255,255,.07); }
-html.navidad .pp-dato code { color: #ffe29a; }
-html.navidad .pp-faltan { background: rgba(255,181,71,.1); border-color: rgba(255,181,71,.32); }
-html.navidad .pp-btn-primario {
-  color: #2b1b00;
-  background: linear-gradient(180deg, #ffd978, #e9a825);
-  box-shadow: 0 8px 22px rgba(214,150,20,.32), inset 0 1px 0 rgba(255,255,255,.45);
-}
-html.navidad .pp-btn-wa {
-  color: #fff;
-  background: linear-gradient(180deg, #25D366, #128C7E);
-  box-shadow: 0 8px 22px rgba(18,140,126,.3), inset 0 1px 0 rgba(255,255,255,.35);
-}
-
-/* Mis compras (mis-compras.html): los filtros, el estado de cada pedido,
-   los botones y el seguimiento. El dorado de dorado en lugar del rojo;
-   las tarjetas ya salen de noche con el vidrio ahumado. */
-html.navidad .mc-filtro { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
-html.navidad .mc-filtro b { background: rgba(255,255,255,.1); color: var(--tinta-media); }
-html.navidad .mc-filtro[aria-pressed="true"],
-html.navidad .mc-btn.primario,
-html.navidad .mc-paso.hecho .mc-punto {
-  color: #2b1b00; border-color: transparent;
-  background: linear-gradient(180deg, #ffd978, #e9a825);
-  box-shadow: 0 6px 18px rgba(214,150,20,.3), inset 0 1px 0 rgba(255,255,255,.45);
-}
-html.navidad .mc-filtro[aria-pressed="true"] b { background: rgba(43,27,0,.15); color: #2b1b00; }
-html.navidad .mc-btn { box-shadow: var(--vidrio-sombra), var(--vidrio-brillo); }
-html.navidad .mc-btn.wa {
-  color: #fff;
-  background: linear-gradient(180deg, #25D366, #128C7E);
-  box-shadow: 0 6px 18px rgba(18,140,126,.3), inset 0 1px 0 rgba(255,255,255,.35);
-}
-html.navidad .mc-estado.esperando   { color: #ffc96e; background: rgba(255,181,71,.13); border-color: rgba(255,181,71,.36); }
-html.navidad .mc-estado.preparacion { color: #8fe3b8; background: rgba(95,211,154,.15); border-color: rgba(95,211,154,.38); }
-html.navidad .mc-estado.entregado   { color: #6ee7b7; background: rgba(52,211,153,.13); border-color: rgba(52,211,153,.36); }
-html.navidad .mc-estado.parcial     { color: #6ee7b7; background: rgba(255,181,71,.12); border-color: rgba(255,181,71,.36); }
-html.navidad .mc-estado.cancelado   { color: #ff9a7a; background: rgba(255,90,60,.13);  border-color: rgba(255,90,60,.36); }
-html.navidad .mc-dias.pronto  { color: #ffc96e; }
-html.navidad .mc-dias.vencida { color: #ff9a7a; }
-html.navidad .mc-paso::before { background: rgba(255,255,255,.14); }
-html.navidad .mc-paso.hecho::before,
-html.navidad .mc-paso.actual::before { background: linear-gradient(90deg, #ffd978, #e9a825); }
-html.navidad .mc-punto { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18); }
-html.navidad .mc-paso.actual .mc-punto { color: #ffd978; background: rgba(8,19,34,.9); border-color: #ffd978; box-shadow: 0 0 0 5px rgba(245,196,81,.16); }
-html.navidad .mc-tabla tfoot .desc td,
-html.navidad .mc-item-desc .mc-item-nom,
-html.navidad .mc-item-desc .mc-item-precio { color: #6ee7b7; }
-html.navidad .mc-pago-met span { background: rgba(255,255,255,.08); }
-html.navidad .mc-esqueleto::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,.07), transparent); }
-html.navidad .mc-volver:hover { color: #ffd978; }
-
-
-/* ============================================================
-   9. LA FICHA DEL PLAN (css/tienda.css, "FICHA DEL PLAN")
-   ============================================================
-   Casi todo sale de los tonos del vidrio. Acá solo los números de los
-   pasos y los botones dorados (letras oscuras, como los demás) y la
-   caja de ayuda, en dorado en vez de dorado. */
-html.navidad :is(.fi-pasos li::before, .fi-otro-ver) { color: #2b1b00; }
-html.navidad .fi-pasos li::before {
-  background: linear-gradient(180deg, #ffd978, #e9a825);
-  box-shadow: 0 3px 10px rgba(214,150,20,.3), inset 0 1px 0 rgba(255,255,255,.45);
-}
-html.navidad .fi-otro-ver { background: linear-gradient(180deg, #ffd978, #e9a825); }
-html.navidad .fi-otro--agotado .fi-otro-ver { color: var(--tinta-suave); background: var(--separador-2); }
-html.navidad .fi-ayuda {
-  background: linear-gradient(180deg, rgba(245,200,90,.14), rgba(245,196,81,.04));
-  border-color: rgba(245,200,90,.35);
-}
-html.navidad .fi-otro:hover { box-shadow: 0 14px 30px rgba(0,0,0,.45), 0 0 22px var(--fi-brillo, rgba(245,196,81,.2)); }
-
-/* "Elegí tu plan": el elegido, encendido en dorado */
-html.navidad .fi-plan.activo { box-shadow: 0 0 0 3px rgba(245,196,81,.18), var(--vidrio-brillo); }
-
-/* Los descuentos dicen "Navidad -7 %" mientras dura el tema, como el
-   título "Ofertas navideñas" de las ofertas */
+/* La rebaja de cada plan, en la ficha y en el carrito, dice "Navidad
+   -7 %" en una cinta verde pino */
 html.navidad .plan-desc {
   color: #fff;
-  background: linear-gradient(180deg, #3ccf82, #158a4e);
+  background: linear-gradient(180deg, #2fb072, #157a4a);
   border-radius: 999px;
   padding: .16rem .55rem;
   letter-spacing: .04em;
   text-transform: uppercase;
-  box-shadow: 0 3px 10px rgba(21,138,78,.3);
+  box-shadow: 0 3px 10px rgba(21,122,74,.25);
 }
 html.navidad .plan-desc::before { content: 'Navidad '; }
+
+/* La palabra de color del carrusel de arriba ("FREE FIRE") va sobre una
+   foto oscura: ahí el oro viejo no se leía, va oro claro */
+html.navidad .hero-title span { color: #f4c95d; }
+
+/* La etiqueta "New" del carrusel de arriba: verde pino */
+html.navidad .hero-tag--new {
+  background: linear-gradient(180deg, rgba(47,176,114,.92), rgba(21,122,74,.9));
+  box-shadow: 0 4px 12px rgba(21,122,74,.28), inset 0 1px 0 rgba(255,255,255,.35);
+}

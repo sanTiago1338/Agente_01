@@ -645,7 +645,8 @@
       qr:       '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/>',
       moneda:   '<circle cx="12" cy="12" r="9"/><path d="M8 8h8M12 8v9"/><path d="M8.5 11.5c0 1 1.6 1.7 3.5 1.7s3.5-.7 3.5-1.7"/>',
       check:    '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
-      info:     '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'
+      info:     '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+      texto:    '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>'
     };
     function icono(nombre) {
       return `<svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor"
@@ -1009,6 +1010,48 @@
           </div>`;
     }
 
+    // La foto de la ficha, con el mismo "¿Qué incluye?" que el cartel de
+    // la lista de planes: un botón de vidrio abajo a la izquierda; al
+    // tocarlo la foto se da vuelta y atrás está el texto en un vidrio,
+    // sobre la misma foto. El tamaño lo pone la caja de siempre: nada se
+    // corre. Sin texto, la foto queda como estaba.
+    function fotoQueGira(url, p, plataforma, texto) {
+      const fondo = `<span class="fi-foto-fondo" style="background-image:url('${url}')"></span>`;
+      const img = `<img src="${url}" alt="${escaparHtml(p.name)}"
+                   onerror="this.onerror=null;this.src=generateLogoSvg('${p.name.replace(/'/g, "\\'")}','${p.imgColor}');">`;
+      if (!texto) return `<div class="fi-foto">${fondo}${img}</div>`;
+      return `
+            <div class="fi-foto fi-gira" id="fiGira">
+              <div class="fi-cara">
+                ${fondo}${img}
+                <button type="button" class="pl-incluye fi-incluye-btn" onclick="girarFoto(true)"
+                        aria-expanded="false" aria-controls="fiDorso">¿Qué incluye? ${icono('info')}</button>
+              </div>
+              <div class="fi-cara fi-dorso" id="fiDorso" aria-hidden="true">
+                <span class="fi-dorso-foto" style="background-image:url('${url}')"></span>
+                <div class="pl-dorso-vidrio fi-dorso-vidrio">
+                  <div class="pl-dorso-cab">
+                    <h3>${escaparHtml(plataforma)}</h3>
+                    <button type="button" class="pl-incluye pl-volver" onclick="girarFoto(false)" tabindex="-1">
+                      ${icono('renovar')} Volver</button>
+                  </div>
+                  <div class="pl-dorso-texto">${textoAHtml(texto)}</div>
+                </div>
+              </div>
+            </div>`;
+    }
+
+    function girarFoto(si) {
+      const gira = document.getElementById('fiGira');
+      if (!gira) return;
+      gira.classList.toggle('vuelta', si);
+      gira.querySelector('.fi-incluye-btn').setAttribute('aria-expanded', String(si));
+      document.getElementById('fiDorso').setAttribute('aria-hidden', String(!si));
+      gira.querySelector('.pl-volver').tabIndex = si ? 0 : -1;
+      gira.querySelector('.fi-incluye-btn').tabIndex = si ? -1 : 0;
+      setTimeout(() => gira.querySelector(si ? '.pl-volver' : '.fi-incluye-btn').focus({ preventScroll: true }), 50);
+    }
+
     function girarCartel(si) {
       const gira = document.getElementById('plGira');
       if (!gira) return;
@@ -1346,13 +1389,22 @@
            </div>
            <p class="fi-tope" id="fiTope" hidden></p>`;
 
-      const incluyeHtml = String(p.detalle || '').trim() ? `
+      // "¿Qué incluye?" va en la foto, como el cartel que se da vuelta de
+      // la lista de planes: el del plan, o si no tiene, el de la
+      // plataforma (alcanza con escribirlo en un plan).
+      const incluye = String(p.detalle || '').trim() || (g ? textoIncluye(g.planes) : '');
+      const fotoHtml = fotoQueGira(url, p, plataforma, incluye);
+
+      // Abajo, donde estaba "Qué incluye", la Descripción del producto
+      // (el campo "Descripción" del panel). Sin descripción, no se muestra.
+      const descripcion = String(p.desc || '').trim();
+      const descripcionHtml = descripcion ? `
         <section class="fi-seccion">
           <div class="fi-titulo">
-            <span class="fi-titulo-ico">${icono('check')}</span>
-            <div><small>Qué incluye</small><b>${escaparHtml(p.name)}</b></div>
+            <span class="fi-titulo-ico">${icono('texto')}</span>
+            <div><small>Descripción</small><b>${escaparHtml(p.name)}</b></div>
           </div>
-          <div class="fi-caja fi-incluye">${textoAHtml(p.detalle)}</div>
+          <div class="fi-caja fi-incluye fi-descripcion">${textoAHtml(descripcion)}</div>
         </section>` : '';
 
       const esCuenta = !tiposDe(p).includes('seguidores') && !f.needsEmail;
@@ -1371,11 +1423,7 @@
           ${pasosHtml(1)}
 
           <div class="fi-main">
-            <div class="fi-foto">
-              <span class="fi-foto-fondo" style="background-image:url('${url}')"></span>
-              <img src="${url}" alt="${escaparHtml(p.name)}"
-                   onerror="this.onerror=null;this.src=generateLogoSvg('${p.name.replace(/'/g, "\\'")}','${p.imgColor}');">
-            </div>
+            ${fotoHtml}
 
             <div class="fi-info">
               <small class="fi-plataforma">${escaparHtml(plataforma)}</small>
@@ -1389,7 +1437,7 @@
             </div>
           </div>
 
-          ${incluyeHtml}
+          ${descripcionHtml}
 
           <section class="fi-seccion">
             <div class="fi-titulo">

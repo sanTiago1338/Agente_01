@@ -13,7 +13,9 @@
 // transform: lo resuelve la placa de video.
 //
 // Menos en el celular. Con "reducir movimiento" no aparece nada. Con la
-// pestaña oculta el navegador frena las animaciones solo.
+// pestaña oculta el navegador frena las animaciones solo; con una
+// ventana abierta se quedan quietas, y en un celular lento salen la
+// mitad (RENDIMIENTO, en js/temporada.js).
 //
 // Se carga en la tienda, Planes, Contacto y Recargas (no en el pago ni
 // en Mis compras, para no distraer).
@@ -30,6 +32,12 @@
     pointer-events: none; overflow: hidden; contain: strict;
   }
   @media print { .mp-capa { display: none; } }
+  /* Con una ventana abierta, quieto (ver RENDIMIENTO en js/temporada.js);
+     en un celular que no llega a dibujar fluido, la mitad de pétalos y
+     sin ondular */
+  html.fx-quieto .mp-capa, html.fx-quieto .mp-capa * { animation-play-state: paused !important; }
+  html.fx-liviano .mp-petalo:nth-of-type(2n) { display: none; }
+  html.fx-liviano .mp-petalo b { animation: none; }
 
   /* Pétalo: cae (.mp-petalo), se mece (b) y gira en 3D (i) */
   .mp-petalo {
@@ -314,7 +322,8 @@
 
   function explotarFlores(x, y) {
     prepararLienzo();
-    const n = innerWidth < 600 ? 16 : 22;
+    const liviano = document.documentElement.classList.contains('fx-liviano');
+    const n = Math.round((innerWidth < 600 ? 16 : 22) * (liviano ? .55 : 1));
     for (let i = 0; i < n && flores.length < 360; i++) {
       const ang = al(0, Math.PI * 2), vel = al(2, 6.5);
       const flor = i % 3 === 0;                         // una de cada tres es una flor entera
@@ -331,8 +340,10 @@
     if (!andando) { andando = true; requestAnimationFrame(cuadroFlores); }
   }
 
-  document.addEventListener('pointerdown', e => {
-    if (e.button !== undefined && e.button > 0) return;      // solo el clic principal
+  // Con "click" y no al apoyar el dedo: así deslizar la página en el
+  // celular no tira flores, solo un toque de verdad
+  document.addEventListener('click', e => {
+    if (!e.clientX && !e.clientY) return;                    // con el teclado, no
     if (e.target.closest && e.target.closest(COMPRAR)) return;
     if (Date.now() - ultimo < 90) return;                    // tocar seguido no satura
     ultimo = Date.now();

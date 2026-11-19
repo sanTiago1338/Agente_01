@@ -88,3 +88,58 @@
     return;
   }
 })();
+
+// ============================================================
+// RENDIMIENTO: que los adornos nunca traben el celular
+// ============================================================
+// Vale para todas las páginas y todo el año (la nieve, las mariposas,
+// los pétalos y los efectos miran estas dos clases en <html>):
+//
+//   · fx-quieto: mientras hay una ventana abierta (la ficha, el carrito,
+//     el registro, la de Recargas) el fondo se queda quieto. La ventana
+//     esmerila lo de atrás, y si atrás algo se mueve el celular tiene que
+//     volver a esmerilar toda la pantalla en cada cuadro: en un celular
+//     de gama media eso es lo que más traba.
+//   · fx-liviano: si el celular no llega a dibujar fluido (menos de ~40
+//     cuadros por segundo en los primeros segundos) o tiene poca memoria,
+//     se muestran la mitad de copos y pétalos, sin ondular, y las
+//     explosiones son más chicas. Nadie lo nota y todo sigue andando.
+(function () {
+  const raiz = document.documentElement;
+
+  try { if (navigator.deviceMemory && navigator.deviceMemory <= 2) raiz.classList.add('fx-liviano'); } catch (e) {}
+
+  // Mide unos segundos con la página a la vista, cuando ya cargó todo
+  function medir() {
+    if (raiz.classList.contains('fx-liviano') || document.hidden) return;
+    let cuadros = 0, inicio = 0;
+    const paso = t => {
+      if (document.hidden) return;                       // se fue de la pestaña: no cuenta
+      if (!inicio) inicio = t;
+      cuadros++;
+      if (t - inicio < 2500) { requestAnimationFrame(paso); return; }
+      if (cuadros * 1000 / (t - inicio) < 40) raiz.classList.add('fx-liviano');
+    };
+    requestAnimationFrame(paso);
+  }
+  window.addEventListener('load', () => setTimeout(medir, 1500), { once: true });
+
+  // Una ventana está abierta si alguna de estas se ve
+  const VENTANAS = '.modal-overlay, .tu-fondo';
+  let pendiente = 0;
+  function revisar() {
+    pendiente = 0;
+    const abierta = [...document.querySelectorAll(VENTANAS)].some(v => {
+      const s = getComputedStyle(v);
+      return s.display !== 'none' && s.visibility !== 'hidden' && parseFloat(s.opacity || '1') > 0.05;
+    });
+    raiz.classList.toggle('fx-quieto', abierta);
+  }
+  function vigilar() {
+    new MutationObserver(() => { if (!pendiente) pendiente = requestAnimationFrame(revisar); })
+      .observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
+    revisar();
+  }
+  if (document.body) vigilar();
+  else document.addEventListener('DOMContentLoaded', vigilar);
+})();

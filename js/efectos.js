@@ -187,7 +187,8 @@
     // Desde donde se tocó (o el centro, si fue con el teclado)
     const x = e.clientX || r.left + r.width / 2;
     const y = e.clientY || r.top + r.height / 2;
-    explotar(x, y, innerWidth < 600 ? 46 : 64);
+    const liviano = raiz.classList.contains('fx-liviano');
+    explotar(x, y, (innerWidth < 600 ? 46 : 64) * (liviano ? .55 : 1));
   }, { capture: true, passive: true });
 
 

@@ -372,3 +372,21 @@ html.navidad .hero-tag--new {
   background: linear-gradient(180deg, rgba(47,176,114,.92), rgba(21,122,74,.9));
   box-shadow: 0 4px 12px rgba(21,122,74,.28), inset 0 1px 0 rgba(255,255,255,.35);
 }
+
+
+/* ============================================================
+   5. RENDIMIENTO (las clases las pone js/temporada.js)
+   ============================================================
+   Con una ventana abierta (ficha, carrito) el cielo se queda quieto:
+   la ventana esmerila lo de atrás y así no hay que volver a esmerilar
+   en cada cuadro. En un celular que no llega a dibujar fluido, la mitad
+   de la nieve y sin las animaciones de fondo. */
+html.fx-quieto .nv-cielo,
+html.fx-quieto .nv-cielo *,
+html.fx-quieto .nv-barra * { animation-play-state: paused !important; }
+html.fx-liviano .nv-copo:nth-child(2n) { display: none; }
+html.fx-liviano .nv-aurora,
+html.fx-liviano .nv-estrellas,
+html.fx-liviano .nv-belen,
+html.fx-liviano .ofertas-title { animation: none; }
+html.fx-liviano .nv-foco { animation: none; opacity: .9; }

@@ -601,3 +601,39 @@ html:not(.tenido) .bottom-nav .nav-item svg {
 html:not(.tenido) .nav-marca,
 html:not(.tenido) .nav-logo,
 html:not(.tenido) .header-logo { text-shadow: none; }
+
+
+/* ============================================================
+   RENDIMIENTO EN CELULARES
+   ============================================================
+   Cada vidrio esmerilado (backdrop-filter) que se mueve —porque se
+   desliza con la página, va en un carrusel que pasa solo, o tiene algo
+   que se mueve detrás— el celular lo vuelve a esmerilar en cada cuadro.
+   En la tienda eran más de 80 a la vez (48 solo en los precios del
+   carrusel de ofertas) y en Recargas 46 en las etiquetas de los juegos:
+   eso es lo que se sentía lento en un celular de gama media.
+
+   En una pantalla táctil, las piezas chicas que van sobre fotos o sobre
+   el cielo liso (etiquetas, precios, botones, flechas, el buscador)
+   quedan con su mismo color pero sin esmerilar: a la vista casi no
+   cambia. Siguen esmerilados los que se notan: el menú de arriba, la
+   barra de abajo, las ventanas, el pie y los paneles grandes de Planes.
+   El precio del carrusel va sin esmerilar en todos lados: su fondo ya
+   es oscuro y no se notaba.
+   ============================================================ */
+.oferta-precio {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+@media (pointer: coarse) {
+  .hero-tag, .hero-cta, .hero-arrow, .hero-dots, .page-btn,
+  .banner-top, .promo-banner, .promo-wa, .search-input-wrap, .cat-tabs, .sub-pill,
+  .badge-check, .badge-nuevo, .badge-promo,
+  .etiqueta-vidrio-desc, .etiqueta-vidrio-agotado, .etiqueta-vidrio-oro,
+  .btn-wa, .btn-primary, .btn-modal, .btn-tienda, .wa-bubble,
+  .plan-comprar, .ck-pagar, .btn-comprar, .pkg-tab,
+  .pl-incluye, .cr-pasos span, .cr-cant, .cr-editar, .cr-total, .app-aviso-si {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}

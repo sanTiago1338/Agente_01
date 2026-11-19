@@ -4,7 +4,8 @@
 // Arma los adornos de Navidad de NAVIDAD/navidad.css:
 //
 //   · el cielo de atrás (.nv-cielo): estrellas, la aurora, la estrella
-//     de Belén, el pueblo nevado y la nieve que cae
+//     de Belén y el pueblo nevado
+//   · la nieve que cae (.nv-nieve), por delante del contenido
 //   · en cada barra de arriba (el menú de la tienda, de Planes, de
 //     Contacto, de Recargas, del pago y de Mis compras): nieve apoyada
 //     sobre el canto y una guirnalda de luces que cuelga por debajo
@@ -39,7 +40,7 @@
     if (document.querySelector('.nv-cielo')) return;
     const ancho = window.innerWidth;
     // Menos copos en el celular: se ve igual de nevado y cuesta menos
-    const cuantos = ancho < 700 ? 22 : ancho < 1100 ? 34 : 46;
+    const cuantos = ancho < 700 ? 14 : ancho < 1100 ? 28 : 46;
     const r = azar(1225);
     let nieve = '';
     for (let i = 0; i < cuantos; i++) {
@@ -59,9 +60,19 @@
       '<div class="nv-estrellas"></div>' +
       '<div class="nv-aurora"></div>' +
       '<div class="nv-belen"></div>' +
-      '<div class="nv-pueblo"></div>' +
-      nieve;
+      '<div class="nv-pueblo"></div>';
     document.body.appendChild(cielo);
+
+    // La nieve cae POR DELANTE del contenido, en su propia capa (sin
+    // clics, por detrás de las ventanas). Detrás del vidrio cada copo
+    // obligaba al celular a volver a esmerilar todas las tarjetas, el
+    // menú y los botones en cada cuadro: era lo que más lo trababa.
+    const capa = document.createElement('div');
+    capa.className = 'nv-nieve';
+    capa.setAttribute('aria-hidden', 'true');
+    capa.style.cssText = 'position:fixed;inset:0;z-index:150;pointer-events:none;overflow:hidden';
+    capa.innerHTML = nieve;
+    document.body.appendChild(capa);
   }
 
   // ---------- La nieve sobre el canto de una barra ----------

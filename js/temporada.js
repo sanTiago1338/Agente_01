@@ -100,8 +100,8 @@
 //     esmerila lo de atrás, y si atrás algo se mueve el celular tiene que
 //     volver a esmerilar toda la pantalla en cada cuadro: en un celular
 //     de gama media eso es lo que más traba.
-//   · fx-liviano: si el celular no llega a dibujar fluido (menos de ~40
-//     cuadros por segundo en los primeros segundos) o tiene poca memoria,
+//   · fx-liviano: si el celular no llega a dibujar fluido (menos de ~50
+//     cuadros por segundo al cargar o al deslizar) o tiene poca memoria,
 //     se muestran la mitad de copos y pétalos, sin ondular, y las
 //     explosiones son más chicas. Nadie lo nota y todo sigue andando.
 (function () {
@@ -109,20 +109,23 @@
 
   try { if (navigator.deviceMemory && navigator.deviceMemory <= 2) raiz.classList.add('fx-liviano'); } catch (e) {}
 
-  // Mide unos segundos con la página a la vista, cuando ya cargó todo
-  function medir() {
+  // Mide unos segundos con la página a la vista: cuando ya cargó todo, y
+  // otra vez la primera vez que se desliza (que es cuando más se nota).
+  // Por debajo de ~50 cuadros por segundo, modo liviano.
+  function medir(dura) {
     if (raiz.classList.contains('fx-liviano') || document.hidden) return;
     let cuadros = 0, inicio = 0;
     const paso = t => {
       if (document.hidden) return;                       // se fue de la pestaña: no cuenta
       if (!inicio) inicio = t;
       cuadros++;
-      if (t - inicio < 2500) { requestAnimationFrame(paso); return; }
-      if (cuadros * 1000 / (t - inicio) < 40) raiz.classList.add('fx-liviano');
+      if (t - inicio < dura) { requestAnimationFrame(paso); return; }
+      if (cuadros * 1000 / (t - inicio) < 50) raiz.classList.add('fx-liviano');
     };
     requestAnimationFrame(paso);
   }
-  window.addEventListener('load', () => setTimeout(medir, 1500), { once: true });
+  window.addEventListener('load', () => setTimeout(() => medir(2500), 1200), { once: true });
+  window.addEventListener('scroll', () => setTimeout(() => medir(1500), 50), { once: true, passive: true });
 
   // Una ventana está abierta si alguna de estas se ve
   const VENTANAS = '.modal-overlay, .tu-fondo';

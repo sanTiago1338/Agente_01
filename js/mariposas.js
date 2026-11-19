@@ -7,10 +7,12 @@
 // Todo el año.
 //
 // SIN MOVER NADA Y SIN TAPAR CLICS: una sola capa fija (position:
-// fixed, pointer-events: none) entre el contenido y el menú. Pasan por
-// delante de las tarjetas pero por detrás del menú de arriba, de la
-// barra de abajo y de las ventanas (carrito, ficha). Todo se mueve con
-// transform: lo resuelve la placa de video.
+// fixed, pointer-events: none) por delante del contenido y de las
+// barras, y por detrás de las ventanas (carrito, ficha). Por delante a
+// propósito: si algo se mueve detrás de un vidrio esmerilado (el menú,
+// la barra de abajo, los botones), el celular tiene que volver a
+// esmerilarlo en cada cuadro, y eso traba los de gama media. Todo se
+// mueve con transform: lo resuelve la placa de video.
 //
 // Menos en el celular. Con "reducir movimiento" no aparece nada. Con la
 // pestaña oculta el navegador frena las animaciones solo; con una
@@ -28,7 +30,7 @@
   // ---------- Los estilos (van acá: un solo archivo para todo) ----------
   const CSS = `
   .mp-capa {
-    position: fixed; inset: 0; z-index: 2;
+    position: fixed; inset: 0; z-index: 150;
     pointer-events: none; overflow: hidden; contain: strict;
   }
   @media print { .mp-capa { display: none; } }
@@ -157,7 +159,7 @@
     const celular = ancho < 700;
     const navidad = document.documentElement.classList.contains('navidad');
     // Una lluvia de pétalos (en Navidad, unos pocos menos: ya cae nieve)
-    const cuantosPetalos = (celular ? 18 : 34) - (navidad ? (celular ? 4 : 8) : 0);
+    const cuantosPetalos = (celular ? 12 : 30) - (navidad ? (celular ? 3 : 8) : 0);
     const cuantasMariposas = celular ? 2 : 4;
     const r = azar(31);
 
@@ -182,7 +184,7 @@
     capa.className = 'mp-capa';
     capa.setAttribute('aria-hidden', 'true');
     // Suelta y sin clics desde el primer momento
-    capa.style.cssText = 'position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden';
+    capa.style.cssText = 'position:fixed;inset:0;z-index:150;pointer-events:none;overflow:hidden';
     capa.innerHTML = html;
     document.body.appendChild(capa);
     mariposas = [...capa.querySelectorAll('.mp-huye')];

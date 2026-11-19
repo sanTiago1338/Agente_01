@@ -71,6 +71,19 @@ html.navidad .bg-burbujas { display: none; }
   overflow: hidden;
   contain: strict;
 }
+/* La nieve va en su propia capa POR DELANTE del contenido y de las
+   barras (por detrás de las ventanas, que van en 200): si cayera detrás
+   del vidrio, el celular tendría que volver a esmerilar las tarjetas,
+   el menú y los botones en cada cuadro. Sin clics. */
+.nv-nieve {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+@media print { .nv-nieve { display: none; } }
 
 /* Brillitos dorados en el aire, que titilan apenas */
 .nv-estrellas {
@@ -383,6 +396,7 @@ html.navidad .hero-tag--new {
    de la nieve y sin las animaciones de fondo. */
 html.fx-quieto .nv-cielo,
 html.fx-quieto .nv-cielo *,
+html.fx-quieto .nv-nieve *,
 html.fx-quieto .nv-barra * { animation-play-state: paused !important; }
 html.fx-liviano .nv-copo:nth-child(2n) { display: none; }
 html.fx-liviano .nv-aurora,
@@ -390,3 +404,21 @@ html.fx-liviano .nv-estrellas,
 html.fx-liviano .nv-belen,
 html.fx-liviano .ofertas-title { animation: none; }
 html.fx-liviano .nv-foco { animation: none; opacity: .9; }
+
+/* EN EL CELULAR (pantalla táctil o angosta): lo que queda detrás del
+   vidrio no se mueve, así el esmerilado se calcula una sola vez. El
+   cielo, la aurora, las estrellas y la estrella de Belén quedan quietos;
+   las luces no titilan (siguen prendidas, con su brillo); el oro del
+   título no se desliza y el destello del logo queda fijo. La nieve, los
+   pétalos y las mariposas siguen cayendo: van por delante del vidrio. */
+@media (pointer: coarse), (max-width: 900px) {
+  .nv-aurora, .nv-estrellas, .nv-belen { animation: none; will-change: auto; }
+  .nv-foco { animation: none; }
+  html.navidad .ofertas-title { animation: none; background-position: 60% 0; }
+  html.navidad :is(.nav-marca, .nav-logo, .header-logo, .pie-logo, .pay-header a, header a.logo)::after {
+    animation: none;
+    transform: scale(.85) rotate(20deg);
+  }
+  /* Los copos grandes, sin la sombra que se recalcula al girar */
+  .nv-copo.grande i { filter: sepia(1) saturate(3) hue-rotate(-12deg) brightness(.86); }
+}

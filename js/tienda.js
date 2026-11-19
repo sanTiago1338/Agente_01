@@ -1011,9 +1011,9 @@
     }
 
     // La foto de la ficha, con el mismo "¿Qué incluye?" que el cartel de
-    // la lista de planes: un botón de vidrio abajo a la izquierda; al
-    // tocarlo la foto se da vuelta y atrás está el texto en un vidrio,
-    // sobre la misma foto. El tamaño lo pone la caja de siempre: nada se
+    // la lista de planes: un botón de vidrio arriba a la derecha, en la
+    // esquina; al tocarlo la foto se da vuelta y atrás está el texto en un
+    // vidrio, sobre la misma foto, con "Volver" en la misma esquina. El tamaño lo pone la caja de siempre: nada se
     // corre. Sin texto, la foto queda como estaba.
     function fotoQueGira(url, p, plataforma, texto) {
       const fondo = `<span class="fi-foto-fondo" style="background-image:url('${url}')"></span>`;
@@ -1029,12 +1029,10 @@
               </div>
               <div class="fi-cara fi-dorso" id="fiDorso" aria-hidden="true">
                 <span class="fi-dorso-foto" style="background-image:url('${url}')"></span>
+                <button type="button" class="pl-incluye pl-volver fi-volver-btn" onclick="girarFoto(false)" tabindex="-1">
+                  ${icono('renovar')} Volver</button>
                 <div class="pl-dorso-vidrio fi-dorso-vidrio">
-                  <div class="pl-dorso-cab">
-                    <h3>${escaparHtml(plataforma)}</h3>
-                    <button type="button" class="pl-incluye pl-volver" onclick="girarFoto(false)" tabindex="-1">
-                      ${icono('renovar')} Volver</button>
-                  </div>
+                  <div class="pl-dorso-cab"><h3>${escaparHtml(plataforma)}</h3></div>
                   <div class="pl-dorso-texto">${textoAHtml(texto)}</div>
                 </div>
               </div>
